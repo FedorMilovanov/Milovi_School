@@ -1,0 +1,517 @@
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { type Article, type ArticleMeta } from '../data/articles'
+import { categories } from '../data/categories'
+import { fallbackImageFor } from '../assets/images'
+import ArticleActions from './ArticleActions'
+import ReadingTime from './ReadingTime'
+import { safeGetItem, safeSetItem } from '../utils/storage'
+import { calculateReadingStreak } from '../utils/streak'
+import { pluralRu, HEADING } from '../utils/plural'
+
+interface ArticleViewProps {
+  article: Article
+  /** All article metadata — used for related articles. Passed as prop to avoid bundling library.ts. */
+  allArticles: ArticleMeta[]
+  onBack: () => void
+  onNavigate?: (article: ArticleMeta) => void
+}
+
+function normalizeStars(text: string): string {
+  // Только убираем 3+ звёздочки и пустые **** — не трогаем пробелы вокруг **
+  return text
+    .replace(/\*{3,}/g, '**')
+    .replace(/\*\*\*\*/g, '')
+}
+
+// Разбивает блок текста на параграфы. Если есть **bold heading** в начале строки,
+// он становится отдельным параграфом, чтобы корректно отрендериться как заголовок.
+function splitInlineBlocks(text: string): string[] {
+  const lines = text.split('\n')
+  const result: string[] = []
+  let current: string[] = []
+  for (const line of lines) {
+    const trimmed = line.trim()
+    // Если строка целиком — это **bold заголовок**, выносим её отдельно
+    if (/^\*\*[^*]+\*\*$/.test(trimmed)) {
+      if (current.length) { result.push(current.join('\n')); current = [] }
+      result.push(trimmed)
+    } else {
+      current.push(line)
+    }
+  }
+  if (current.length) result.push(current.join('\n'))
+  return result
+}
+
+function InlineText({ text }: { text: string }) {
+  const normalized = normalizeStars(text)
+  const parts = normalized.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean)
+  const terms: Record<string, string> = {
+    ganache: 'ганаш: эмульсия шоколада со сливками',
+    'crème diplomate': 'дипломатический крем: заварной крем со взбитыми сливками',
+    'crème pâtissière': 'заварной кондитерский крем',
+    'ganache montée': 'взбитый ганаш',
+    macaronage: 'макаронаж: вымешивание массы для макарон',
+    panade: 'заваренная масса до добавления яиц',
+    'pâte à choux': 'заварное тесто для эклеров и шу',
+    'fleur de sel': 'цветочная морская соль',
+    maturation: 'созревание: выдержка для стабилизации',
+    ruban: 'лента: стадия массы, когда она стекает лентой',
+    'mise en place': 'подготовка ингредиентов и рабочего места',
+  }
+
+  const renderTermText = (value: string, keyPrefix: string) => {
+    const pattern = /(crème diplomate|crème pâtissière|ganache montée|pâte à choux|fleur de sel|mise en place|macaronage|maturation|ganache|panade|ruban)/gi
+    return value.split(pattern).filter(Boolean).map((piece, index) => {
+      const translation = terms[piece.toLowerCase()]
+      if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
+      return (
+        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-help items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200">
+          {piece}
+          <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
+            {translation}
+          </span>
+        </span>
+      )
+    })
+  }
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**') && part.length > 4)
+          return <strong key={i} className="font-semibold text-stone-950 dark:text-stone-100">{part.slice(2, -2)}</strong>
+        if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**') && part.length > 2)
+          return <em key={i} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>
+        if (part === '**' || part === '*') return null
+        return <span key={i}>{renderTermText(part, `term-${i}`)}</span>
+      })}
+    </>
+  )
+}
+
+function Divider() {
+  return <div className="my-14" aria-hidden><div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" /></div>
+}
+
+function isSectionTitle(text: string) {
+  const compact = text.replace(/[\s\d:.,;()'«»—–-]/g, '')
+  if (!compact) return false
+  return compact === compact.toUpperCase() && /[A-ZА-ЯЁ]/.test(compact) && text.length < 96 && !text.includes('*')
+}
+
+function slugify(text: string) {
+  return text.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, '-').replace(/^-|-$/g, '')
+}
+
+function headingId(text: string, index: number) {
+  return `h-${slugify(text).slice(0, 40)}-${index}`
+}
+
+function useScrollProgress() {
+  const [p, setP] = useState(0)
+  useEffect(() => {
+    const h = () => {
+      const el = document.documentElement
+      const total = el.scrollHeight - el.clientHeight
+      setP(total > 0 ? Math.min(1, Math.max(0, el.scrollTop / total)) : 0)
+    }
+    window.addEventListener('scroll', h, { passive: true })
+    h()
+    return () => window.removeEventListener('scroll', h)
+  }, [])
+  return p
+}
+
+export default function ArticleView({ article, allArticles, onBack, onNavigate }: ArticleViewProps) {
+  const category = categories.find((c) => c.id === article.category)
+  const progress = useScrollProgress()
+  const [largeText, setLargeText] = useState(() => typeof window !== 'undefined' && safeGetItem('pref-large-text') === 'true')
+  const [focusMode, setFocusMode] = useState(() => typeof window !== 'undefined' && safeGetItem('pref-focus-mode') === 'true')
+  const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [tocOpen, setTocOpen] = useState(false)
+  const [resumePosition, setResumePosition] = useState(0)
+
+  useEffect(() => {
+    const savedPos = Number(safeGetItem(`article-progress:${article.id}`) ?? 0)
+    setResumePosition(savedPos > 360 ? savedPos : 0)
+    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }))
+    setSaved(safeGetItem(`article-saved:${article.id}`) === 'true')
+  }, [article.id])
+
+  useEffect(() => {
+    let streakMarked = false
+    const save = () => {
+      if (window.scrollY > 120) {
+        safeSetItem(`article-progress:${article.id}`, String(window.scrollY))
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight
+        const pct = scrollable > 0 ? Math.round((window.scrollY / scrollable) * 100) : 0
+        safeSetItem(`article-progress-pct:${article.id}`, String(Math.min(pct, 96)))
+        // Засчитать день чтения при достижении 20%+
+        if (!streakMarked && pct >= 20) {
+          calculateReadingStreak(true)
+          streakMarked = true
+        }
+      }
+    }
+    const interval = window.setInterval(save, 2000)
+    window.addEventListener('beforeunload', save)
+    return () => { save(); clearInterval(interval); window.removeEventListener('beforeunload', save) }
+  }, [article.id])
+
+  const handleKey = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      // Don't close article if a modal (KeyboardHelp, etc.) is currently open
+      if (document.querySelector('[data-modal-open="true"]')) return
+      onBack()
+    }
+  }, [onBack])
+  useEffect(() => { window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey) }, [handleKey])
+
+  const toggleLargeText = () => setLargeText(v => { const next = !v; safeSetItem('pref-large-text', String(next)); return next })
+  const toggleFocusMode = () => setFocusMode(v => { const next = !v; safeSetItem('pref-focus-mode', String(next)); return next })
+
+  const headings = article.content
+    .split('\n\n')
+    .flatMap(splitInlineBlocks)          // must mirror renderContent's flatMap so idx values align
+    .map((b, idx) => ({ raw: b.trim(), idx }))
+    .filter(({ raw }) => {
+      if (/^\*\*([^*]+)\*\*$/.test(raw)) return true
+      if (isSectionTitle(raw)) return true
+      // ======== separator blocks — mirror the render logic in renderContent
+      if (raw.includes('========')) {
+        const title = raw
+          .replace(/={8,}/g, '\n')
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .join(' ')
+        return title.length > 0 && title.length < 200
+      }
+      return false
+    })
+    .map(({ raw, idx }) => {
+      let title: string
+      if (raw.includes('========')) {
+        title = raw
+          .replace(/={8,}/g, '\n')
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean)
+          .join(' ')
+      } else {
+        title = raw.replace(/^\*\*|\*\*$/g, '')
+      }
+      return { title, id: headingId(title, idx) }
+    })
+
+  const related = allArticles.filter(a => a.id !== article.id && a.category === article.category).slice(0, 3)
+  const textSize = largeText ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'
+
+  const renderContent = (content: string) =>
+    // Сначала по двойному переносу, затем разделяем bold-заголовки которые слиплись с текстом
+    content.split('\n\n').flatMap(splitInlineBlocks).map((block, idx) => {
+      const p = block.trim()
+      if (!p) return null
+
+      if (/^={10,}$/.test(p)) return <Divider key={idx} />
+
+      const separatorTitle = p.replace(/={8,}/g, '\n').split('\n').map(line => line.trim()).filter(Boolean).join(' ')
+      if (p.includes('========') && separatorTitle && separatorTitle.length < 200) {
+        return (
+          <section key={idx} id={headingId(separatorTitle, idx)} className="scroll-mt-28 mt-16 mb-8">
+            <div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
+            <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.36em] text-amber-800/70 dark:text-amber-500/70">Раздел</p>
+            <h2 className="mt-2 font-serif text-2xl font-semibold leading-snug tracking-[-0.04em] text-stone-950 dark:text-stone-100 md:text-3xl">{separatorTitle}</h2>
+            <div className="mt-6 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
+          </section>
+        )
+      }
+
+      const boldMatch = p.match(/^\*\*([^*]+)\*\*$/)
+      if (boldMatch) {
+        return <h2 key={idx} id={headingId(boldMatch[1], idx)} className="scroll-mt-28 mt-16 mb-4 font-serif text-2xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 md:text-3xl">{boldMatch[1]}</h2>
+      }
+
+      if (isSectionTitle(p)) {
+        return (
+          <div key={idx} id={headingId(p, idx)} className="scroll-mt-28 mt-14 mb-6">
+            <div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
+            <h2 className="mt-5 font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-900/80 dark:text-amber-400/80 md:text-xs">{p}</h2>
+          </div>
+        )
+      }
+
+      if (/смысловое переложение|адаптац|не дословн/i.test(p)) {
+        return (
+          <aside key={idx} className="my-10 rounded-lg border border-stone-200 bg-white/50 px-6 py-5 text-sm leading-7 text-stone-500 italic dark:border-stone-800 dark:bg-stone-900/50 dark:text-stone-400">
+            <InlineText text={p} />
+          </aside>
+        )
+      }
+
+      const lines = p.split('\n')
+      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d+\.)\s+/.test(line))
+      if (isList) {
+        return (
+          <ul key={idx} className={`my-6 space-y-3 pl-0 ${textSize} leading-8 text-stone-700 dark:text-stone-300 md:leading-9`}>
+            {lines.map((line, li) => (
+              <li key={li} className="flex gap-3">
+                <span className="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-700/60" />
+                <InlineText text={line.replace(/^\s*(-|•|\d+\.)\s+/, '')} />
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      const isQuote = p.length < 480 && /^[«"❝]/.test(p) && /[»"❞]$/.test(p)
+      if (isQuote) {
+        return <blockquote key={idx} className={`my-10 border-l-2 border-amber-700/60 pl-6 italic leading-9 text-stone-600 dark:text-stone-400 ${textSize}`}><InlineText text={p} /></blockquote>
+      }
+
+      return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize}`}><InlineText text={p} /></p>
+    })
+
+  const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
+
+  return (
+    <main className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
+      {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
+      <div className="fixed inset-x-0 top-[84px] z-40 h-[2px]">
+        <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
+      </div>
+
+      <div className="px-4 pt-8 sm:px-6">
+        <article className="mx-auto max-w-7xl">
+          {/* Back */}
+          <button type="button" onClick={onBack} className="back-btn mb-8 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-stone-600 transition-colors hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            Назад к библиотеке
+          </button>
+
+          {/* Header */}
+          <header className={`grid gap-8 border-y border-[var(--border-subtle)] py-10 dark:border-stone-800 ${focusMode ? 'lg:grid-cols-1 lg:mx-auto lg:max-w-3xl' : 'lg:grid-cols-[0.88fr_1.12fr] lg:items-end'}`}>
+            <div>
+              <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-amber-800 dark:text-amber-500">
+                {category?.name ?? article.category}
+                <span className="mx-2 text-stone-400">·</span>
+                <ReadingTime minutes={article.readTime} />
+                {progress > 0.05 && <span className="text-stone-400"> · ещё ~{readingTimeLeft} мин</span>}
+              </p>
+              <h1 className="font-serif text-4xl font-semibold leading-tight tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-5xl md:text-6xl">{article.title}</h1>
+            </div>
+            <div>
+              <p className="text-xl leading-8 text-stone-600 dark:text-stone-400 md:text-2xl md:leading-9">{article.excerpt}</p>
+              <div className="mt-5 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500">
+                {(article.tags ?? []).slice(0, 6).map(tag => <span key={tag} className="border border-stone-200 dark:border-stone-700 px-2 py-0.5">#{tag}</span>)}
+              </div>
+              <div className="mt-6">
+                <ArticleActions article={article} />
+              </div>
+              {resumePosition > 0 && (
+                <button type="button" onClick={() => window.scrollTo({ top: resumePosition, behavior: 'smooth' })} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
+                  Продолжить с прошлого места
+                </button>
+              )}
+            </div>
+          </header>
+
+          {/* Hero image */}
+          <div className={`my-8 overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto aspect-[16/8] max-w-3xl' : 'aspect-[16/7] md:aspect-[16/6]'}`}>
+            <img src={article.image} alt={article.title} className="h-full w-full object-cover object-center" loading="eager" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} />
+          </div>
+
+          {/* Mobile TOC — luxury animated accordion */}
+          {headings.length > 2 && (
+            <div className="mb-8 border border-stone-200 bg-white/60 dark:border-stone-800 dark:bg-stone-900/60 lg:hidden">
+              <button
+                onClick={() => setTocOpen(v => !v)}
+                className="flex w-full select-none items-center justify-between px-5 py-4 font-mono text-[11px] uppercase tracking-[0.24em] text-stone-950 dark:text-stone-100"
+              >
+                <span>Содержание</span>
+                <span className="flex items-center gap-3 text-stone-500">
+                  <span>{headings.length}&thinsp;{pluralRu(headings.length, HEADING)}</span>
+                  <motion.span
+                    animate={{ rotate: tocOpen ? 180 : 0 }}
+                    transition={{ duration: 0.22 }}
+                    className="inline-block"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </motion.span>
+                </span>
+              </button>
+              <AnimatePresence initial={false}>
+                {tocOpen && (
+                  <motion.ol
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden border-t border-stone-100 dark:border-stone-800"
+                  >
+                    {headings.map((h, i) => (
+                      <li key={h.id}>
+                        <a
+                          href={`#${h.id}`}
+                          onClick={() => setTocOpen(false)}
+                          className="flex gap-3 border-b border-stone-50 px-5 py-3 text-sm leading-6 text-stone-600 transition-colors last:border-b-0 hover:bg-amber-50/60 hover:text-amber-800 dark:border-stone-900 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
+                        >
+                          <span className="mt-px flex-shrink-0 font-mono text-[9px] tracking-wider text-stone-400">{String(i + 1).padStart(2, '0')}</span>
+                          <span>{h.title}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </motion.ol>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* 3-column body */}
+          <div className={`grid gap-10 ${focusMode ? 'lg:grid-cols-[minmax(0,54rem)] lg:justify-center' : 'lg:grid-cols-[15rem_minmax(0,52rem)_1fr]'}`}>
+            {/* Desktop sidebar */}
+            <aside className={`${focusMode ? 'hidden' : 'hidden lg:block'}`}>
+              <div className="sticky top-28 space-y-8">
+                {/* Reading controls */}
+                <div className="border border-stone-200 bg-white/70 p-5 dark:border-stone-800 dark:bg-stone-900/70">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Чтение</p>
+                  <div className="mt-3 flex gap-2">
+                    <button type="button" onClick={() => largeText && toggleLargeText()} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
+                    <button type="button" onClick={() => !largeText && toggleLargeText()} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
+                  </div>
+                  <button type="button" onClick={() => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; navigator.clipboard?.writeText(url); setCopied(true); window.setTimeout(() => setCopied(false), 1400) }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
+                  <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
+                  <button type="button" onClick={toggleFocusMode} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{focusMode ? 'выключить фокус' : 'режим фокуса'}</button>
+                </div>
+
+                {/* Source card */}
+                <div className="border border-stone-200 bg-white/70 p-5 dark:border-stone-800 dark:bg-stone-900/70">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Источник</p>
+                  <p className="mt-2 text-sm leading-6 text-stone-700 dark:text-stone-300">{article.author}</p>
+                  {article.sourceUrl && (
+                    <a href={article.sourceUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300">
+                      {article.sourceLabel ?? 'Открыть'} ↗
+                    </a>
+                  )}
+                  <p className="mt-3 text-xs leading-5 text-stone-400">Смысловое переложение и учебный конспект.</p>
+                </div>
+
+                {/* Desktop TOC */}
+                {headings.length > 2 && (
+                  <div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Содержание</p>
+                    <ol className="mt-3 space-y-1.5">
+                      {headings.map((h, i) => <li key={h.id}><a href={`#${h.id}`} className="flex gap-2 text-sm leading-6 text-stone-600 transition hover:text-amber-800 line-clamp-2 dark:text-stone-400 dark:hover:text-amber-400"><span className="flex-shrink-0 text-stone-400">{i + 1}.</span>{h.title}</a></li>)}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            {/* Article body */}
+            <div className="space-y-7 min-w-0 article-body">{renderContent(article.content)}</div>
+
+            {/* Spacer for right column */}
+            <div className={focusMode ? 'hidden' : 'hidden lg:block'} />
+          </div>
+
+          {/* Related articles */}
+          {!focusMode && related.length > 0 && (
+            <section className="mt-20 border-t border-stone-200 dark:border-stone-800 pt-12">
+              <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.32em] text-stone-500">Читайте также — {category?.name}</p>
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map(r => (
+                  <button key={r.id} type="button" onClick={() => { window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group text-left">
+                    <div className="mb-4 aspect-[16/9] overflow-hidden bg-stone-200 dark:bg-stone-800">
+                      <img src={r.image} alt={r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
+                    </div>
+                    <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>
+                    <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>
+                    <span className="mt-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-amber-800 dark:text-amber-400">Читать →</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+        </article>
+      </div>
+
+      {/* Scroll-to-top — sits above the mobile article bar */}
+      {progress > 0.18 && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-[5.5rem] right-4 z-50 grid h-10 w-10 place-items-center border border-stone-950 bg-stone-950 text-amber-100 shadow-lg transition hover:bg-amber-100 hover:text-stone-950 dark:border-amber-200 dark:bg-amber-200 dark:text-stone-950 dark:hover:bg-stone-950 dark:hover:text-amber-200 lg:bottom-8 lg:right-8 lg:h-12 lg:w-12"
+          aria-label="Наверх"
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+        </button>
+      )}
+
+      {/* Luxury mobile reading bar — article-specific controls */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {/* Progress micro-bar */}
+        <div className="h-[3px] w-full bg-stone-200 dark:bg-stone-800">
+          <div
+            className="h-[3px] bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-150"
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+
+        {/* Top decorative line */}
+        <div className="h-px bg-gradient-to-r from-transparent via-amber-700/25 to-transparent dark:via-amber-500/15" />
+
+        <div className="grid grid-cols-4 bg-[var(--bg-overlay-95)] backdrop-blur-xl dark:bg-stone-950/95">
+          {/* Back */}
+          <button
+            onClick={onBack}
+            className="group flex flex-col items-center justify-center gap-1 py-3 text-stone-500 transition-colors hover:text-stone-950 dark:text-stone-500 dark:hover:text-stone-100"
+          >
+            <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">Назад</span>
+          </button>
+
+          {/* Save / bookmark */}
+          <button
+            onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }}
+            className={`group flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${saved ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-amber-800 dark:text-stone-500 dark:hover:text-amber-400'}`}
+          >
+            <svg className="h-[18px] w-[18px]" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
+            </svg>
+            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{saved ? 'Сохранено' : 'Сохранить'}</span>
+          </button>
+
+          {/* Font size toggle */}
+          <button
+            onClick={toggleLargeText}
+            className="flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 text-stone-500 transition-colors hover:text-stone-950 dark:border-stone-800 dark:text-stone-500 dark:hover:text-stone-100"
+          >
+            <span className={`font-serif leading-none transition-all ${largeText ? 'text-[20px] text-amber-800 dark:text-amber-400' : 'text-[15px]'}`}>A</span>
+            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{largeText ? 'Меньше' : 'Больше'}</span>
+          </button>
+
+          {/* Focus mode */}
+          <button
+            onClick={toggleFocusMode}
+            className={`flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${focusMode ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-stone-950 dark:text-stone-500 dark:hover:text-stone-100'}`}
+          >
+            <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+            </svg>
+            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{focusMode ? 'Выйти' : 'Фокус'}</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  )
+}

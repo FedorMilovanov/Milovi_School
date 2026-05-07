@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/">
+
+  <channel>
+    <title>Patisserie Russe — Milovi School</title>
+    <link>https://french.milovicake.ru/</link>
+    <description>Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, рецепты, разборы.</description>
+    <language>ru</language>
+    <managingEditor>noreply@milovicake.ru (Milovi School)</managingEditor>
+    <webMaster>noreply@milovicake.ru (Milovi School)</webMaster>
+    <lastBuildDate>Tue, 05 May 2026 10:00:00 +0000</lastBuildDate>
+    <ttl>1440</ttl>
+    <image>
+      <url>https://french.milovicake.ru/images/og-preview.webp</url>
+      <title>Patisserie Russe — Milovi School</title>
+      <link>https://french.milovicake.ru/</link>
+    </image>
+    <atom:link href="https://french.milovicake.ru/feed.xml" rel="self" type="application/rss+xml"/>
+
+  <item>
+    <title>Тарт Татен: перевёрнутый пирог сестёр Татен — карамель, яблоки, идеальная pâte brisée</title>
+    <link>https://french.milovicake.ru/articles/recipe-tarte-tatin/</link>
+    <description>Полная технологическая карта классической тарт Татен: сухой карамель, двухэтапная выпечка, демуляж без потерь. История из Ламотт-Бёврон, которая стала символом французского десерта.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/recipe-tarte-tatin/</guid>
+  </item>
+  <item>
+    <title>Крем-брюле: ваниль Bourbon, бань-мари и искусство карамельной корочки</title>
+    <link>https://french.milovicake.ru/articles/recipe-creme-brulee/</link>
+    <description>Исчерпывающий рецепт классического crème brûlée: 100°C, 55 минут, соотношение 5 желтков на 500 мл сливок, chalumeau и правило 90 секунд до подачи.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/recipe-creme-brulee/</guid>
+  </item>
+  <item>
+    <title>Клафути с вишней: лимузенский рецепт с kirsch и косточками</title>
+    <link>https://french.milovicake.ru/articles/recipe-clafoutis-cerises/</link>
+    <description>Аутентичный clafoutis aux cerises из Лимузена: почему косточки не вынимают, двухтемпературная выпечка 210→180°C и рецепт Ladurée с цедрой лимона.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/recipe-clafoutis-cerises/</guid>
+  </item>
+  <item>
+    <title>Шоколадное суфле: физика горба, меренга и правило 90 секунд</title>
+    <link>https://french.milovicake.ru/articles/recipe-souffle-chocolat/</link>
+    <description>Полный разбор soufflé au chocolat: смазка вертикально, трик chapeau de cuisinier, метод crème pâtissière для ресторанного суфле и почему не надо бояться открывать духовку.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/recipe-souffle-chocolat/</guid>
+  </item>
+  <item>
+    <title>Мадлен: beurre noisette, температурный шок и горб — техника Ritz Paris</title>
+    <link>https://french.milovicake.ru/articles/recipe-madeleines/</link>
+    <description>Пошаговый рецепт мадлен с культовым горбом: охлаждение теста ночь, духовка 210°C, форма холодная. История Пруста, техника Ritz Paris и полная диагностика плоских мадлен.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/recipe-madeleines/</guid>
+  </item>
+  <item>
+    <title>15 миллиардов евро и 12 миллионов круассанов в день: анатомия французской кондитерской</title>
+    <link>https://french.milovicake.ru/articles/chiffres-marche-15mlrd/</link>
+    <description>Из чего состоит экономика французской пэтисери: 44 000 заведений, средний чек 6 €, десерт №1 — lemon tart.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/chiffres-marche-15mlrd/</guid>
+  </item>
+  <item>
+    <title>Империи макаронов: как Ladurée и Pierre Hermé превратили миндальное печенье в 100 млн €</title>
+    <link>https://french.milovicake.ru/articles/chiffres-macarons-laduree-herme/</link>
+    <description>38,5 миллиона макаронов в год, оборот Ladurée и Hermé по 100 млн € каждый, маржа 50–60%.</description>
+    <pubDate>Tue, 05 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/chiffres-macarons-laduree-herme/</guid>
+  </item>
+  <item>
+    <title>Николя Пачелло: flan parisien — философия простоты и техника без права на ошибку</title>
+    <link>https://french.milovicake.ru/articles/paciello-flan-parisien/</link>
+    <description>Почему главный кондитер Plaza Athénée посвятил парижскому флану отдельную страницу в меню: тесто, крем, температура.</description>
+    <pubDate>Mon, 04 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/paciello-flan-parisien/</guid>
+  </item>
+  <item>
+    <title>Бисквит «Жоконда» по Фельдеру: структура, техника и рулет Opera</title>
+    <link>https://french.milovicake.ru/articles/felder-biscuit-joconde/</link>
+    <description>Почему бисквит «Жоконда» — это не просто тесто, а архитектурный элемент энтреме: миндаль, протеин белка и рулет Опера.</description>
+    <pubDate>Sun, 03 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/felder-biscuit-joconde/</guid>
+  </item>
+  <item>
+    <title>Фрезье Фельдера: классика, которую надо понять до автоматизма</title>
+    <link>https://french.milovicake.ru/articles/felder-fraisier/</link>
+    <description>Пошаговый учебный разбор знакового торта: génoise, crème mousseline, сироп понч, клубника и финальная отделка марципаном.</description>
+    <pubDate>Sat, 02 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/felder-fraisier/</guid>
+  </item>
+  <item>
+    <title>Клер Эйцлер: цветочная палитра — жасмин, фиалка, роза в современном десерте</title>
+    <link>https://french.milovicake.ru/articles/heitzler-floral-palette/</link>
+    <description>Как работать с цветочными ароматами без синтетики: натуральные экстракты, свежие лепестки, дистилляция и точный баланс.</description>
+    <pubDate>Fri, 01 May 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/heitzler-floral-palette/</guid>
+  </item>
+  <item>
+    <title>Клер Эйцлер: меньше сахара — больше вкуса. Как убрать 30% без потери удовольствия</title>
+    <link>https://french.milovicake.ru/articles/heitzler-less-sugar/</link>
+    <description>Практический разбор методологии: чем компенсировать сладость, как работает кислота, и почему горечь — это не враг.</description>
+    <pubDate>Thu, 30 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/heitzler-less-sugar/</guid>
+  </item>
+  <item>
+    <title>Сириль Линьяк и Kouign-Amann: карамельная корка, слоёность и соль Бретани</title>
+    <link>https://french.milovicake.ru/articles/lignac-kouign-amann/</link>
+    <description>Полный технологический разбор бретонской классики: дрожжевое тесто, масло, сахар, тройной тур и финальная карамелизация в форме.</description>
+    <pubDate>Wed, 29 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/lignac-kouign-amann/</guid>
+  </item>
+  <item>
+    <title>Сириль Линьяк: фар бретон — деревенский десерт с точностью haute pâtisserie</title>
+    <link>https://french.milovicake.ru/articles/lignac-far-breton/</link>
+    <description>Учебный разбор фар бретон: соотношение яиц, сливок и муки, сухофрукты, температура и зачем нужен высокий бортик формы.</description>
+    <pubDate>Tue, 28 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/lignac-far-breton/</guid>
+  </item>
+  <item>
+    <title>Жак Жени и ганаш: шоколад как продукт терруара, а не бренда</title>
+    <link>https://french.milovicake.ru/articles/genin-ganache-craft/</link>
+    <description>Как Жени выбирает какао-бобы, работает с криолло из Мадагаскара и почему в его ганаше нет лишних ингредиентов.</description>
+    <pubDate>Sat, 25 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/genin-ganache-craft/</guid>
+  </item>
+  <item>
+    <title>Жак Жени: философия карамели — горечь, соль, время и терруар</title>
+    <link>https://french.milovicake.ru/articles/genin-caramel-philosophy/</link>
+    <description>Как человек без диплома создал лучшую карамель Парижа: почему карамель нельзя спешить и что значит «карамель au beurre salé de Guérande».</description>
+    <pubDate>Mon, 20 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/genin-caramel-philosophy/</guid>
+  </item>
+  <item>
+    <title>Меркотт: энтреме от А до Я — бисквит, мусс, гляссаж, сборка</title>
+    <link>https://french.milovicake.ru/articles/mercotte-entremets-system/</link>
+    <description>Система подготовки к CAP Pâtisserie и домашним энтреме: вкладыш, кольцо, температура зеркальной глазури.</description>
+    <pubDate>Wed, 15 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/mercotte-entremets-system/</guid>
+  </item>
+  <item>
+    <title>Меркотт: тарт с лимоном — кислота, баланс и идеальная меренга</title>
+    <link>https://french.milovicake.ru/articles/mercotte-tarte-citron/</link>
+    <description>Разбор классического лимонного тарта: песочное тесто, crème citron без желатина и итальянская меренга с горелкой.</description>
+    <pubDate>Fri, 10 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/mercotte-tarte-citron/</guid>
+  </item>
+  <item>
+    <title>Финансье: как монахини Нанси накормили парижских биржевиков — и создали форму золотого слитка</title>
+    <link>https://french.milovicake.ru/articles/financier-histoire/</link>
+    <description>В XVII веке это пекли визитандинки, чтобы не тратить яичные белки от живописи. В 1890-м кондитер Ласне придал тесту форму lingot d\</description>
+    <pubDate>Wed, 01 Apr 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/financier-histoire/</guid>
+  </item>
+  <item>
+    <title>Канеле: монахини, вино и медный моул — как Бордо изобрело самое загадочное пирожное Франции</title>
+    <link>https://french.milovicake.ru/articles/canele-bordeaux-histoire/</link>
+    <description>Сёстры Анонсиад собирали муку с причалов и желтки — от виноделен. Ром и ваниль добавил безымянный мастер начала XX века. А в 1985-м один «n» убрали официально. История продукта, у которого нет ни одного доказанного факта — кроме вкуса.</description>
+    <pubDate>Sun, 15 Mar 2026 10:00:00 +0000</pubDate>
+    <guid isPermaLink="true">https://french.milovicake.ru/articles/canele-bordeaux-histoire/</guid>
+  </item>
+  </channel>
+</rss>

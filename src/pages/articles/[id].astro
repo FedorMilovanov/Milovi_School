@@ -1,0 +1,149 @@
+---
+/**
+ * Article page — /articles/<id>/
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import ArticlePageShell from '../../components/ArticlePageShell'
+import { libraryArticles, libraryMeta } from '../../data/library'
+import { categories } from '../../data/categories'
+import type { Article } from '../../data/articles'
+
+export function getStaticPaths() {
+  return libraryArticles.map((article) => ({
+    params: { id: article.id },
+    props: { article },
+  }))
+}
+
+interface Props {
+  article: Article
+}
+
+const { article } = Astro.props
+
+// --- ОЧИСТКА ДАННЫХ (Fix for broken images in React) ---
+const sanitizedArticle = {
+  ...article,
+  image: typeof article.image === 'string' 
+    ? article.image 
+    : (article.image?.src || article.image?.url || '')
+}
+
+const siteUrl = 'https://french.milovicake.ru'
+const canonicalUrl = `${siteUrl}/articles/${article.id}/`
+const pageTitle = `${article.title} — Patisserie Russe`
+
+const categoryName = categories.find((c) => c.id === article.category)?.name ?? article.category
+
+// ── OG image ────────────────────────────────────────────────────────────────
+function normalizeImageSrc(input: unknown): string {
+  if (!input) return ''
+  if (typeof input === 'string') return input
+  if (Array.isArray(input)) return normalizeImageSrc(input[0])
+  if (typeof input === 'object') {
+    const obj = input as any
+    return normalizeImageSrc(obj.src) || normalizeImageSrc(obj.url) || normalizeImageSrc(obj.href)
+  }
+  return ''
+}
+
+function buildOgImage(input: unknown): { url: string; width?: number; height?: number } {
+  const src = normalizeImageSrc(input)
+  if (!src) {
+    return { url: `${siteUrl}/images/og-preview.webp`, width: 1200, height: 630 }
+  }
+  if (src.includes('unsplash.com')) {
+    const base = src.split('?')[0]
+    return {
+      url: `${base}?w=1200&h=630&fit=crop&crop=center&auto=format`,
+      width: 1200,
+      height: 630,
+    }
+  }
+  const absolute = src.startsWith('http') ? src : `${siteUrl}${src}`
+  return { url: absolute }
+}
+
+const ogImg = buildOgImage(article.image)
+
+// ── Structured data ──────────────────────────────────────────────────────────
+const wordCount = Math.round((article.content?.length ?? 0) / 6)
+
+const jsonLdArticle = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.title,
+  description: article.excerpt,
+  image: [ogImg.url],
+  inLanguage: 'ru',
+  wordCount,
+  author: {
+    '@type': 'Person',
+    name: article.author,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Patisserie Russe / Milovi School',
+    url: siteUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteUrl}/images/logo.png`,
+    },
+  },
+  url: canonicalUrl,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+  keywords: article.tags?.join(', '),
+  ...(article.date
+    ? {
+        datePublished: article.date,
+        dateModified: article.updatedAt ?? article.date,
+      }
+    : {}),
+}
+
+const jsonLdBreadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Patisserie Russe',
+      item: `${siteUrl}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: categoryName,
+      item: `${siteUrl}/?cat=${article.category}`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: article.title,
+      item: canonicalUrl,
+    },
+  ],
+}
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={article.excerpt}
+  image={ogImg.url}
+  ogImageWidth={ogImg.width}
+  ogImageHeight={ogImg.height}
+  canonicalUrl={canonicalUrl}
+  ogType="article"
+  articlePublishedTime={article.date}
+  articleModifiedTime={article.updatedAt ?? article.date}
+  articleAuthor={article.author}
+  articleSection={categoryName}
+  articleTags={article.tags}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLdArticle)} slot="head" />
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLdBreadcrumb)} slot="head" />
+
+  <!-- Передаем sanitizedArticle вместо article -->
+  <ArticlePageShell article={sanitizedArticle} allMeta={libraryMeta} client:load />
+</BaseLayout>

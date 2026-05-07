@@ -1,0 +1,33 @@
+{
+  "name": "Patisserie Russe — Французская кондитерская школа",
+  "short_name": "Patisserie Russe",
+  "description": "Бесплатная библиотека о французской кондитерской школе на русском языке. Техники, рецепты и разборы от ведущих мировых шефов.",
+  "lang": "ru",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f5efe5",
+  "theme_color": "#1c1917",
+  "categories": ["education", "food"],
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  title?: string
+  description?: string
+  image?: string
+  canonicalUrl?: string
+  /** 'website' for home, 'article' for article pages */
+  ogType?: 'website' | 'article'
+  /** Explicit OG image dimensions — only pass when the exact size is known */
+  ogImageWidth?: number
+  ogImageHeight?: number
+  /** Article-specific OG properties */
+  articlePublishedTime?: string
+  articleModifiedTime?: string
+  articleAuthor?: string
+  articleSection?: string
+  articleTags?: string[]
+}
+
+const {
+  title = 'Patisserie Russe — Французская кондитерская школа',
+  description = 'Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, разборы, рецепты.',
+  image = '/images/premium-hero.jpg',
+  canonicalUrl = 'https://french.milovicake.ru/',
+  ogType = 'website',
+  ogImageWidth,
+  ogImageHeight,
+  articlePublishedTime,
+  articleModifiedTime,
+  articleAuthor,
+  articleSection,
+  articleTags,
+} = Astro.props
+
+const siteUrl = 'https://french.milovicake.ru'
+
+// Normalise image: plain string, Vite-resolved path string, or Astro ImageMetadata
+const rawImage: string =
+  typeof image === 'string'
+    ? image
+    : typeof image === 'object' && image !== null && 'src' in image
+      ? (image as { src: string }).src
+      : '/images/premium-hero.jpg'
+
+const ogImage = rawImage.startsWith('http') ? rawImage : `${siteUrl}${rawImage}`
+
+// Trim description to 160 chars for Google snippet (no mid-word truncation)
+const metaDescription =
+  description.length > 160
+    ? description.slice(0, description.lastIndexOf(' ', 157)) + '…'
+    : description
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary SEO -->
+    <title>{title}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+    {articleAuthor && <meta name="author" content={articleAuthor} />}
+
+    <!-- Language targeting (hreflang) -->
+    <link rel="alternate" hreflang="ru" href={canonicalUrl} />
+    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={title} />
+    {ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
+    {ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Patisserie Russe" />
+    <meta property="og:locale" content="ru_RU" />
+    {ogType === 'article' && articlePublishedTime && (
+      <meta property="article:published_time" content={articlePublishedTime} />
+    )}
+    {ogType === 'article' && (articleModifiedTime ?? articlePublishedTime) && (
+      <meta
+        property="article:modified_time"
+        content={articleModifiedTime ?? articlePublishedTime}
+      />
+    )}
+    {ogType === 'article' && articleAuthor && (
+      <meta property="article:author" content={articleAuthor} />
+    )}
+    {ogType === 'article' && articleSection && (
+      <meta property="article:section" content={articleSection} />
+    )}
+    {ogType === 'article' && articleTags?.map((tag) => (
+      <meta property="article:tag" content={tag} />
+    ))}
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- Theme colour — mobile browser chrome -->
+    <meta name="theme-color" content="#f5efe5" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#11100e" media="(prefers-color-scheme: dark)" />
+
+    <!-- Favicon — relative paths only (absolute URLs break on localhost) -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- RSS feed autodiscovery -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Patisserie Russe"
+      href="https://french.milovicake.ru/feed.xml"
+    />
+
+    <!-- Google Search Console verification.
+         Replace TOKEN with the value from Search Console → HTML tag method:
+         https://search.google.com/search-console → Add property → HTML tag
+    -->
+    <slot name="google-verification" />
+
+    <!-- Preconnect for Unsplash images -->
+    <link rel="preconnect" href="https://images.unsplash.com" />
+
+    <!-- Page-specific head content (JSON-LD, extra meta, etc.) -->
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+
+    <!-- Service Worker registration (non-blocking, failure is safe) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {})
+        })
+      }
+    </script>
+  </body>
+</html>
