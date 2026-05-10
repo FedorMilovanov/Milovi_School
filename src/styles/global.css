@@ -57,6 +57,22 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   --gold-pale:      #c07a2a;
   --ink:            #1c1917;
   --ink-50:         #78716c;
+  /* ─── CommandPalette design tokens — light ─── */
+  --cp-divider:     rgba(28, 25, 23, 0.07);
+  --cp-surface:     rgba(28, 25, 23, 0.04);
+  --cp-icon:        rgba(28, 25, 23, 0.22);
+  --cp-text-mid:    rgba(28, 25, 23, 0.28);
+  --cp-text-lo:     rgba(28, 25, 23, 0.18);
+  --cp-chip:        rgba(28, 25, 23, 0.05);
+  --cp-chip-border: rgba(28, 25, 23, 0.09);
+  --cp-skeleton:    rgba(28, 25, 23, 0.05);
+  --cp-shine:       rgba(28, 25, 23, 0.07);
+  --cp-scrollbar:   rgba(28, 25, 23, 0.12);
+  --cp-clear-bg:    rgba(28, 25, 23, 0.10);
+  --cp-clear-fg:    rgba(28, 25, 23, 0.50);
+  --cp-inset-1:     rgba(28, 25, 23, 0.02);
+  --cp-inset-2:     rgba(28, 25, 23, 0.05);
+  --cp-badge-scrim: rgba(245, 239, 229, 0.70);
 }
 
 .dark {
@@ -79,6 +95,22 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   --gold-pale:      #e4bc7a;
   --ink:            #e8dfd2;
   --ink-50:         #b7aa99;
+  /* ─── CommandPalette design tokens — dark ─── */
+  --cp-divider:     rgba(255, 255, 255, 0.05);
+  --cp-surface:     rgba(255, 255, 255, 0.038);
+  --cp-icon:        rgba(255, 255, 255, 0.22);
+  --cp-text-mid:    rgba(255, 255, 255, 0.28);
+  --cp-text-lo:     rgba(255, 255, 255, 0.17);
+  --cp-chip:        rgba(255, 255, 255, 0.04);
+  --cp-chip-border: rgba(255, 255, 255, 0.07);
+  --cp-skeleton:    rgba(255, 255, 255, 0.04);
+  --cp-shine:       rgba(255, 255, 255, 0.06);
+  --cp-scrollbar:   rgba(255, 255, 255, 0.07);
+  --cp-clear-bg:    rgba(255, 255, 255, 0.07);
+  --cp-clear-fg:    rgba(255, 255, 255, 0.45);
+  --cp-inset-1:     rgba(255, 255, 255, 0.02);
+  --cp-inset-2:     rgba(255, 255, 255, 0.06);
+  --cp-badge-scrim: rgba(0, 0, 0, 0.55);
   background-color: var(--bg-main);
   color: var(--text-primary);
 }
@@ -181,6 +213,29 @@ article:hover .article-excerpt { opacity: 0.85; transform: translateY(-1px); }
 /* ─── Scroll-snap for showcase slider ─── */
 .snap-x-mandatory { scroll-snap-type: x mandatory; }
 .snap-center { scroll-snap-align: center; }
+
+/* ─── MainCategories: scroll-reveal animation ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.in {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+
+/* ─── MainCategories: image zoom on hover ─── */
+.cat-img {
+  transition: transform 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+.cat-img-card:hover .cat-img {
+  transform: scale(1.07);
+}
 
 /* ─── High contrast mode support ─── */
 @media (prefers-contrast: high) {

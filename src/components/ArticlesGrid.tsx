@@ -4,7 +4,25 @@ import { fallbackImageFor } from '../assets/images'
 import type { ArticleMeta } from '../data/articles'
 import type { Category } from '../data/categories'
 import ImageWithFade from './ImageWithFade'
-import { highlightMatch } from '../utils/highlight'
+import type { FuseResultMatch } from 'fuse.js'
+import { highlightMatch, highlightWithMatches } from '../utils/highlight'
+
+// ── Convenience wrapper: picks Fuse-index highlight when match data exists, ───
+// falls back to literal substring split otherwise. Using Fuse indices fixes
+// the bug where transliteration / fuzzy matches produced no highlight at all.
+function HL({
+  text, field, matchMap, articleId, query,
+}: {
+  text: string
+  field: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  articleId: string
+  query: string
+}) {
+  const matches = matchMap?.get(articleId)
+  if (matches) return <>{highlightWithMatches(text, matches, field)}</>
+  return <>{highlightMatch(text, query)}</>
+}
 import { pluralRu, MATERIAL } from '../utils/plural'
 
 // ─── How many articles to preview per section before "Show all" ───────────────
@@ -18,14 +36,17 @@ interface ArticlesGridProps {
   selectedCategory: string | null
   onSelectCategory: (id: string | null) => void
   searchQuery?: string
+  /** Fuse.js match data keyed by article id — enables accurate fuzzy highlighting */
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }
 
 // ─── Compact list card (right column) ─────────────────────────────────────────
-function CompactCard({ article, categories, onArticleClick, searchQuery = '' }: {
+function CompactCard({ article, categories, onArticleClick, searchQuery = '', matchMap }: {
   article: ArticleMeta
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -44,7 +65,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '' }: 
           </span>
         </div>
         <h4 className="font-serif text-[15px] font-semibold leading-snug tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-2">
-          {highlightMatch(article.title, searchQuery)}
+          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h4>
       </div>
       <svg className="mt-1 h-3.5 w-3.5 shrink-0 text-stone-300 opacity-0 transition group-hover:opacity-100 dark:text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -55,11 +76,12 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '' }: 
 }
 
 // ─── Featured (hero) card in a section ────────────────────────────────────────
-function FeaturedCard({ article, categories, onArticleClick, searchQuery = '' }: {
+function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', matchMap }: {
   article: ArticleMeta
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -92,10 +114,10 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '' }:
           <span>{article.readTime} мин</span>
         </div>
         <h3 className="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 sm:text-2xl">
-          {highlightMatch(article.title, searchQuery)}
+          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h3>
         <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-2">
-          {highlightMatch(article.excerpt, searchQuery)}
+          {<HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </p>
         <span className="mt-1 inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.24em] text-amber-800 dark:text-amber-300">
           Читать
@@ -109,11 +131,12 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '' }:
 }
 
 // ─── Secondary card (smaller, for the 2/3 grid) ───────────────────────────────
-function SecondaryCard({ article, categories, onArticleClick, searchQuery = '' }: {
+function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', matchMap }: {
   article: ArticleMeta
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -140,7 +163,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '' }
           </span>
         </div>
         <h4 className="font-serif text-sm font-semibold leading-snug tracking-[-0.02em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-3">
-          {highlightMatch(article.title, searchQuery)}
+          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h4>
       </div>
     </motion.button>
@@ -148,12 +171,13 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '' }
 }
 
 // ─── Index row (flat list mode) ────────────────────────────────────────────────
-function IndexRow({ article, index, categories, onArticleClick, searchQuery = '' }: {
+function IndexRow({ article, index, categories, onArticleClick, searchQuery = '', matchMap }: {
   article: ArticleMeta
   index: number
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -170,7 +194,7 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
       <span>
         <span className="mb-0.5 block font-mono text-[9px] uppercase tracking-[0.22em] text-stone-500">{cat?.name} · {article.readTime} мин</span>
         <span className="block font-serif text-[17px] font-semibold leading-tight tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
-          {highlightMatch(article.title, searchQuery)}
+          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </span>
       </span>
       <svg className="hidden h-4 w-4 text-stone-300 transition group-hover:text-amber-700 dark:text-stone-700 dark:group-hover:text-amber-300 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -181,7 +205,7 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
 }
 
 // ─── One category section ──────────────────────────────────────────────────────
-function CategorySection({ categoryId, articles, allCount, category, categories, onArticleClick, onSelectCategory, searchQuery }: {
+function CategorySection({ categoryId, articles, allCount, category, categories, onArticleClick, onSelectCategory, searchQuery, matchMap }: {
   categoryId: string
   articles: ArticleMeta[]
   allCount: number
@@ -190,6 +214,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
   onArticleClick: (a: ArticleMeta) => void
   onSelectCategory: (id: string | null) => void
   searchQuery: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   const [expanded, setExpanded] = useState(false)
   const preview = expanded ? articles : articles.slice(0, SECTION_PREVIEW)
@@ -234,17 +259,17 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
 
       {/* Main layout: featured left, compact list right */}
       {articles.length === 1 ? (
-        <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+        <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
       ) : (
         <div className="grid gap-8 sm:grid-cols-[1fr_320px]">
           {/* Featured */}
-          <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+          <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
 
           {/* Compact right column */}
           {rightList.length > 0 && (
             <div className="flex flex-col border-l border-[var(--border-subtle)] pl-8">
               {rightList.map(a => (
-                <CompactCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+                <CompactCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
               ))}
             </div>
           )}
@@ -255,7 +280,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
       {bottomRow.length > 0 && (
         <div className="mt-7 grid gap-6 border-t border-[var(--border-subtle)] pt-7 sm:grid-cols-2">
           {bottomRow.map(a => (
-            <SecondaryCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+            <SecondaryCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
           ))}
         </div>
       )}
@@ -271,7 +296,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
             className="mt-6 grid gap-6 overflow-hidden sm:grid-cols-2"
           >
             {extras.map(a => (
-              <SecondaryCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+              <SecondaryCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
             ))}
           </motion.div>
         )}
@@ -301,11 +326,12 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
 }
 
 // ─── Single-category journal view ─────────────────────────────────────────────
-function JournalView({ articles, categories, onArticleClick, searchQuery }: {
+function JournalView({ articles, categories, onArticleClick, searchQuery, matchMap }: {
   articles: ArticleMeta[]
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
   searchQuery: string
+  matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
 }) {
   return (
     <div className="space-y-10">
@@ -335,10 +361,10 @@ function JournalView({ articles, categories, onArticleClick, searchQuery }: {
                 <span>{article.readTime} мин</span>
               </div>
               <h3 className="font-serif text-2xl font-semibold leading-[1.15] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
-                {highlightMatch(article.title, searchQuery)}
+                {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
               </h3>
               <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-3">
-                {highlightMatch(article.excerpt, searchQuery)}
+                {<HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
               </p>
               <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-amber-800 dark:text-amber-300">
                 Читать исследование
@@ -357,7 +383,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery }: {
 // ─── Main export ───────────────────────────────────────────────────────────────
 export default function ArticlesGrid({
   articles, allArticles, onArticleClick, categories,
-  selectedCategory, onSelectCategory, searchQuery = ''
+  selectedCategory, onSelectCategory, searchQuery = '', matchMap,
 }: ArticlesGridProps) {
   const [viewMode, setViewMode] = useState<'magazine' | 'index'>('magazine')
   const nonEmptyCategories = useMemo(() => {
@@ -424,6 +450,12 @@ export default function ArticlesGrid({
               ← Все разделы
             </button>
           )}
+          {/* FIX: show context label when filtered instead of silently hiding the mode toggle */}
+          {isFiltered && searchQuery.trim() && (
+            <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-stone-400 dark:text-stone-600">
+              Результаты поиска
+            </span>
+          )}
           {!isFiltered && (
             <div className="flex border border-[var(--border-subtle)]">
               {(['magazine', 'index'] as const).map(mode => (
@@ -451,14 +483,14 @@ export default function ArticlesGrid({
 
       {/* Filtered / single-category journal */}
       {articles.length > 0 && isFiltered && (
-        <JournalView articles={articles} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+        <JournalView articles={articles} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
       )}
 
       {/* Index mode */}
       {articles.length > 0 && !isFiltered && viewMode === 'index' && (
         <div>
           {articles.map((a, i) => (
-            <IndexRow key={a.id} article={a} index={i} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} />
+            <IndexRow key={a.id} article={a} index={i} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
           ))}
         </div>
       )}
@@ -474,6 +506,7 @@ export default function ArticlesGrid({
                 categoryId={catId}
                 articles={catArticles}
                 allCount={categoryCounts.get(catId) ?? catArticles.length}
+                matchMap={matchMap}
                 category={cat}
                 categories={categories}
                 onArticleClick={onArticleClick}

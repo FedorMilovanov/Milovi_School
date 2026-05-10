@@ -1,53 +1,48 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import Fuse, { type IFuseOptions } from 'fuse.js'
+import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
 import type { ArticleMeta } from '../data/articles'
 import { categories } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
+import { highlightWithMatches } from '../utils/highlight'
 
 interface CommandPaletteProps {
   open: boolean
   articles: ArticleMeta[]
   onClose: () => void
   onOpenArticle: (article: ArticleMeta) => void
-  /** GAP-05: navigate to a category section from the palette */
   onSelectCategory?: (id: string) => void
 }
 
 const FUSE_OPTIONS: IFuseOptions<ArticleMeta> = {
   keys: [
-    { name: 'title', weight: 0.45 },
-    { name: 'excerpt', weight: 0.2 },
-    { name: 'author', weight: 0.15 },
-    { name: 'tags', weight: 0.15 },
+    { name: 'title',    weight: 0.45 },
+    { name: 'excerpt',  weight: 0.2  },
+    { name: 'author',   weight: 0.15 },
+    { name: 'tags',     weight: 0.15 },
     { name: 'category', weight: 0.05 },
   ],
   threshold: 0.35,
   ignoreLocation: true,
   minMatchCharLength: 2,
+  includeMatches: true,
 }
 
-function Highlight({ text, pattern }: { text: string; pattern: string }) {
-  if (!pattern || pattern.length < 2) return <>{text}</>
-  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const regex = new RegExp(`(${escaped})`, 'gi')
-  const exact = new RegExp(`^${escaped}$`, 'i')
-  const parts = text.split(regex)
-  return (
-    <>
-      {parts.map((part, i) =>
-        exact.test(part) ? (
-          <mark key={i} className="bg-transparent font-semibold" style={{ color: 'var(--text-accent)' }}>{part}</mark>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
-    </>
-  )
+interface ArticleResult {
+  item: ArticleMeta
+  matches?: ReadonlyArray<FuseResultMatch>
+  pct?: number
 }
 
-// GAP-05: Quick navigation actions shown at empty query
+function H({ text, matches, field }: {
+  text: string
+  matches: ReadonlyArray<FuseResultMatch> | undefined
+  field: string
+}) {
+  return <>{highlightWithMatches(text, matches, field)}</>
+}
+
 interface QuickAction {
   id: string
   label: string
@@ -56,381 +51,514 @@ interface QuickAction {
   action: () => void
 }
 
+function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: React.CSSProperties }) {
+  const [loaded, setLoaded]   = useState(false)
+  const [errored, setErrored] = useState(false)
+  useEffect(() => { setLoaded(false); setErrored(false) }, [src])
+  return (
+    <div style={{ position: 'relative', overflow: 'hidden', ...style }}>
+      {!loaded && !errored && <div className="cp-skeleton" style={{ position: 'absolute', inset: 0 }} />}
+      {!errored && (
+        <img src={src} alt={alt}
+          onLoad={() => setLoaded(true)}
+          onError={() => { setErrored(true); setLoaded(false) }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block',
+            opacity: loaded ? 1 : 0, transition: 'opacity 0.45s ease' }}
+        />
+      )}
+      {errored && (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', background: 'var(--cp-chip)', fontSize: 16, color: 'var(--cp-text-mid)' }}>
+          ✦
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function CommandPalette({ open, articles, onClose, onOpenArticle, onSelectCategory }: CommandPaletteProps) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery]             = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const listRef = useRef<HTMLDivElement>(null)
+  const [filterCat, setFilterCat]     = useState<string | null>(null)
+  const inputRef     = useRef<HTMLInputElement>(null)
+  const listRef      = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const shouldReduce = useReducedMotion()
-
-  // BUG-FIX: create the Fuse instance inside a useMemo so it is rebuilt only
-  // when `articles` changes. This keeps the memo pure (no side-effects) and
-  // ensures search results are always consistent with the current article list.
-  // The original code mutated a module-level singleton inside useMemo (wrong).
   const fuse = useMemo(() => new Fuse<ArticleMeta>(articles, FUSE_OPTIONS), [articles])
 
   useEffect(() => {
-    if (open) {
-      setQuery('')
-      setActiveIndex(0)
-      requestAnimationFrame(() => inputRef.current?.focus())
-    }
+    if (open) { setQuery(''); setActiveIndex(0); setFilterCat(null); requestAnimationFrame(() => inputRef.current?.focus()) }
   }, [open])
 
-  // Scroll lock — prevent body scroll while palette is open
   useEffect(() => {
     if (!open) return
-    const scrollbarW = window.innerWidth - document.documentElement.clientWidth
-    const prevOverflow = document.body.style.overflow
-    const prevPad = document.body.style.paddingRight
+    const w = window.innerWidth - document.documentElement.clientWidth
+    const prevO = document.body.style.overflow, prevP = document.body.style.paddingRight
     document.body.style.overflow = 'hidden'
-    if (scrollbarW > 0) document.body.style.paddingRight = `${scrollbarW}px`
-    return () => {
-      document.body.style.overflow = prevOverflow
-      document.body.style.paddingRight = prevPad
-    }
+    if (w > 0) document.body.style.paddingRight = `${w}px`
+    return () => { document.body.style.overflow = prevO; document.body.style.paddingRight = prevP }
   }, [open])
 
-  // GAP-06: Recent articles — articles with nonzero progress, sorted by last-read timestamp
-  const recentArticles = useMemo(() => {
+  const recentArticles = useMemo<Array<{ article: ArticleMeta; pct: number }>>(() => {
     return articles
-      .map(a => {
-        const ts = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
-        const pct = Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0)
-        return { article: a, ts, pct }
-      })
-      .filter(x => x.ts > 0 || x.pct > 0)
-      .sort((a, b) => b.ts - a.ts)
-      .slice(0, 5)
-      .map(x => x.article)
+      .map(a => ({ article: a, ts: Number(safeGetItem(`article-last-read:${a.id}`) ?? 0), pct: Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0) }))
+      .filter(x => x.ts > 0 || x.pct > 0).sort((a, b) => b.ts - a.ts).slice(0, 5)
   }, [articles])
 
-  // GAP-05: Quick navigation actions
   const quickActions: QuickAction[] = useMemo(() => {
     if (!onSelectCategory) return []
-    const chefCategories = categories.filter(c =>
-      !['techniques', 'recipes', 'french-cuisine', 'histoire-culinaire', 'chiffres-gourmands'].includes(c.id)
-    )
+    const chefCats = categories.filter(c => !['techniques','recipes','french-cuisine','histoire-culinaire','chiffres-gourmands'].includes(c.id))
     return [
-      {
-        id: 'nav-techniques',
-        label: 'Техники',
-        sublabel: 'Все техники кондитерского искусства',
-        icon: 'TK',
-        action: () => { onSelectCategory('techniques'); onClose() },
-      },
-      {
-        id: 'nav-recipes',
-        label: 'Рецепты',
-        sublabel: 'Практические карты сборки',
-        icon: 'RC',
-        action: () => { onSelectCategory('recipes'); onClose() },
-      },
-      ...chefCategories.slice(0, 6).map(c => ({
-        id: `nav-${c.id}`,
-        label: c.name,
-        sublabel: c.description,
-        icon: c.icon,
-        action: () => { onSelectCategory(c.id); onClose() },
-      })),
+      { id:'nav-techniques', label:'Техники', sublabel:'Все техники кондитерского искусства', icon:'TK', action:()=>{ onSelectCategory('techniques'); onClose() } },
+      { id:'nav-recipes', label:'Рецепты', sublabel:'Практические карты сборки', icon:'RC', action:()=>{ onSelectCategory('recipes'); onClose() } },
+      ...chefCats.slice(0,6).map(c => ({ id:`nav-${c.id}`, label:c.name, sublabel:c.description, icon:c.icon, action:()=>{ onSelectCategory(c.id); onClose() } })),
     ]
   }, [onSelectCategory, onClose])
 
-  const articleResults: ArticleMeta[] = useMemo(() => {
+  const articleResults: ArticleResult[] = useMemo(() => {
     const trimmed = query.trim()
+    let base: ArticleResult[]
     if (!trimmed) {
-      // GAP-06: show recent articles first, then fill to 8 with latest
-      if (recentArticles.length > 0) return recentArticles
-      return articles.slice(0, 8)
+      base = recentArticles.length > 0
+        ? recentArticles.map(r => ({ item: r.article, pct: r.pct }))
+        : articles.slice(0, 10).map(a => ({ item: a }))
+    } else {
+      base = fuse.search(trimmed, { limit: 12 }).map(r => ({ item: r.item, matches: r.matches as ReadonlyArray<FuseResultMatch> | undefined }))
     }
-    return fuse.search(trimmed, { limit: 10 }).map((r) => r.item)
-  }, [articles, fuse, query, recentArticles])
+    return filterCat ? base.filter(r => r.item.category === filterCat) : base
+  }, [articles, fuse, query, recentArticles, filterCat])
 
-  // Combined list for keyboard navigation: quick actions (when empty query) + article results
-  const showQuickActions = !query.trim() && quickActions.length > 0
-  const totalItems = (showQuickActions ? quickActions.length : 0) + articleResults.length
+  const chipCategories = useMemo(() => {
+    const seen = new Set<string>(); const chips: typeof categories = []
+    for (const r of articleResults) {
+      if (!seen.has(r.item.category)) { seen.add(r.item.category); const cat = categories.find(c => c.id === r.item.category); if (cat) chips.push(cat) }
+      if (chips.length >= 7) break
+    }
+    return chips
+  }, [articleResults])
 
-  useEffect(() => {
-    setActiveIndex(0)
-  }, [articleResults.length, query])
+  const showChips        = chipCategories.length > 1
+  const showQuickActions = !query.trim() && !filterCat && quickActions.length > 0
+  const totalItems       = (showQuickActions ? quickActions.length : 0) + articleResults.length
 
+  useEffect(() => { setActiveIndex(0) }, [articleResults.length, query, filterCat])
   useEffect(() => {
     const buttons = listRef.current?.querySelectorAll('button[data-item]')
     const el = buttons?.[activeIndex] as HTMLElement | undefined
-    el?.scrollIntoView({ block: 'nearest' })
+    el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }, [activeIndex])
+
+  const activeResult: ArticleResult | null = useMemo(() => {
+    if (showQuickActions && activeIndex < quickActions.length) return null
+    const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
+    return articleResults[idx] ?? null
+  }, [activeIndex, showQuickActions, quickActions.length, articleResults])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
-      const container = containerRef.current
-      if (!container) return
-      const focusable = Array.from(
-        container.querySelectorAll<HTMLElement>(
-          'input, button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-        )
-      ).filter(el => !el.closest('[aria-hidden]'))
-      if (focusable.length === 0) return
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus()
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus()
-      }
+      const container = containerRef.current; if (!container) return
+      const focusable = Array.from(container.querySelectorAll<HTMLElement>('input, button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')).filter(el => !el.closest('[aria-hidden]'))
+      if (!focusable.length) return
+      const first = focusable[0], last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
       return
     }
     if (totalItems === 0) return
-    if (e.key === 'ArrowDown') {
+    if (e.key === 'ArrowDown')  { e.preventDefault(); setActiveIndex(i => Math.min(i+1, totalItems-1)) }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); setActiveIndex(i => Math.max(i-1, 0)) }
+    else if (e.key === 'Enter') {
       e.preventDefault()
-      setActiveIndex((i) => Math.min(i + 1, totalItems - 1))
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault()
-      setActiveIndex((i) => Math.max(i - 1, 0))
-    } else if (e.key === 'Enter') {
-      e.preventDefault()
-      if (showQuickActions && activeIndex < quickActions.length) {
-        quickActions[activeIndex].action()
-      } else {
-        const articleIdx = showQuickActions ? activeIndex - quickActions.length : activeIndex
-        const item = articleResults[articleIdx]
-        if (item) { onClose(); onOpenArticle(item) }
-      }
-    } else if (e.key === 'Escape') {
-      onClose()
-    }
+      if (showQuickActions && activeIndex < quickActions.length) { quickActions[activeIndex].action() }
+      else { const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex; const result = articleResults[idx]; if (result) { onClose(); onOpenArticle(result.item) } }
+    } else if (e.key === 'Escape') { onClose() }
   }, [totalItems, showQuickActions, quickActions, articleResults, activeIndex, onClose, onOpenArticle])
 
+  const spring = shouldReduce ? { duration: 0 } : { type: 'spring' as const, stiffness: 480, damping: 38, mass: 0.85 }
+
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh]"
-          style={{ background: 'rgba(10,9,8,0.85)', backdropFilter: 'blur(16px)' }}
-          initial={shouldReduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={shouldReduce ? { duration: 0 } : { duration: 0.16 }}
-          onClick={onClose}
-        >
+    <>
+      <style>{`
+        @keyframes cp-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .cp-skeleton { background: var(--cp-skeleton); position: relative; overflow: hidden; }
+        .cp-skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, var(--cp-shine), transparent); animation: cp-shimmer 1.5s infinite; }
+        .cp-list::-webkit-scrollbar { width: 3px; }
+        .cp-list::-webkit-scrollbar-track { background: transparent; }
+        .cp-list::-webkit-scrollbar-thumb { background: var(--cp-scrollbar); border-radius: 3px; }
+        .cp-chips::-webkit-scrollbar { display: none; }
+        .cp-chips { -ms-overflow-style: none; scrollbar-width: none; }
+        @media (hover: none) and (pointer: coarse) { .cp-chip { min-height: 36px !important; } }
+      `}</style>
+
+      <AnimatePresence>
+        {open && (
           <motion.div
-            ref={containerRef}
-            className="w-full max-w-xl overflow-hidden"
+            className="fixed inset-0 z-50 flex items-start justify-center px-4"
             style={{
-              background: 'var(--bg-command)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              boxShadow: '0 40px 100px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.04) inset',
+              background: 'rgba(5,4,3,0.88)',
+              backdropFilter: 'blur(22px) saturate(130%)',
+              paddingTop: 'max(5svh, env(safe-area-inset-top, 20px))',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}
-            initial={shouldReduce ? false : { y: -16, scale: 0.97, opacity: 0 }}
-            animate={{ y: 0, scale: 1, opacity: 1 }}
-            exit={shouldReduce ? { opacity: 0 } : { y: -10, scale: 0.98, opacity: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 400, damping: 34 }}
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={handleKeyDown}
+            initial={shouldReduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={shouldReduce ? { duration: 0 } : { duration: 0.18 }}
+            onClick={onClose}
           >
-            {/* Search input */}
-            <div className="flex items-center gap-3 px-5 py-4">
-              <svg
-                className="h-3.5 w-3.5 shrink-0"
-                style={{ opacity: 0.28 }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.8}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Поиск материалов, шефов, техник..."
-                className="flex-1 bg-transparent text-[14px] font-light tracking-wide outline-none placeholder:text-stone-600"
-                style={{ caretColor: 'var(--text-accent)' }}
-              />
-              <button
-                onClick={onClose}
-                className="font-mono text-[9px] uppercase tracking-[0.3em] text-stone-700 transition hover:text-stone-400"
-              >
-                ESC
-              </button>
-            </div>
+            <motion.div
+              ref={containerRef}
+              className="w-full overflow-hidden"
+              style={{
+                maxWidth: 760,
+                maxHeight: 'min(92svh, 92vh)',
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'var(--bg-command)',
+                border: '1px solid var(--cp-chip-border)',
+                boxShadow: '0 0 0 1px var(--cp-inset-1) inset, 0 1px 0 var(--cp-inset-2) inset, 0 50px 130px rgba(0,0,0,0.55), 0 20px 40px rgba(0,0,0,0.30)',
+              }}
+              initial={shouldReduce ? false : { y: -22, scale: 0.96, opacity: 0 }}
+              animate={{ y: 0, scale: 1, opacity: 1 }}
+              exit={shouldReduce ? { opacity: 0 } : { y: -14, scale: 0.97, opacity: 0 }}
+              transition={spring}
+              onClick={e => e.stopPropagation()}
+              onKeyDown={handleKeyDown}
+            >
+              {/* Search bar */}
+              <div className="flex items-center gap-3 px-5 shrink-0" style={{ height: 54 }}>
+                <motion.svg
+                  className="h-[15px] w-[15px] shrink-0"
+                  animate={{ opacity: query ? 0.6 : 0.28, color: query ? 'var(--text-accent)' : 'var(--text-primary)' }}
+                  transition={{ duration: 0.2 }}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </motion.svg>
 
-            {/* Separator */}
-            <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)' }} />
+                <input
+                  ref={inputRef}
+                  value={query}
+                  onChange={e => { setQuery(e.target.value); setFilterCat(null) }}
+                  placeholder="Поиск материалов, шефов, техник..."
+                  className="flex-1 bg-transparent text-[14px] font-light tracking-wide outline-none"
+                  style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
+                />
 
-            {/* Results */}
-            <div ref={listRef} className="max-h-[56vh] overflow-y-auto">
-
-              {/* GAP-05: Quick navigation — shown at empty query */}
-              {showQuickActions && (
-                <div>
-                  <div className="px-5 pb-1 pt-3">
-                    <span className="font-mono text-[8px] uppercase tracking-[0.36em] text-stone-600">
-                      Перейти
-                    </span>
-                  </div>
-                  <div className="pb-1">
-                    {quickActions.map((action, idx) => {
-                      const isActive = idx === activeIndex
-                      return (
-                        <button
-                          key={action.id}
-                          type="button"
-                          data-item
-                          onClick={action.action}
-                          onMouseEnter={() => setActiveIndex(idx)}
-                          className="flex w-full items-center gap-3 px-5 py-2.5 text-left"
-                          style={{
-                            background: isActive ? 'rgba(255,255,255,0.035)' : 'transparent',
-                            borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
-                            transition: 'all 0.08s ease',
-                          }}
-                        >
-                          <span
-                            className="flex h-5 w-5 shrink-0 items-center justify-center font-mono text-[7px] font-bold uppercase"
-                            style={{
-                              background: isActive ? 'var(--text-accent)' : 'rgba(255,255,255,0.05)',
-                              color: isActive ? '#0a0908' : 'rgba(255,255,255,0.3)',
-                              transition: 'all 0.08s ease',
-                            }}
-                          >
-                            {action.icon}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[12px] font-normal text-stone-300">{action.label}</p>
-                            {action.sublabel && (
-                              <p className="truncate font-mono text-[9px] text-stone-600">{action.sublabel}</p>
-                            )}
-                          </div>
-                          <svg className="h-3 w-3 shrink-0 text-stone-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                          </svg>
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '0 20px' }} />
-                </div>
-              )}
-
-              {/* Article results */}
-              {articleResults.length > 0 && (
-                <div className="px-5 pb-1 pt-3">
-                  <span className="font-mono text-[8px] uppercase tracking-[0.36em] text-stone-600">
-                    {query.trim()
-                      ? `${articleResults.length} ${pluralRu(articleResults.length, RESULT)}`
-                      : recentArticles.length > 0 ? 'Недавно читали' : 'Материалы'
-                    }
-                  </span>
-                </div>
-              )}
-
-              <div className="pb-2">
-                {articleResults.map((article, idx) => {
-                  const category = categories.find((c) => c.id === article.category)
-                  const globalIdx = showQuickActions ? quickActions.length + idx : idx
-                  const isActive = globalIdx === activeIndex
-                  return (
-                    <button
-                      key={article.id}
-                      type="button"
-                      data-item
-                      onClick={() => { onClose(); onOpenArticle(article) }}
-                      onMouseEnter={() => setActiveIndex(globalIdx)}
-                      className="flex w-full items-start gap-3 px-5 py-3 text-left"
-                      style={{
-                        background: isActive ? 'rgba(255,255,255,0.035)' : 'transparent',
-                        borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
-                        transition: 'all 0.08s ease',
-                      }}
+                <AnimatePresence>
+                  {query && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                      className="font-mono text-[9px] uppercase tracking-[0.18em] shrink-0"
+                      style={{ color: 'var(--text-accent)', opacity: 0.6 }}
                     >
-                      {/* GAP-01: Article thumbnail */}
-                      {article.image ? (
-                        <div className="mt-0.5 h-11 w-11 shrink-0 overflow-hidden bg-stone-800">
-                          <img
-                            src={article.image}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                          />
-                        </div>
-                      ) : (
-                        <span
-                          className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center font-mono text-[7px] font-bold uppercase"
-                          style={{
-                            background: isActive ? 'var(--text-accent)' : 'rgba(255,255,255,0.05)',
-                            color: isActive ? '#0a0908' : 'rgba(255,255,255,0.3)',
-                            transition: 'all 0.08s ease',
-                          }}
-                        >
-                          {category?.icon ?? '·'}
-                        </span>
-                      )}
+                      {articleResults.length}&nbsp;{pluralRu(articleResults.length, RESULT)}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
 
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13px] font-normal leading-snug text-stone-200">
-                          <Highlight text={article.title} pattern={query} />
-                        </p>
-                        {/* GAP-04: Category name + author */}
-                        <p className="mt-0.5 truncate font-mono text-[9px] text-stone-600">
-                          <span style={{ color: 'rgba(255,255,255,0.2)' }}>{category?.icon ?? '·'}</span>
-                          {' '}
-                          <span>{category?.name ?? article.category}</span>
-                          {' · '}
-                          <span>{article.readTime} мин</span>
-                        </p>
-                        {/* GAP-02: Excerpt when active */}
-                        {isActive && article.excerpt && (
-                          <p className="mt-1.5 line-clamp-2 text-[11px] leading-5 text-stone-500">
-                            {article.excerpt}
-                          </p>
+                <AnimatePresence>
+                  {query && (
+                    <motion.button
+                      type="button" aria-label="Очистить поиск"
+                      initial={{ opacity: 0, scale: 0.6, rotate: -45 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.6, rotate: 45 }}
+                      transition={{ type: 'spring', stiffness: 520, damping: 30 }}
+                      onClick={() => { setQuery(''); setFilterCat(null); inputRef.current?.focus() }}
+                      className="flex h-5 w-5 shrink-0 items-center justify-center"
+                      style={{ background: 'var(--cp-clear-bg)', color: 'var(--cp-clear-fg)', fontSize: 14, lineHeight: 1, borderRadius: 2 }}
+                    >×</motion.button>
+                  )}
+                </AnimatePresence>
+
+                <button
+                  onClick={onClose}
+                  className="font-mono text-[8px] uppercase tracking-[0.32em] shrink-0 transition-opacity"
+                  style={{ color: 'var(--cp-text-mid)' }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >ESC</button>
+              </div>
+
+              <div style={{ height: 1, background: 'var(--cp-divider)', flexShrink: 0 }} />
+
+              {/* Category chips */}
+              <AnimatePresence>
+                {showChips && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 34 }}
+                    style={{ overflow: 'hidden', flexShrink: 0 }}
+                  >
+                    <div className="cp-chips flex items-center gap-1.5 overflow-x-auto px-5 py-2" style={{ borderBottom: '1px solid var(--cp-divider)' }}>
+                      <button
+                        type="button" onClick={() => setFilterCat(null)}
+                        className="cp-chip shrink-0 font-mono text-[7.5px] uppercase tracking-[0.2em] transition-all"
+                        style={{ padding: '4px 10px', borderRadius: 2, background: !filterCat ? 'var(--text-accent)' : 'var(--cp-chip)', color: !filterCat ? 'var(--bg-main)' : 'var(--text-muted)', border: '1px solid', borderColor: !filterCat ? 'transparent' : 'var(--cp-chip-border)' }}
+                      >Все</button>
+                      {chipCategories.map(cat => (
+                        <motion.button
+                          key={cat.id} type="button" layout
+                          onClick={() => setFilterCat(prev => prev === cat.id ? null : cat.id)}
+                          className="cp-chip shrink-0 font-mono text-[7.5px] uppercase tracking-[0.15em] transition-all"
+                          style={{ padding: '4px 10px', borderRadius: 2, whiteSpace: 'nowrap', background: filterCat === cat.id ? 'var(--text-accent)' : 'var(--cp-chip)', color: filterCat === cat.id ? 'var(--bg-main)' : 'var(--text-muted)', border: '1px solid', borderColor: filterCat === cat.id ? 'transparent' : 'var(--cp-chip-border)' }}
+                        >
+                          <span style={{ marginRight: 4, opacity: 0.65 }}>{cat.icon}</span>{cat.name}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Body */}
+              <div style={{ display: 'flex', alignItems: 'stretch', minHeight: 0, flex: 1, overflow: 'hidden' }}>
+                {/* Left: list */}
+                <div ref={listRef} className="cp-list min-w-0 flex-1 overflow-y-auto" style={{ maxHeight: 'min(58svh, 60vh)' }}>
+
+                  {/* Quick actions */}
+                  {showQuickActions && (
+                    <div>
+                      <SectionLabel>Перейти</SectionLabel>
+                      <div className="pb-1">
+                        {quickActions.map((action, idx) => {
+                          const isActive = idx === activeIndex
+                          return (
+                            <button key={action.id} type="button" data-item onClick={action.action} onMouseEnter={() => setActiveIndex(idx)}
+                              className="flex w-full items-center gap-3 px-5 py-2.5 text-left"
+                              style={{ background: isActive ? 'var(--cp-surface)' : 'transparent', borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent', transition: 'all 0.09s ease' }}
+                            >
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center font-mono text-[7px] font-bold uppercase"
+                                style={{ borderRadius: 2, background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)', color: isActive ? 'var(--bg-main)' : 'var(--text-muted)', transition: 'all 0.09s ease' }}
+                              >{action.icon}</span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[12px] font-normal" style={{ color: 'var(--text-primary)' }}>{action.label}</p>
+                                {action.sublabel && <p className="truncate font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>{action.sublabel}</p>}
+                              </div>
+                              <ArrowRight />
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <Divider />
+                    </div>
+                  )}
+
+                  {/* Section label */}
+                  {articleResults.length > 0 && (
+                    <div className="flex items-center justify-between px-5 pb-1 pt-3">
+                      <SectionLabel inline>
+                        {query.trim() ? `${articleResults.length} ${pluralRu(articleResults.length, RESULT)}` : recentArticles.length > 0 ? 'Недавно читали' : 'Материалы'}
+                      </SectionLabel>
+                      {filterCat && (
+                        <button type="button" onClick={() => setFilterCat(null)}
+                          className="font-mono text-[7.5px] uppercase tracking-[0.18em] transition-opacity"
+                          style={{ color: 'var(--text-accent)', opacity: 0.65 }}
+                          onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                          onMouseLeave={e => (e.currentTarget.style.opacity = '0.65')}
+                        >× сбросить</button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Article rows */}
+                  <div className="pb-2">
+                    <AnimatePresence initial={false} mode="popLayout">
+                      {articleResults.map((result, idx) => {
+                        const article   = result.item
+                        const cat       = categories.find(c => c.id === article.category)
+                        const globalIdx = showQuickActions ? quickActions.length + idx : idx
+                        const isActive  = globalIdx === activeIndex
+                        const byAuthor  = !!result.matches?.find(m => m.key === 'author')?.indices?.length
+
+                        return (
+                          <motion.button
+                            key={article.id} type="button" data-item layout
+                            initial={shouldReduce ? false : { opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={shouldReduce ? {} : { opacity: 0, scale: 0.97, transition: { duration: 0.1 } }}
+                            transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32, delay: Math.min(idx * 0.02, 0.14) }}
+                            onClick={() => { onClose(); onOpenArticle(article) }}
+                            onMouseEnter={() => setActiveIndex(globalIdx)}
+                            className="flex w-full items-start gap-3 px-5 py-3 text-left"
+                            style={{ background: isActive ? 'var(--cp-surface)' : 'transparent', borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent', transition: 'background 0.1s ease, border-color 0.08s ease' }}
+                          >
+                            {/* Thumbnail */}
+                            <div style={{ position: 'relative', marginTop: 2, flexShrink: 0 }}>
+                              {article.image ? (
+                                <ArticleImage src={article.image} alt="" style={{ width: 52, height: 52, borderRadius: 2 }} />
+                              ) : (
+                                <div style={{ width: 52, height: 52, borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)', color: isActive ? 'var(--bg-main)' : 'var(--text-muted)', fontFamily: 'monospace', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', transition: 'all 0.1s ease' }}>
+                                  {cat?.icon ?? '·'}
+                                </div>
+                              )}
+
+                              {(result.pct ?? 0) > 0 && (
+                                <div style={{ position: 'absolute', bottom: 0, left: 0, height: 2, width: `${result.pct}%`, background: 'var(--text-accent)', borderRadius: '0 0 0 2px' }} />
+                              )}
+
+                              {isActive && article.image && (
+                                <motion.div layoutId="cp-active-ring"
+                                  style={{ position: 'absolute', inset: -1, border: '1.5px solid var(--text-accent)', borderRadius: 3, opacity: 0.5, pointerEvents: 'none' }}
+                                  transition={{ type: 'spring', stiffness: 600, damping: 42 }}
+                                />
+                              )}
+                            </div>
+
+                            {/* Text */}
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <p className="truncate text-[13px] font-normal leading-snug" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)', transition: 'color 0.1s ease' }}>
+                                <H text={article.title} matches={result.matches} field="title" />
+                              </p>
+                              <p className="mt-0.5 truncate font-mono text-[9px]" style={{ color: 'var(--cp-text-mid)' }}>
+                                <span style={{ opacity: 0.7 }}>{cat?.icon ?? '·'}</span>{' '}{cat?.name ?? article.category}{' · '}{article.readTime} мин
+                                {article.author && <>{' · '}<span style={byAuthor ? { color: 'var(--text-accent)', opacity: 0.8 } : undefined}><H text={article.author} matches={result.matches} field="author" /></span></>}
+                              </p>
+                              <AnimatePresence>
+                                {isActive && (article.tags ?? []).length > 0 && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0, marginTop: 0 }} animate={{ opacity: 1, height: 'auto', marginTop: 6 }} exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                    transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                                    className="flex flex-wrap gap-1 overflow-hidden"
+                                  >
+                                    {(article.tags ?? []).slice(0, 4).map(tag => (
+                                      <span key={tag} className="font-mono text-[7.5px] uppercase tracking-[0.12em]"
+                                        style={{ padding: '2px 6px', border: '1px solid var(--cp-chip-border)', color: 'var(--cp-text-mid)', borderRadius: 2 }}>
+                                        #{tag}
+                                      </span>
+                                    ))}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </motion.button>
+                        )
+                      })}
+                    </AnimatePresence>
+
+                    {articleResults.length === 0 && query.trim() && (
+                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="px-5 py-12 text-center">
+                        <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center font-mono text-base"
+                          style={{ background: 'var(--cp-chip)', borderRadius: 4, color: 'var(--cp-text-mid)' }}>∅</div>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>Ничего не найдено</p>
+                        <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>«{query}»</p>
+                        <p className="mt-3 font-mono text-[8.5px]" style={{ color: 'var(--cp-text-lo)' }}>Попробуйте: шоколад · ваниль · крем · техники</p>
+                      </motion.div>
+                    )}
+
+                    {articleResults.length === 0 && !query.trim() && (
+                      <div className="px-5 py-10 text-center">
+                        <p className="font-mono text-[9px] uppercase tracking-[0.28em]" style={{ color: 'var(--cp-text-mid)' }}>Начните вводить для поиска</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: preview panel (sm+ only) */}
+                <AnimatePresence mode="wait">
+                  {activeResult && (
+                    <motion.div
+                      key={activeResult.item.id}
+                      initial={shouldReduce ? false : { opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={shouldReduce ? {} : { opacity: 0, x: 10 }}
+                      transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
+                      style={{ width: 250, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                      className="hidden sm:flex"
+                    >
+                      <div style={{ position: 'relative', height: 160, flexShrink: 0 }}>
+                        {activeResult.item.image ? (
+                          <ArticleImage src={activeResult.item.image} alt={activeResult.item.title} style={{ width: '100%', height: '100%' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: 'var(--cp-chip)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, opacity: 0.15, color: 'var(--text-primary)' }}>
+                            {categories.find(c => c.id === activeResult.item.category)?.icon ?? '✦'}
+                          </div>
                         )}
-                        {/* GAP-03: Tags */}
-                        {isActive && (article.tags ?? []).length > 0 && (
-                          <div className="mt-1.5 flex flex-wrap gap-1">
-                            {(article.tags ?? []).slice(0, 3).map(tag => (
-                              <span
-                                key={tag}
-                                className="border border-stone-700 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.16em] text-stone-500"
-                              >
-                                #{tag}
-                              </span>
-                            ))}
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.04) 30%, var(--bg-command) 100%)', pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', top: 10, left: 10, padding: '3px 8px', background: 'var(--cp-badge-scrim)', backdropFilter: 'blur(10px)', border: '1px solid var(--cp-chip-border)', borderRadius: 2 }}>
+                          <span className="font-mono text-[7px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
+                            {categories.find(c => c.id === activeResult.item.category)?.icon}{' '}
+                            {categories.find(c => c.id === activeResult.item.category)?.name ?? activeResult.item.category}
+                          </span>
+                        </div>
+                        {(activeResult.pct ?? 0) > 0 && (
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'var(--cp-chip)' }}>
+                            <div style={{ height: '100%', width: `${activeResult.pct}%`, background: 'var(--text-accent)' }} />
                           </div>
                         )}
                       </div>
-                    </button>
-                  )
-                })}
 
-                {articleResults.length === 0 && query.trim() && (
-                  <div className="px-5 py-12 text-center">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-stone-600">
-                      Ничего не найдено
-                    </p>
-                    <p className="mt-1.5 text-[11px] text-stone-700">«{query}»</p>
-                  </div>
-                )}
+                      <div style={{ padding: '14px 16px 12px', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <p className="text-[13px] font-normal" style={{ color: 'var(--text-primary)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <H text={activeResult.item.title} matches={activeResult.matches} field="title" />
+                        </p>
+                        {activeResult.item.excerpt && (
+                          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            <H text={activeResult.item.excerpt} matches={activeResult.matches} field="excerpt" />
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.14em]" style={{ color: 'var(--cp-text-mid)' }}>
+                          <span>{activeResult.item.readTime} мин</span>
+                          {activeResult.item.date && <><span style={{ opacity: 0.4 }}>·</span><span>{new Date(activeResult.item.date).toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' })}</span></>}
+                        </div>
+                        {(activeResult.item.tags ?? []).length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {(activeResult.item.tags ?? []).slice(0, 3).map(tag => (
+                              <span key={tag} className="font-mono text-[7px] uppercase tracking-[0.1em]"
+                                style={{ padding: '2px 6px', border: '1px solid var(--cp-chip-border)', color: 'var(--cp-text-mid)', borderRadius: 2 }}>{tag}</span>
+                            ))}
+                          </div>
+                        )}
+                        <button type="button" onClick={() => { onClose(); onOpenArticle(activeResult.item) }}
+                          className="mt-auto flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
+                          style={{ color: 'var(--text-accent)', opacity: 0.65, alignSelf: 'flex-start', padding: '4px 0' }}
+                          onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                          onMouseLeave={e => (e.currentTarget.style.opacity = '0.65')}
+                        >
+                          Читать
+                          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div
-              className="flex items-center justify-between px-5 py-2.5"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-            >
-              <div className="flex items-center gap-4 font-mono text-[8px] uppercase tracking-[0.26em] text-stone-700">
-                <span>↑↓ навигация</span>
-                <span>↵ открыть</span>
+              {/* Footer */}
+              <div className="flex items-center justify-between px-5 py-2.5 shrink-0" style={{ borderTop: '1px solid var(--cp-divider)' }}>
+                <div className="flex items-center gap-5 font-mono text-[7.5px] uppercase tracking-[0.24em]" style={{ color: 'var(--cp-text-mid)' }}>
+                  <span>↑↓ навигация</span>
+                  <span>↵ открыть</span>
+                  <span className="hidden sm:inline">esc закрыть</span>
+                </div>
+                <span className="font-mono text-[7.5px] uppercase tracking-[0.2em]" style={{ color: 'var(--cp-text-lo)' }}>
+                  {articles.length}&thinsp;{pluralRu(articles.length, MATERIAL)}
+                </span>
               </div>
-              <span className="font-mono text-[8px] uppercase tracking-[0.26em] text-stone-700">
-                {articles.length}&thinsp;{pluralRu(articles.length, MATERIAL)}
-              </span>
-            </div>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+function SectionLabel({ children, inline }: { children: React.ReactNode; inline?: boolean }) {
+  if (inline) return <span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
+  return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
+}
+
+function Divider() {
+  return <div style={{ height: 1, background: 'var(--cp-divider)', margin: '2px 20px 2px' }} />
+}
+
+function ArrowRight() {
+  return (
+    <svg className="h-3 w-3 shrink-0" style={{ color: 'var(--cp-text-mid)' }}
+      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+    </svg>
   )
 }

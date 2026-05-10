@@ -9,7 +9,7 @@
  * Each article page only embeds its own content.
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import Fuse from 'fuse.js'
+import Fuse, { type FuseResultMatch } from 'fuse.js'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
@@ -109,26 +109,44 @@ export default function HomeApp({ articles }: HomeAppProps) {
     syncUrlQuery('')
   }, [syncUrlQuery])
 
-  // GAP-08/F-01: Fuse.js for page search — same algorithm as CommandPalette
+  // GAP-08/F-01: Fuse.js for page search — same algorithm as CommandPalette.
+  // CRITICAL FIX: includeMatches:true so we can do accurate fuzzy highlighting
+  // in ArticlesGrid (old split-by-regex approach missed transliteration matches).
   const fuse = useMemo(() => new Fuse(articles, {
     keys: [
-      { name: 'title', weight: 0.45 },
-      { name: 'excerpt', weight: 0.2 },
-      { name: 'author', weight: 0.15 },
-      { name: 'tags', weight: 0.15 },
+      { name: 'title',   weight: 0.45 },
+      { name: 'excerpt', weight: 0.2  },
+      { name: 'author',  weight: 0.15 },
+      { name: 'tags',    weight: 0.15 },
     ],
     threshold: 0.35,
     ignoreLocation: true,
     minMatchCharLength: 2,
+    includeMatches: true,
   }), [articles])
 
-  const filteredArticles = useMemo(() => {
+  // matchMap: articleId → Fuse match array, used for accurate highlighting in ArticlesGrid
+  const { filteredArticles, matchMap } = useMemo(() => {
     const byCategory = selectedCategory
-      ? articles.filter(a => a.category === selectedCategory)
+      ? selectedCategory === 'chefs'
+        ? articles.filter(a => CHEF_IDS.has(a.category))
+        : articles.filter(a => a.category === selectedCategory)
       : articles
-    if (!searchQuery.trim()) return byCategory
-    const results = fuse.search(searchQuery.trim()).map(r => r.item)
-    return selectedCategory ? results.filter(a => a.category === selectedCategory) : results
+
+    if (!searchQuery.trim()) {
+      return { filteredArticles: byCategory, matchMap: new Map() }
+    }
+
+    const results = fuse.search(searchQuery.trim())
+    const map = new Map(results.map(r => [r.item.id, r.matches ?? []]))
+
+    const filtered = selectedCategory
+      ? selectedCategory === 'chefs'
+        ? results.filter(r => CHEF_IDS.has(r.item.category)).map(r => r.item)
+        : results.filter(r => r.item.category === selectedCategory).map(r => r.item)
+      : results.map(r => r.item)
+
+    return { filteredArticles: filtered, matchMap: map }
   }, [articles, selectedCategory, searchQuery, fuse])
 
   // F-03: Sync search query to URL ?q=
@@ -223,6 +241,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           selectedCategory={selectedCategory}
           onSelectCategory={handleSelectCategory}
           searchQuery={searchQuery}
+          matchMap={matchMap as Map<string, ReadonlyArray<FuseResultMatch>>}
         />
         <Footer />
         <CommandPalette
