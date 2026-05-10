@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { libraryMeta } from '../data/library'
-import { categories } from '../data/categories'
 
 interface AnimatedCounterProps {
   target: number
@@ -63,12 +61,16 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label }: AnimatedCo
   )
 }
 
-const articleCount = libraryMeta.length
-const categoryCount = categories.length
-// Count unique authors
-const authorCount = new Set(libraryMeta.map(a => a.author).filter(Boolean)).size
+interface StatsBarProps {
+  /** Total published articles — passed from HomeApp to avoid importing library.ts (deepContents chain) */
+  articleCount: number
+  /** Unique authors across all articles */
+  authorCount: number
+  /** Number of categories that contain at least one article */
+  categoryCount: number
+}
 
-export default function StatsBar() {
+export default function StatsBar({ articleCount, authorCount, categoryCount }: StatsBarProps) {
   return (
     <section className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px sm:grid-cols-4">

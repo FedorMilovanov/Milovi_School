@@ -62,6 +62,12 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     }
   }, [])
 
+  // Stable refs for CommandPalette props — avoids inline function churn.
+  const closeCommand = useCallback(() => setCommandOpen(false), [])
+  const openArticleByUrl = useCallback((a: ArticleMeta) => {
+    window.location.href = `/articles/${a.id}/`
+  }, [])
+
   // Cmd/Ctrl+K → command palette
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -97,13 +103,8 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         <CommandPalette
           open={commandOpen}
           articles={allMeta}
-          theme={theme}
-          onClose={() => setCommandOpen(false)}
-          onOpenArticle={a => { window.location.href = `/articles/${a.id}/` }}
-          onGoHome={goHome}
-          onGoCategories={() => goToSection('archive')}
-          onGoArticles={() => goToSection('articles')}
-          onToggleTheme={toggleTheme}
+          onClose={closeCommand}
+          onOpenArticle={openArticleByUrl}
         />
       </ErrorBoundary>
       <UpdateNotification />

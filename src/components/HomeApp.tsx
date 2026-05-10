@@ -8,14 +8,15 @@
  * This means deepContents.ts (951 KB) is NEVER shipped to the browser.
  * Each article page only embeds its own content.
  */
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import Fuse from 'fuse.js'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
 import ShowcaseSlider from './ShowcaseSlider'
 import StatsBar from './StatsBar'
 import DashboardBento from './DashboardBento'
-
+import MainCategories from './MainCategories'
 import Categories from './Categories'
 import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
@@ -30,13 +31,13 @@ import ScrollToTop from './ScrollToTop'
 import { type ArticleMeta } from '../data/articles'
 import { categories } from '../data/categories'
 
-// Defined outside component — constant, never changes across renders
-const CHEF_IDS = new Set([
-  'pierre-herme', 'cedric-grolet', 'christophe-michalak', 'philippe-conticini',
-  'nina-metayer', 'yann-couvreur', 'dominique-ansel', 'claire-heitzler',
-  'francois-perret', 'cyril-lignac', 'nicolas-paciello', 'christophe-felder',
-  'mercotte', 'jacques-genin',
+// F-13: Derive CHEF_IDS from categories — no manual sync when adding chefs
+const NON_CHEF_CATEGORY_IDS = new Set([
+  'techniques', 'recipes', 'french-cuisine', 'histoire-culinaire', 'chiffres-gourmands',
 ])
+const CHEF_IDS = new Set(
+  categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
+)
 
 interface HomeAppProps {
   /** All articles metadata (no content) — safe to embed in page HTML */
@@ -44,8 +45,17 @@ interface HomeAppProps {
 }
 
 export default function HomeApp({ articles }: HomeAppProps) {
-  const articleCategoryIds = new Set(articles.map(a => a.category))
-  const nonEmptyCategories = categories.filter(c => articleCategoryIds.has(c.id))
+  const nonEmptyCategories = useMemo(() => {
+    const articleCategoryIds = new Set(articles.map(a => a.category))
+    return categories.filter(c => articleCategoryIds.has(c.id))
+  }, [articles])
+
+  const statsArticleCount = articles.length
+  const statsAuthorCount = useMemo(
+    () => new Set(articles.map(a => a.author).filter(Boolean)).size,
+    [articles],
+  )
+  const statsCategoryCount = categories.length
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState(() => {
@@ -60,6 +70,21 @@ export default function HomeApp({ articles }: HomeAppProps) {
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
+  // F-12: MobileBottomBar auto-hide on scroll down, show on scroll up
+  const [barVisible, setBarVisible] = useState(true)
+  const lastScrollY = useRef(0)
+  useEffect(() => {
+    const onScroll = () => {
+      const current = window.scrollY
+      const delta = current - lastScrollY.current
+      if (Math.abs(delta) < 6) return
+      setBarVisible(delta < 0 || current < 100)
+      lastScrollY.current = current
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   useEffect(() => {
     safeSetItem('theme', theme)
     document.documentElement.style.colorScheme = theme
@@ -69,46 +94,79 @@ export default function HomeApp({ articles }: HomeAppProps) {
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
-  // Reset search when changing category — prevents "nothing found" on combined filter
+  // F-03 helper: update URL search param
+  const syncUrlQuery = useCallback((query: string) => {
+    const params = new URLSearchParams(window.location.search)
+    if (query.trim()) params.set('q', query)
+    else params.delete('q')
+    const qs = params.toString()
+    window.history.replaceState({}, '', qs ? `?${qs}` : window.location.pathname)
+  }, [])
+
   const handleSelectCategory = useCallback((id: string | null) => {
     setSelectedCategory(id)
     setSearchQuery('')
-  }, [])
+    syncUrlQuery('')
+  }, [syncUrlQuery])
 
-  const filteredArticles = articles.filter(article => {
-    const matchesCategory = selectedCategory ? article.category === selectedCategory : true
-    const haystack = [article.title, article.excerpt, article.author, ...(article.tags ?? [])]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-    const matchesSearch = searchQuery ? haystack.includes(searchQuery.toLowerCase()) : true
-    return matchesCategory && matchesSearch
-  })
+  // GAP-08/F-01: Fuse.js for page search — same algorithm as CommandPalette
+  const fuse = useMemo(() => new Fuse(articles, {
+    keys: [
+      { name: 'title', weight: 0.45 },
+      { name: 'excerpt', weight: 0.2 },
+      { name: 'author', weight: 0.15 },
+      { name: 'tags', weight: 0.15 },
+    ],
+    threshold: 0.35,
+    ignoreLocation: true,
+    minMatchCharLength: 2,
+  }), [articles])
 
-  // Navigation helpers — smooth scroll on home page
+  const filteredArticles = useMemo(() => {
+    const byCategory = selectedCategory
+      ? articles.filter(a => a.category === selectedCategory)
+      : articles
+    if (!searchQuery.trim()) return byCategory
+    const results = fuse.search(searchQuery.trim()).map(r => r.item)
+    return selectedCategory ? results.filter(a => a.category === selectedCategory) : results
+  }, [articles, selectedCategory, searchQuery, fuse])
+
+  // F-03: Sync search query to URL ?q=
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query)
+    syncUrlQuery(query)
+  }, [syncUrlQuery])
+
   const goHome = useCallback(() => {
     setSelectedCategory(null)
     setSearchQuery('')
+    syncUrlQuery('')
     window.setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 0)
-  }, [])
+  }, [syncUrlQuery])
 
   const scrollToSection = useCallback((id: string) => {
     window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
   }, [])
 
-  // Theme navigation for bottom bar
   const goToChefs = useCallback(() => {
     setSelectedCategory(null)
     setSearchQuery('')
     scrollToSection('archive')
   }, [scrollToSection])
 
-  // Article click → navigate to static article page
   const openArticle = useCallback((article: ArticleMeta) => {
     window.location.href = `/articles/${article.id}/`
   }, [])
 
-  // Keyboard shortcut Cmd/Ctrl+K → command palette
+  // Stable callbacks for CommandPalette — prevents quickActions useMemo from
+  // recomputing on every render because of new inline-function references.
+  const closeCommand = useCallback(() => setCommandOpen(false), [])
+  const handleCommandSelectCategory = useCallback((id: string) => {
+    handleSelectCategory(id)
+    scrollToSection('archive')
+    setCommandOpen(false)
+  }, [handleSelectCategory, scrollToSection])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -133,9 +191,20 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoAbout={() => scrollToSection('about')}
           onOpenCommand={() => setCommandOpen(true)}
         />
-        <Hero totalArticles={articles.length} />
+        <Hero
+          totalArticles={articles.length}
+          onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
+        />
         <ShowcaseSlider onItemClick={(cat) => { handleSelectCategory(cat); scrollToSection('archive') }} />
-        <StatsBar />
+        <StatsBar
+          articleCount={statsArticleCount}
+          authorCount={statsAuthorCount}
+          categoryCount={statsCategoryCount}
+        />
+        <MainCategories
+          articles={articles}
+          onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
+        />
         <ContinueReading articles={articles} onArticleClick={openArticle} />
         <DashboardBento articles={articles} onArticleClick={openArticle} />
         <Categories
@@ -143,7 +212,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           selectedCategory={selectedCategory}
           onSelectCategory={handleSelectCategory}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           allArticles={articles}
         />
         <ArticlesGrid
@@ -159,19 +228,16 @@ export default function HomeApp({ articles }: HomeAppProps) {
         <CommandPalette
           open={commandOpen}
           articles={articles}
-          theme={theme}
-          onClose={() => setCommandOpen(false)}
+          onClose={closeCommand}
           onOpenArticle={openArticle}
-          onGoHome={goHome}
-          onGoCategories={() => scrollToSection('archive')}
-          onGoArticles={() => scrollToSection('articles')}
-          onToggleTheme={toggleTheme}
+          onSelectCategory={handleCommandSelectCategory}
         />
         <MobileBottomBar
           onGoHome={goHome}
           onGoCategories={goToChefs}
           onGoArticles={() => scrollToSection('articles')}
           onOpenCommand={() => setCommandOpen(true)}
+          visible={barVisible}
           activeSection={
             selectedCategory === 'techniques' ? 'articles'
             : selectedCategory === 'recipes' ? 'articles'

@@ -49,6 +49,14 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   --border-subtle:  rgba(28, 25, 23, 0.12);
   --selection-bg:   #451a03;
   --selection-fg:   #fef3c7;
+  /* ─── Aliases used by MainCategories (legacy design tokens) ─── */
+  --cream:          #f5efe5;
+  --cream-deep:     #f0e6d6;
+  --border:         rgba(28, 25, 23, 0.12);
+  --gold:           #92400e;
+  --gold-pale:      #c07a2a;
+  --ink:            #1c1917;
+  --ink-50:         #78716c;
 }
 
 .dark {
@@ -63,6 +71,14 @@ button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visibl
   --border-subtle:  rgba(232, 223, 210, 0.12);
   --selection-bg:   #d4a45f;
   --selection-fg:   #11100e;
+  /* ─── Aliases used by MainCategories (legacy design tokens) ─── */
+  --cream:          #11100e;
+  --cream-deep:     #080706;
+  --border:         rgba(232, 223, 210, 0.12);
+  --gold:           #d9a455;
+  --gold-pale:      #e4bc7a;
+  --ink:            #e8dfd2;
+  --ink-50:         #b7aa99;
   background-color: var(--bg-main);
   color: var(--text-primary);
 }

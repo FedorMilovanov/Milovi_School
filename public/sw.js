@@ -35,6 +35,8 @@ self.addEventListener('install', (event) => {
 
 // ─── Activate ───────────────────────────────────────────────────────────────
 self.addEventListener('activate', (event) => {
+  const MAX_CACHE_ENTRIES = 80
+
   event.waitUntil(
     caches
       .keys()
@@ -42,6 +44,15 @@ self.addEventListener('activate', (event) => {
         Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
       )
       .then(() => self.clients.claim())
+      .then(async () => {
+        // Trim cache if it grows too large (keeps newest entries)
+        const cache = await caches.open(CACHE_NAME)
+        const keys = await cache.keys()
+        if (keys.length > MAX_CACHE_ENTRIES) {
+          const toDelete = keys.slice(0, keys.length - MAX_CACHE_ENTRIES)
+          await Promise.all(toDelete.map((k) => cache.delete(k)))
+        }
+      })
   )
 })
 
@@ -82,12 +93,19 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached
-      return fetch(request).then((response) => {
-        if (response.ok && response.type === 'basic') {
-          caches.open(CACHE_NAME).then((c) => c.put(request, response.clone()))
-        }
-        return response
-      })
+      return fetch(request)
+        .then((response) => {
+          if (response.ok && response.type === 'basic') {
+            caches.open(CACHE_NAME).then((c) => c.put(request, response.clone()))
+          }
+          return response
+        })
+        .catch(() =>
+          // Asset not cached and network unavailable — return cached home as fallback
+          caches.match('/').then(
+            (fallback) => fallback ?? new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })
+          )
+        )
     })
   )
 })

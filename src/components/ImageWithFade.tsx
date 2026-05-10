@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface ImageWithFadeProps {
   src: string
@@ -13,6 +13,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true }:
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const shouldReduce = useReducedMotion()
 
   useEffect(() => {
     if (!lazy || !containerRef.current) return
@@ -43,9 +44,9 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true }:
           src={src}
           alt={alt}
           className="h-full w-full object-cover"
-          initial={{ opacity: 0, scale: 1.02 }}
-          animate={loaded ? { opacity: 1, scale: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={shouldReduce ? false : { opacity: 0, scale: 1.02 }}
+          animate={loaded ? { opacity: 1, scale: 1 } : (shouldReduce ? { opacity: 1 } : { opacity: 0 })}
+          transition={shouldReduce ? { duration: 0 } : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
         />

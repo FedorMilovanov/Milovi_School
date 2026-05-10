@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 type Theme = 'light' | 'dark'
 
@@ -16,6 +16,8 @@ interface HeaderProps {
 export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories, onGoArticles, onGoAbout, onOpenCommand }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+  const shouldReduce = useReducedMotion()
 
   useEffect(() => {
     const update = () => setScrolled(window.scrollY > 40)
@@ -32,6 +34,49 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])
+
+  // Scroll lock — prevent body scroll while mobile menu is open
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const scrollbarW = window.innerWidth - document.documentElement.clientWidth
+    const prevOverflow = document.body.style.overflow
+    const prevPad = document.body.style.paddingRight
+    document.body.style.overflow = 'hidden'
+    if (scrollbarW > 0) document.body.style.paddingRight = `${scrollbarW}px`
+    return () => {
+      document.body.style.overflow = prevOverflow
+      document.body.style.paddingRight = prevPad
+    }
+  }, [mobileMenuOpen])
+
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (!mobileMenuOpen || !mobileMenuRef.current) return
+    const menu = mobileMenuRef.current
+    const focusable = Array.from(
+      menu.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')
+    )
+    if (focusable.length) focusable[0].focus()
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault(); last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault(); first.focus()
+      }
+    }
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    document.addEventListener('keydown', handleTab)
+    document.addEventListener('keydown', handleEsc)
+    return () => {
+      document.removeEventListener('keydown', handleTab)
+      document.removeEventListener('keydown', handleEsc)
+    }
+  }, [mobileMenuOpen])
 
   return (
     <>
@@ -105,11 +150,15 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            className="fixed inset-x-0 top-[73px] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
-            initial={{ opacity: 0, y: -10 }}
+            ref={mobileMenuRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Навигационное меню"
+            className="fixed inset-x-0 top-[84px] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
+            initial={shouldReduce ? false : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
+            transition={shouldReduce ? { duration: 0 } : { duration: 0.2 }}
           >
             <div className="flex flex-col gap-5">
               <button

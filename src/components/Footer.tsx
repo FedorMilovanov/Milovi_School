@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
-  const [subscribed, setSubscribed] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   return (
     <footer id="about" className="bg-stone-950 text-amber-50">
@@ -19,27 +19,33 @@ export default function Footer() {
             </p>
           </div>
           <div className="mt-6 lg:mt-0">
-            {subscribed ? (
+            {submitted ? (
               <div className="border border-amber-500/30 px-6 py-4 text-sm text-amber-200">
-                Спасибо! Вы подписаны.
+                Запрос получен — подписка откроется скоро.
               </div>
             ) : (
-              <form
-                onSubmit={(e) => { e.preventDefault(); if (email.trim()) setSubscribed(true) }}
-                className="flex gap-2"
-              >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  className="w-64 border border-white/15 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-amber-200 focus:outline-none"
-                  required
-                />
-                <button type="submit" className="shrink-0 border border-amber-100 bg-amber-100 px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-stone-950 transition hover:bg-white">
-                  Подписаться
-                </button>
-              </form>
+              <div>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-64 border border-white/15 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-amber-200 focus:outline-none"
+                  />
+                  {/* F-09: newsletter not yet connected — show interest form, not fake subscription */}
+                  <button
+                    type="button"
+                    onClick={() => { if (email.trim()) setSubmitted(true) }}
+                    className="shrink-0 border border-amber-100 bg-amber-100 px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-stone-950 transition hover:bg-white"
+                  >
+                    Уведомить
+                  </button>
+                </div>
+                <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.24em] text-stone-600">
+                  Рассылка в разработке — сообщим когда откроется
+                </p>
+              </div>
             )}
           </div>
         </div>

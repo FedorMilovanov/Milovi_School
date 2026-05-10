@@ -385,6 +385,13 @@ export default function ArticlesGrid({
 
   return (
     <section id="articles" className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+      {/* NEW-IMP-B: aria-live region — screen readers announce filter results */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {(searchQuery.trim() || selectedCategory)
+          ? `Найдено ${articles.length} ${pluralRu(articles.length, MATERIAL)}`
+          : ''}
+      </div>
+
       {/* Section header */}
       <div className="mb-10 flex flex-col gap-5 border-y border-[var(--border-subtle)] py-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -397,6 +404,14 @@ export default function ArticlesGrid({
               {pluralRu(articles.length, MATERIAL)}
             </span>
           </h2>
+          {/* GAP-09: show result count when filtering */}
+          {(searchQuery.trim() || selectedCategory) && (
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.24em] text-stone-400 dark:text-stone-600">
+              {articles.length === 0
+                ? 'Ничего не найдено — попробуйте другой запрос'
+                : `Найдено: ${articles.length} ${pluralRu(articles.length, MATERIAL)}`}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

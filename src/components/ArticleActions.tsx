@@ -33,7 +33,7 @@ export default function ArticleActions({ article }: ArticleActionsProps) {
     showToast('save', newSaved ? 'Добавлено в закладки' : 'Убрано из закладок')
   }
 
-  const copyLink = async () => {
+  const copyLink = async (): Promise<boolean> => {
     try {
       const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`
       await navigator.clipboard.writeText(url)
@@ -41,8 +41,10 @@ export default function ArticleActions({ article }: ArticleActionsProps) {
       showToast('copy', 'Ссылка скопирована')
       if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current)
       copiedTimeoutRef.current = window.setTimeout(() => setCopied(false), 2000)
+      return true
     } catch (e) {
       console.error('Failed to copy:', e)
+      return false
     }
   }
 
@@ -55,14 +57,20 @@ export default function ArticleActions({ article }: ArticleActionsProps) {
           text: article.excerpt,
           url,
         })
+        // F-19: show toast on successful native share
+        showToast('share', 'Поделились статьёй')
       } catch (e) {
         if ((e as Error).name !== 'AbortError') console.error(e)
       }
     } else {
-      copyLink()
-      setShareCopied(true)
-      if (shareTimeoutRef.current !== null) window.clearTimeout(shareTimeoutRef.current)
-      shareTimeoutRef.current = window.setTimeout(() => setShareCopied(false), 2000)
+      // No native share API — fall back to clipboard copy
+      // Only flip shareCopied if the copy actually succeeded
+      copyLink().then((ok) => {
+        if (!ok) return
+        setShareCopied(true)
+        if (shareTimeoutRef.current !== null) window.clearTimeout(shareTimeoutRef.current)
+        shareTimeoutRef.current = window.setTimeout(() => setShareCopied(false), 2000)
+      })
     }
   }
 

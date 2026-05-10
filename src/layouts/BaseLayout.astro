@@ -47,9 +47,10 @@ const rawImage: string =
 const ogImage = rawImage.startsWith('http') ? rawImage : `${siteUrl}${rawImage}`
 
 // Trim description to 160 chars for Google snippet (no mid-word truncation)
+const lastSpace = description.lastIndexOf(' ', 157)
 const metaDescription =
   description.length > 160
-    ? description.slice(0, description.lastIndexOf(' ', 157)) + '…'
+    ? description.slice(0, lastSpace > 0 ? lastSpace : 157) + '…'
     : description
 ---
 
@@ -139,6 +140,35 @@ const metaDescription =
 
     <!-- Preconnect for Unsplash images -->
     <link rel="preconnect" href="https://images.unsplash.com" />
+
+    <!--
+      Theme — apply BEFORE first paint to prevent flash of unstyled content (FOUC).
+      This blocking inline script reads localStorage and adds the `dark` class
+      to <html> immediately, before React hydrates and its useEffect fires.
+
+      ⚠ CSP note: if you ever add a Content-Security-Policy header with
+        `script-src 'self'` (possible on Cloudflare Pages / Vercel / Netlify),
+        this inline script will be blocked. Fix by either:
+          a) whitelisting it with its SHA-256 hash:
+             `script-src 'self' 'sha256-<hash>'`
+          b) replacing it with a `<script src="/theme-init.js">` served from /public
+    -->
+    <script is:inline>
+      (function () {
+        try {
+          var s = localStorage.getItem('theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          if (s === 'dark' || (!s && prefersDark)) {
+            document.documentElement.classList.add('dark')
+            document.documentElement.style.colorScheme = 'dark'
+          } else {
+            document.documentElement.style.colorScheme = 'light'
+          }
+        } catch (_) {
+          // localStorage blocked (private mode, permissions policy) — fail silently
+        }
+      })()
+    </script>
 
     <!-- Page-specific head content (JSON-LD, extra meta, etc.) -->
     <slot name="head" />

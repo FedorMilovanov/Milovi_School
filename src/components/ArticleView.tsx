@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Article, type ArticleMeta } from '../data/articles'
 import { categories } from '../data/categories'
@@ -8,6 +8,7 @@ import ReadingTime from './ReadingTime'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import { calculateReadingStreak } from '../utils/streak'
 import { pluralRu, HEADING } from '../utils/plural'
+import { showToast } from './Toast'
 
 interface ArticleViewProps {
   article: Article
@@ -45,6 +46,9 @@ function splitInlineBlocks(text: string): string[] {
 }
 
 function InlineText({ text }: { text: string }) {
+  // useId gives a stable, globally unique prefix per component instance,
+  // preventing duplicate aria-describedby IDs across multiple paragraphs.
+  const uid = useId()
   const normalized = normalizeStars(text)
   const parts = normalized.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean)
   const terms: Record<string, string> = {
@@ -66,10 +70,11 @@ function InlineText({ text }: { text: string }) {
     return value.split(pattern).filter(Boolean).map((piece, index) => {
       const translation = terms[piece.toLowerCase()]
       if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
+      const tipId = `tip-${uid}-${keyPrefix}-${index}`
       return (
-        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-help items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200">
+        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-help items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200" tabIndex={0} aria-describedby={tipId}>
           {piece}
-          <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
+          <span id={tipId} role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
             {translation}
           </span>
         </span>
@@ -133,12 +138,16 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
   const [copied, setCopied] = useState(false)
   const [tocOpen, setTocOpen] = useState(false)
   const [resumePosition, setResumePosition] = useState(0)
+  // F-18: ref to the floating TOC <details> element so we can close it after navigation
+  const detailsTocRef = useRef<HTMLDetailsElement>(null)
 
   useEffect(() => {
     const savedPos = Number(safeGetItem(`article-progress:${article.id}`) ?? 0)
     setResumePosition(savedPos > 360 ? savedPos : 0)
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }))
     setSaved(safeGetItem(`article-saved:${article.id}`) === 'true')
+    // F-06: record timestamp of last visit so DashboardBento shows truly last-read article
+    safeSetItem(`article-last-read:${article.id}`, String(Date.now()))
   }, [article.id])
 
   useEffect(() => {
@@ -173,7 +182,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
   const toggleLargeText = () => setLargeText(v => { const next = !v; safeSetItem('pref-large-text', String(next)); return next })
   const toggleFocusMode = () => setFocusMode(v => { const next = !v; safeSetItem('pref-focus-mode', String(next)); return next })
 
-  const headings = article.content
+  // NEW-IMP-A: memoize — headings is expensive (split+flatMap the full article content)
+  const headings = useMemo(() => article.content
     .split('\n\n')
     .flatMap(splitInlineBlocks)          // must mirror renderContent's flatMap so idx values align
     .map((b, idx) => ({ raw: b.trim(), idx }))
@@ -206,15 +216,29 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
       }
       return { title, id: headingId(title, idx) }
     })
+  , [article.content])
 
-  const related = allArticles.filter(a => a.id !== article.id && a.category === article.category).slice(0, 3)
+  // F-07: Related articles — same category first, then by shared tags from other categories
+  const related = useMemo(() => {
+    const sameCat = allArticles.filter(a => a.id !== article.id && a.category === article.category)
+    if (sameCat.length >= 3) return sameCat.slice(0, 3)
+    const tagSet = new Set(article.tags ?? [])
+    const byTags = allArticles.filter(a =>
+      a.id !== article.id &&
+      a.category !== article.category &&
+      a.tags?.some(t => tagSet.has(t))
+    )
+    return [...sameCat, ...byTags].slice(0, 3)
+  }, [allArticles, article.id, article.category, article.tags])
+
   const textSize = largeText ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'
 
-  const renderContent = (content: string) =>
-    // Сначала по двойному переносу, затем разделяем bold-заголовки которые слиплись с текстом
-    content.split('\n\n').flatMap(splitInlineBlocks).map((block, idx) => {
-      const p = block.trim()
-      if (!p) return null
+  // NEW-IMP-A: memoize — full content parse is expensive
+  const renderedContent = useMemo(() => {
+    const renderContent = (content: string) =>
+      content.split('\n\n').flatMap(splitInlineBlocks).map((block, idx) => {
+        const p = block.trim()
+        if (!p) return null
 
       if (/^={10,}$/.test(p)) return <Divider key={idx} />
 
@@ -274,6 +298,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
       return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize}`}><InlineText text={p} /></p>
     })
+    return renderContent(article.content)
+  }, [article.content, largeText])
 
   const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
 
@@ -306,7 +332,16 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
             <div>
               <p className="text-xl leading-8 text-stone-600 dark:text-stone-400 md:text-2xl md:leading-9">{article.excerpt}</p>
               <div className="mt-5 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500">
-                {(article.tags ?? []).slice(0, 6).map(tag => <span key={tag} className="border border-stone-200 dark:border-stone-700 px-2 py-0.5">#{tag}</span>)}
+                {(article.tags ?? []).slice(0, 6).map(tag => (
+                  <a
+                    key={tag}
+                    href={`/?q=${encodeURIComponent(tag)}`}
+                    className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400"
+                    title={`Найти материалы по тегу ${tag}`}
+                  >
+                    #{tag}
+                  </a>
+                ))}
               </div>
               <div className="mt-6">
                 <ArticleActions article={article} />
@@ -321,7 +356,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Hero image */}
           <div className={`my-8 overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto aspect-[16/8] max-w-3xl' : 'aspect-[16/7] md:aspect-[16/6]'}`}>
-            <img src={article.image} alt={article.title} className="h-full w-full object-cover object-center" loading="eager" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} />
+            <img src={article.image} alt={article.title} className="h-full w-full object-cover object-center" loading="eager" decoding="async" fetchPriority="high" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} />
           </div>
 
           {/* Mobile TOC — luxury animated accordion */}
@@ -356,14 +391,19 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                   >
                     {headings.map((h, i) => (
                       <li key={h.id}>
-                        <a
-                          href={`#${h.id}`}
-                          onClick={() => setTocOpen(false)}
-                          className="flex gap-3 border-b border-stone-50 px-5 py-3 text-sm leading-6 text-stone-600 transition-colors last:border-b-0 hover:bg-amber-50/60 hover:text-amber-800 dark:border-stone-900 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTocOpen(false)
+                            requestAnimationFrame(() => {
+                              document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                            })
+                          }}
+                          className="flex w-full gap-3 border-b border-stone-50 px-5 py-3 text-left text-sm leading-6 text-stone-600 transition-colors last:border-b-0 hover:bg-amber-50/60 hover:text-amber-800 dark:border-stone-900 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
                         >
                           <span className="mt-px flex-shrink-0 font-mono text-[9px] tracking-wider text-stone-400">{String(i + 1).padStart(2, '0')}</span>
                           <span>{h.title}</span>
-                        </a>
+                        </button>
                       </li>
                     ))}
                   </motion.ol>
@@ -384,7 +424,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                     <button type="button" onClick={() => largeText && toggleLargeText()} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
                     <button type="button" onClick={() => !largeText && toggleLargeText()} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
                   </div>
-                  <button type="button" onClick={() => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; navigator.clipboard?.writeText(url); setCopied(true); window.setTimeout(() => setCopied(false), 1400) }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
+                  <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); window.setTimeout(() => setCopied(false), 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
                   <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
                   <button type="button" onClick={toggleFocusMode} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{focusMode ? 'выключить фокус' : 'режим фокуса'}</button>
                 </div>
@@ -406,7 +446,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Содержание</p>
                     <ol className="mt-3 space-y-1.5">
-                      {headings.map((h, i) => <li key={h.id}><a href={`#${h.id}`} className="flex gap-2 text-sm leading-6 text-stone-600 transition hover:text-amber-800 line-clamp-2 dark:text-stone-400 dark:hover:text-amber-400"><span className="flex-shrink-0 text-stone-400">{i + 1}.</span>{h.title}</a></li>)}
+                      {headings.map((h, i) => <li key={h.id}><button type="button" onClick={() => document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="flex w-full gap-2 text-left text-sm leading-6 text-stone-600 transition hover:text-amber-800 line-clamp-2 dark:text-stone-400 dark:hover:text-amber-400"><span className="flex-shrink-0 text-stone-400">{i + 1}.</span>{h.title}</button></li>)}
                     </ol>
                   </div>
                 )}
@@ -414,11 +454,46 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
             </aside>
 
             {/* Article body */}
-            <div className="space-y-7 min-w-0 article-body">{renderContent(article.content)}</div>
+            <div className="space-y-7 min-w-0 article-body">{renderedContent}</div>
 
             {/* Spacer for right column */}
             <div className={focusMode ? 'hidden' : 'hidden lg:block'} />
           </div>
+
+          {/* F-18: Floating TOC button for focus mode on desktop — sidebar is hidden in focus
+              mode but TOC navigation is still useful. Show a minimal sticky pill at top-right
+              of the reading area that expands into a mini TOC on click. */}
+          {focusMode && headings.length > 2 && (
+            <div className="hidden lg:block">
+              <div className="fixed right-6 top-32 z-30">
+                <details ref={detailsTocRef} className="group relative">
+                  <summary className="flex cursor-pointer list-none items-center gap-2 border border-stone-200 bg-white/90 px-3 py-2 shadow-sm backdrop-blur-sm transition hover:border-stone-400 dark:border-stone-700 dark:bg-stone-900/90 dark:hover:border-stone-500">
+                    <svg className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h10M4 18h7" />
+                    </svg>
+                    <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-stone-500 dark:text-stone-400">Разделы</span>
+                  </summary>
+                  <div className="absolute right-0 top-full mt-1 w-64 border border-stone-200 bg-white/95 py-2 shadow-xl backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95">
+                    {headings.map((h, i) => (
+                      <button
+                        key={h.id}
+                        type="button"
+                        onClick={() => {
+                          document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          // Close via ref — reliable regardless of where focus ends up
+                          if (detailsTocRef.current) detailsTocRef.current.open = false
+                        }}
+                        className="flex w-full gap-2.5 px-4 py-2 text-left text-sm leading-5 text-stone-600 transition hover:bg-amber-50 hover:text-amber-800 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
+                      >
+                        <span className="mt-px flex-shrink-0 font-mono text-[9px] text-stone-400">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="line-clamp-2">{h.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              </div>
+            </div>
+          )}
 
           {/* Related articles */}
           {!focusMode && related.length > 0 && (
@@ -441,9 +516,26 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
         </article>
       </div>
 
+      {/* F-16: Source info on mobile — desktop shows it in sidebar, mobile had nothing */}
+      {article.sourceUrl && (
+        <div className="mx-4 mt-4 border border-stone-200 bg-white/70 px-5 py-4 dark:border-stone-800 dark:bg-stone-900/70 lg:hidden">
+          <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Источник</p>
+          <p className="mt-1.5 text-sm leading-5 text-stone-700 dark:text-stone-300">{article.author}</p>
+          <a
+            href={article.sourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1.5 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+          >
+            {article.sourceLabel ?? 'Открыть'} ↗
+          </a>
+        </div>
+      )}
+
       {/* Scroll-to-top — sits above the mobile article bar */}
       {progress > 0.18 && (
         <button
+          type="button"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="fixed bottom-[5.5rem] right-4 z-50 grid h-10 w-10 place-items-center border border-stone-950 bg-stone-950 text-amber-100 shadow-lg transition hover:bg-amber-100 hover:text-stone-950 dark:border-amber-200 dark:bg-amber-200 dark:text-stone-950 dark:hover:bg-stone-950 dark:hover:text-amber-200 lg:bottom-8 lg:right-8 lg:h-12 lg:w-12"
           aria-label="Наверх"
@@ -482,7 +574,13 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Save / bookmark */}
           <button
-            onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }}
+            onClick={() => {
+              const next = !saved
+              setSaved(next)
+              safeSetItem(`article-saved:${article.id}`, String(next))
+              // F-05: show toast confirmation (was silent on mobile)
+              showToast('save', next ? 'Добавлено в закладки' : 'Удалено из закладок')
+            }}
             className={`group flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${saved ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-amber-800 dark:text-stone-500 dark:hover:text-amber-400'}`}
           >
             <svg className="h-[18px] w-[18px]" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

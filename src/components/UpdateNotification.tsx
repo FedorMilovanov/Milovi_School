@@ -15,7 +15,7 @@ export default function UpdateNotification() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
 
-    const handleUpdate = (registration: ServiceWorkerRegistration) => {
+    const showUpdateBanner = (registration: ServiceWorkerRegistration) => {
       if (registration.waiting) {
         waitingWorkerRef.current = registration.waiting
         setVisible(true)
@@ -25,13 +25,13 @@ export default function UpdateNotification() {
 
     navigator.serviceWorker.getRegistration().then(reg => {
       if (!reg) return
-      if (reg.waiting) handleUpdate(reg)
+      if (reg.waiting) showUpdateBanner(reg)
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing
         if (!newWorker) return
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            handleUpdate(reg)
+            showUpdateBanner(reg)
           }
         })
       })

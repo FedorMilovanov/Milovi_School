@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import type { ArticleMeta } from '../data/articles'
 import ScrollReveal from './ScrollReveal'
 import { calculateReadingStreak } from '../utils/streak'
-import { safeGetItem } from '../utils/storage'
+import { safeGetItem, safeSetItem } from '../utils/storage'
 import { pluralRu, DAY } from '../utils/plural'
 
 interface BentoProps {
@@ -112,7 +112,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
     let saved = 0
     let minutes = 0
     let lastActiveId: string | null = null
-    let maxPct = 0
+    let lastActiveTs = 0 // F-06: track by timestamp, not maxPct
 
     articles.forEach((a) => {
       const pct = Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0)
@@ -120,9 +120,14 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
       if (safeGetItem(`article-saved:${a.id}`) === 'true') saved++
       if (pct > 0) {
         minutes += Math.round((pct / 100) * a.readTime)
-        if (pct > maxPct) {
-          maxPct = pct
+        // F-06: use last-read timestamp; fall back to pct rank for articles read before this fix
+        const ts = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
+        if (ts > lastActiveTs) {
+          lastActiveTs = ts
           lastActiveId = a.id
+        } else if (ts === 0 && pct > 0 && lastActiveTs === 0) {
+          // Legacy fallback: no timestamp yet — pick first article with progress
+          lastActiveId = lastActiveId ?? a.id
         }
       }
     })
@@ -139,10 +144,28 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
     setStreak(s)
   }, [articles])
 
-  const quote = useMemo(() => QUOTES[new Date().getDate() % QUOTES.length], [])
+  // F-20: Per-user random quote seed so each visitor sees a different rotation.
+  // Uses safeGetItem/safeSetItem to stay resilient in private-browsing mode.
+  const quote = useMemo(() => {
+    const stored = safeGetItem('quote-seed')
+    const parsed = stored !== null ? Number(stored) : NaN
+    // Guard against corrupted storage (NaN, Infinity, out-of-range) by generating a fresh seed
+    const seed = Number.isInteger(parsed) && parsed >= 0 && parsed < QUOTES.length
+      ? parsed
+      : Math.floor(Math.random() * QUOTES.length)
+    // Write back only when we generated a new seed (first visit or corruption recovery)
+    if (!Number.isInteger(parsed) || parsed < 0 || parsed >= QUOTES.length) {
+      safeSetItem('quote-seed', String(seed))
+    }
+    // Advance one quote per calendar day so returning users see a fresh quote daily
+    const dayOffset = new Date().getDate()
+    return QUOTES[(seed + dayOffset) % QUOTES.length]
+  }, [])
 
-  // Don't render if user hasn't started reading anything yet
-  if (readCount === 0 && bookmarksCount === 0 && totalMinutes === 0) return null
+  // F-17: Don't render until useEffect has run (avoids flicker from SSR zeros).
+  // After first article read the streak is set to 1 — include streak in the
+  // check so the bento becomes visible immediately on return to home page.
+  if (readCount === 0 && bookmarksCount === 0 && totalMinutes === 0 && streak === 0) return null
 
   return (
     <section className="px-6 pb-12" style={{ backgroundColor: 'var(--bg-main)' }}>
