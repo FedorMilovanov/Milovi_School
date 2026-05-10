@@ -69,22 +69,28 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
     return { chefs, techniques, recipes, 'chiffres-gourmands': chiffres }
   }, [articles])
 
-  // Scroll-reveal observer
+  // Scroll-reveal observer with fallback timer
   useEffect(() => {
     const els = sectionRef.current?.querySelectorAll('.reveal')
     if (!els?.length) return
+
+    // Fallback: если observer не сработал — показываем всё через 400ms
+    const fallback = setTimeout(() => {
+      els.forEach((el) => el.classList.add('in'))
+    }, 400)
+
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } })
       },
-      { threshold: 0.12, rootMargin: '0px 0px -32px 0px' }
+      { threshold: 0.05, rootMargin: '120px 0px 0px 0px' }
     )
     els.forEach((el) => io.observe(el))
-    return () => io.disconnect()
+    return () => { io.disconnect(); clearTimeout(fallback) }
   }, [])
 
   return (
-    <section id="categories" className="bg-[var(--cream-deep)] py-24 transition-colors" ref={sectionRef}>
+    <section id="categories" className="py-24 transition-colors" style={{ background: 'var(--bg-deep, #0d0b09)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} ref={sectionRef}>
       <div className="mx-auto max-w-[1380px] px-6 lg:px-10">
         {/* Section header */}
         <div className="reveal mb-16 flex flex-col items-start justify-between gap-6 border-b border-[var(--border)] pb-12 sm:flex-row sm:items-end">

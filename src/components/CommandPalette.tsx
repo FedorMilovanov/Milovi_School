@@ -80,10 +80,17 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   const [query, setQuery]             = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [filterCat, setFilterCat]     = useState<string | null>(null)
+  const [wideEnough, setWideEnough]   = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 640 : true)
   const inputRef     = useRef<HTMLInputElement>(null)
   const listRef      = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const shouldReduce = useReducedMotion()
+
+  useEffect(() => {
+    const onResize = () => setWideEnough(window.innerWidth >= 640)
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
   const fuse = useMemo(() => new Fuse<ArticleMeta>(articles, FUSE_OPTIONS), [articles])
 
   useEffect(() => {
@@ -149,7 +156,10 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   }, [activeIndex])
 
   const activeResult: ArticleResult | null = useMemo(() => {
-    if (showQuickActions && activeIndex < quickActions.length) return null
+    // When hovering a quick-action, show first article as preview context
+    if (showQuickActions && activeIndex < quickActions.length) {
+      return articleResults[0] ?? null
+    }
     const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
     return articleResults[idx] ?? null
   }, [activeIndex, showQuickActions, quickActions.length, articleResults])
@@ -456,17 +466,17 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
                 {/* Right: preview panel (sm+ only) */}
                 <AnimatePresence mode="wait">
-                  {activeResult && (
+                  {activeResult && wideEnough && (
                     <motion.div
                       key={activeResult.item.id}
                       initial={shouldReduce ? false : { opacity: 0, x: 16 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={shouldReduce ? {} : { opacity: 0, x: 10 }}
                       transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
-                      style={{ width: 250, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-                      className="hidden sm:flex"
+                      style={{ width: 260, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                      className="flex"
                     >
-                      <div style={{ position: 'relative', height: 160, flexShrink: 0 }}>
+                      <div style={{ position: 'relative', height: 200, flexShrink: 0 }}>
                         {activeResult.item.image ? (
                           <ArticleImage src={activeResult.item.image} alt={activeResult.item.title} style={{ width: '100%', height: '100%' }} />
                         ) : (
