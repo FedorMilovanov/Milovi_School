@@ -248,3 +248,85 @@ article:hover .article-excerpt { opacity: 0.85; transform: translateY(-1px); }
     --text-muted: #c8bdb0;
   }
 }
+
+
+/* ========================================================
+   PREMIUM PATISSERIE STYLES (v4.0)
+   ======================================================== */
+@layer base {
+  /* Elegant text selection */
+  ::selection {
+    background-color: #d97706; /* amber-600 */
+    color: #fffbeb; /* amber-50 */
+    text-shadow: none;
+  }
+  .dark ::selection {
+    background-color: #fbbf24; /* amber-400 */
+    color: #451a03; /* amber-950 */
+  }
+
+  /* Custom elegant scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #d6d3d1;
+    border-radius: 10px;
+    border: 2px solid var(--bg-main);
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: #57534e;
+    border: 2px solid #0c0a09;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a29e;
+  }
+}
+
+@layer utilities {
+  /* French Drop Cap (Буквица) */
+  .drop-cap > p:first-of-type::first-letter {
+    float: left;
+    font-size: 5rem;
+    line-height: 0.75;
+    padding-right: 0.75rem;
+    padding-top: 0.35rem;
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+    font-weight: 700;
+    color: #b45309; /* amber-700 */
+  }
+  .dark .drop-cap > p:first-of-type::first-letter {
+    color: #fbbf24; /* amber-400 */
+  }
+
+  /* Smooth accordion transitions */
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  details[open] summary ~ * {
+    animation: sweep .4s ease-in-out;
+  }
+}
+
+@keyframes sweep {
+  0%    {opacity: 0; margin-top: -10px}
+  100%  {opacity: 1; margin-top: 0px}
+}
+
+/* Print Styles for Recipes */
+
+
+@media print {
+  header, footer, .back-btn, button, nav, details, .recipe-card button, .fixed { display: none !important; }
+  body { background: white !important; color: black !important; }
+  .recipe-card { border: 2px solid black !important; break-inside: avoid; background: white !important; box-shadow: none !important; }
+  article { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  figure { break-inside: avoid; }
+}

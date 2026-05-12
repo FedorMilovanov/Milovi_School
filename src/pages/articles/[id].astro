@@ -125,6 +125,67 @@ const jsonLdBreadcrumb = {
     },
   ],
 }
+
+// НОВАЯ ЛОГИКА ДЛЯ РЕЦЕПТОВ (SEO 2.0 - Google & Yandex)
+let jsonLdRecipe = null;
+if (article.category === 'recipes' || article.recipeData) {
+  const recipeData = article.recipeData || {};
+  
+  // Динамический парсинг шагов рецепта из текста статьи для Google Rich Snippets
+  let extractedInstructions = [];
+  if (article.content) {
+    const stepRegex = /^\s*\d+\.\s+(.*)$/gm;
+    let match;
+    while ((match = stepRegex.exec(article.content)) !== null) {
+      extractedInstructions.push({
+        '@type': 'HowToStep',
+        'text': match[1].trim()
+      });
+    }
+  }
+  // Фолбэк, если парсер не нашел шагов
+  if (extractedInstructions.length === 0) {
+    extractedInstructions = [{ '@type': 'HowToStep', 'text': 'Подробные шаги приготовления смотрите в тексте статьи.' }];
+  }
+
+  jsonLdRecipe = {
+    '@context': 'https://schema.org/',
+    '@type': 'Recipe',
+    name: article.title,
+    image: {
+      '@type': 'ImageObject',
+      url: ogImg.url,
+      width: ogImg.width || 1200,
+      height: ogImg.height || 630
+    },
+    author: { '@type': 'Person', name: article.author },
+    datePublished: article.date,
+    description: article.excerpt,
+    prepTime: recipeData.prepTime || 'PT30M',
+    cookTime: recipeData.cookTime || 'PT40M',
+    recipeYield: recipeData.yield || '4 порции',
+    recipeIngredient: recipeData.ingredients || ['Ингредиенты указаны в статье'],
+    recipeInstructions: extractedInstructions
+  };
+}
+
+// НОВАЯ ЛОГИКА ДЛЯ FAQ
+let jsonLdFAQ = null;
+if (article.faq && article.faq.length > 0) {
+  jsonLdFAQ = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: article.faq.map((item: any) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer
+      }
+    }))
+  };
+}
+
 ---
 
 <BaseLayout
@@ -143,6 +204,8 @@ const jsonLdBreadcrumb = {
 >
   <script type="application/ld+json" set:html={JSON.stringify(jsonLdArticle)} slot="head" />
   <script type="application/ld+json" set:html={JSON.stringify(jsonLdBreadcrumb)} slot="head" />
+  {jsonLdRecipe && <script type="application/ld+json" set:html={JSON.stringify(jsonLdRecipe)} slot="head" />}
+  {jsonLdFAQ && <script type="application/ld+json" set:html={JSON.stringify(jsonLdFAQ)} slot="head" />}
 
   <!-- Передаем sanitizedArticle вместо article -->
   <ArticlePageShell article={sanitizedArticle} allMeta={libraryMeta} client:load />

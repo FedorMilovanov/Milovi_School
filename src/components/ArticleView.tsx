@@ -46,11 +46,7 @@ function splitInlineBlocks(text: string): string[] {
 }
 
 function InlineText({ text }: { text: string }) {
-  // useId gives a stable, globally unique prefix per component instance,
-  // preventing duplicate aria-describedby IDs across multiple paragraphs.
   const uid = useId()
-  const normalized = normalizeStars(text)
-  const parts = normalized.split(/(\*\*.*?\*\*|\*.*?\*)/g).filter(Boolean)
   const terms: Record<string, string> = {
     ganache: 'ганаш: эмульсия шоколада со сливками',
     'crème diplomate': 'дипломатический крем: заварной крем со взбитыми сливками',
@@ -72,7 +68,7 @@ function InlineText({ text }: { text: string }) {
       if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
       const tipId = `tip-${uid}-${keyPrefix}-${index}`
       return (
-        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-help items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200" tabIndex={0} aria-describedby={tipId}>
+        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-pointer touch-manipulation items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200" role="button" tabIndex={0} aria-describedby={tipId} onClick={(e) => e.currentTarget.focus()}>
           {piece}
           <span id={tipId} role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
             {translation}
@@ -82,15 +78,35 @@ function InlineText({ text }: { text: string }) {
     })
   }
 
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const formatRegex = /(\*\*.*?\*\*|\*.*?\*)/g;
+
+  const linkParts = [];
+  let lastLinkIdx = 0;
+  let linkMatch;
+  while ((linkMatch = linkRegex.exec(text)) !== null) {
+    if (linkMatch.index > lastLinkIdx) linkParts.push({ type: 'text', content: text.slice(lastLinkIdx, linkMatch.index) });
+    linkParts.push({ type: 'link', text: linkMatch[1], url: linkMatch[2] });
+    lastLinkIdx = linkRegex.lastIndex;
+  }
+  if (lastLinkIdx < text.length) linkParts.push({ type: 'text', content: text.slice(lastLinkIdx) });
+
   return (
     <>
-      {parts.map((part, i) => {
-        if (part.startsWith('**') && part.endsWith('**') && part.length > 4)
-          return <strong key={i} className="font-semibold text-stone-950 dark:text-stone-100">{part.slice(2, -2)}</strong>
-        if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**') && part.length > 2)
-          return <em key={i} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>
-        if (part === '**' || part === '*') return null
-        return <span key={i}>{renderTermText(part, `term-${i}`)}</span>
+      {linkParts.map((lPart, lIdx) => {
+        if (lPart.type === 'link') {
+          return (
+            <a key={`link-${lIdx}`} href={lPart.url} target="_blank" rel="noopener noreferrer" className="border-b border-amber-700/40 text-amber-800 transition hover:bg-amber-50 hover:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/20">
+              {lPart.text}
+            </a>
+          );
+        }
+        const fParts = lPart.content.split(formatRegex).filter(Boolean);
+        return fParts.map((part, i) => {
+          if (part.startsWith('**') && part.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100">{part.slice(2, -2)}</strong>;
+          if (part.startsWith('*') && part.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>;
+          return <span key={`t-${i}`}>{renderTermText(part, `term-${lIdx}-${i}`)}</span>;
+        });
       })}
     </>
   )
@@ -190,6 +206,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
     .filter(({ raw }) => {
       if (/^\*\*([^*]+)\*\*$/.test(raw)) return true
       if (isSectionTitle(raw)) return true
+      if (/^#{2,3}\s+(.*)$/.test(raw)) return true
       // ======== separator blocks — mirror the render logic in renderContent
       if (raw.includes('========')) {
         const title = raw
@@ -238,7 +255,20 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
     const renderContent = (content: string) =>
       content.split('\n\n').flatMap(splitInlineBlocks).map((block, idx) => {
         const p = block.trim()
-        if (!p) return null
+        
+      if (!p) return null
+
+      // [NEW] Block-level images (Prevents <figure> inside <p> Hydration Mismatch)
+      const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+      if (imgMatch) {
+        return (
+          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
+            <img src={imgMatch[2]} alt={imgMatch[1]} className="w-full h-auto object-cover object-center max-h-[600px] transition-opacity duration-700" loading="lazy" decoding="async" />
+            {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
+          </figure>
+        )
+      }
+
 
       if (/^={10,}$/.test(p)) return <Divider key={idx} />
 
@@ -276,7 +306,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
         )
       }
 
-      const lines = p.split('\n')
+      const lines = p.split('\n').filter(line => line.trim().length > 0)
       const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d+\.)\s+/.test(line))
       if (isList) {
         return (
@@ -296,10 +326,16 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
         return <blockquote key={idx} className={`my-10 border-l-2 border-amber-700/60 pl-6 italic leading-9 text-stone-600 dark:text-stone-400 ${textSize}`}><InlineText text={p} /></blockquote>
       }
 
-      return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize}`}><InlineText text={p} /></p>
+      return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize} whitespace-pre-line`}><InlineText text={p} /></p>
     })
     return renderContent(article.content)
   }, [article.content, largeText])
+
+  
+  const formatTime = (iso: string) => {
+    if (!iso) return '';
+    return iso.replace('PT', '').replace('H', ' ч ').replace('M', ' мин ').trim();
+  }
 
   const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
 
@@ -454,7 +490,33 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
             </aside>
 
             {/* Article body */}
-            <div className="space-y-7 min-w-0 article-body">{renderedContent}</div>
+            <div className="space-y-7 min-w-0 article-body"><div className="drop-cap relative">{renderedContent}</div>
+
+          {/* ================= FAQ UI ================= */}
+          {article.faq && article.faq.length > 0 && (
+            <section className="my-20 pt-12 border-t border-stone-200 dark:border-stone-800">
+              <div className="mb-10 text-center">
+                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-800 dark:text-amber-500">Траблшутинг</span>
+                <h2 className="mt-3 font-serif text-3xl md:text-4xl font-semibold text-stone-900 dark:text-stone-100">Частые ошибки и вопросы</h2>
+              </div>
+              <div className="mx-auto max-w-3xl space-y-4">
+                {article.faq.map((f, i) => (
+                  <details key={i} className="group overflow-hidden rounded-xl border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900/50 shadow-sm transition-all open:border-amber-700/30 open:ring-1 open:ring-amber-700/30 dark:open:border-amber-500/30 dark:open:ring-amber-500/30">
+                    <summary className="flex cursor-pointer items-center justify-between px-6 py-5 font-serif text-xl font-medium text-stone-800 transition hover:bg-stone-50 dark:text-stone-200 dark:hover:bg-stone-800/50">
+                      {f.question}
+                      <span className="ml-4 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-500 transition-transform duration-300 group-open:rotate-180 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                      </span>
+                    </summary>
+                    <div className="px-6 pb-6 pt-2 text-stone-600 dark:text-stone-400 leading-relaxed text-lg border-t border-stone-100 dark:border-stone-800 mt-2 mx-6">
+                      <p className="pt-4"><InlineText text={f.answer} /></p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+</div>
 
             {/* Spacer for right column */}
             <div className={focusMode ? 'hidden' : 'hidden lg:block'} />

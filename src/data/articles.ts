@@ -1,7 +1,8 @@
 import { localImages } from '../assets/images'
 import { dc } from './deepContents'
 
-export interface Article { id: string; title: string; excerpt: string; content: string; category: string; author: string; readTime: number; image: string; tags: string[]; date?: string; updatedAt?: string; sourceUrl?: string; sourceLabel?: string }
+export interface RecipeData { prepTime: string; cookTime: string; yield: string; calories?: string; ingredients: string[]; }
+export interface Article { id: string; title: string; excerpt: string; content: string; category: string; author: string; readTime: number; image: string; tags: string[]; date?: string; updatedAt?: string; sourceUrl?: string; sourceLabel?: string; recipeData?: RecipeData; faq?: { question: string; answer: string }[]; }
 
 // Возвращает глубокий контент если есть, иначе шаблон
 const body = (_topic: string, _id?: string) => {
@@ -34,12 +35,12 @@ ${_topic} важен не как красивая легенда, а как ра
 }
 
 export const articles: Article[] = [
-  { id: 'grolet-lemon-yuzu', title: "Седрик Гроле: лимон, юдзу-ганаш и тонкая оболочка", excerpt: 'Техническая карта по культовому лимону: как сохранить кислоту, сделать тонкое покрытие и избежать вкуса варенья.', content: body('Седрик Гроле и лимон', 'grolet-lemon-yuzu'), category: 'cedric-grolet', author: 'PastryClass, Cedric Grolet references', readTime: 6, image: 'https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=800', tags: ['лимон', 'юдзу', 'ганаш', 'обманка'], sourceUrl: 'https://reportergourmet.com/en/news/7740-cedric-grolet-and-the-recipe-for-stuffed-lemon-it-looks-like-fruit-but-it-s-a-dessert', date: '2025-01-15', sourceLabel: 'Reporter Gourmet' },
-  { id: 'herme-ispahan-deep', title: 'Испахан Эрме: роза, личи и малина как архитектура вкуса', excerpt: 'Полный учебный разбор культового десерта: кислота малины, цветочный верх розы, сочная середина личи.', content: body('Испахан Пьера Эрме', 'herme-ispahan-deep'), category: 'pierre-herme', author: 'PH10, Traveling Foodies, PastryClass', readTime: 3, image: 'https://images.unsplash.com/photo-1602351447937-745cb720612f?w=800', tags: ['Испахан', 'роза', 'личи', 'малина'], sourceUrl: 'https://travellingfoodies.wordpress.com/2011/03/25/pierre-hermes-ispahan/', date: '2025-01-22', sourceLabel: 'Traveling Foodies' },
+  { id: 'grolet-lemon-yuzu', title: 'Рецепт знаменитого «Лимона» Седрика Гроле: Пошаговая техника иллюзорного десерта', excerpt: 'Техническая карта по культовому лимону: как сохранить кислоту, сделать тонкое покрытие и избежать вкуса варенья.', content: body('Седрик Гроле и лимон', 'grolet-lemon-yuzu'), category: 'cedric-grolet', author: 'PastryClass, Cedric Grolet references', readTime: 6, image: 'https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=800', tags: ['лимон', 'юдзу', 'ганаш', 'обманка'], sourceUrl: 'https://reportergourmet.com/en/news/7740-cedric-grolet-and-the-recipe-for-stuffed-lemon-it-looks-like-fruit-but-it-s-a-dessert', date: '2025-01-15', sourceLabel: 'Reporter Gourmet' },
+  { id: 'herme-ispahan-deep', title: 'Десерт Испахан от Пьера Эрме: Рецепт архитектуры вкуса (роза, личи и малина)', excerpt: 'Полный учебный разбор культового десерта: кислота малины, цветочный верх розы, сочная середина личи.', content: body('Испахан Пьера Эрме', 'herme-ispahan-deep'), category: 'pierre-herme', author: 'PH10, Traveling Foodies, PastryClass', readTime: 3, image: 'https://images.unsplash.com/photo-1602351447937-745cb720612f?w=800', tags: ['Испахан', 'роза', 'личи', 'малина'], sourceUrl: 'https://travellingfoodies.wordpress.com/2011/03/25/pierre-hermes-ispahan/', date: '2025-01-22', sourceLabel: 'Traveling Foodies' },
   { id: 'perret-softness-volume', title: 'Перре: объем, мягкость, воздушность и хрупкость как язык десерта', excerpt: 'Разбор интервью Madame Figaro: почему нож должен входить без сопротивления, а вкус нельзя приносить в жертву эстетике.', content: body('Франсуа Перре', 'perret-softness-volume'), category: 'francois-perret', author: 'Madame Figaro, WWD', readTime: 2, image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800', tags: ['мягкость', 'Ritz', 'сахар', 'текстура'], sourceUrl: 'https://www.ritzparislecomptoir.com/en/francois-perret', date: '2025-02-01', sourceLabel: 'Ritz Paris Le Comptoir' },
   { id: 'heitzler-ethical-pastry', title: 'Клер Эйцлер: сезонность, фермеры и этичная выпечка', excerpt: 'Глубокий материал по интервью Chefs for Impact, Valrhona и Pastry Arts: почему клубника зимой меняет профессию.', content: body('Клер Эйцлер', 'heitzler-ethical-pastry'), category: 'claire-heitzler', author: 'Chefs for Impact, Valrhona, Pastry Arts Magazine', readTime: 4, image: 'https://images.unsplash.com/photo-1498579397066-22750a3cb424?w=800', tags: ['этичная выпечка', 'сезонность', 'фермеры'], sourceUrl: 'https://www.chefs4impact.org/post/meet-claire-heitzler', date: '2025-02-10', sourceLabel: 'Chefs for Impact' },
-  { id: 'couvreur-full-course', title: 'Янн Куврер: Полный перевод курса PastryClass — от Париж-Брест-эклера до Mont Blanc', excerpt: 'Исчерпывающий конспект 14 уроков Янна Куврера: заварное тесто, пралине-крем, масляный крем и мильфей.', content: body('Янн Куврер', 'couvreur-full-course'), category: 'yann-couvreur', author: 'PastryClass, Gault&Millau', readTime: 7, image: 'https://images.unsplash.com/photo-1519676867240-f03562e64548?w=800', tags: ['курс', 'choux', 'пралине', 'мильфей'], sourceUrl: 'https://mypastryclass.com/blogs/articles/yann-couvreur-teaches-elite-parisian-pastries', date: '2025-02-20', sourceLabel: 'PastryClass' },
-  { id: 'felder-fundamentals', title: 'Кристоф Фельдер: фундамент французской кондитерской школы', excerpt: 'Почему книга Patisserie стала рабочей базой: 3200 фотографий, пошаговые уроки, кремы, тесто, тарты.', content: body('Кристоф Фельдер', 'felder-fundamentals'), category: 'christophe-felder', author: 'Christophe Felder references', readTime: 7, image: 'https://images.unsplash.com/photo-1486427944344-cd3954218dd7?w=800', tags: ['Фельдер', 'основы', 'школа'], sourceUrl: 'https://headbutler.com/reviews/patisserie-mastering-the-fundamentals-of-french-pastry/', date: '2025-03-01', sourceLabel: 'Head Butler' },
+  { id: 'couvreur-full-course', title: 'Секреты эклеров и мильфея от Янна Куврера: Разбор техник французской школы', excerpt: 'Исчерпывающий конспект 14 уроков Янна Куврера: заварное тесто, пралине-крем, масляный крем и мильфей.', content: body('Янн Куврер', 'couvreur-full-course'), category: 'yann-couvreur', author: 'PastryClass, Gault&Millau', readTime: 7, image: 'https://images.unsplash.com/photo-1519676867240-f03562e64548?w=800', tags: ['курс', 'choux', 'пралине', 'мильфей'], sourceUrl: 'https://mypastryclass.com/blogs/articles/yann-couvreur-teaches-elite-parisian-pastries', date: '2025-02-20', sourceLabel: 'PastryClass' },
+  { id: 'felder-fundamentals', title: 'Базовые рецепты французской выпечки от Кристофа Фельдера: Тесто и кремы без ошибок', excerpt: 'Почему книга Patisserie стала рабочей базой: 3200 фотографий, пошаговые уроки, кремы, тесто, тарты.', content: body('Кристоф Фельдер', 'felder-fundamentals'), category: 'christophe-felder', author: 'Christophe Felder references', readTime: 7, image: 'https://images.unsplash.com/photo-1486427944344-cd3954218dd7?w=800', tags: ['Фельдер', 'основы', 'школа'], sourceUrl: 'https://headbutler.com/reviews/patisserie-mastering-the-fundamentals-of-french-pastry/', date: '2025-03-01', sourceLabel: 'Head Butler' },
   { id: 'herme-biography', title: 'Пьер Эрме: «Дерзость — вот что сделало меня успешным за 50 лет»', excerpt: 'Детальный материал по жизни и карьере Пьера Эрме: Эльзас, ученичество у Ленотра в 14 лет, 11 лет в Fauchon, Ladurée и 60+ точек по миру.', content: body('Пьер Эрме', 'herme-biography'), category: 'pierre-herme', author: 'AFP, Michelin Guide, Pastry Workshop', readTime: 2, image: 'https://images.unsplash.com/photo-1612203985729-70726954388c?w=800', tags: ['биография', 'Ленотр', 'Fauchon'], sourceUrl: 'https://www.laliste.com/news/pierre-herme-the-picasso-of-pastry', date: '2025-03-10', sourceLabel: 'La Liste' },
   { id: 'grolet-fruits-full', title: 'Гроле: фрукты, оболочка, начинка, аэрограф и правдоподобие', excerpt: 'Техническая карта реалистичного фруктового десерта: от белого шоколада до геля с чистым вкусом.', content: body('Седрик Гроле фрукты', 'grolet-fruits-full'), category: 'cedric-grolet', author: 'PastryClass', readTime: 7, image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=800', tags: ['фрукты', 'шоколад', 'аэрограф'], sourceUrl: 'https://mypastryclass.com/blogs/articles/cedric-grolet-teaches-fruits-nuts-and-flowers', date: '2025-03-20', sourceLabel: 'PastryClass' },
   { id: 'michalak-chocolate-salt', title: 'Мишалак: шоколад, морская соль и принцип щедрой выпечки', excerpt: 'Как чемпион мира делает десерт понятным, ярким и не скучным: соль, текстура, щедрость.', content: body('Кристоф Мишалак', 'michalak-chocolate-salt'), category: 'christophe-michalak', author: 'Taste and Flavors', readTime: 6, image: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=800', tags: ['шоколад', 'соль', 'щедрость'], sourceUrl: 'https://www.tasteandflavors.com/christophe-michalak/', date: '2025-04-01', sourceLabel: 'Taste and Flavors' },
@@ -214,9 +215,9 @@ export const articles: Article[] = [
 
   // ── АУТЕНТИЧНЫЕ ФРАНЦУЗСКИЕ РЕЦЕПТЫ ──────────────────────────────────────
 
-  { id: 'recipe-tarte-tatin', title: 'Тарт Татен: перевёрнутый пирог сестёр Татен — карамель, яблоки, идеальная pâte brisée', excerpt: 'Полная технологическая карта классической тарт Татен: сухой карамель, двухэтапная выпечка, демуляж без потерь. История из Ламотт-Бёврон, которая стала символом французского десерта.', content: body('Тарт Татен', 'recipe-tarte-tatin'), category: 'recipes', author: 'Meilleur du Chef, Confrérie du Tarte Tatin', readTime: 9, image: 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=800', tags: ['тарт татен', 'яблоки', 'карамель', 'pâte brisée', 'Солонь'], date: '2026-05-05', sourceUrl: 'https://www.meilleurduchef.com/en/recipe/tarte-tatin-apple.html', sourceLabel: 'Meilleur du Chef' },
+  { id: 'recipe-tarte-tatin', title: 'Классический Тарт Татен (Tarte Tatin): Аутентичный французский рецепт с карамелью', excerpt: 'Полная технологическая карта классической тарт Татен: сухой карамель, двухэтапная выпечка, демуляж без потерь. История из Ламотт-Бёврон, которая стала символом французского десерта.', content: body('Тарт Татен', 'recipe-tarte-tatin'), category: 'recipes', author: 'Meilleur du Chef, Confrérie du Tarte Tatin', readTime: 9, image: 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=800', tags: ['тарт татен', 'яблоки', 'карамель', 'pâte brisée', 'Солонь'], date: '2026-05-05', sourceUrl: 'https://www.meilleurduchef.com/en/recipe/tarte-tatin-apple.html', sourceLabel: 'Meilleur du Chef' },
 
-  { id: 'recipe-creme-brulee', title: 'Крем-брюле: ваниль Bourbon, бань-мари и искусство карамельной корочки', excerpt: 'Исчерпывающий рецепт классического crème brûlée: 100°C, 55 минут, соотношение 5 желтков на 500 мл сливок, chalumeau и правило 90 секунд до подачи.', content: body('Крем-брюле ваниль', 'recipe-creme-brulee'), category: 'recipes', author: 'Rians, Atelier des Chefs', readTime: 8, image: 'https://images.unsplash.com/photo-1588515724527-074a7a56616c?w=800', tags: ['крем-брюле', 'ваниль bourbon', 'бань-мари', 'chalumeau', 'желтки'], date: '2026-05-05', sourceUrl: 'https://rians.com/fr/recettes/creme-brulee-la-recette-authentique-rians/', sourceLabel: 'Rians — Recette Authentique' },
+  { id: 'recipe-creme-brulee', title: 'Идеальный Крем-брюле: Классический французский рецепт с ванилью и карамельной корочкой', excerpt: 'Исчерпывающий рецепт классического crème brûlée: 100°C, 55 минут, соотношение 5 желтков на 500 мл сливок, chalumeau и правило 90 секунд до подачи.', content: body('Крем-брюле ваниль', 'recipe-creme-brulee'), category: 'recipes', author: 'Rians, Atelier des Chefs', readTime: 8, image: 'https://images.unsplash.com/photo-1588515724527-074a7a56616c?w=800', tags: ['крем-брюле', 'ваниль bourbon', 'бань-мари', 'chalumeau', 'желтки'], date: '2026-05-05', sourceUrl: 'https://rians.com/fr/recettes/creme-brulee-la-recette-authentique-rians/', sourceLabel: 'Rians — Recette Authentique' },
 
   { id: 'recipe-clafoutis-cerises', title: 'Клафути с вишней: лимузенский рецепт с kirsch и косточками', excerpt: 'Аутентичный clafoutis aux cerises из Лимузена: почему косточки не вынимают, двухтемпературная выпечка 210→180°C и рецепт Ladurée с цедрой лимона.', content: body('Клафути вишня', 'recipe-clafoutis-cerises'), category: 'recipes', author: 'Académie du Goût (Alain Ducasse), Ladurée Sucré', readTime: 8, image: 'https://images.unsplash.com/photo-1535912259830-92ec2c73e0c9?w=800', tags: ['клафути', 'вишня', 'Лимузен', 'kirsch', 'Ladurée'], date: '2026-05-05', sourceUrl: 'https://www.academiedugout.fr/recettes/clafoutis-aux-cerises_10375_2', sourceLabel: 'Académie du Goût — Alain Ducasse' },
 
@@ -295,6 +296,137 @@ export const articles: Article[] = [
     sourceUrl: 'https://www.salondelapatisserie.com/',
     sourceLabel: 'Salon de la Pâtisserie — OpinionWay 2023',
   },
+
+  { 
+    id: 'recipe-macarons-herme', 
+    title: 'Рецепт макарон (Macarons) от Пьера Эрме: Итальянская меренга и секреты идеальной «юбочки»', 
+    excerpt: 'Полный технический гид по макарон от "Пикассо кондитерского искусства". Разбор макаронажа, состаривания белков и температурного режима.', 
+    content: body('Макароны Эрме', 'recipe-macarons-herme'),
+    category: 'recipes', 
+    author: 'Pierre Hermé, Macaron', 
+    readTime: 12, 
+    image: 'https://images.unsplash.com/photo-1569864358642-9d1684040f43?w=800', 
+    tags: ['макарон', 'Пьер Эрме', 'итальянская меренга', 'macaronage'], 
+    date: '2026-05-07', 
+    sourceLabel: 'PH10',
+    recipeData: {
+      prepTime: 'PT40M', cookTime: 'PT14M', yield: '40 половинок',
+      ingredients: ['300г миндальной муки', '300г сахарной пудры', '110г + 110г состаренных яичных белков', '300г сахара', '75г воды']
+    },
+    faq: [
+      { question: 'Почему у макарон нет юбочки?', answer: 'Юбочка не образуется, если вы не подсушили отсаженные макарон перед выпечкой (croutage), или если температура в духовке слишком низкая (ниже 150°C).' },
+      { question: 'Почему макарон пустые внутри?', answer: 'Частая причина — перевзбитая меренга или слишком агрессивный макаронаж, который разрушил структуру белка.' }
+    ]
+  },
+  { 
+    id: 'recipe-croissant-poilane', 
+    title: 'Французские круассаны в домашних условиях: Рецепт слоеного теста и техника ламинирования', 
+    excerpt: 'Анатомия идеального французского круассана. Какое сливочное масло выбрать, как делать détrempe и почему температура на кухне важнее рецепта.', 
+    content: body('Круассаны Пуалан', 'recipe-croissant-poilane'),
+    category: 'recipes', 
+    author: 'Tartine, Ferrandi', 
+    readTime: 15, 
+    image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800', 
+    tags: ['круассаны', 'слоеное тесто', 'ламинирование', 'завтрак'], 
+    date: '2026-05-08', 
+    recipeData: {
+      prepTime: 'PT12H', cookTime: 'PT20M', yield: '10 круассанов',
+      ingredients: ['500г муки T45', '10г соли', '50г сахара', '20г свежих дрожжей', '140г воды', '140г молока', '250г сухого сливочного масла (beurre sec) 84%']
+    }
+  },
+  { 
+    id: 'recipe-eclairs-adam', 
+    title: 'Секреты идеальных эклеров: Заварное тесто без трещин и хрустящий кракелин', 
+    excerpt: 'Технология Кристофа Адама: физика заварного теста (pâte à choux), зачем нужен кракелин и полный траблшутинг — почему эклеры опадают или рвутся в духовке.', 
+    content: body('Эклеры Адама', 'recipe-eclairs-adam'),
+    category: 'recipes', 
+    author: 'Christophe Adam, L\'Éclair de Génie', 
+    readTime: 12, 
+    image: 'https://images.unsplash.com/photo-1601379321458-71fea421bf28?w=800', 
+    tags: ['эклеры', 'заварное тесто', 'кракелин', 'Christophe Adam'], 
+    date: '2026-05-10',
+    recipeData: {
+      prepTime: 'PT45M', cookTime: 'PT40M', yield: '15 эклеров',
+      ingredients: ['125г воды', '125г молока', '110г сливочного масла', '150г муки T55', '250г яиц', '100г масла для кракелина', '120г коричневого сахара']
+    },
+    faq: [
+      { question: 'Почему эклеры рвутся по бокам?', answer: 'Чаще всего из-за слишком горячей духовки в начале выпечки или из-за недостатка влаги в тесте (мало яиц).' },
+      { question: 'Почему эклеры опадают после выпечки?', answer: 'Они не пропеклись внутри. Структура осталась сырой и опала под весом пара при остывании.' }
+    ]
+  },
+  { 
+    id: 'recipe-opera-dalloyau', 
+    title: 'Торт Опера (L\'Opéra): Архитектура французской классики и кофейный масляный крем', 
+    excerpt: 'Пошаговая сборка главного парижского торта: миндальный бисквит Джоконда, масляный крем на pâte à bombe и правило "идеальных 3 сантиметров".', 
+    content: body('Опера Даллуайо', 'recipe-opera-dalloyau'),
+    category: 'recipes', 
+    author: 'Dalloyau, Gaston Lenôtre', 
+    readTime: 15, 
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800', 
+    tags: ['торт опера', 'бисквит джоконда', 'масляный крем', 'кофе'], 
+    date: '2026-05-11',
+    recipeData: {
+      prepTime: 'PT2H', cookTime: 'PT15M', yield: '1 торт (10 порций)',
+      ingredients: ['150г миндальной муки', '200г яиц', '350г сливочного масла', 'Кофейный экстракт', 'Темный шоколад 70%']
+    }
+  },
+  { 
+    id: 'recipe-millefeuille-inverser', 
+    title: 'Классический Мильфей: Инвертированное слоеное тесто и секрет карамелизации слоев', 
+    excerpt: 'Философия хруста от Филиппа Контисини. Зачем выворачивать тесто наизнанку (маслом наружу), как печь коржи между двумя противнями и рецепт крема дипломат.', 
+    content: body('Мильфей Контисини', 'recipe-millefeuille-inverser'),
+    category: 'recipes', 
+    author: 'Philippe Conticini, François Perret', 
+    readTime: 14, 
+    image: 'https://images.unsplash.com/photo-1544985361-b420d7a77043?w=800', 
+    tags: ['мильфей', 'слоеное тесто', 'крем дипломат', 'инвертированное тесто'], 
+    date: '2026-05-12',
+    recipeData: {
+      prepTime: 'PT14H', cookTime: 'PT40M', yield: '6 порций',
+      ingredients: ['375г сухого масла', '500г муки T55', '500г молока', 'Стручок ванили', '250г сливок 35%']
+    }
+  },
+
+  { 
+    id: 'recipe-baba-rhum-alain-ducasse', 
+    title: 'Ром-баба по рецепту Алена Дюкасса: Идеальное бриошь-тесто и сироп', 
+    excerpt: 'Один из самых известных десертов в трехзвездочных ресторанах Дюкасса. Техника замеса теста саварен, идеальная температура сиропа и правильная подача с шантильи.', 
+    content: body('Баба Дюкасс', 'recipe-baba-rhum-alain-ducasse'),
+    category: 'recipes', 
+    author: 'Alain Ducasse', 
+    readTime: 18, 
+    image: 'https://images.unsplash.com/photo-1621236058348-18e5e8e3d64b?w=800', 
+    tags: ['ром-баба', 'Ален Дюкасс', 'саварен', 'сироп', 'бриошь'], 
+    date: '2026-05-15',
+    recipeData: {
+      prepTime: 'PT1H30M', cookTime: 'PT25M', yield: '8 порций',
+      ingredients: ['250г муки T45', '15г свежих дрожжей', '100г молока', '3 яйца (150г)', '80г сливочного масла', '750г воды (для сиропа)', '400г сахара', '150мл выдержанного рома (Dark Rum)']
+    },
+    faq: [
+      { question: 'Почему баба получилась плотной и не впитывает сироп?', answer: 'Вы недостаточно вымесили тесто (не развили глютеновое окно) или пересушили его в духовке. Тесто должно быть очень эластичным и пористым, как губка.' },
+      { question: 'Какой температуры должен быть сироп при пропитке?', answer: 'Золотое правило: горячая баба в холодный сироп ИЛИ холодная (подсушенная) баба в горячий сироп (60°C). Дюкасс предпочитает второй метод: он сушит выпечку день, а потом купает в горячем сиропе.' }
+    ]
+  },
+  { 
+    id: 'recipe-tarte-citron-grolet', 
+    title: 'Тарт о Ситрон Седрика Гроле: Запеченный лимонный крем и цукаты', 
+    excerpt: 'Никакого обычного лимонного курда. Гроле запекает крем прямо в тарталетке, добавляет лимонное конфи и меренгу, обожженную без сахара.', 
+    content: body('Тарт Лимон Гроле', 'recipe-tarte-citron-grolet'),
+    category: 'recipes', 
+    author: 'Cédric Grolet, Le Meurice', 
+    readTime: 16, 
+    image: 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=800', 
+    tags: ['тарт', 'лимон', 'Седрик Гроле', 'pâte sucrée'], 
+    date: '2026-05-16',
+    recipeData: {
+      prepTime: 'PT3H', cookTime: 'PT35M', yield: '1 тарт 18см',
+      ingredients: ['150г сливочного масла', '90г сахарной пудры', '30г миндальной муки', '250г муки T55', '50г яиц (для песочного теста)', '150г лимонного сока', '150г сахара', '150г яиц (для крема)']
+    },
+    faq: [
+      { question: 'Почему песочное тесто сползает по бортикам при выпечке?', answer: 'Тесто не отдохнуло. После укладки (fonçage) в кольцо, уберите его в морозилку минимум на 2 часа, а лучше на ночь. Пеките замороженным.' }
+    ]
+  },
+
 ]
 // ─── Metadata only (no content) — safe to send to the browser ───────────────
 // Use this in React client islands to avoid shipping all 103 articles' content.
