@@ -76,7 +76,7 @@ export default function StatsBar({ articleCount, authorCount, categoryCount }: S
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px sm:grid-cols-4">
         <AnimatedCounter target={articleCount} label="материалов" />
         <AnimatedCounter target={categoryCount} label="разделов" />
-        <AnimatedCounter target={authorCount > 0 ? authorCount : 12} label="шеф-кондитеров" />
+        <AnimatedCounter target={authorCount} label="шеф-кондитеров" />
         <AnimatedCounter target={100} label="на русском" suffix="%" />
       </div>
     </section>

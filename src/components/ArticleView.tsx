@@ -18,13 +18,6 @@ interface ArticleViewProps {
   onNavigate?: (article: ArticleMeta) => void
 }
 
-function normalizeStars(text: string): string {
-  // Только убираем 3+ звёздочки и пустые **** — не трогаем пробелы вокруг **
-  return text
-    .replace(/\*{3,}/g, '**')
-    .replace(/\*\*\*\*/g, '')
-}
-
 // Разбивает блок текста на параграфы. Если есть **bold heading** в начале строки,
 // он становится отдельным параграфом, чтобы корректно отрендериться как заголовок.
 function splitInlineBlocks(text: string): string[] {
@@ -101,7 +94,7 @@ function InlineText({ text }: { text: string }) {
             </a>
           );
         }
-        const fParts = lPart.content.split(formatRegex).filter(Boolean);
+        const fParts = (lPart.content ?? '').split(formatRegex).filter(Boolean);
         return fParts.map((part, i) => {
           if (part.startsWith('**') && part.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100">{part.slice(2, -2)}</strong>;
           if (part.startsWith('*') && part.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>;
@@ -307,14 +300,14 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
       }
 
       const lines = p.split('\n').filter(line => line.trim().length > 0)
-      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d+\.)\s+/.test(line))
+      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d{1,2}[.)])\s+\D/.test(line))
       if (isList) {
         return (
           <ul key={idx} className={`my-6 space-y-3 pl-0 ${textSize} leading-8 text-stone-700 dark:text-stone-300 md:leading-9`}>
             {lines.map((line, li) => (
               <li key={li} className="flex gap-3">
                 <span className="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-700/60" />
-                <InlineText text={line.replace(/^\s*(-|•|\d+\.)\s+/, '')} />
+                <InlineText text={line.replace(/^\s*(-|•|\d{1,2}[.)])\s+/, '')} />
               </li>
             ))}
           </ul>
@@ -331,11 +324,6 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
     return renderContent(article.content)
   }, [article.content, largeText])
 
-  
-  const formatTime = (iso: string) => {
-    if (!iso) return '';
-    return iso.replace('PT', '').replace('H', ' ч ').replace('M', ' мин ').trim();
-  }
 
   const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
 
@@ -563,14 +551,14 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
               <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.32em] text-stone-500">Читайте также — {category?.name}</p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map(r => (
-                  <button key={r.id} type="button" onClick={() => { window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group text-left">
+                  <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">
                     <div className="mb-4 aspect-[16/9] overflow-hidden bg-stone-200 dark:bg-stone-800">
                       <img src={r.image} alt={r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
                     <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>
                     <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>
                     <span className="mt-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-amber-800 dark:text-amber-400">Читать →</span>
-                  </button>
+                  </a>
                 ))}
               </div>
             </section>

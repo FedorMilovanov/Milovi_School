@@ -56,9 +56,9 @@ const jsonLdWebSite = {
   ogImageHeight={630}
 >
   <!-- JSON-LD: Organization -->
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLdOrg)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdOrg)} slot="head" />
   <!-- JSON-LD: WebSite + SearchAction -->
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLdWebSite)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdWebSite)} slot="head" />
 
   <!--
     client:load — гидратируется сразу при загрузке страницы.

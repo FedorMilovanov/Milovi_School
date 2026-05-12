@@ -264,14 +264,14 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
                   </span>
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => onArticleClick(recentArticle)}
+              <a
+                href={`/articles/${recentArticle.id}/`}
+                onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(recentArticle) } }}
                 className="text-xs font-mono uppercase tracking-wider hover:underline cursor-pointer shrink-0"
                 style={{ color: 'var(--text-accent)' }}
               >
                 Продолжить чтение →
-              </button>
+              </a>
             </div>
           </ScrollReveal>
         )}

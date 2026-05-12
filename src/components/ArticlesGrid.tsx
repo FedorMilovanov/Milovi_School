@@ -50,9 +50,9 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
-    <button
-      type="button"
-      onClick={() => onArticleClick(article)}
+    <a
+      href={`/articles/${article.id}/`}
+      onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
       className="group flex w-full items-start gap-4 border-b border-[var(--border-subtle)] py-4 text-left last:border-b-0 transition-all"
     >
       <div className="flex-1 min-w-0">
@@ -71,7 +71,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
       <svg className="mt-1 h-3.5 w-3.5 shrink-0 text-stone-300 opacity-0 transition group-hover:opacity-100 dark:text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
       </svg>
-    </button>
+    </a>
   )
 }
 
@@ -85,9 +85,9 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
-    <motion.button
-      type="button"
-      onClick={() => onArticleClick(article)}
+    <motion.a
+      href={`/articles/${article.id}/`}
+      onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
       className="group relative flex flex-col w-full overflow-hidden text-left"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -126,7 +126,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
           </svg>
         </span>
       </div>
-    </motion.button>
+    </motion.a>
   )
 }
 
@@ -140,9 +140,9 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
-    <motion.button
-      type="button"
-      onClick={() => onArticleClick(article)}
+    <motion.a
+      href={`/articles/${article.id}/`}
+      onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
       className="group flex w-full items-start gap-4 text-left"
       initial={{ opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -166,7 +166,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
           {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h4>
       </div>
-    </motion.button>
+    </motion.a>
   )
 }
 
@@ -181,9 +181,9 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
-    <motion.button
-      type="button"
-      onClick={() => onArticleClick(article)}
+    <motion.a
+      href={`/articles/${article.id}/`}
+      onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
       className="group grid w-full gap-4 border-b border-[var(--border-subtle)] py-4 text-left transition hover:border-stone-400 sm:grid-cols-[3rem_1fr_auto] sm:items-center dark:hover:border-stone-600"
       initial={{ opacity: 0, y: 8 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -200,7 +200,7 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
       <svg className="hidden h-4 w-4 text-stone-300 transition group-hover:text-amber-700 dark:text-stone-700 dark:group-hover:text-amber-300 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
       </svg>
-    </motion.button>
+    </motion.a>
   )
 }
 
@@ -338,10 +338,10 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
       {articles.map((article, i) => {
         const cat = categories.find(c => c.id === article.category)
         return (
-          <motion.button
+          <motion.a
             key={article.id}
-            type="button"
-            onClick={() => onArticleClick(article)}
+            href={`/articles/${article.id}/`}
+            onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
             className="group grid w-full cursor-pointer gap-6 border-b border-[var(--border-subtle)] pb-10 text-left sm:grid-cols-[280px_1fr]"
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -373,7 +373,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
                 </svg>
               </span>
             </div>
-          </motion.button>
+          </motion.a>
         )
       })}
     </div>

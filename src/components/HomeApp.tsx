@@ -51,11 +51,17 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [articles])
 
   const statsArticleCount = articles.length
-  const statsAuthorCount = useMemo(
-    () => new Set(articles.map(a => a.author).filter(Boolean)).size,
-    [articles],
-  )
-  const statsCategoryCount = categories.length
+  // F-21: "Шеф-кондитеров" = number of CHEF categories that have at least one
+  // article. The old logic counted unique `author` strings, which were source
+  // citations like "AFP, Michelin Guide, Pastry Workshop" — wildly inflated.
+  const statsAuthorCount = useMemo(() => {
+    const articleCats = new Set(articles.map(a => a.category))
+    return categories.filter(c => CHEF_IDS.has(c.id) && articleCats.has(c.id)).length
+  }, [articles])
+  const statsCategoryCount = useMemo(() => {
+    const articleCats = new Set(articles.map(a => a.category))
+    return categories.filter(c => articleCats.has(c.id)).length
+  }, [articles])
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState(() => {

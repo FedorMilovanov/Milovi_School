@@ -15,19 +15,7 @@ export function getStaticPaths() {
   }))
 }
 
-interface Props {
-  article: Article
-}
-
-const { article } = Astro.props
-
-// --- ОЧИСТКА ДАННЫХ (Fix for broken images in React) ---
-const sanitizedArticle = {
-  ...article,
-  image: typeof article.image === 'string' 
-    ? article.image 
-    : (article.image?.src || article.image?.url || '')
-}
+const { article } = Astro.props as { article: Article }
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/articles/${article.id}/`
@@ -36,31 +24,19 @@ const pageTitle = `${article.title} — Patisserie Russe`
 const categoryName = categories.find((c) => c.id === article.category)?.name ?? article.category
 
 // ── OG image ────────────────────────────────────────────────────────────────
-function normalizeImageSrc(input: unknown): string {
-  if (!input) return ''
-  if (typeof input === 'string') return input
-  if (Array.isArray(input)) return normalizeImageSrc(input[0])
-  if (typeof input === 'object') {
-    const obj = input as any
-    return normalizeImageSrc(obj.src) || normalizeImageSrc(obj.url) || normalizeImageSrc(obj.href)
-  }
-  return ''
-}
-
-function buildOgImage(input: unknown): { url: string; width?: number; height?: number } {
-  const src = normalizeImageSrc(input)
-  if (!src) {
+function buildOgImage(input: string | undefined): { url: string; width?: number; height?: number } {
+  if (!input) {
     return { url: `${siteUrl}/images/og-preview.webp`, width: 1200, height: 630 }
   }
-  if (src.includes('unsplash.com')) {
-    const base = src.split('?')[0]
+  if (input.includes('unsplash.com')) {
+    const base = input.split('?')[0]
     return {
       url: `${base}?w=1200&h=630&fit=crop&crop=center&auto=format`,
       width: 1200,
       height: 630,
     }
   }
-  const absolute = src.startsWith('http') ? src : `${siteUrl}${src}`
+  const absolute = input.startsWith('http') ? input : `${siteUrl}${input}`
   return { url: absolute }
 }
 
@@ -68,6 +44,23 @@ const ogImg = buildOgImage(article.image)
 
 // ── Structured data ──────────────────────────────────────────────────────────
 const wordCount = Math.round((article.content?.length ?? 0) / 6)
+
+// `author` field in articles.ts often holds a *source list* like
+// "AFP, Michelin Guide, Pastry Workshop". Splitting on comma turns that into
+// a clean Person[] array — Google then displays the first as primary author
+// and treats the rest as additional authors. If it is a single name (no comma),
+// the array contains a single Person entry, which is also valid schema.
+const authorList = (article.author ?? '')
+  .split(/\s*[,;/]\s*/)
+  .map((name) => name.trim())
+  .filter(Boolean)
+
+const jsonLdAuthor =
+  authorList.length === 0
+    ? { '@type': 'Organization', name: 'Patisserie Russe' }
+    : authorList.length === 1
+      ? { '@type': 'Person', name: authorList[0] }
+      : authorList.map((name) => ({ '@type': 'Person', name }))
 
 const jsonLdArticle = {
   '@context': 'https://schema.org',
@@ -77,10 +70,7 @@ const jsonLdArticle = {
   image: [ogImg.url],
   inLanguage: 'ru',
   wordCount,
-  author: {
-    '@type': 'Person',
-    name: article.author,
-  },
+  author: jsonLdAuthor,
   publisher: {
     '@type': 'Organization',
     name: 'Patisserie Russe / Milovi School',
@@ -126,28 +116,38 @@ const jsonLdBreadcrumb = {
   ],
 }
 
-// НОВАЯ ЛОГИКА ДЛЯ РЕЦЕПТОВ (SEO 2.0 - Google & Yandex)
-let jsonLdRecipe = null;
-if (article.category === 'recipes' || article.recipeData) {
-  const recipeData = article.recipeData || {};
-  
-  // Динамический парсинг шагов рецепта из текста статьи для Google Rich Snippets
-  let extractedInstructions = [];
-  if (article.content) {
-    const stepRegex = /^\s*\d+\.\s+(.*)$/gm;
-    let match;
-    while ((match = stepRegex.exec(article.content)) !== null) {
-      extractedInstructions.push({
-        '@type': 'HowToStep',
-        'text': match[1].trim()
-      });
-    }
+// ── Recipe JSON-LD ───────────────────────────────────────────────────────────
+// CRITICAL: emit Recipe schema ONLY if recipeData is fully populated AND we
+// can extract real, numbered cooking steps from the article content. Stub data
+// like "Ингредиенты указаны в статье" or one-line instructions is treated by
+// Google as structured-data spam (manual action risk in Search Console).
+function extractRecipeSteps(content: string | undefined): { '@type': 'HowToStep'; text: string }[] {
+  if (!content) return []
+  // Numbered "1. step" or "1) step" lines, must contain at least 12 characters
+  // of content (filters out year stamps like "1985." and noise).
+  const stepRegex = /^\s*\d{1,2}[.)]\s+(.{12,})$/gm
+  const steps: { '@type': 'HowToStep'; text: string }[] = []
+  let match: RegExpExecArray | null
+  while ((match = stepRegex.exec(content)) !== null) {
+    steps.push({ '@type': 'HowToStep', text: match[1].trim() })
   }
-  // Фолбэк, если парсер не нашел шагов
-  if (extractedInstructions.length === 0) {
-    extractedInstructions = [{ '@type': 'HowToStep', 'text': 'Подробные шаги приготовления смотрите в тексте статьи.' }];
-  }
+  return steps
+}
 
+let jsonLdRecipe: Record<string, unknown> | null = null
+const recipeData = article.recipeData
+const realIngredients =
+  recipeData?.ingredients?.filter((i) => i && !/указаны в статье/i.test(i)) ?? []
+const realSteps = extractRecipeSteps(article.content)
+
+if (
+  recipeData &&
+  recipeData.prepTime &&
+  recipeData.cookTime &&
+  recipeData.yield &&
+  realIngredients.length >= 2 &&
+  realSteps.length >= 2
+) {
   jsonLdRecipe = {
     '@context': 'https://schema.org/',
     '@type': 'Recipe',
@@ -155,37 +155,44 @@ if (article.category === 'recipes' || article.recipeData) {
     image: {
       '@type': 'ImageObject',
       url: ogImg.url,
-      width: ogImg.width || 1200,
-      height: ogImg.height || 630
+      width: ogImg.width ?? 1200,
+      height: ogImg.height ?? 630,
     },
-    author: { '@type': 'Person', name: article.author },
-    datePublished: article.date,
+    author: jsonLdAuthor,
+    ...(article.date ? { datePublished: article.date } : {}),
     description: article.excerpt,
-    prepTime: recipeData.prepTime || 'PT30M',
-    cookTime: recipeData.cookTime || 'PT40M',
-    recipeYield: recipeData.yield || '4 порции',
-    recipeIngredient: recipeData.ingredients || ['Ингредиенты указаны в статье'],
-    recipeInstructions: extractedInstructions
-  };
+    prepTime: recipeData.prepTime,
+    cookTime: recipeData.cookTime,
+    recipeYield: recipeData.yield,
+    recipeIngredient: realIngredients,
+    recipeInstructions: realSteps,
+    ...(recipeData.calories
+      ? {
+          nutrition: {
+            '@type': 'NutritionInformation',
+            calories: recipeData.calories,
+          },
+        }
+      : {}),
+  }
 }
 
-// НОВАЯ ЛОГИКА ДЛЯ FAQ
-let jsonLdFAQ = null;
+// ── FAQ JSON-LD — only when the article actually has FAQ entries ─────────────
+let jsonLdFAQ: Record<string, unknown> | null = null
 if (article.faq && article.faq.length > 0) {
   jsonLdFAQ = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: article.faq.map((item: any) => ({
+    mainEntity: article.faq.map((item) => ({
       '@type': 'Question',
       name: item.question,
       acceptedAnswer: {
         '@type': 'Answer',
-        text: item.answer
-      }
-    }))
-  };
+        text: item.answer,
+      },
+    })),
+  }
 }
-
 ---
 
 <BaseLayout
@@ -198,15 +205,14 @@ if (article.faq && article.faq.length > 0) {
   ogType="article"
   articlePublishedTime={article.date}
   articleModifiedTime={article.updatedAt ?? article.date}
-  articleAuthor={article.author}
+  articleAuthor={authorList[0] ?? 'Patisserie Russe'}
   articleSection={categoryName}
   articleTags={article.tags}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLdArticle)} slot="head" />
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLdBreadcrumb)} slot="head" />
-  {jsonLdRecipe && <script type="application/ld+json" set:html={JSON.stringify(jsonLdRecipe)} slot="head" />}
-  {jsonLdFAQ && <script type="application/ld+json" set:html={JSON.stringify(jsonLdFAQ)} slot="head" />}
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdArticle)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdBreadcrumb)} slot="head" />
+  {jsonLdRecipe && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdRecipe)} slot="head" />}
+  {jsonLdFAQ && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdFAQ)} slot="head" />}
 
-  <!-- Передаем sanitizedArticle вместо article -->
-  <ArticlePageShell article={sanitizedArticle} allMeta={libraryMeta} client:load />
+  <ArticlePageShell article={article} allMeta={libraryMeta} client:load />
 </BaseLayout>

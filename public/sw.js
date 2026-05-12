@@ -10,7 +10,7 @@
  * New SW waits in `installed` state until user confirms update.
  */
 
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = '__BUILD_HASH__'
 const CACHE_NAME = `patisserie-russe-${CACHE_VERSION}`
 
 const PRECACHE_ASSETS = [

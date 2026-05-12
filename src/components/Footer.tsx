@@ -1,12 +1,9 @@
-import { useState } from 'react'
-
 export default function Footer() {
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-
   return (
     <footer id="about" className="bg-stone-950 text-amber-50">
-      {/* Newsletter section */}
+      {/* F-22: Newsletter form removed — it pretended to subscribe users while
+         silently dropping their email. Until a real backend (Formspree /
+         Mailchimp / etc.) is wired up, show a passive "coming soon" notice. */}
       <div className="border-b border-amber-100/10 px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">
           <div>
@@ -19,34 +16,14 @@ export default function Footer() {
             </p>
           </div>
           <div className="mt-6 lg:mt-0">
-            {submitted ? (
-              <div className="border border-amber-500/30 px-6 py-4 text-sm text-amber-200">
-                Запрос получен — подписка откроется скоро.
-              </div>
-            ) : (
-              <div>
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="w-64 border border-white/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 outline-none ring-0 focus:border-amber-400 focus:ring-0 transition-colors"
-                  />
-                  {/* F-09: newsletter not yet connected — show interest form, not fake subscription */}
-                  <button
-                    type="button"
-                    onClick={() => { if (email.trim()) setSubmitted(true) }}
-                    className="shrink-0 border border-amber-100 bg-amber-100 px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-stone-950 transition hover:bg-white"
-                  >
-                    Уведомить
-                  </button>
-                </div>
-                <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.24em] text-stone-600">
-                  Рассылка в разработке — сообщим когда откроется
-                </p>
-              </div>
-            )}
+            <div className="border border-amber-100/20 px-6 py-4 text-sm leading-6 text-amber-100/80">
+              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-amber-200/60">
+                Coming soon
+              </p>
+              <p className="mt-2 max-w-xs">
+                Рассылка в разработке. Скоро здесь появится подписка — следите за главной.
+              </p>
+            </div>
           </div>
         </div>
       </div>

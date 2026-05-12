@@ -54,7 +54,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {items.map(({ article, progress, saved }) => (
-            <button key={article.id} type="button" onClick={() => onArticleClick(article)} className="group w-full border border-[var(--border-subtle)] p-5 text-left transition-all duration-300 hover:border-stone-300 hover:shadow-md active:scale-[0.98] dark:hover:border-stone-600">
+            <a key={article.id} href={`/articles/${article.id}/`} onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }} className="group block w-full border border-[var(--border-subtle)] p-5 text-left transition-all duration-300 hover:border-stone-300 hover:shadow-md active:scale-[0.98] dark:hover:border-stone-600">
               <div className="mb-3 flex items-center justify-between">
                 <span className="flex h-5 w-5 items-center justify-center bg-stone-950 text-[7px] font-bold text-amber-100 dark:bg-amber-100 dark:text-stone-950">
                   {categories.find((c) => c.id === article.category)?.icon || '·'}
@@ -74,7 +74,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
                   <div className="h-px bg-amber-600 transition-all duration-300" style={{ width: `${progress > 0 ? Math.max(progress, 8) : (saved ? 12 : 0)}%` }} />
                 </div>
               </div>
-            </button>
+            </a>
           ))}
         </div>
       </div>

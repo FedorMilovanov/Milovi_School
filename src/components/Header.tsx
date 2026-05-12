@@ -82,19 +82,19 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     <>
       <header className={`sticky top-0 z-40 border-b transition-all duration-300 ${scrolled ? 'border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] shadow-sm backdrop-blur-xl' : 'border-transparent bg-[var(--bg-overlay-90)] backdrop-blur-md'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 lg:px-8">
-          <button type="button" onClick={onGoHome} className="group flex items-center gap-3 text-left">
+          <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="group flex items-center gap-3 text-left">
             <span className="flex h-11 w-11 items-center justify-center bg-stone-950 text-[10px] font-bold uppercase tracking-[0.24em] text-amber-100 transition group-hover:scale-105 dark:bg-amber-100 dark:text-stone-950">PR</span>
             <span>
               <span className="block font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">Patisserie Russe</span>
               <span className="block font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500 dark:text-stone-400">French Pastry Archive</span>
             </span>
-          </button>
+          </a>
 
           <nav className="hidden items-center gap-8 md:flex">
-            <button type="button" onClick={onGoHome} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Главная</button>
-            <button type="button" onClick={onGoCategories} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Архив</button>
-            <button type="button" onClick={onGoArticles} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Материалы</button>
-            <button type="button" onClick={onGoAbout} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</button>
+            <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Главная</a>
+            <a href="/#archive" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoCategories() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Архив</a>
+            <a href="/#articles" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoArticles() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Материалы</a>
+            <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
           </nav>
 
           <div className="flex items-center gap-2">
