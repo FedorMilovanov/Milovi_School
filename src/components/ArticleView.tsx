@@ -342,7 +342,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
   return (
     <main className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
-      <div className="fixed inset-x-0 top-[84px] z-40 h-[2px]">
+      <div className="fixed inset-x-0 top-[85px] z-40 h-[2px]">
         <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
       </div>
 

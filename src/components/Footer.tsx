@@ -31,7 +31,7 @@ export default function Footer() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your@email.com"
-                    className="w-64 border border-white/15 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 focus:border-amber-200 focus:outline-none"
+                    className="w-64 border border-white/20 bg-transparent px-4 py-3 text-sm text-white placeholder:text-stone-500 outline-none ring-0 focus:border-amber-400 focus:ring-0 transition-colors"
                   />
                   {/* F-09: newsletter not yet connected — show interest form, not fake subscription */}
                   <button
