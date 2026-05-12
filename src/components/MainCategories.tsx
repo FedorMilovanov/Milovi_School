@@ -16,6 +16,7 @@ const STATIC_CATS = [
     img: 'https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=900&q=82',
     imgAlt: 'Шефы-кондитеры',
     isNew: false,
+    localFallback: '/images/cat-chefs.svg',
   },
   {
     id: 'techniques',
@@ -26,6 +27,7 @@ const STATIC_CATS = [
     img: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=900&q=82',
     imgAlt: 'Техники кондитерского искусства',
     isNew: false,
+    localFallback: '/images/cat-techniques.svg',
   },
   {
     id: 'recipes',
@@ -36,6 +38,7 @@ const STATIC_CATS = [
     img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=82',
     imgAlt: 'Рецепты французской кондитерской',
     isNew: false,
+    localFallback: '/images/cat-recipes.svg',
   },
   {
     id: 'chiffres-gourmands',
@@ -46,6 +49,7 @@ const STATIC_CATS = [
     img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=82',
     imgAlt: 'Chiffres Gourmands — аналитика',
     isNew: true,
+    localFallback: '/images/cat-chiffres.svg',
   },
 ]
 
@@ -127,7 +131,15 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     src={cat.img}
                     alt={cat.imgAlt}
                     loading="lazy"
+                    decoding="async"
                     className="cat-img h-full w-full object-cover"
+                    onError={(e) => {
+                      const el = e.currentTarget
+                      const fb = (cat as { localFallback?: string }).localFallback
+                      if (fb && el.src !== window.location.origin + fb) {
+                        el.src = fb
+                      }
+                    }}
                   />
                   {/* Gradient overlay */}
                   <div className="absolute inset-0 bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(10,8,7,0.05)_20%,rgba(10,8,7,0.9)_100%)]" />

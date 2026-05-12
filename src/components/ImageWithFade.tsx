@@ -6,12 +6,17 @@ interface ImageWithFadeProps {
   alt: string
   className?: string
   lazy?: boolean
+  /** Optional local fallback image (URL). Defaults to brand SVG placeholder. */
+  fallback?: string
 }
 
-export default function ImageWithFade({ src, alt, className = '', lazy = true }: ImageWithFadeProps) {
+const DEFAULT_FALLBACK = '/images/placeholder.svg'
+
+export default function ImageWithFade({ src, alt, className = '', lazy = true, fallback = DEFAULT_FALLBACK }: ImageWithFadeProps) {
   const [isIntersected, setIsIntersected] = useState(!lazy)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
+  const [usingFallback, setUsingFallback] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const shouldReduce = useReducedMotion()
 
@@ -32,32 +37,78 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true }:
     return () => observer.disconnect()
   }, [lazy])
 
+  // Reset on src change
+  useEffect(() => {
+    setLoaded(false)
+    setError(false)
+    setUsingFallback(false)
+  }, [src])
+
+  const handleError = () => {
+    if (!usingFallback && fallback) {
+      // Try local fallback first — graceful degradation, still pretty
+      setUsingFallback(true)
+      setLoaded(false)
+      return
+    }
+    setError(true)
+  }
+
   return (
     <div ref={containerRef} className={`relative overflow-hidden bg-stone-100 dark:bg-stone-900 ${className}`}>
-      {/* Premium Shimmer Skeleton - remains visible until fully loaded */}
+      {/* Premium Shimmer Skeleton — visible until fully loaded */}
       {!loaded && !error && (
         <div className="absolute inset-0 bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 dark:from-stone-800 dark:via-stone-700 dark:to-stone-800 animate-pulse z-10" />
       )}
 
       {isIntersected && !error && (
         <motion.img
-          src={src}
+          src={usingFallback ? fallback : src}
           alt={alt}
           className="h-full w-full object-cover"
           initial={shouldReduce ? false : { opacity: 0, scale: 1.02 }}
           animate={loaded ? { opacity: 1, scale: 1 } : (shouldReduce ? { opacity: 1 } : { opacity: 0 })}
           transition={shouldReduce ? { duration: 0 } : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           onLoad={() => setLoaded(true)}
-          onError={() => setError(true)}
+          onError={handleError}
+          loading={lazy ? 'lazy' : 'eager'}
+          decoding="async"
         />
       )}
 
-      {/* Fallback on network or asset load error */}
+      {/* Final brand fallback — shown if even the local SVG fails (extremely rare) */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-stone-200 dark:bg-stone-800 text-stone-400">
-          <svg className="h-6 w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-          </svg>
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center text-center"
+          style={{
+            background:
+              'linear-gradient(135deg, #1c1917 0%, #100c0a 60%, #050403 100%)',
+          }}
+          role="img"
+          aria-label={alt}
+        >
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: 56,
+              height: 56,
+              border: '1px solid #D4A96A',
+              borderRadius: 0,
+              fontFamily: 'Georgia, serif',
+              fontWeight: 700,
+              fontSize: 22,
+              color: '#D4A96A',
+              letterSpacing: '-0.04em',
+            }}
+          >
+            PR
+          </div>
+          <span
+            className="mt-3 font-mono"
+            style={{ fontSize: 9, letterSpacing: '0.32em', color: '#D4A96A', opacity: 0.75 }}
+          >
+            PATISSERIE • RUSSE
+          </span>
         </div>
       )}
     </div>

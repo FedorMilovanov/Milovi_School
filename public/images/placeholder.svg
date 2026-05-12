@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500" role="img" aria-label="Patisserie Russe placeholder">
+  <defs>
+    <linearGradient id="ph-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="55%" stop-color="#231f1c"/>
+      <stop offset="100%" stop-color="#0a0807"/>
+    </linearGradient>
+    <linearGradient id="ph-gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E6C485"/>
+      <stop offset="100%" stop-color="#A07636"/>
+    </linearGradient>
+    <radialGradient id="ph-glow" cx="50%" cy="42%" r="55%">
+      <stop offset="0%" stop-color="#D4A96A" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#D4A96A" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#D4A96A" stroke-width="0.3" opacity="0.15"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="500" fill="url(#ph-bg)"/>
+  <rect width="800" height="500" fill="url(#ph-grid)"/>
+  <rect width="800" height="500" fill="url(#ph-glow)"/>
+  <!-- Frame -->
+  <rect x="32" y="32" width="736" height="436" fill="none" stroke="url(#ph-gold)" stroke-width="0.7" opacity="0.65"/>
+  <rect x="40" y="40" width="720" height="420" fill="none" stroke="url(#ph-gold)" stroke-width="0.3" opacity="0.4"/>
+  <!-- Decorative star ornament -->
+  <g transform="translate(400 200)" fill="none" stroke="url(#ph-gold)" stroke-width="0.6" opacity="0.85">
+    <circle r="44"/>
+    <circle r="32" opacity="0.5"/>
+    <circle r="58" opacity="0.3"/>
+    <line x1="-72" y1="0" x2="-50" y2="0"/>
+    <line x1="72" y1="0" x2="50" y2="0"/>
+    <line x1="0" y1="-72" x2="0" y2="-50"/>
+    <line x1="0" y1="72" x2="0" y2="50"/>
+  </g>
+  <text x="400" y="208" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="38" fill="url(#ph-gold)" letter-spacing="-1">PR</text>
+  <!-- Caption -->
+  <text x="400" y="300" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="22" fill="#E8DCC8" opacity="0.75">Patisserie Russe</text>
+  <text x="400" y="332" text-anchor="middle" font-family="ui-monospace, 'SF Mono', monospace" font-size="10" letter-spacing="6" fill="url(#ph-gold)" opacity="0.85">FRENCH • PASTRY • ARCHIVE</text>
+  <!-- Corner ornaments -->
+  <g stroke="url(#ph-gold)" stroke-width="0.8" fill="none" opacity="0.7">
+    <path d="M48 60 L48 48 L60 48"/>
+    <path d="M752 60 L752 48 L740 48"/>
+    <path d="M48 440 L48 452 L60 452"/>
+    <path d="M752 440 L752 452 L740 452"/>
+  </g>
+</svg>

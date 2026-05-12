@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Patisserie Russe">
+  <defs>
+    <linearGradient id="lg-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E6C485"/>
+      <stop offset="45%" stop-color="#D4A96A"/>
+      <stop offset="100%" stop-color="#A07636"/>
+    </linearGradient>
+    <linearGradient id="lg-ink" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="100%" stop-color="#0a0807"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer crest -->
+  <rect x="6" y="6" width="108" height="108" fill="url(#lg-ink)"/>
+  <rect x="6" y="6" width="108" height="108" fill="none" stroke="url(#lg-gold)" stroke-width="1.2"/>
+  <rect x="11" y="11" width="98" height="98" fill="none" stroke="url(#lg-gold)" stroke-width="0.4" opacity="0.55"/>
+  <!-- Decorative top/bottom bars -->
+  <line x1="20" y1="22" x2="100" y2="22" stroke="url(#lg-gold)" stroke-width="0.6" opacity="0.7"/>
+  <line x1="20" y1="98" x2="100" y2="98" stroke="url(#lg-gold)" stroke-width="0.6" opacity="0.7"/>
+  <circle cx="60" cy="22" r="1.4" fill="url(#lg-gold)"/>
+  <circle cx="60" cy="98" r="1.4" fill="url(#lg-gold)"/>
+  <!-- Monogram PR -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-weight="700" fill="url(#lg-gold)">
+    <text x="60" y="72" text-anchor="middle" font-size="46" letter-spacing="-2">PR</text>
+  </g>
+  <!-- Tagline -->
+  <text x="60" y="88" text-anchor="middle" font-family="ui-monospace, 'SF Mono', monospace" font-size="5.2" letter-spacing="2.8" fill="url(#lg-gold)" opacity="0.85">PATISSERIE • RUSSE</text>
+</svg>
