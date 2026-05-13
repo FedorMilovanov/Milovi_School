@@ -48,8 +48,6 @@ input:focus-visible, textarea:focus-visible { outline: none; }
   --text-muted:     #78716c;
   --text-accent:    #92400e;
   --border-subtle:  rgba(28, 25, 23, 0.12);
-  --selection-bg:   #451a03;
-  --selection-fg:   #fef3c7;
   /* ─── Aliases used by MainCategories (legacy design tokens) ─── */
   --cream:          #f5efe5;
   --cream-deep:     #f0e6d6;
@@ -86,8 +84,6 @@ input:focus-visible, textarea:focus-visible { outline: none; }
   --text-muted:     #b7aa99;
   --text-accent:    #d9a455;
   --border-subtle:  rgba(232, 223, 210, 0.12);
-  --selection-bg:   #d4a45f;
-  --selection-fg:   #11100e;
   /* ─── Aliases used by MainCategories (legacy design tokens) ─── */
   --cream:          #11100e;
   --cream-deep:     #080706;
@@ -116,10 +112,6 @@ input:focus-visible, textarea:focus-visible { outline: none; }
   color: var(--text-primary);
 }
 
-::selection {
-  background: var(--selection-bg);
-  color: var(--selection-fg);
-}
 
 /* ─── Hide scrollbar utility ─── */
 .no-scrollbar::-webkit-scrollbar { display: none; }

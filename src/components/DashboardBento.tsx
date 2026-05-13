@@ -210,9 +210,9 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
           />
 
           {/* Quote / streak card */}
-          <ScrollReveal delay={0.3} direction="up">
+          <ScrollReveal delay={0.3} direction="up" className="sm:col-span-2 lg:col-span-1">
             <div
-              className="relative overflow-hidden border p-6 h-full sm:col-span-2 lg:col-span-1"
+              className="relative overflow-hidden border p-6 h-full"
               style={{ backgroundColor: 'var(--bg-deep)', borderColor: 'var(--text-accent)' }}
             >
               <div className="absolute top-0 right-0 p-4 opacity-5">

@@ -6,18 +6,25 @@ import { showToast } from './Toast'
 
 interface ArticleActionsProps {
   article: Article
+  /** Lift saved state up to parent to keep in sync with mobile reading bar */
+  saved?: boolean
+  onToggleSave?: (next: boolean) => void
 }
 
-export default function ArticleActions({ article }: ArticleActionsProps) {
-  const [saved, setSaved] = useState(false)
+export default function ArticleActions({ article, saved: savedProp, onToggleSave }: ArticleActionsProps) {
+  // If parent passes saved/onToggleSave, use those; otherwise manage locally
+  const [savedLocal, setSavedLocal] = useState(false)
+  const saved = savedProp !== undefined ? savedProp : savedLocal
   const [copied, setCopied] = useState(false)
   const [shareCopied, setShareCopied] = useState(false)
   const copiedTimeoutRef = useRef<number | null>(null)
   const shareTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
-    setSaved(safeGetItem(`article-saved:${article.id}`) === 'true')
-  }, [article.id])
+    if (savedProp === undefined) {
+      setSavedLocal(safeGetItem(`article-saved:${article.id}`) === 'true')
+    }
+  }, [article.id, savedProp])
 
   useEffect(() => {
     return () => {
@@ -28,8 +35,12 @@ export default function ArticleActions({ article }: ArticleActionsProps) {
 
   const toggleSave = () => {
     const newSaved = !saved
-    setSaved(newSaved)
-    safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    if (onToggleSave) {
+      onToggleSave(newSaved)
+    } else {
+      setSavedLocal(newSaved)
+      safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    }
     showToast('save', newSaved ? 'Добавлено в закладки' : 'Убрано из закладок')
   }
 

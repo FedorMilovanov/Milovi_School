@@ -4,7 +4,7 @@
  * Strategy:
  *  - Navigation (HTML pages): network-first → cache fallback
  *  - Static assets (JS, CSS, local images): cache-first → network fallback
- *  - Cross-origin (Unsplash, etc.): pass-through, no caching
+ *  - Cross-origin (Unsplash article images, etc.): pass-through, no caching
  *
  * UpdateNotification.tsx handles SKIP_WAITING prompt.
  * New SW waits in `installed` state until user confirms update.
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url)
 
-  // Don't cache cross-origin requests (Unsplash CDN, etc.)
+  // Don't cache cross-origin requests (Unsplash CDN used in article body images, etc.)
   if (url.origin !== self.location.origin) return
 
   if (request.mode === 'navigate') {

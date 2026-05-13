@@ -6,6 +6,7 @@ import type { Category } from '../data/categories'
 import ImageWithFade from './ImageWithFade'
 import type { FuseResultMatch } from 'fuse.js'
 import { highlightMatch, highlightWithMatches } from '../utils/highlight'
+import { pluralRu, MATERIAL } from '../utils/plural'
 
 // ── Convenience wrapper: picks Fuse-index highlight when match data exists, ───
 // falls back to literal substring split otherwise. Using Fuse indices fixes
@@ -23,7 +24,6 @@ function HL({
   if (matches) return <>{highlightWithMatches(text, matches, field)}</>
   return <>{highlightMatch(text, query)}</>
 }
-import { pluralRu, MATERIAL } from '../utils/plural'
 
 // ─── How many articles to preview per section before "Show all" ───────────────
 const SECTION_PREVIEW = 5

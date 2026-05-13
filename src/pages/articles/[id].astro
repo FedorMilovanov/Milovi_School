@@ -36,8 +36,9 @@ function buildOgImage(input: string | undefined): { url: string; width?: number;
       height: 630,
     }
   }
+  // Local WEBP article images — use standard OG dimensions so FB/VK/TG can render the preview
   const absolute = input.startsWith('http') ? input : `${siteUrl}${input}`
-  return { url: absolute }
+  return { url: absolute, width: 1200, height: 800 }
 }
 
 const ogImg = buildOgImage(article.image)
@@ -105,7 +106,7 @@ const jsonLdBreadcrumb = {
       '@type': 'ListItem',
       position: 2,
       name: categoryName,
-      item: `${siteUrl}/?cat=${article.category}`,
+      item: `${siteUrl}/`,
     },
     {
       '@type': 'ListItem',

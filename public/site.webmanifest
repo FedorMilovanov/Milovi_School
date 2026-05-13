@@ -8,7 +8,7 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#f5efe5",
-  "theme_color": "#1c1917",
+  "theme_color": "#f5efe5",
   "categories": ["education", "food"],
   "icons": [
     {

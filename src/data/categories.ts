@@ -1,5 +1,10 @@
 export interface Category { id: string; name: string; icon: string; description: string; color: string }
 
+/** Category IDs that are NOT chef-specific — used by HomeApp, MainCategories, CommandPalette */
+export const NON_CHEF_CATEGORY_IDS = new Set([
+  'techniques', 'recipes', 'french-cuisine', 'histoire-culinaire', 'chiffres-gourmands',
+])
+
 export const categories: Category[] = [
   { id: 'pierre-herme', name: 'Пьер Эрме', icon: 'PH', description: 'Макарон, вкус как архитектура, соль как баланс', color: 'from-rose-700 to-stone-950' },
   { id: 'cedric-grolet', name: 'Седрик Гроле', icon: 'CG', description: "Фрукты trompe-l'oeil, оболочки, гели, текстуры", color: 'from-amber-700 to-stone-950' },

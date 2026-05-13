@@ -1,23 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useScrollProgress } from '../hooks/useScrollProgress'
 
 export default function ScrollToTop() {
+  const progress = useScrollProgress()
   const [visible, setVisible] = useState(false)
-  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    const update = () => {
-      const el = document.documentElement
-      const total = el.scrollHeight - el.clientHeight
-      const p = total > 0 ? Math.min(100, (el.scrollTop / total) * 100) : 0
-      setProgress(p)
-      setVisible(el.scrollTop > 600)
-    }
-
-    window.addEventListener('scroll', update, { passive: true })
-    update()
-    return () => window.removeEventListener('scroll', update)
-  }, [])
+    setVisible(document.documentElement.scrollTop > 600)
+  }, [progress])
 
   return (
     <AnimatePresence>

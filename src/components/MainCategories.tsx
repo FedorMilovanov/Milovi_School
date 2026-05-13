@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import type { ArticleMeta } from '../data/articles'
+import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
-// Non-chef category IDs — chef count = everything else
-const NON_CHEF_IDS = new Set([
-  'techniques', 'recipes', 'french-cuisine', 'histoire-culinaire', 'chiffres-gourmands',
-])
 
 const STATIC_CATS = [
   {
@@ -13,7 +10,7 @@ const STATIC_CATS = [
     name: 'Шефы & Мастера',
     desc: '14 шефов — от Пьера Эрме до Жака Жени. Разборы почерка, философии и сигнатурных творений.',
     unit: 'материалов',
-    img: 'https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=900&q=82',
+    img: '/images/cat-chefs.webp',
     imgAlt: 'Шефы-кондитеры',
     isNew: false,
     localFallback: '/images/cat-chefs.svg',
@@ -24,7 +21,7 @@ const STATIC_CATS = [
     name: 'Техники',
     desc: 'Feuilletage, pâte à choux, кремы, муссы, глазури — профессиональные разборы с температурами и пропорциями.',
     unit: 'материалов',
-    img: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=900&q=82',
+    img: '/images/cat-techniques.webp',
     imgAlt: 'Техники кондитерского искусства',
     isNew: false,
     localFallback: '/images/cat-techniques.svg',
@@ -35,7 +32,7 @@ const STATIC_CATS = [
     name: 'Рецепты',
     desc: 'Практические карты сборки и домашние адаптации — от тарта с пеканом до entremets с кремом брюле.',
     unit: 'рецептов',
-    img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=900&q=82',
+    img: '/images/cat-recipes.webp',
     imgAlt: 'Рецепты французской кондитерской',
     isNew: false,
     localFallback: '/images/cat-recipes.svg',
@@ -46,7 +43,7 @@ const STATIC_CATS = [
     name: 'Цифры гурмана',
     desc: 'Рейтинги пекарен, обороты кондитерских домов, мировое потребление шоколада и другая аналитика индустрии.',
     unit: 'материалов',
-    img: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=82',
+    img: '/images/cat-chiffres.webp',
     imgAlt: 'Chiffres Gourmands — аналитика',
     isNew: true,
     localFallback: '/images/cat-chiffres.svg',
@@ -66,7 +63,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
 
   // F-02: Compute real counts from articles
   const counts = useMemo(() => {
-    const chefs = articles.filter(a => !NON_CHEF_IDS.has(a.category)).length
+    const chefs = articles.filter(a => !NON_CHEF_CATEGORY_IDS.has(a.category)).length
     const techniques = articles.filter(a => a.category === 'techniques').length
     const recipes = articles.filter(a => a.category === 'recipes').length
     const chiffres = articles.filter(a => a.category === 'chiffres-gourmands').length

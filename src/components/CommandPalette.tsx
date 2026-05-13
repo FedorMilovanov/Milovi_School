@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
 import type { ArticleMeta } from '../data/articles'
-import { categories } from '../data/categories'
+import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
 import { highlightWithMatches } from '../utils/highlight'
@@ -51,7 +51,7 @@ interface QuickAction {
   action: () => void
 }
 
-function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: React.CSSProperties }) {
+function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: CSSProperties }) {
   const [loaded, setLoaded]   = useState(false)
   const [errored, setErrored] = useState(false)
   useEffect(() => { setLoaded(false); setErrored(false) }, [src])
@@ -106,15 +106,17 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
     return () => { document.body.style.overflow = prevO; document.body.style.paddingRight = prevP }
   }, [open])
 
+  // Re-read localStorage every time palette opens so "Недавно читали" is always fresh
   const recentArticles = useMemo<Array<{ article: ArticleMeta; pct: number }>>(() => {
     return articles
       .map(a => ({ article: a, ts: Number(safeGetItem(`article-last-read:${a.id}`) ?? 0), pct: Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0) }))
       .filter(x => x.ts > 0 || x.pct > 0).sort((a, b) => b.ts - a.ts).slice(0, 5)
-  }, [articles])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articles, open])
 
   const quickActions: QuickAction[] = useMemo(() => {
     if (!onSelectCategory) return []
-    const chefCats = categories.filter(c => !['techniques','recipes','french-cuisine','histoire-culinaire','chiffres-gourmands'].includes(c.id))
+    const chefCats = categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id))
     return [
       { id:'nav-techniques', label:'Техники', sublabel:'Все техники кондитерского искусства', icon:'TK', action:()=>{ onSelectCategory('techniques'); onClose() } },
       { id:'nav-recipes', label:'Рецепты', sublabel:'Практические карты сборки', icon:'RC', action:()=>{ onSelectCategory('recipes'); onClose() } },
@@ -164,7 +166,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
     return articleResults[idx] ?? null
   }, [activeIndex, showQuickActions, quickActions.length, articleResults])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: ReactKeyboardEvent) => {
     if (e.key === 'Tab') {
       const container = containerRef.current; if (!container) return
       const focusable = Array.from(container.querySelectorAll<HTMLElement>('input, button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')).filter(el => !el.closest('[aria-hidden]'))
@@ -282,6 +284,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                 </AnimatePresence>
 
                 <button
+                  type="button"
                   onClick={onClose}
                   className="font-mono text-[8px] uppercase tracking-[0.32em] shrink-0 transition-opacity"
                   style={{ color: 'var(--cp-text-mid)' }}
@@ -555,7 +558,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   )
 }
 
-function SectionLabel({ children, inline }: { children: React.ReactNode; inline?: boolean }) {
+function SectionLabel({ children, inline }: { children: ReactNode; inline?: boolean }) {
   if (inline) return <span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
   return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
 }

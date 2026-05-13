@@ -3,7 +3,7 @@ interface ReadingTimeProps {
   className?: string
 }
 
-export default function ReadingTime({ minutes, className }: ReadingTimeProps) {
+export default function ReadingTime({ minutes, className = '' }: ReadingTimeProps) {
   const format = (m: number) => {
     if (m < 60) return `${m} мин`
     const h = Math.floor(m / 60)

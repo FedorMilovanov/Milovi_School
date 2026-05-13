@@ -1,3 +1,4 @@
+import { useRef, type MouseEvent as ReactMouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { localImages } from '../assets/images'
 import ImageWithFade from './ImageWithFade'
@@ -23,6 +24,37 @@ interface ShowcaseSliderProps {
 }
 
 export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false })
+
+  const onMouseDown = (e: ReactMouseEvent) => {
+    const el = scrollRef.current
+    if (!el) return
+    drag.current = { active: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft, moved: false }
+    el.style.userSelect = 'none'
+  }
+
+  const onMouseMove = (e: ReactMouseEvent) => {
+    if (!drag.current.active) return
+    const el = scrollRef.current
+    if (!el) return
+    const x = e.pageX - el.offsetLeft
+    const delta = x - drag.current.startX
+    if (Math.abs(delta) > 4) drag.current.moved = true
+    el.scrollLeft = drag.current.scrollLeft - delta
+  }
+
+  const stopDrag = () => {
+    if (!drag.current.active) return
+    drag.current.active = false
+    if (scrollRef.current) scrollRef.current.style.userSelect = ''
+  }
+
+  // Suppress click on cards when drag moved (prevents accidental navigation)
+  const onClickCapture = (e: ReactMouseEvent) => {
+    if (drag.current.moved) { e.stopPropagation(); e.preventDefault(); drag.current.moved = false }
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
       <div className="mb-8">
@@ -33,8 +65,14 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
       </div>
 
       <div
-        className="no-scrollbar flex cursor-grab touch-pan-x select-none gap-6 overflow-x-auto pb-4 active:cursor-grabbing"
->
+        ref={scrollRef}
+        className="no-scrollbar flex touch-pan-x select-none gap-6 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing"
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={stopDrag}
+        onMouseLeave={stopDrag}
+        onClickCapture={onClickCapture}
+      >
         {items.map((item, index) => (
           <motion.div
             key={item.title}

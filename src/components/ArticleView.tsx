@@ -145,6 +145,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
   const [focusMode, setFocusMode] = useState(() => typeof window !== 'undefined' && safeGetItem('pref-focus-mode') === 'true')
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
+  const copiedTimeoutRef = useRef<number | null>(null)
   const [tocOpen, setTocOpen] = useState(false)
   const [resumePosition, setResumePosition] = useState(0)
   // F-18: ref to the floating TOC <details> element so we can close it after navigation
@@ -368,7 +369,11 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                 ))}
               </div>
               <div className="mt-6">
-                <ArticleActions article={article} />
+                <ArticleActions
+                  article={article}
+                  saved={saved}
+                  onToggleSave={(next) => { setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }}
+                />
               </div>
               {resumePosition > 0 && (
                 <button type="button" onClick={() => window.scrollTo({ top: resumePosition, behavior: 'smooth' })} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
@@ -387,6 +392,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
           {headings.length > 2 && (
             <div className="mb-8 border border-stone-200 bg-white/60 dark:border-stone-800 dark:bg-stone-900/60 lg:hidden">
               <button
+                type="button"
                 onClick={() => setTocOpen(v => !v)}
                 className="flex w-full select-none items-center justify-between px-5 py-4 font-mono text-[11px] uppercase tracking-[0.24em] text-stone-950 dark:text-stone-100"
               >
@@ -448,8 +454,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                     <button type="button" onClick={() => largeText && toggleLargeText()} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
                     <button type="button" onClick={() => !largeText && toggleLargeText()} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
                   </div>
-                  <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); window.setTimeout(() => setCopied(false), 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
-                  <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
+                  <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
+                  <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)); showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок') }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
                   <button type="button" onClick={toggleFocusMode} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{focusMode ? 'выключить фокус' : 'режим фокуса'}</button>
                 </div>
 
@@ -582,18 +588,6 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
         </div>
       )}
 
-      {/* Scroll-to-top — sits above the mobile article bar */}
-      {progress > 0.18 && (
-        <button
-          type="button"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-[5.5rem] right-4 z-50 grid h-10 w-10 place-items-center border border-stone-950 bg-stone-950 text-amber-100 shadow-lg transition hover:bg-amber-100 hover:text-stone-950 dark:border-amber-200 dark:bg-amber-200 dark:text-stone-950 dark:hover:bg-stone-950 dark:hover:text-amber-200 lg:bottom-8 lg:right-8 lg:h-12 lg:w-12"
-          aria-label="Наверх"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
-        </button>
-      )}
-
       {/* Luxury mobile reading bar — article-specific controls */}
       <div
         className="fixed inset-x-0 bottom-0 z-40 lg:hidden"
@@ -613,6 +607,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
         <div className="grid grid-cols-4 bg-[var(--bg-overlay-95)] backdrop-blur-xl dark:bg-stone-950/95">
           {/* Back */}
           <button
+            type="button"
             onClick={onBack}
             className="group flex flex-col items-center justify-center gap-1 py-3 text-stone-500 transition-colors hover:text-stone-950 dark:text-stone-500 dark:hover:text-stone-100"
           >
@@ -624,6 +619,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Save / bookmark */}
           <button
+            type="button"
             onClick={() => {
               const next = !saved
               setSaved(next)
@@ -641,6 +637,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Font size toggle */}
           <button
+            type="button"
             onClick={toggleLargeText}
             className="flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 text-stone-500 transition-colors hover:text-stone-950 dark:border-stone-800 dark:text-stone-500 dark:hover:text-stone-100"
           >
@@ -650,6 +647,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Focus mode */}
           <button
+            type="button"
             onClick={toggleFocusMode}
             className={`flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${focusMode ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-stone-950 dark:text-stone-500 dark:hover:text-stone-100'}`}
           >

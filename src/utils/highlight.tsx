@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { FuseResultMatch } from 'fuse.js'
 
 // ── Style shared between both highlight functions ────────────────────────────
-const MARK_STYLE: React.CSSProperties = {
+const MARK_STYLE: CSSProperties = {
   backgroundColor: 'var(--text-accent)',
   color: 'var(--bg-main)',
   opacity: 0.85,

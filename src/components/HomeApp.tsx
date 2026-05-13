@@ -29,12 +29,9 @@ import ToastContainer from './Toast'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
 import { type ArticleMeta } from '../data/articles'
-import { categories } from '../data/categories'
+import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
-// F-13: Derive CHEF_IDS from categories — no manual sync when adding chefs
-const NON_CHEF_CATEGORY_IDS = new Set([
-  'techniques', 'recipes', 'french-cuisine', 'histoire-culinaire', 'chiffres-gourmands',
-])
+// F-13: CHEF_IDS derived from NON_CHEF_CATEGORY_IDS (exported from categories.ts)
 const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
 )

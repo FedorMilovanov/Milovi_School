@@ -36,7 +36,6 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768)
-    check()
     window.addEventListener('resize', check, { passive: true })
     return () => window.removeEventListener('resize', check)
   }, [])
