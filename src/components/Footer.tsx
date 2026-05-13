@@ -39,7 +39,7 @@ export default function Footer() {
           </div>
           <div className="space-y-6 text-stone-300">
             <p className="text-lg leading-8">
-              Это библиотека о людях, которые сделали французскую кондитерку современной: Эрме, Гроле, Мишалак, Метайе, Контисини, Перре и другие. Мы собираем интервью, рецепты, курсы и профессиональные заметки — и переводим их в понятный формат.
+              Это образовательная библиотека частной кондитерской Milovi Cake о людях, техниках и десертах, которые сделали французскую pâtisserie современной. Материалы не являются меню Milovi Cake: это справочник, переводы, сводки и технологические разборы для читателей.
             </p>
             <p className="text-lg leading-8">
               Здесь можно читать не рекламные описания, а ремесленную суть: что шеф хотел сказать, почему он выбрал именно эту технику, какие температуры и жесты важны.
@@ -49,7 +49,7 @@ export default function Footer() {
               <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/60">Авторский проект</p>
               <span className="font-serif text-2xl font-semibold text-amber-100">Patisserie Russe</span>
               <p className="mt-3 text-sm leading-6 text-stone-400">
-                French Pastry Archive — бесплатная база знаний о французской кондитерке и кухне. Проект сделан по любви к теме.
+                French Pastry Archive — бесплатная база знаний о французской кондитерке и кухне. Коммерческий сайт кондитерской: milovicake.ru.
               </p>
             </div>
           </div>
@@ -62,8 +62,10 @@ export default function Footer() {
           <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-600">
             Patisserie Russe · French Pastry Archive · {new Date().getFullYear()}
           </p>
-          <div className="flex gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-600">
-            <span>Сделано с уважением к ремеслу</span>
+          <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-600">
+            <a href="/about/" className="transition hover:text-amber-200">О проекте</a>
+            <a href="/methodology/" className="transition hover:text-amber-200">Методология</a>
+            <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="transition hover:text-amber-200">Milovi Cake ↗</a>
           </div>
         </div>
       </div>

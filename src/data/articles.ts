@@ -2,7 +2,18 @@ import { localImages } from '../assets/images'
 import { dc } from './deepContents'
 
 export interface RecipeData { prepTime: string; cookTime: string; yield: string; calories?: string; ingredients: string[]; }
-export interface Article { id: string; title: string; excerpt: string; content: string; category: string; author: string; readTime: number; image: string; tags: string[]; date?: string; updatedAt?: string; sourceUrl?: string; sourceLabel?: string; recipeData?: RecipeData; faq?: { question: string; answer: string }[]; }
+export interface Article { id: string; title: string; excerpt: string; content: string; category: string; author: string; readTime: number; image: string; tags: string[]; date?: string; updatedAt?: string; sourceUrl?: string; sourceLabel?: string; recipeData?: RecipeData; faq?: { question: string; answer: string }[];
+  /** SEO: human description of the actual image, not just duplicated title */
+  imageAlt?: string;
+  /** SEO: concise title used in image sitemap / ImageObject */
+  imageTitle?: string;
+  /** Visible editorial caption under hero image */
+  imageCaption?: string;
+  /** Credit/licence/source note for image metadata */
+  imageCredit?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+}
 
 // Возвращает глубокий контент если есть, иначе шаблон
 const body = (_topic: string, _id?: string) => {
@@ -397,7 +408,7 @@ export const articles: Article[] = [
     readTime: 18, 
     image: '/images/articles/recipe-baba-rhum-alain-ducasse.webp', 
     tags: ['ром-баба', 'Ален Дюкасс', 'саварен', 'сироп', 'бриошь'], 
-    date: '2026-05-15',
+    date: '2026-05-12',
     recipeData: {
       prepTime: 'PT1H30M', cookTime: 'PT25M', yield: '8 порций',
       ingredients: ['250г муки T45', '15г свежих дрожжей', '100г молока', '3 яйца (150г)', '80г сливочного масла', '750г воды (для сиропа)', '400г сахара', '150мл выдержанного рома (Dark Rum)']
@@ -417,7 +428,7 @@ export const articles: Article[] = [
     readTime: 16, 
     image: '/images/articles/recipe-tarte-citron-grolet.webp', 
     tags: ['тарт', 'лимон', 'Седрик Гроле', 'pâte sucrée'], 
-    date: '2026-05-16',
+    date: '2026-05-12',
     recipeData: {
       prepTime: 'PT3H', cookTime: 'PT35M', yield: '1 тарт 18см',
       ingredients: ['150г сливочного масла', '90г сахарной пудры', '30г миндальной муки', '250г муки T55', '50г яиц (для песочного теста)', '150г лимонного сока', '150г сахара', '150г яиц (для крема)']
@@ -428,6 +439,60 @@ export const articles: Article[] = [
   },
 
 ]
+// ─── SEO defaults for article images ─────────────────────────────────────────
+// Keep image metadata with the article object so React cards, JSON-LD, OpenGraph
+// and the custom image sitemap all speak the same language. Editors can override
+// any of these fields per article; these defaults prevent weak/empty alt text.
+const stripBrand = (value: string) => value.replace(/\s+—\s+Patisserie Russe$/i, '').trim()
+const short = (value: string, max = 92) => {
+  const clean = stripBrand(value).replace(/\s+/g, ' ').trim()
+  if (clean.length <= max) return clean
+  const cut = clean.slice(0, max)
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 48)).trim()}…`
+}
+
+function defaultImageTitle(article: Article) {
+  return short(article.title, 80)
+}
+
+function defaultImageAlt(article: Article) {
+  const tags = article.tags?.slice(0, 3).join(', ')
+  if (article.category === 'recipes') {
+    return `Французский десерт «${short(article.title, 58)}»: готовая подача, ключевые текстуры и техника ${tags ? `(${tags})` : ''}`.trim()
+  }
+  if (article.category === 'techniques') {
+    return `Иллюстрация французской кондитерской техники «${short(article.title, 60)}»${tags ? `: ${tags}` : ''}`
+  }
+  if (article.category === 'histoire-culinaire') {
+    return `Исторический материал о французской pâtisserie: «${short(article.title, 62)}»`
+  }
+  if (article.category === 'chiffres-gourmands') {
+    return `Инфографичный визуал к аналитике французской кондитерской: «${short(article.title, 60)}»`
+  }
+  return `Французская кондитерская школа: визуал к материалу «${short(article.title, 68)}»${tags ? `(${tags})` : ''}`
+}
+
+function defaultImageCaption(article: Article) {
+  if (article.category === 'recipes') {
+    return `${short(article.title, 86)}. Визуальная привязка рецепта: подача, текстура и технологическая логика французской школы.`
+  }
+  if (article.category === 'techniques') {
+    return `${short(article.title, 86)}. Иллюстрация к разбору техники, температур и ошибок.`
+  }
+  return `${short(article.title, 96)}. Материал библиотеки Patisserie Russe / Milovi School.`
+}
+
+for (const article of articles) {
+  article.imageTitle ??= defaultImageTitle(article)
+  article.imageAlt ??= defaultImageAlt(article)
+  article.imageCaption ??= defaultImageCaption(article)
+  article.imageCredit ??= 'Patisserie Russe / Milovi School'
+  // Current local article images are normalised to 1280×800 in /public/images/articles.
+  // Portrait/legacy exceptions can override these fields manually later.
+  article.imageWidth ??= 1280
+  article.imageHeight ??= 800
+}
+
 // ─── Metadata only (no content) — safe to send to the browser ───────────────
 // Use this in React client islands to avoid shipping all 103 articles' content.
 // Each article page receives its own full content as a static SSG prop.

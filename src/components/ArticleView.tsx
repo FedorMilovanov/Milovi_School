@@ -383,10 +383,28 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
             </div>
           </header>
 
-          {/* Hero image */}
-          <div className={`my-8 overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto aspect-[16/8] max-w-3xl' : 'aspect-[16/7] md:aspect-[16/6]'}`}>
-            <img src={article.image} alt={article.title} className="h-full w-full object-cover object-center" loading="eager" decoding="async" fetchPriority="high" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} />
-          </div>
+          {/* Hero image — figure/caption improves accessibility and image SEO */}
+          <figure className="my-8">
+            <div className={`overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto aspect-[16/8] max-w-3xl' : 'aspect-[16/7] md:aspect-[16/6]'}`}>
+              <img 
+                src={article.image} 
+                alt={article.imageAlt ?? article.title}
+                title={article.imageTitle ?? article.title}
+                width={article.imageWidth ?? 1280}
+                height={article.imageHeight ?? 800}
+                className="h-full w-full object-cover object-center" 
+                loading="eager" 
+                decoding="async" 
+                fetchPriority="high" 
+                onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} 
+              />
+            </div>
+            {article.imageCaption && (
+              <figcaption className="mx-auto mt-3 max-w-3xl px-2 text-center font-serif text-[15px] italic leading-6 text-stone-500 dark:text-stone-400">
+                {article.imageCaption}
+              </figcaption>
+            )}
+          </figure>
 
           {/* Mobile TOC — luxury animated accordion */}
           {headings.length > 2 && (
@@ -559,7 +577,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
                 {related.map(r => (
                   <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">
                     <div className="mb-4 aspect-[16/9] overflow-hidden bg-stone-200 dark:bg-stone-800">
-                      <img src={r.image} alt={r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
+                      <img src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
                     <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>
                     <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>

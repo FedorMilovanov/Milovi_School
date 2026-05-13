@@ -56,19 +56,33 @@ const authorList = (article.author ?? '')
   .map((name) => name.trim())
   .filter(Boolean)
 
-const jsonLdAuthor =
-  authorList.length === 0
-    ? { '@type': 'Organization', name: 'Patisserie Russe' }
-    : authorList.length === 1
-      ? { '@type': 'Person', name: authorList[0] }
-      : authorList.map((name) => ({ '@type': 'Person', name }))
+// In article data, `author` is an editorial source/source-list. The real author of
+// this educational adaptation is the project library; original sources are exposed
+// through `citation`/visible source links to avoid source ≠ author schema pollution.
+const jsonLdAuthor = {
+  '@type': 'Organization',
+  name: 'Milovi School / Patisserie Russe',
+  url: siteUrl,
+}
+
+const jsonLdImage = {
+  '@type': 'ImageObject',
+  url: ogImg.url,
+  contentUrl: ogImg.url,
+  width: article.imageWidth ?? ogImg.width ?? 1280,
+  height: article.imageHeight ?? ogImg.height ?? 800,
+  caption: article.imageCaption ?? article.title,
+  name: article.imageTitle ?? article.title,
+  creditText: article.imageCredit ?? 'Patisserie Russe / Milovi School',
+  representativeOfPage: true,
+}
 
 const jsonLdArticle = {
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: article.title,
   description: article.excerpt,
-  image: [ogImg.url],
+  image: jsonLdImage,
   inLanguage: 'ru',
   wordCount,
   author: jsonLdAuthor,
@@ -84,6 +98,7 @@ const jsonLdArticle = {
   url: canonicalUrl,
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
   keywords: article.tags?.join(', '),
+  ...(article.sourceUrl ? { citation: article.sourceUrl } : {}),
   ...(article.date
     ? {
         datePublished: article.date,
@@ -153,12 +168,7 @@ if (
     '@context': 'https://schema.org/',
     '@type': 'Recipe',
     name: article.title,
-    image: {
-      '@type': 'ImageObject',
-      url: ogImg.url,
-      width: ogImg.width ?? 1200,
-      height: ogImg.height ?? 630,
-    },
+    image: jsonLdImage,
     author: jsonLdAuthor,
     ...(article.date ? { datePublished: article.date } : {}),
     description: article.excerpt,
@@ -206,7 +216,7 @@ if (article.faq && article.faq.length > 0) {
   ogType="article"
   articlePublishedTime={article.date}
   articleModifiedTime={article.updatedAt ?? article.date}
-  articleAuthor={authorList[0] ?? 'Patisserie Russe'}
+  articleAuthor="Milovi School / Patisserie Russe"
   articleSection={categoryName}
   articleTags={article.tags}
 >

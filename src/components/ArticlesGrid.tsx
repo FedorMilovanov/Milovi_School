@@ -97,7 +97,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
       <div className="relative overflow-hidden">
         <ImageWithFade
           src={article.image || fallbackImageFor(article.category)}
-          alt={article.title}
+          alt={article.imageAlt ?? article.title}
           className="h-64 w-full transition-transform duration-700 group-hover:scale-[1.03] sm:h-80"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent" />
@@ -152,7 +152,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
       <div className="relative h-20 w-20 shrink-0 overflow-hidden sm:h-24 sm:w-24">
         <ImageWithFade
           src={article.image || fallbackImageFor(article.category)}
-          alt={article.title}
+          alt={article.imageAlt ?? article.title}
           className="h-full w-full transition-transform duration-500 group-hover:scale-105"
         />
       </div>
@@ -350,7 +350,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
           >
             <ImageWithFade
               src={article.image || fallbackImageFor(article.category)}
-              alt={article.title}
+              alt={article.imageAlt ?? article.title}
               className="h-52 w-full transition-transform duration-500 group-hover:scale-[1.02]"
             />
             <div className="space-y-3 py-2">
