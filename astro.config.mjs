@@ -120,5 +120,23 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('framer-motion')) {
+              return 'framer-motion'
+            }
+            if (id.includes('fuse.js')) {
+              return 'search'
+            }
+            if (id.includes('node_modules')) {
+              return 'vendor'
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 600,
+    },
   },
 })
