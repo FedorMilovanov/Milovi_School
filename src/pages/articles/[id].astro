@@ -46,16 +46,6 @@ const ogImg = buildOgImage(article.image, article.imageWidth, article.imageHeigh
 // ── Structured data ──────────────────────────────────────────────────────────
 const wordCount = Math.round((article.content?.length ?? 0) / 6)
 
-// `author` field in articles.ts often holds a *source list* like
-// "AFP, Michelin Guide, Pastry Workshop". Splitting on comma turns that into
-// a clean Person[] array — Google then displays the first as primary author
-// and treats the rest as additional authors. If it is a single name (no comma),
-// the array contains a single Person entry, which is also valid schema.
-const authorList = (article.author ?? '')
-  .split(/\s*[,;/]\s*/)
-  .map((name) => name.trim())
-  .filter(Boolean)
-
 // In article data, `author` is an editorial source/source-list. The real author of
 // this educational adaptation is the project library; original sources are exposed
 // through `citation`/visible source links to avoid source ≠ author schema pollution.

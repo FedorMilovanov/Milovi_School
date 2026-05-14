@@ -36,10 +36,13 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 
 ## Быстрый старт
 
+Требуется Node.js **22.12.0+**.
+
 ```bash
 npm install
 npm run dev      # http://localhost:4321
 npm run build    # → dist/
+npm run validate  # type-check + npm audit + build + статический аудит dist/
 npm run preview  # предпросмотр dist/
 ```
 

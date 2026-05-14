@@ -26,3 +26,6 @@ npm-debug.log*
 
 # Type checking
 *.tsbuildinfo
+
+# Generated audit reports
+audit/

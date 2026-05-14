@@ -154,8 +154,6 @@ export const frenchTerms: Record<string, FrenchTerm> = {
 export function getRelevantTerms(articleCategory: string = '', tags: string[] = []): Record<string, FrenchTerm> {
   // Return subset relevant to article for performance and context
   const relevant: Record<string, FrenchTerm> = {};
-  const allKeys = Object.keys(frenchTerms);
-  
   // Always include core technical terms
   ['macaronage', 'ganache', 'pâte à choux', 'feuilletage', 'mise en place'].forEach(key => {
     if (frenchTerms[key]) relevant[key] = frenchTerms[key];

@@ -7,6 +7,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check": "astro check",
+    "audit:security": "npm audit --audit-level=moderate",
+    "audit:site": "python3 scripts/audit_site.py",
+    "validate": "npm run check && npm run audit:security && npm run build && npm run audit:site",
     "astro": "astro"
   },
   "dependencies": {
@@ -16,15 +20,22 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.9",
-    "@astrojs/react": "^4.3.0",
-    "@astrojs/sitemap": "^3.3.0",
+    "@astrojs/check": "0.9.9",
+    "@astrojs/react": "5.0.5",
+    "@astrojs/sitemap": "3.7.2",
     "@tailwindcss/vite": "^4.1.17",
     "@types/node": "^22.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "astro": "^5.7.0",
+    "astro": "6.3.2",
     "tailwindcss": "^4.1.17",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=9.6.5"
+  },
+  "overrides": {
+    "yaml": "^2.8.3"
   }
 }
