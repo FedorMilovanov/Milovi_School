@@ -20,7 +20,7 @@ import CommandPalette from './CommandPalette'
 import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
-import { type Article, type ArticleMeta } from '../data/articles'
+import { type Article, type ArticleMeta } from '../data/types'
 
 interface ArticlePageShellProps {
   /** Full article with content — provided as SSG prop, never fetched by browser */
@@ -99,6 +99,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           allArticles={allMeta}
           onBack={goBack}
           onNavigate={goToArticle}
+          disableEscapeBack={commandOpen}
         />
         <Footer />
         <CommandPalette

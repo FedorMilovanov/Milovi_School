@@ -1,20 +1,8 @@
 import { localImages } from '../assets/images'
 import { articleImageDimensions } from './articleImageDimensions'
 import { dc } from './deepContents'
-
-export interface RecipeData { prepTime: string; cookTime: string; yield: string; calories?: string; ingredients: string[]; }
-export interface Article { id: string; title: string; excerpt: string; content: string; category: string; author: string; readTime: number; image: string; tags: string[]; date?: string; updatedAt?: string; sourceUrl?: string; sourceLabel?: string; recipeData?: RecipeData; faq?: { question: string; answer: string }[];
-  /** SEO: human description of the actual image, not just duplicated title */
-  imageAlt?: string;
-  /** SEO: concise title used in image sitemap / ImageObject */
-  imageTitle?: string;
-  /** Visible editorial caption under hero image */
-  imageCaption?: string;
-  /** Credit/licence/source note for image metadata */
-  imageCredit?: string;
-  imageWidth?: number;
-  imageHeight?: number;
-}
+import type { Article, ArticleMeta } from './types'
+export type { Article, ArticleMeta, RecipeData } from './types'
 
 // Возвращает глубокий контент если есть, иначе шаблон
 const body = (_topic: string, _id?: string) => {
@@ -516,6 +504,4 @@ for (const article of articles) {
 // ─── Metadata only (no content) — safe to send to the browser ───────────────
 // Use this in React client islands to avoid shipping all 103 articles' content.
 // Each article page receives its own full content as a static SSG prop.
-export type ArticleMeta = Omit<Article, 'content'>
-
 export const articlesMeta: ArticleMeta[] = articles.map(({ content: _content, ...meta }) => meta)

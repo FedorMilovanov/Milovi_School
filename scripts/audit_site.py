@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import json, re, sys, os, hashlib
+import json, re, sys, os, hashlib, gzip
 from pathlib import Path
 from urllib.parse import urlparse, unquote
 from collections import Counter, defaultdict
@@ -209,6 +209,36 @@ for html in html_files:
 for item in generated_ui_issues:
     err(f'UI static issue: {item}')
 ok(f'UI static checks passed: explicit button types, href anchors, duplicate ids, accessible buttons')
+
+# 7 Client bundle regression checks
+astro_js = sorted((DIST / '_astro').glob('*.js')) if (DIST / '_astro').exists() else []
+if not astro_js:
+    err('No built JS files in dist/_astro')
+else:
+    leaked_markers = [
+        'Операционный командир',
+        'Идеальная Опера в разрезе',
+        'Если десерт кажется плоским',
+    ]
+    for js in astro_js:
+        txt = js.read_text('utf-8', errors='ignore')
+        for marker in leaked_markers:
+            if marker in txt:
+                err(f'Client bundle appears to contain full article content: {js.name} marker={marker!r}')
+        raw_size = js.stat().st_size
+        gzip_size = len(gzip.compress(js.read_bytes()))
+        if raw_size > 800_000 or gzip_size > 250_000:
+            err(f'Client JS chunk too large: {js.name} raw={raw_size} gzip={gzip_size}')
+        elif gzip_size > 180_000:
+            warn(f'Large client JS chunk: {js.name} raw={raw_size} gzip={gzip_size}')
+    ok(f'Client JS bundles checked: {len(astro_js)} files')
+
+# Prevent client components from importing the full articles/deepContents runtime.
+for comp in (SRC / 'components').glob('*.tsx'):
+    txt = comp.read_text('utf-8', errors='replace')
+    if re.search(r'from [\'"]\.\./data/(articles|library|deepContents)[\'"]', txt):
+        err(f'Client component imports heavy data module: {comp.relative_to(ROOT)}')
+ok('Client component imports checked for heavy article-content modules')
 
 # summary report
 report=[]

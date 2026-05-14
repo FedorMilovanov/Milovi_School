@@ -101,6 +101,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <motion.button
               type="button"
               onClick={onOpenCommand}
+              aria-label="Открыть поиск"
               className="inline-flex h-11 items-center gap-2 border border-[var(--border-subtle)] px-4 text-[11px] font-mono uppercase tracking-[0.22em] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
@@ -131,7 +132,9 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="flex h-11 w-11 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 md:hidden dark:text-stone-300"
-              aria-label="Меню"
+              aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-menu"
             >
               {mobileMenuOpen ? (
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -154,6 +157,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             role="dialog"
             aria-modal="true"
             aria-label="Навигационное меню"
+            id="mobile-navigation-menu"
             className="fixed inset-x-0 top-[84px] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
             initial={shouldReduce ? false : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}

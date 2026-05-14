@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import type { ReactNode } from 'react'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import ScrollReveal from './ScrollReveal'
 import { calculateReadingStreak } from '../utils/streak'
 import { safeGetItem, safeSetItem } from '../utils/storage'

@@ -28,7 +28,7 @@ import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
-import { type ArticleMeta } from '../data/articles'
+import { type ArticleMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
 // F-13: CHEF_IDS derived from NON_CHEF_CATEGORY_IDS (exported from categories.ts)

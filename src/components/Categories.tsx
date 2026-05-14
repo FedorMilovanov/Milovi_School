@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import type { Category } from '../data/categories'
 
 interface CategoriesProps {
@@ -66,6 +66,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
         <div className="relative">
           <input
             type="text"
+            aria-label="Поиск по архиву материалов"
             placeholder="Найти: пралине, choux, Испахан, ДКА, соусы..."
             value={localSearch}
             onChange={(e) => handleSearch(e.target.value)}
@@ -75,6 +76,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
             <button
               type="button"
               onClick={handleReset}
+              aria-label="Сбросить поиск"
               className="absolute right-0 top-1/2 -translate-y-1/2 border border-stone-900/20 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:bg-stone-950 hover:text-amber-100 dark:border-stone-700 dark:hover:bg-stone-900 dark:hover:text-amber-100"
             >
               Сброс
@@ -88,6 +90,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
           <motion.button
             type="button"
             onClick={() => onSelectCategory(null)}
+            aria-pressed={selectedCategory === null}
             className={`relative pb-2 font-mono text-xs uppercase tracking-[0.24em] transition ${selectedCategory === null ? 'text-stone-950 dark:text-stone-100' : 'text-stone-500 hover:text-stone-950 dark:hover:text-stone-100'}`}
             whileHover={{ x: 4 }}
           >
@@ -101,6 +104,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
               key={category.id}
               type="button"
               onClick={() => onSelectCategory(category.id)}
+              aria-pressed={selectedCategory === category.id}
               className={`relative pb-2 font-mono text-xs uppercase tracking-[0.24em] transition ${selectedCategory === category.id ? 'text-stone-950 dark:text-stone-100' : 'text-stone-500 hover:text-stone-950 dark:hover:text-stone-100'}`}
               whileHover={{ x: 4 }}
             >

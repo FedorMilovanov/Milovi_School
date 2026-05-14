@@ -9,12 +9,12 @@
 ```
 french.milovicake.ru/                              → index.html (главная)
 french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
-... × 103 статьи
+... × 115 статей
 ```
 
 | Проблема | Решение |
 |---|---|
-| `deepContents.ts` (951 KB) в браузере | Только при сборке (build time) — в браузер не попадает |
+| `deepContents.ts` (~1.1 MB) в браузере | Только при сборке (build time) — в браузер не попадает |
 | Яндекс не индексировал SPA | Каждая статья — готовый HTML с SEO meta, OG, JSON-LD |
 | `window is not defined` при SSR | Все `localStorage` обёрнуты в `typeof window !== 'undefined'` |
 | Навигация между статьями | URL-based: `window.location.href = /articles/${id}/` |
@@ -23,7 +23,7 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 
 ```
 Сборка (build time):
-  deepContents.ts (951 KB)
+  deepContents.ts (~1.1 MB)
     └─▶ articles.ts → [id].astro → HTML-страницы
 
 Браузер (runtime):
@@ -72,7 +72,7 @@ src/
 ├── layouts/BaseLayout.astro     # HTML shell, SEO, OG, JSON-LD
 ├── pages/
 │   ├── index.astro              # Главная → <HomeApp client:load />
-│   └── articles/[id].astro      # 103 статичных страницы
+│   └── articles/[id].astro      # 115 статичных страниц
 ├── components/                  # React-компоненты
 ├── data/
 │   ├── articles.ts              # ArticleMeta + Article types

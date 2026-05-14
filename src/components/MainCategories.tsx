@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
 

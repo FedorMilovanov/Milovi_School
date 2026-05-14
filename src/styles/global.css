@@ -62,13 +62,14 @@
 }
 
 .dark {
-  /* OLED Pure Black — 2026 Mobile Standard */
-  --bg-main:       #000000;
-  --bg-deep:       #050505;
-  --bg-card:       rgba(15, 15, 15, 0.65);
-  --bg-overlay-95: rgba(0, 0, 0, 0.95);
-  --bg-overlay-90: rgba(0, 0, 0, 0.90);
-  --bg-command:    rgba(12, 11, 10, 0.98);
+  /* Dark UI default: deep gray surfaces, not pure black.
+     Pure black is kept as an opt-in .true-black variant below for OLED users. */
+  --bg-main:       #10100f;
+  --bg-deep:       #161412;
+  --bg-card:       rgba(28, 26, 23, 0.78);
+  --bg-overlay-95: rgba(16, 16, 15, 0.95);
+  --bg-overlay-90: rgba(16, 16, 15, 0.90);
+  --bg-command:    rgba(20, 18, 16, 0.98);
 
   --text-primary:  #eae4d9;
   --text-muted:    #948874;
@@ -88,7 +89,7 @@
   --ink-50:    rgba(234, 228, 217, 0.50);
   --gold:      #e8c670;
   --gold-pale: rgba(232, 198, 112, 0.75);
-  --cream:     #0a0806;
+  --cream:     #17130f;
 
   --cp-surface:     rgba(255, 255, 255, 0.05);
   --cp-chip:        rgba(255, 255, 255, 0.07);
@@ -104,6 +105,16 @@
   --cp-inset-1:     rgba(255, 255, 255, 0.06);
   --cp-inset-2:     rgba(255, 255, 255, 0.03);
   --cp-badge-scrim: rgba(0, 0, 0, 0.70);
+}
+
+.dark.true-black {
+  --bg-main:       #000000;
+  --bg-deep:       #050505;
+  --bg-card:       rgba(15, 15, 15, 0.72);
+  --bg-overlay-95: rgba(0, 0, 0, 0.95);
+  --bg-overlay-90: rgba(0, 0, 0, 0.90);
+  --bg-command:    rgba(12, 11, 10, 0.98);
+  --cream:         #0a0806;
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
@@ -148,6 +159,38 @@ img, svg {
   border: 2px solid var(--bg-main);
 }
 ::-webkit-scrollbar-thumb:hover { background-color: var(--accent-gold); }
+
+
+/* ── Command palette internals ───────────────────────────────── */
+@keyframes cp-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.cp-skeleton {
+  background: var(--cp-skeleton);
+  position: relative;
+  overflow: hidden;
+}
+.cp-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--cp-shine), transparent);
+  animation: cp-shimmer 1.5s infinite;
+}
+.cp-list { overscroll-behavior: contain; }
+.cp-list::-webkit-scrollbar { width: 3px; }
+.cp-list::-webkit-scrollbar-track { background: transparent; }
+.cp-list::-webkit-scrollbar-thumb { background: var(--cp-scrollbar); border-radius: 3px; }
+.cp-chips {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.cp-chips::-webkit-scrollbar { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .cp-chip { min-height: 36px !important; }
+}
 
 /* ── Lux card frame ───────────────────────────────────────────── */
 .lux-frame {
@@ -329,6 +372,21 @@ blockquote.lux-quote::before {
 a {
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
+}
+
+:where(a, button, input, textarea, select, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-gold) 18%, transparent);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .lux-frame,
+  .term-tooltip,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 /* ── Smart highlight (bionic reading) ────────────────────────── */

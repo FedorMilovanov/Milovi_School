@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { type Article, type ArticleMeta } from '../data/articles'
+import { type Article, type ArticleMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { fallbackImageFor } from '../assets/images'
 import ArticleActions from './ArticleActions'
@@ -17,6 +17,8 @@ interface ArticleViewProps {
   allArticles: ArticleMeta[]
   onBack: () => void
   onNavigate?: (article: ArticleMeta) => void
+  /** Prevent article-level Escape navigation while another modal/dialog is open. */
+  disableEscapeBack?: boolean
 }
 
 // Разбивает блок текста на параграфы. Если есть **bold heading** в начале строки,
@@ -62,12 +64,18 @@ function InlineText({ text }: { text: string }) {
       if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
       const tipId = `tip-${uid}-${keyPrefix}-${index}`
       return (
-        <span key={`${keyPrefix}-${index}`} className="group relative inline-flex cursor-pointer touch-manipulation items-baseline border-b border-amber-700/40 text-stone-900 dark:text-amber-200" role="button" tabIndex={0} aria-describedby={tipId} onClick={(e) => e.currentTarget.focus()}>
+        <button
+          key={`${keyPrefix}-${index}`}
+          type="button"
+          className="group relative inline-flex cursor-help touch-manipulation items-baseline border-0 border-b border-amber-700/40 bg-transparent p-0 text-left text-stone-900 [font:inherit] dark:text-amber-200"
+          aria-describedby={tipId}
+          onClick={(e) => e.currentTarget.focus()}
+        >
           {piece}
           <span id={tipId} role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
             {translation}
           </span>
-        </span>
+        </button>
       )
     })
   }
@@ -124,7 +132,7 @@ function headingId(text: string, index: number) {
   return `h-${slugify(text).slice(0, 40)}-${index}`
 }
 
-export default function ArticleView({ article, allArticles, onBack, onNavigate }: ArticleViewProps) {
+export default function ArticleView({ article, allArticles, onBack, onNavigate, disableEscapeBack = false }: ArticleViewProps) {
   const category = categories.find((c) => c.id === article.category)
   const imageWidth = article.imageWidth ?? 1280
   const imageHeight = article.imageHeight ?? 800
@@ -180,10 +188,11 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
   }, [article.id])
 
   const handleKey = useCallback((e: KeyboardEvent) => {
+    if (e.defaultPrevented || disableEscapeBack) return
     if (e.key === 'Escape') {
       onBack()
     }
-  }, [onBack])
+  }, [disableEscapeBack, onBack])
   useEffect(() => { window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey) }, [handleKey])
 
   // BUG FIX: clean up focus-mode class when navigating away from article

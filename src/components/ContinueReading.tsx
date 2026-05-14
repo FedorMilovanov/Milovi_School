@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { safeGetItem } from '../utils/storage'
 

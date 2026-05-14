@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
@@ -176,6 +176,13 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
       return
     }
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      e.stopPropagation()
+      e.nativeEvent.stopImmediatePropagation?.()
+      onClose()
+      return
+    }
     if (totalItems === 0) return
     if (e.key === 'ArrowDown')  { e.preventDefault(); setActiveIndex(i => Math.min(i+1, totalItems-1)) }
     else if (e.key === 'ArrowUp')   { e.preventDefault(); setActiveIndex(i => Math.max(i-1, 0)) }
@@ -183,26 +190,13 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
       e.preventDefault()
       if (showQuickActions && activeIndex < quickActions.length) { quickActions[activeIndex].action() }
       else { const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex; const result = articleResults[idx]; if (result) { onClose(); onOpenArticle(result.item) } }
-    } else if (e.key === 'Escape') { onClose() }
+    }
   }, [totalItems, showQuickActions, quickActions, articleResults, activeIndex, onClose, onOpenArticle])
 
   const spring = shouldReduce ? { duration: 0 } : { type: 'spring' as const, stiffness: 480, damping: 38, mass: 0.85 }
 
   return (
     <>
-      <style>{`
-        @keyframes cp-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        .cp-skeleton { background: var(--cp-skeleton); position: relative; overflow: hidden; }
-        .cp-skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, var(--cp-shine), transparent); animation: cp-shimmer 1.5s infinite; }
-        .cp-list::-webkit-scrollbar { width: 3px; }
-        .cp-list::-webkit-scrollbar-track { background: transparent; }
-        .cp-list::-webkit-scrollbar-thumb { background: var(--cp-scrollbar); border-radius: 3px; }
-        .cp-list { overscroll-behavior: contain; }
-        .cp-chips::-webkit-scrollbar { display: none; }
-        .cp-chips { -ms-overflow-style: none; scrollbar-width: none; overscroll-behavior-x: contain; }
-        @media (hover: none) and (pointer: coarse) { .cp-chip { min-height: 36px !important; } }
-      `}</style>
-
       <AnimatePresence>
         {open && (
           <motion.div
@@ -221,6 +215,9 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
           >
             <motion.div
               ref={containerRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Поиск по материалам"
               className="w-full overflow-hidden"
               style={{
                 maxWidth: 760,
@@ -254,6 +251,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                   value={query}
                   onChange={e => { setQuery(e.target.value); setFilterCat(null) }}
                   placeholder="Поиск материалов, шефов, техник..."
+                  aria-label="Поиск материалов, шефов и техник"
                   className="flex-1 bg-transparent text-[16px] md:text-[14px] font-light tracking-wide outline-none"
                   style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
                 />

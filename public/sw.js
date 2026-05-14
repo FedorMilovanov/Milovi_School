@@ -20,6 +20,7 @@ const PRECACHE_ASSETS = [
   '/apple-touch-icon.png',
   '/favicon.svg',
   '/images/og-preview.webp',
+  '/images/placeholder.svg',
 ]
 
 // ─── Install ────────────────────────────────────────────────────────────────
@@ -100,12 +101,18 @@ self.addEventListener('fetch', (event) => {
           }
           return response
         })
-        .catch(() =>
-          // Asset not cached and network unavailable — return cached home as fallback
-          caches.match('/').then(
-            (fallback) => fallback ?? new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } })
-          )
-        )
+        .catch(async () => {
+          // Asset not cached and network unavailable.
+          // Never return cached HTML for JS/CSS/font requests: wrong MIME breaks the page.
+          if (request.destination === 'image') {
+            const placeholder = await caches.match('/images/placeholder.svg')
+            if (placeholder) return placeholder
+          }
+          return new Response('Offline', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          })
+        })
     })
   )
 })

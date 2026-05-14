@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import type { Article } from '../data/articles'
+import type { Article } from '../data/types'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import { showToast } from './Toast'
 

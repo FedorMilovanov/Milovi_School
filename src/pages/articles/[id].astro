@@ -6,7 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticlePageShell from '../../components/ArticlePageShell'
 import { libraryArticles, libraryMeta } from '../../data/library'
 import { categories } from '../../data/categories'
-import type { Article } from '../../data/articles'
+import type { Article } from '../../data/types'
 
 export function getStaticPaths() {
   return libraryArticles.map((article) => ({

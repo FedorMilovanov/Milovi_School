@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fallbackImageFor } from '../assets/images'
-import type { ArticleMeta } from '../data/articles'
+import type { ArticleMeta } from '../data/types'
 import type { Category } from '../data/categories'
 import ImageWithFade from './ImageWithFade'
 import type { FuseResultMatch } from 'fuse.js'

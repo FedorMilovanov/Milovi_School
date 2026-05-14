@@ -11,6 +11,7 @@ export default function UpdateNotification() {
   const [visible, setVisible] = useState(false)
   const [animateIn, setAnimateIn] = useState(false)
   const waitingWorkerRef = useRef<ServiceWorker | null>(null)
+  const refreshingRef = useRef(false)
 
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
@@ -39,8 +40,16 @@ export default function UpdateNotification() {
   }, [])
 
   const handleUpdate = () => {
-    waitingWorkerRef.current?.postMessage({ type: 'SKIP_WAITING' })
-    window.location.reload()
+    const worker = waitingWorkerRef.current
+    if (!worker || refreshingRef.current) return
+    refreshingRef.current = true
+
+    const reload = () => window.location.reload()
+    navigator.serviceWorker.addEventListener('controllerchange', reload, { once: true })
+    worker.postMessage({ type: 'SKIP_WAITING' })
+
+    // Safety fallback for browsers that miss controllerchange.
+    window.setTimeout(reload, 3500)
   }
 
   const handleDismiss = () => {

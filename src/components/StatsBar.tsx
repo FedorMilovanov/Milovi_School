@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface AnimatedCounterProps {
   target: number
@@ -13,8 +13,13 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label }: AnimatedCo
   const ref = useRef<HTMLSpanElement>(null)
   const started = useRef(false)
   const frameRef = useRef<number | null>(null)
+  const shouldReduce = useReducedMotion()
 
   useEffect(() => {
+    if (shouldReduce) {
+      setCount(target)
+      return
+    }
     const el = ref.current
     if (!el) return
 
@@ -41,15 +46,15 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label }: AnimatedCo
       observer.disconnect()
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current)
     }
-  }, [target])
+  }, [target, shouldReduce])
 
   return (
     <motion.div
       className="flex flex-col items-center px-6 py-10 text-center"
-      initial={{ opacity: 0, y: 16 }}
+      initial={shouldReduce ? false : { opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+      transition={shouldReduce ? { duration: 0 } : { duration: 0.5 }}
     >
       <span ref={ref} className="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl">
         {prefix}{count}{suffix}

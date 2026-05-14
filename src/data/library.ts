@@ -1,4 +1,5 @@
-import { articles, articlesMeta, type Article, type ArticleMeta } from './articles'
+import { articles, articlesMeta } from './articles'
+import type { Article, ArticleMeta } from './types'
 
 // Full articles (with content) — use only at build time / SSG pages
 const unique = new Map<string, Article>()

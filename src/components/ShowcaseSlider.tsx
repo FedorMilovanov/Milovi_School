@@ -74,10 +74,12 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
         onClickCapture={onClickCapture}
       >
         {items.map((item, index) => (
-          <motion.div
+          <motion.button
             key={item.title}
+            type="button"
+            aria-label={`Показать материалы: ${item.chef} — ${item.title}`}
             onClick={() => onItemClick?.(item.categoryId)}
-            className={`w-72 shrink-0 border border-[var(--border-subtle)] bg-[var(--bg-main)] p-4 transition-colors hover:border-stone-400 dark:hover:border-stone-600 ${onItemClick ? 'cursor-pointer' : ''}`}
+            className={`w-72 shrink-0 border border-[var(--border-subtle)] bg-[var(--bg-main)] p-4 text-left transition-colors hover:border-stone-400 dark:hover:border-stone-600 ${onItemClick ? 'cursor-pointer' : ''}`}
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -93,7 +95,7 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
               <h4 className="font-serif text-xl font-semibold text-stone-950 dark:text-stone-100">{item.title}</h4>
               <p className="text-xs text-stone-500 dark:text-stone-400">{item.desc}</p>
             </div>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
     </section>
