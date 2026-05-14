@@ -64,7 +64,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
             {article.readTime} мин
           </span>
         </div>
-        <h4 className="font-serif text-[15px] font-semibold leading-snug tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-2">
+        <h4 className="font-serif text-[15px] font-semibold leading-snug tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-2 kinetic-text">
           {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h4>
       </div>
@@ -88,7 +88,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
     <motion.a
       href={`/articles/${article.id}/`}
       onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }}
-      className="group relative flex flex-col w-full overflow-hidden text-left"
+      className="haptic-btn group relative flex flex-col w-full overflow-hidden text-left"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
@@ -113,7 +113,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
           <span>·</span>
           <span>{article.readTime} мин</span>
         </div>
-        <h3 className="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 sm:text-2xl">
+        <h3 className="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 sm:text-2xl kinetic-text">
           {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h3>
         <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-2">
@@ -162,7 +162,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
             {cat?.name ?? 'PR'} · {article.readTime} мин
           </span>
         </div>
-        <h4 className="font-serif text-sm font-semibold leading-snug tracking-[-0.02em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-3">
+        <h4 className="font-serif text-sm font-semibold leading-snug tracking-[-0.02em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-3 kinetic-text">
           {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
         </h4>
       </div>
@@ -360,7 +360,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
                 <span>·</span>
                 <span>{article.readTime} мин</span>
               </div>
-              <h3 className="font-serif text-2xl font-semibold leading-[1.15] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
+              <h3 className="font-serif text-2xl font-semibold leading-[1.15] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 kinetic-text">
                 {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
               </h3>
               <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-3">

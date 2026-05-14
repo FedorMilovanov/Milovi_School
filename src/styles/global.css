@@ -1,203 +1,411 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 2026 Ultra-Premium Mobile Polish: 100% mobile-first, INP < 100ms, buttery 60/120fps scroll, GPU-accelerated animations, no jank, premium DARK frames, moving words, luxurious quotations, touch-optimized, glass-like effects, refined palette. Everything "flies". */
+/* ============================================================
+   Milovi School — 2026 Ultra-Premium Design System
+   Fixes: missing CSS vars, kinetic-text layout, image-rendering,
+          scroll-progress, cat animations, focus-mode, safe areas
+   ============================================================ */
 
+/* ── Core design tokens ──────────────────────────────────────── */
 :root {
-  --bg-main: #f8f1e3;
-  --bg-deep: #f0e6d6;
-  --bg-card: rgba(255, 248, 235, 0.95);
-  --text-primary: #1c1814;
-  --text-muted: #6b5e4e;
-  --accent-gold: #b8860b;
-  --accent-sapphire: #0f4c81;
-  --border-lux: rgba(184, 134, 11, 0.25);
-  --glow-gold: 0 0 25px rgba(184, 134, 11, 0.35);
+  /* Backgrounds */
+  --bg-main:       #fcfaf8;
+  --bg-deep:       #f4efe6;
+  --bg-card:       rgba(255, 255, 255, 0.75);
+  --bg-overlay-95: rgba(252, 250, 248, 0.95);
+  --bg-overlay-90: rgba(252, 250, 248, 0.90);
+  --bg-command:    rgba(255, 253, 250, 0.98);
+
+  /* Text */
+  --text-primary:  #151311;
+  --text-muted:    #5a4f41;
+  --text-accent:   #b8860b;
+
+  /* Borders */
+  --border-subtle: rgba(28, 24, 20, 0.10);
+  --border-lux:    rgba(184, 134, 11, 0.12);
+  --border:        rgba(28, 24, 20, 0.10);
+
+  /* Accents */
+  --accent-gold:    #b8860b;
+  --accent-sapphire:#0f4c81;
+
+  /* Shadows */
+  --glow-gold: 0 8px 32px rgba(184, 134, 11, 0.08);
+
+  /* Effects */
+  --glass-blur: blur(32px) saturate(180%);
+
+  /* MainCategories theme vars */
+  --ink:       #151311;
+  --ink-50:    rgba(21, 19, 17, 0.50);
+  --gold:      #b8860b;
+  --gold-pale: rgba(212, 175, 55, 0.80);
+  --cream:     #f8f3eb;
+
+  /* CommandPalette vars */
+  --cp-surface:     rgba(0, 0, 0, 0.04);
+  --cp-chip:        rgba(0, 0, 0, 0.06);
+  --cp-chip-border: rgba(0, 0, 0, 0.10);
+  --cp-divider:     rgba(0, 0, 0, 0.08);
+  --cp-text-mid:    #6b5e4e;
+  --cp-text-lo:     #9e8f7f;
+  --cp-skeleton:    #f0ebe2;
+  --cp-shine:       rgba(255, 255, 255, 0.60);
+  --cp-scrollbar:   rgba(0, 0, 0, 0.15);
+  --cp-clear-bg:    rgba(0, 0, 0, 0.07);
+  --cp-clear-fg:    #5a4f41;
+  --cp-inset-1:     rgba(255, 255, 255, 0.60);
+  --cp-inset-2:     rgba(255, 255, 255, 0.30);
+  --cp-badge-scrim: rgba(252, 250, 248, 0.80);
 }
 
 .dark {
-  --bg-main: #0a0806;
-  --bg-deep: #050402;
-  --bg-card: rgba(15, 13, 11, 0.96);
-  --text-primary: #f5eede;
-  --text-muted: #c9b9a1;
-  --accent-gold: #e8c670;
-  --accent-sapphire: #5a9bd4;
-  --border-lux: rgba(232, 198, 112, 0.25);
-  --glow-gold: 0 0 25px rgba(232, 198, 112, 0.25);
+  /* OLED Pure Black — 2026 Mobile Standard */
+  --bg-main:       #000000;
+  --bg-deep:       #050505;
+  --bg-card:       rgba(15, 15, 15, 0.65);
+  --bg-overlay-95: rgba(0, 0, 0, 0.95);
+  --bg-overlay-90: rgba(0, 0, 0, 0.90);
+  --bg-command:    rgba(12, 11, 10, 0.98);
+
+  --text-primary:  #eae4d9;
+  --text-muted:    #948874;
+  --text-accent:   #e8c670;
+
+  --border-subtle: rgba(232, 220, 200, 0.10);
+  --border-lux:    rgba(232, 198, 112, 0.15);
+  --border:        rgba(232, 220, 200, 0.10);
+
+  --accent-gold:    #e8c670;
+  --accent-sapphire:#5a9bd4;
+
+  --glow-gold: 0 8px 40px rgba(232, 198, 112, 0.10);
+  --glass-blur: blur(40px) saturate(200%);
+
+  --ink:       #eae4d9;
+  --ink-50:    rgba(234, 228, 217, 0.50);
+  --gold:      #e8c670;
+  --gold-pale: rgba(232, 198, 112, 0.75);
+  --cream:     #0a0806;
+
+  --cp-surface:     rgba(255, 255, 255, 0.05);
+  --cp-chip:        rgba(255, 255, 255, 0.07);
+  --cp-chip-border: rgba(255, 255, 255, 0.10);
+  --cp-divider:     rgba(255, 255, 255, 0.07);
+  --cp-text-mid:    #948874;
+  --cp-text-lo:     #635849;
+  --cp-skeleton:    #111;
+  --cp-shine:       rgba(255, 255, 255, 0.06);
+  --cp-scrollbar:   rgba(255, 255, 255, 0.12);
+  --cp-clear-bg:    rgba(255, 255, 255, 0.08);
+  --cp-clear-fg:    #c9b9a1;
+  --cp-inset-1:     rgba(255, 255, 255, 0.06);
+  --cp-inset-2:     rgba(255, 255, 255, 0.03);
+  --cp-badge-scrim: rgba(0, 0, 0, 0.70);
 }
 
-/* Base mobile performance (no jank, flies on any device) */
+/* ── Base ─────────────────────────────────────────────────────── */
 html, body {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  contain: layout style paint;
-  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: none;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif;
 }
 
+/* iOS: убираем серую вспышку при тапе на интерактивных элементах */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--accent-gold);
+  color: #000;
+}
+
+/* BUG FIX: crisp-edges makes photos pixelated. Use auto for raster images.
+   Removed global translateZ(0) — creates hundreds of GPU layers. */
 img, svg {
   max-width: 100%;
   height: auto;
-  image-rendering: -webkit-optimize-contrast;
 }
 
-/* Premium DARK frames & glassmorphism for cards, quotes, terms */
+/* ── Dark mode font smoothing ─────────────────────────────────── */
+.dark body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-main); }
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-subtle);
+  border-radius: 5px;
+  border: 2px solid var(--bg-main);
+}
+::-webkit-scrollbar-thumb:hover { background-color: var(--accent-gold); }
+
+/* ── Lux card frame ───────────────────────────────────────────── */
 .lux-frame {
   border: 1px solid var(--border-lux);
   background: var(--bg-card);
-  backdrop-filter: blur(20px);
-  box-shadow: var(--glow-gold), 0 8px 32px -12px rgb(0 0 0 / 0.3);
-  border-radius: 20px;
-  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glow-gold), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  border-radius: 16px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .lux-frame:hover {
-  box-shadow: var(--glow-gold), 0 20px 40px -12px rgb(0 0 0 / 0.4);
-  transform: translateY(-4px);
+  box-shadow: 0 10px 40px rgba(212, 175, 55, 0.25);
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.40);
 }
 
-/* Moving words (subtle parallax/animation on scroll for headings and key terms - premium feel without overload) */
+/* ── Scroll progress bar ──────────────────────────────────────── */
+/* BUG FIX: .scroll-progress class was used in ScrollProgress.tsx but never defined */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-gold), #e8c670);
+  z-index: 50;
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+/* ── Moving words ─────────────────────────────────────────────── */
 .moving-word {
   display: inline-block;
   transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-  will-change: transform;
 }
-
 @media (prefers-reduced-motion: no-preference) {
-  .scroll-active .moving-word {
-    transform: translateY(-3px) scale(1.02);
+  .moving-word:hover {
+    will-change: transform;
+    transform: translateY(-2px) scale(1.02);
+    color: var(--accent-gold);
   }
 }
 
-/* Premium quotations (luxury SVG quote marks, gold accent, elegant typography) */
-blockquote.lux-quote {
-  position: relative;
-  padding-left: 2.5rem;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  color: var(--text-primary);
-  border-left: 4px solid var(--accent-gold);
-  background: var(--bg-card);
-  border-radius: 0 16px 16px 0;
+/* ── Haptic button micro-interaction ─────────────────────────── */
+.haptic-btn {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.15s;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .haptic-btn:active {
+    will-change: transform;
+    transform: scale(0.94);
+    opacity: 0.8;
+  }
 }
 
+/* ── Kinetic Typography ───────────────────────────────────────── */
+/* BUG FIX: Was display:inline-block which breaks block-level headings (h3/h4).
+   Removed display override. Color transition still works perfectly. */
+.kinetic-text {
+  transition: color 0.3s ease;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .kinetic-text:hover {
+    color: var(--accent-gold);
+    text-shadow: 0 0 14px rgba(232, 198, 112, 0.35);
+  }
+}
+
+/* ── Dynamic Ambient Glow (Aurora — dark only) ────────────────── */
+/* BUG FIX: Added isolation:isolate so z-index:-1 is properly contained */
+body {
+  isolation: isolate;
+}
+.dark body::before {
+  content: '';
+  position: fixed;
+  top: -20vh; left: -20vw;
+  width: 140vw; height: 140vh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(232, 198, 112, 0.03) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(90, 155, 212, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ── Luxury quotations ────────────────────────────────────────── */
+blockquote.lux-quote {
+  position: relative;
+  padding: 1.5rem 2rem;
+  margin: 2rem 0;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  border-left: 3px solid var(--accent-gold);
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+  border-radius: 0 12px 12px 0;
+}
 blockquote.lux-quote::before {
-  content: '“';
+  content: '\201C';
   position: absolute;
-  left: -0.2rem;
-  top: -0.8rem;
-  font-size: 6rem;
-  line-height: 1;
+  left: 0.5rem; top: -0.5rem;
+  font-size: 4rem; line-height: 1;
   color: var(--accent-gold);
-  opacity: 0.15;
+  opacity: 0.2;
   font-family: serif;
 }
 
-.dark blockquote.lux-quote::before {
-  opacity: 0.25;
-}
-
-/* French terms - even more premium (sapphire glow, moving underline on hover) */
+/* ── French terms ─────────────────────────────────────────────── */
 .french-term {
   position: relative;
-  color: var(--accent-sapphire);
-  border-bottom: 2px dotted var(--accent-sapphire);
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  color: var(--accent-gold);
+  border-bottom: 1px dashed var(--accent-gold);
+  transition: all 0.3s ease;
   cursor: help;
 }
-
-.french-term:hover {
-  color: var(--accent-gold);
-  border-bottom-style: solid;
-  text-shadow: 0 0 8px var(--accent-sapphire);
-}
-
+.french-term:hover { border-bottom-style: solid; }
 .term-tooltip {
   background: var(--bg-card);
   border: 1px solid var(--border-lux);
   box-shadow: var(--glow-gold);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  max-width: 280px;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  max-width: 300px;
   backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
-/* Mobile navigation - top level, convenient, "flies" */
-.mobile-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-lux);
-  backdrop-filter: blur(32px);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.mobile-nav button {
-  min-height: 56px;
-  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.mobile-nav button:active {
-  transform: scale(0.92);
-}
-
-/* Premium color polish & highlights */
-.accent-glow {
-  box-shadow: 0 0 0 1px var(--accent-gold), 0 0 0 4px rgba(184, 134, 11, 0.1);
-}
-
-/* All previous luxury styles + mobile optimizations preserved and refined */
+/* ── Scroll reveal ────────────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(40px);
-  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  transform: translateY(20px);
+  transition: opacity 0.9s cubic-bezier(0.25, 1, 0.35, 1),
+              transform 0.9s cubic-bezier(0.25, 1, 0.35, 1);
 }
-
 .reveal.in {
   opacity: 1;
-  transform: none;
+  transform: translateY(0);
+}
+/* BUG FIX: reveal-delay-N classes used in MainCategories but never defined */
+.reveal-delay-1 { transition-delay: 0.10s; }
+.reveal-delay-2 { transition-delay: 0.20s; }
+.reveal-delay-3 { transition-delay: 0.30s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
 }
 
+/* ── Article body typography ──────────────────────────────────── */
 .article-body {
-  font-feature-settings: "kern" 1, "liga" 1;
+  font-feature-settings: "kern" 1, "liga" 1, "pnum" 1;
+  letter-spacing: 0.01em;
 }
 
-figure.lux-frame {
-  padding: 4px;
-  background: var(--bg-card);
+/* BUG FIX: .drop-cap referenced in ArticleView but never styled */
+.drop-cap > p:first-of-type::first-letter {
+  float: left;
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 4.2rem;
+  font-weight: 600;
+  line-height: 0.82;
+  margin-right: 0.08em;
+  margin-top: 0.06em;
+  color: var(--accent-gold);
+  shape-outside: margin-box;
 }
 
-@media (max-width: 768px) {
-  .cat-img-card, .lux-frame, .article-card {
-    border-radius: 18px;
-    contain: content;
+/* Article images */
+.article-body img {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin: 2rem auto;
+  display: block;
+}
+
+/* ── Links ────────────────────────────────────────────────────── */
+a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+/* ── Smart highlight (bionic reading) ────────────────────────── */
+.smart-highlight {
+  font-weight: 600;
+  color: var(--text-primary);
+  background: linear-gradient(120deg, rgba(232, 198, 112, 0.18) 0%, transparent 100%);
+  background-size: 100% 40%;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 1px;
+}
+
+/* ── Category image cards (MainCategories) ────────────────────── */
+/* BUG FIX: .cat-img and .cat-img-card used but never defined */
+.cat-img-card { cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) {
+  .cat-img-card .cat-img {
+    transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1),
+                filter 0.65s ease;
   }
-  
-  h1, h2 {
-    font-size: clamp(1.75rem, 8vw, 2.8rem);
-  }
-  
-  .mobile-bottom-bar {
-    padding: 8px 12px;
+  .cat-img-card:hover .cat-img {
+    will-change: transform;
+    transform: scale(1.04);
+    filter: brightness(0.88);
   }
 }
 
-/* Print and high contrast preserved */
-@media print { /* ... */ }
-@media (prefers-contrast: high) { /* ... */ }
-
-/* Final touch: subtle moving SVG accents for mobile nav and quotes */
-svg.lux-svg {
-  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+/* ── Focus Mode (Immersive Reading) ──────────────────────────── */
+/* Applied via JS: document.documentElement.classList.toggle('focus-mode-active', ...) */
+.focus-mode-active .article-body {
+  max-width: 65ch;
+  margin: 0 auto;
+  font-size: 1.15rem;
+  line-height: 1.85;
+  letter-spacing: 0.015em;
 }
 
-button:hover svg.lux-svg {
-  transform: rotate(12deg) scale(1.1);
+/* ── Marquee animation (Hero.tsx) ─────────────────────────────── */
+/* BUG FIX: animate-marquee class was used in Hero.tsx but never defined.
+   The scrolling chef-name strip was completely static. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}
+
+/* ── Hide scrollbar (ShowcaseSlider.tsx) ──────────────────────── */
+/* BUG FIX: no-scrollbar class was used in ShowcaseSlider but never defined.
+   The horizontal drag-scroll track was visible on all platforms. */
+.no-scrollbar {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / Edge legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;                  /* Chrome / Safari / Webkit */
+}
+
+/* ── Back button (ArticleView) ────────────────────────────────── */
+/* BUG FIX: back-btn class was applied in ArticleView but never defined.
+   Provides a consistent touch-target size for the back navigation control. */
+.back-btn {
+  min-height: 2.25rem;   /* 36px — meets WCAG 2.5.5 target-size guideline */
+  touch-action: manipulation;
+}
+
+/* ── Hero text container ──────────────────────────────────────── */
+/* BUG FIX: hero-text class was used in Hero.tsx but never defined.
+   Now provides safe-area padding for notched / Dynamic-Island phones. */
+.hero-text {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

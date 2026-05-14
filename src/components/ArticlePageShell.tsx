@@ -41,8 +41,9 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   useEffect(() => {
     safeSetItem('theme', theme)
     document.documentElement.style.colorScheme = theme
+    // BUG FIX: only toggle on documentElement — global.css uses .dark scoped to html,
+    // not body. Toggling body.classList was redundant and inconsistent with HomeApp.tsx.
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    document.body.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])

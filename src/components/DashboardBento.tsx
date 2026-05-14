@@ -39,7 +39,7 @@ function StatCard({
   return (
     <ScrollReveal delay={delay} direction="up">
       <div
-        className="relative overflow-hidden border p-6 transition-all duration-300 h-full group"
+        className="haptic-btn relative overflow-hidden border p-6 transition-all duration-300 h-full group"
         style={{ backgroundColor: 'var(--bg-deep)', borderColor: 'var(--border-subtle)' }}
       >
         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -212,7 +212,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
           {/* Quote / streak card */}
           <ScrollReveal delay={0.3} direction="up" className="sm:col-span-2 lg:col-span-1">
             <div
-              className="relative overflow-hidden border p-6 h-full"
+              className="haptic-btn relative overflow-hidden border p-6 h-full"
               style={{ backgroundColor: 'var(--bg-deep)', borderColor: 'var(--text-accent)' }}
             >
               <div className="absolute top-0 right-0 p-4 opacity-5">

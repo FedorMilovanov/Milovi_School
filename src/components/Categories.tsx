@@ -28,27 +28,29 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
   // onSearchChange is called 150 ms after the user stops typing, so the
   // filtered useMemo in ArticlesGrid doesn't run on every keystroke.
   const [localSearch, setLocalSearch] = useState(searchQuery)
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  // BUG FIX: use window.setTimeout so the ref type is a number (browser TimerID),
+  // not the Node.js NodeJS.Timeout — avoids type confusion and SSR issues.
+  const debounceRef = useRef<number | undefined>(undefined)
 
   // Sync local state when the parent resets searchQuery (e.g. category switch).
   // MUST also cancel the pending debounce — otherwise a stale onSearchChange('pra')
   // can fire 150 ms after the parent already called onSearchChange('').
   useEffect(() => {
-    clearTimeout(debounceRef.current)
+    window.clearTimeout(debounceRef.current)
     setLocalSearch(searchQuery)
   }, [searchQuery])
 
   // Clear pending timer on unmount to prevent setState-after-unmount
-  useEffect(() => () => clearTimeout(debounceRef.current), [])
+  useEffect(() => () => window.clearTimeout(debounceRef.current), [])
 
   const handleSearch = (value: string) => {
     setLocalSearch(value)
-    clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => onSearchChange(value), 150)
+    window.clearTimeout(debounceRef.current)
+    debounceRef.current = window.setTimeout(() => onSearchChange(value), 150)
   }
 
   const handleReset = () => {
-    clearTimeout(debounceRef.current)
+    window.clearTimeout(debounceRef.current)
     setLocalSearch('')
     onSearchChange('')
   }
@@ -81,7 +83,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
         </div>
       </div>
 
-      <div className="-mx-6 mt-8 overflow-x-auto px-6 pb-2 md:mx-0 md:overflow-visible md:px-0">
+      <div className="-mx-6 mt-8 overflow-x-auto overscroll-x-contain px-6 pb-2 md:mx-0 md:overflow-visible md:overscroll-auto md:px-0">
         <div className="flex min-w-max gap-x-8 gap-y-4 md:min-w-0 md:flex-wrap">
           <motion.button
             type="button"

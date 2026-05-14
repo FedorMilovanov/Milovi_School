@@ -52,7 +52,7 @@ export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles
           transition={{ type: 'spring', stiffness: 280, damping: 26 }}
         >
           <div className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-[linear-gradient(135deg,rgba(217,164,85,0.3),transparent_50%,rgba(146,64,14,0.2))] opacity-40 blur-[6px]" />
-          <div className="relative overflow-hidden rounded-[16px] border border-amber-700/20 bg-[var(--bg-overlay-95)] shadow-xl shadow-black/10 backdrop-blur-xl">
+          <div className="relative overflow-hidden rounded-[16px] border border-amber-700/20 bg-[var(--bg-overlay-95)] shadow-xl shadow-black/10 backdrop-blur-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
             <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
             <div className="grid grid-cols-4 items-center justify-items-center py-2">
               {tabs.map((tab) => {

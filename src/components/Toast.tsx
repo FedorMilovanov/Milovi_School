@@ -64,7 +64,7 @@ export default function ToastContainer() {
   }, [])
 
   return (
-    <div className="fixed bottom-[5.5rem] left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none md:bottom-8">
+    <div className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none" style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom, 0px))' }}>
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div

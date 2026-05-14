@@ -76,7 +76,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
     if (!els?.length) return
 
     // Fallback: если observer не сработал — показываем всё через 400ms
-    const fallback = setTimeout(() => {
+    const fallback = window.setTimeout(() => {
       els.forEach((el) => el.classList.add('in'))
     }, 400)
 
@@ -87,7 +87,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
       { threshold: 0.05, rootMargin: '120px 0px 0px 0px' }
     )
     els.forEach((el) => io.observe(el))
-    return () => { io.disconnect(); clearTimeout(fallback) }
+    return () => { io.disconnect(); window.clearTimeout(fallback) }
   }, [])
 
   return (
@@ -126,7 +126,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                 <div className="relative aspect-[16/10] overflow-hidden">
                   <img
                     src={cat.img}
-                    alt={cat.imgAlt}
+                    alt={cat.imgAlt} title={cat.imgAlt}
                     loading="lazy"
                     decoding="async"
                     className="cat-img h-full w-full object-cover"
@@ -153,7 +153,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.36em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
-                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
+                    <span className="haptic-btn block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
                       {cat.name}
                     </span>
                     <p className="mt-2.5 max-w-xs font-['Cormorant_Garamond'] text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">

@@ -66,7 +66,7 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
 
       <div
         ref={scrollRef}
-        className="no-scrollbar flex touch-pan-x select-none gap-6 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing"
+        className="no-scrollbar flex touch-pan-x select-none gap-6 overflow-x-auto overscroll-x-contain pb-4 cursor-grab active:cursor-grabbing"
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}

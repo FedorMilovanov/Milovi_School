@@ -109,6 +109,32 @@ pluralRu(21, MATERIAL) // → 'материал'
 2. Добавьте контент в `src/data/deepContents.ts`
 3. `npm run build` — Astro сгенерирует HTML автоматически
 
+## Changelog — scroll & navigation audit (2026-05-14 v2)
+
+| # | Fix | File |
+|---|---|---|
+| S1 | `overscroll-x-contain` на горизонтальном скроллере категорий — на iOS/Android свайп по категориям вызывал навигацию браузера назад/вперёд или захватывал вертикальный скролл страницы | `src/components/Categories.tsx` |
+| S2 | `overscroll-x-contain` на ShowcaseSlider (drag-scroll слайдер с шефами) — та же проблема: горизонтальный свайп мог случайно скролить страницу вертикально | `src/components/ShowcaseSlider.tsx` |
+| S3 | `overscroll-behavior: contain` на вертикальном списке CommandPalette (`cp-list`) — при доскролле до конца списка скролл «прорывался» на body-контент за оверлеем | `src/components/CommandPalette.tsx` |
+| S4 | `overscroll-behavior-x: contain` на горизонтальных чипах категорий в CommandPalette (`cp-chips`) — аналогичная горизонтальная утечка скролла | `src/components/CommandPalette.tsx` |
+
+---
+
+## Changelog — mobile bugfix round (2026-05-14)
+
+| # | Fix | File |
+|---|---|---|
+| M1 | `viewport-fit=cover` добавлен в `<meta viewport>` — без него все `env(safe-area-inset-*)` возвращали 0 на iPhone с чёлкой/Dynamic Island; safe-area padding в баре, командной палитре и hero теперь работает | `src/layouts/BaseLayout.astro` |
+| M2 | iOS Safari zoom bug: input в CommandPalette имел `font-size: 14px` → Safari автоматически зумил страницу при фокусе. Исправлено: `text-[16px] md:text-[14px]` | `src/components/CommandPalette.tsx` |
+| M3 | ScrollToTop перекрывался мобайл-баром на notched iPhone: `bottom-[5.5rem]` (88px) < высота бара + safe-area (~93px). Исправлено: `calc(5.5rem + env(safe-area-inset-bottom, 0px))` | `src/components/ScrollToTop.tsx` |
+| M4 | Toast — тосты уходили за мобайл-бар на iPhone X+. Аналогичный calc-фикс с safe-area | `src/components/Toast.tsx` |
+| M5 | UpdateNotification — то же перекрытие баром на мобайле (`bottom: 5rem` = 80px < 93px). Исправлено: `calc(5rem + env(safe-area-inset-bottom, 0px))` | `src/components/UpdateNotification.tsx` |
+| M6 | `-webkit-tap-highlight-color: transparent` — убрана серая вспышка при тапе на iOS (не была задана нигде в проекте) | `src/styles/global.css` |
+| M7 | `will-change: transform` always-on убран с `.moving-word`, `.haptic-btn`, `.cat-img` — GPU memory leak на мобайле. Теперь применяется только в момент hover/active/animation | `src/styles/global.css` |
+| M8 | Кнопки «Сохранить» и «Фокус» в мобайл-баре статьи не имели класса `haptic-btn` — анимация нажатия была только у «Назад» и «Размер». Теперь все 4 кнопки единообразны | `src/components/ArticleView.tsx` |
+
+---
+
 ## Changelog — bugfix round (2026-05-12)
 
 | # | Fix | File |

@@ -82,8 +82,8 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     <>
       <header className={`sticky top-0 z-40 border-b transition-all duration-300 ${scrolled ? 'border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] shadow-sm backdrop-blur-xl' : 'border-transparent bg-[var(--bg-overlay-90)] backdrop-blur-md'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 lg:px-8">
-          <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="group flex items-center gap-3 text-left">
-            <img src="/images/logo.svg" alt="Patisserie Russe" width="44" height="44" className="h-11 w-11 transition group-hover:scale-105" loading="eager" decoding="async" />
+          <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="haptic-btn group flex items-center gap-3 text-left">
+            <img src="/images/logo.svg" alt="Patisserie Russe" title="Patisserie Russe" width="44" height="44" className="h-11 w-11 transition group-hover:scale-105" loading="eager" decoding="async" />
             <span>
               <span className="block font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">Patisserie Russe</span>
               <span className="block font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500 dark:text-stone-400">French Pastry Archive</span>
@@ -97,7 +97,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="haptic-btn flex items-center gap-2">
             <motion.button
               type="button"
               onClick={onOpenCommand}

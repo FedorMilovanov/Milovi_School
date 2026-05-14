@@ -91,8 +91,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
   useEffect(() => {
     safeSetItem('theme', theme)
     document.documentElement.style.colorScheme = theme
+    // BUG FIX: Tailwind v4 dark variant targets .dark on html only — adding to body was redundant
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    document.body.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])

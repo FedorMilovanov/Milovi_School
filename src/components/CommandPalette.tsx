@@ -59,7 +59,7 @@ function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: C
     <div style={{ position: 'relative', overflow: 'hidden', ...style }}>
       {!loaded && !errored && <div className="cp-skeleton" style={{ position: 'absolute', inset: 0 }} />}
       {!errored && (
-        <img src={src} alt={alt}
+        <img src={src} alt={alt} title={alt}
           onLoad={() => setLoaded(true)}
           onError={() => { setErrored(true); setLoaded(false) }}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block',
@@ -197,8 +197,9 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
         .cp-list::-webkit-scrollbar { width: 3px; }
         .cp-list::-webkit-scrollbar-track { background: transparent; }
         .cp-list::-webkit-scrollbar-thumb { background: var(--cp-scrollbar); border-radius: 3px; }
+        .cp-list { overscroll-behavior: contain; }
         .cp-chips::-webkit-scrollbar { display: none; }
-        .cp-chips { -ms-overflow-style: none; scrollbar-width: none; }
+        .cp-chips { -ms-overflow-style: none; scrollbar-width: none; overscroll-behavior-x: contain; }
         @media (hover: none) and (pointer: coarse) { .cp-chip { min-height: 36px !important; } }
       `}</style>
 
@@ -253,7 +254,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                   value={query}
                   onChange={e => { setQuery(e.target.value); setFilterCat(null) }}
                   placeholder="Поиск материалов, шефов, техник..."
-                  className="flex-1 bg-transparent text-[14px] font-light tracking-wide outline-none"
+                  className="flex-1 bg-transparent text-[16px] md:text-[14px] font-light tracking-wide outline-none"
                   style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
                 />
 
