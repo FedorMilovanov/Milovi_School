@@ -152,15 +152,18 @@ const metaDescription =
       (function () {
         try {
           var s = localStorage.getItem('theme')
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          if (s === 'dark' || (!s && prefersDark)) {
+          // Dark is the default brand style. Only switch to light when the
+          // user has explicitly saved 'light' in their preferences.
+          if (s === 'light') {
+            document.documentElement.style.colorScheme = 'light'
+          } else {
             document.documentElement.classList.add('dark')
             document.documentElement.style.colorScheme = 'dark'
-          } else {
-            document.documentElement.style.colorScheme = 'light'
           }
         } catch (_) {
-          // localStorage blocked (private mode, permissions policy) — fail silently
+          // localStorage blocked — default to dark
+          document.documentElement.classList.add('dark')
+          document.documentElement.style.colorScheme = 'dark'
         }
       })()
     </script>

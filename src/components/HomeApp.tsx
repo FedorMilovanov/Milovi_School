@@ -67,10 +67,12 @@ export default function HomeApp({ articles }: HomeAppProps) {
   })
   const [commandOpen, setCommandOpen] = useState(false)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light'
+    if (typeof window === 'undefined') return 'dark'
     const saved = safeGetItem('theme')
-    if (saved === 'dark' || saved === 'light') return saved
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    // Dark is the default style of the site.
+    // Only switch to light when the user has explicitly chosen it.
+    if (saved === 'light') return 'light'
+    return 'dark'
   })
 
   // F-12: MobileBottomBar auto-hide on scroll down, show on scroll up
@@ -221,6 +223,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           articleCount={statsArticleCount}
           authorCount={statsAuthorCount}
           categoryCount={statsCategoryCount}
+          onGoToArticles={() => scrollToSection('articles')}
         />
         <MainCategories
           articles={articles}

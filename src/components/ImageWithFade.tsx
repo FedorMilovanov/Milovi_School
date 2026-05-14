@@ -23,18 +23,38 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
   useEffect(() => {
     if (!lazy || !containerRef.current) return
 
+    const el = containerRef.current
+
+    // Mobile fix: IntersectionObserver callbacks are async and can miss elements
+    // already in the viewport at mount time. Check synchronously first.
+    const rect = el.getBoundingClientRect()
+    if (rect.top < window.innerHeight + 400) {
+      setIsIntersected(true)
+      return
+    }
+
+    // Safety net: force-load after 3 s in case the observer never fires
+    // (e.g. hidden overflow parent, zero-height container on first paint).
+    const timer = window.setTimeout(() => {
+      setIsIntersected(true)
+    }, 3000)
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsIntersected(true)
+          window.clearTimeout(timer)
           observer.disconnect()
         }
       },
-      { rootMargin: '400px' } // Pre-load slightly earlier (SEO May 2026 performance optimization)
+      { rootMargin: '400px' },
     )
 
-    observer.observe(containerRef.current)
-    return () => observer.disconnect()
+    observer.observe(el)
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(timer)
+    }
   }, [lazy])
 
   useEffect(() => {

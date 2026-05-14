@@ -274,7 +274,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       if (imgMatch) {
         return (
           <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
-            <img itemProp="image" src={imgMatch[2]} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-auto object-cover object-center max-h-[600px] transition-opacity duration-700" loading="lazy" decoding="async" />
+            <img itemProp="image" src={imgMatch[2]} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-auto object-cover object-center max-h-[600px] transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.style.display = 'none' }} />
             {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
           </figure>
         )
