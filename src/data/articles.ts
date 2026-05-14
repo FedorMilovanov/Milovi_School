@@ -1,4 +1,5 @@
 import { localImages } from '../assets/images'
+import { articleImageDimensions } from './articleImageDimensions'
 import { dc } from './deepContents'
 
 export interface RecipeData { prepTime: string; cookTime: string; yield: string; calories?: string; ingredients: string[]; }
@@ -482,15 +483,34 @@ function defaultImageCaption(article: Article) {
   return `${short(article.title, 96)}. Материал библиотеки Patisserie Russe / Milovi School.`
 }
 
+function imageFileName(image: string | undefined) {
+  if (!image) return undefined
+  const clean = image.split('?')[0]
+  return clean.startsWith('/images/articles/') ? clean.slice('/images/articles/'.length) : undefined
+}
+
 for (const article of articles) {
   article.imageTitle ??= defaultImageTitle(article)
   article.imageAlt ??= defaultImageAlt(article)
   article.imageCaption ??= defaultImageCaption(article)
   article.imageCredit ??= 'Patisserie Russe / Milovi School'
-  // Current local article images are normalised to 1280×800 in /public/images/articles.
-  // Portrait/legacy exceptions can override these fields manually later.
-  article.imageWidth ??= 1280
-  article.imageHeight ??= 800
+
+  // Keep SEO dimensions and the visible hero aspect ratio tied to the real file.
+  // The previous blanket 1280×800 assumption was wrong for 1408×768 and portrait
+  // images, so many heroes were cropped by a too-wide wrapper.
+  const fileName = imageFileName(article.image)
+  const dimensions = fileName ? articleImageDimensions[fileName] : undefined
+  if (dimensions) {
+    article.imageWidth ??= dimensions.width
+    article.imageHeight ??= dimensions.height
+  } else if (article.id === 'recipe-pecan-chocolate-creme-brulee') {
+    // Vite-bundled fallback image in src/assets/pastry-pecan.jpg.
+    article.imageWidth ??= 1296
+    article.imageHeight ??= 864
+  } else {
+    article.imageWidth ??= 1280
+    article.imageHeight ??= 800
+  }
 }
 
 // ─── Metadata only (no content) — safe to send to the browser ───────────────

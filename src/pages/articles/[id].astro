@@ -24,7 +24,7 @@ const pageTitle = `${article.title} — Patisserie Russe`
 const categoryName = categories.find((c) => c.id === article.category)?.name ?? article.category
 
 // ── OG image ────────────────────────────────────────────────────────────────
-function buildOgImage(input: string | undefined): { url: string; width?: number; height?: number } {
+function buildOgImage(input: string | undefined, width?: number, height?: number): { url: string; width?: number; height?: number } {
   if (!input) {
     return { url: `${siteUrl}/images/og-preview.webp`, width: 1200, height: 630 }
   }
@@ -36,12 +36,12 @@ function buildOgImage(input: string | undefined): { url: string; width?: number;
       height: 630,
     }
   }
-  // Local WEBP article images — use standard OG dimensions so FB/VK/TG can render the preview
+  // Local article images — keep OG/JSON-LD dimensions in sync with the real file.
   const absolute = input.startsWith('http') ? input : `${siteUrl}${input}`
-  return { url: absolute, width: 1200, height: 800 }
+  return { url: absolute, width: width ?? 1280, height: height ?? 800 }
 }
 
-const ogImg = buildOgImage(article.image)
+const ogImg = buildOgImage(article.image, article.imageWidth, article.imageHeight)
 
 // ── Structured data ──────────────────────────────────────────────────────────
 const wordCount = Math.round((article.content?.length ?? 0) / 6)

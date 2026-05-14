@@ -126,6 +126,10 @@ function headingId(text: string, index: number) {
 
 export default function ArticleView({ article, allArticles, onBack, onNavigate }: ArticleViewProps) {
   const category = categories.find((c) => c.id === article.category)
+  const imageWidth = article.imageWidth ?? 1280
+  const imageHeight = article.imageHeight ?? 800
+  const isPortraitHero = imageHeight > imageWidth
+  const heroAspectRatio = `${imageWidth} / ${imageHeight}`
   // BUG FIX: removed duplicate local useScrollProgress that registered a second scroll
   // listener. Use the shared hook (returns 0-100) and normalise to 0-1 here so all
   // internal usages (progress * 100, 1 - progress, progress > 0.05) stay consistent.
@@ -389,13 +393,16 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate }
 
           {/* Hero image — figure/caption improves accessibility and image SEO */}
           <figure className="my-8">
-            <div className={`overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto aspect-[16/8] max-w-3xl' : 'aspect-[16/7] md:aspect-[16/6]'}`}>
+            <div
+              className={`overflow-hidden bg-stone-200 dark:bg-stone-800 ${focusMode ? 'mx-auto max-w-3xl' : isPortraitHero ? 'mx-auto max-w-md' : 'mx-auto max-w-6xl'}`}
+              style={{ aspectRatio: heroAspectRatio }}
+            >
               <img itemProp="image" 
                 src={article.image} 
                 alt={article.imageAlt ?? article.title}
                 title={article.imageTitle ?? article.title}
-                width={article.imageWidth ?? 1280}
-                height={article.imageHeight ?? 800}
+                width={imageWidth}
+                height={imageHeight}
                 className="h-full w-full object-cover object-center" 
                 loading="eager" 
                 decoding="async" 
