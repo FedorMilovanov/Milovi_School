@@ -82,6 +82,32 @@ function TermTooltip({ piece, translation, tipId }: { piece: string, translation
   )
 }
 
+function MiloviCakeArticleNote() {
+  return (
+    <aside className="my-10 overflow-hidden border border-amber-900/15 bg-[linear-gradient(135deg,rgba(146,64,14,0.08),rgba(255,251,235,0.58)_46%,rgba(255,255,255,0.38))] px-6 py-6 shadow-sm dark:border-amber-400/15 dark:bg-[linear-gradient(135deg,rgba(146,64,14,0.18),rgba(28,25,23,0.72)_48%,rgba(12,10,9,0.9))] sm:px-8">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-amber-800/80 dark:text-amber-400/80">
+            Patisserie Russe · проект Milovi Cake
+          </p>
+          <p className="mt-3 text-sm leading-6 text-stone-600 dark:text-stone-400 sm:text-base sm:leading-7">
+            Эта статья — часть образовательной библиотеки Milovi Cake о французской pâtisserie: без меню и обещаний, только история, техники и аккуратные учебные разборы.
+          </p>
+        </div>
+        <a
+          href="https://milovicake.ru"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex flex-shrink-0 items-center justify-center border border-amber-900/25 bg-white/50 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:border-amber-800 hover:bg-amber-100/70 hover:text-amber-900 dark:border-amber-400/25 dark:bg-stone-950/35 dark:text-amber-100 dark:hover:border-amber-300 dark:hover:bg-amber-400/10 dark:hover:text-amber-200"
+          aria-label="Перейти на основной сайт Milovi Cake"
+        >
+          Milovi Cake →
+        </a>
+      </div>
+    </aside>
+  )
+}
+
 function InlineText({ text }: { text: string }) {
   const uid = useId()
 
@@ -500,6 +526,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               </figcaption>
             )}
           </figure>
+
+          <div className={focusMode ? 'mx-auto max-w-3xl' : 'mx-auto max-w-6xl'}>
+            <MiloviCakeArticleNote />
+          </div>
 
           {/* Mobile TOC — luxury animated accordion */}
           {headings.length > 2 && (
