@@ -106,6 +106,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
   const [totalMinutes, setTotalMinutes] = useState(0)
   const [streak, setStreak] = useState(0)
   const [recentArticle, setRecentArticle] = useState<ArticleMeta | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     let completed = 0
@@ -142,30 +143,28 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
 
     const { streak: s } = calculateReadingStreak(false)
     setStreak(s)
+    
+    const storedQuote = safeGetItem('quote-seed')
+    const parsedQuote = storedQuote !== null ? Number(storedQuote) : NaN
+    const seed = Number.isInteger(parsedQuote) && parsedQuote >= 0 && parsedQuote < QUOTES.length
+      ? parsedQuote
+      : Math.floor(Math.random() * QUOTES.length)
+    if (!Number.isInteger(parsedQuote) || parsedQuote < 0 || parsedQuote >= QUOTES.length) {
+      safeSetItem('quote-seed', String(seed))
+    }
+    const dayOffset = Math.floor(Date.now() / 86400000)
+    setQuote(QUOTES[(seed + dayOffset) % QUOTES.length])
+    setMounted(true)
   }, [articles])
 
   // F-20: Per-user random quote seed so each visitor sees a different rotation.
   // Uses safeGetItem/safeSetItem to stay resilient in private-browsing mode.
-  const quote = useMemo(() => {
-    const stored = safeGetItem('quote-seed')
-    const parsed = stored !== null ? Number(stored) : NaN
-    // Guard against corrupted storage (NaN, Infinity, out-of-range) by generating a fresh seed
-    const seed = Number.isInteger(parsed) && parsed >= 0 && parsed < QUOTES.length
-      ? parsed
-      : Math.floor(Math.random() * QUOTES.length)
-    // Write back only when we generated a new seed (first visit or corruption recovery)
-    if (!Number.isInteger(parsed) || parsed < 0 || parsed >= QUOTES.length) {
-      safeSetItem('quote-seed', String(seed))
-    }
-    // Advance one quote per calendar day so returning users see a fresh quote daily
-    const dayOffset = Math.floor(Date.now() / 86400000)
-    return QUOTES[(seed + dayOffset) % QUOTES.length]
-  }, [])
+  const [quote, setQuote] = useState(QUOTES[0])
 
   // F-17: Don't render until useEffect has run (avoids flicker from SSR zeros).
   // After first article read the streak is set to 1 — include streak in the
   // check so the bento becomes visible immediately on return to home page.
-  if (readCount === 0 && bookmarksCount === 0 && totalMinutes === 0 && streak === 0) return null
+  if (!mounted || (readCount === 0 && bookmarksCount === 0 && totalMinutes === 0 && streak === 0)) return null
 
   return (
     <section className="px-6 pb-12" style={{ backgroundColor: 'var(--bg-main)' }}>

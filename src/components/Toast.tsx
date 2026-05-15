@@ -42,7 +42,7 @@ function ToastIcon({ type }: { type: ToastType }) {
   )
 }
 
-export default function ToastContainer() {
+export default function ToastContainer({ className }: { className?: string }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
   const timeoutsRef = useRef<number[]>([])
 
@@ -64,7 +64,7 @@ export default function ToastContainer() {
   }, [])
 
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none" style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom, 0px))' }}>
+    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none ${className || "max-md:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6"}`}>
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div

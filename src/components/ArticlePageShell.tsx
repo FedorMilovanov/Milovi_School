@@ -96,7 +96,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         />
       </ErrorBoundary>
       <UpdateNotification />
-      <ToastContainer />
+      <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
       <ScrollToTop />
     </div>
   )

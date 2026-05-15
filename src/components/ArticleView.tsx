@@ -72,7 +72,7 @@ function InlineText({ text }: { text: string }) {
           onClick={(e) => e.currentTarget.focus()}
         >
           {piece}
-          <span id={tipId} role="tooltip" className="absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
+          <span id={tipId} role="tooltip" className="absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
             {translation}
           </span>
         </button>
@@ -432,6 +432,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               <button
                 type="button"
                 onClick={() => setTocOpen(v => !v)}
+                aria-expanded={tocOpen}
+                aria-controls="mobile-toc-list"
                 className="haptic-btn flex w-full select-none items-center justify-between px-5 py-4 font-mono text-[11px] uppercase tracking-[0.24em] text-stone-950 dark:text-stone-100"
               >
                 <span>Содержание</span>
@@ -450,7 +452,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               </button>
               <AnimatePresence initial={false}>
                 {tocOpen && (
-                  <motion.ol
+                  <motion.ol id="mobile-toc-list"
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
@@ -463,9 +465,9 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                           type="button"
                           onClick={() => {
                             setTocOpen(false)
-                            requestAnimationFrame(() => {
+                            setTimeout(() => {
                               document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                            })
+                            }, 280)
                           }}
                           className="haptic-btn flex w-full gap-3 border-b border-stone-50 px-5 py-3 text-left text-sm leading-6 text-stone-600 transition-colors last:border-b-0 hover:bg-amber-50/60 hover:text-amber-800 dark:border-stone-900 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
                         >
