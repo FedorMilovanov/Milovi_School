@@ -1,3 +1,4 @@
+// Caps runtime cache to maxItems entries. Called after every cache.put().
 function trimCache(cacheName, maxItems) {
   caches.open(cacheName).then(cache => {
     cache.keys().then(keys => {
@@ -20,7 +21,7 @@ const PRECACHE_ASSETS = [
   '/favicon-32x32.png',
   '/apple-touch-icon.png',
   '/favicon.svg',
-  '/images/og-preview.webp',
+  // og-preview.webp excluded — only needed by social parsers, not users offline
   '/images/placeholder.svg',
 ]
 
@@ -59,7 +60,7 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           if (response.ok) {
-            caches.open(RUNTIME_NAME).then((c) => c.put(request, response.clone()))
+            caches.open(RUNTIME_NAME).then((c) => { c.put(request, response.clone()); trimCache(RUNTIME_NAME, 60) })
           }
           return response
         })
@@ -73,7 +74,7 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached
       return fetch(request).then((response) => {
         if (response.ok && response.type === 'basic') {
-          caches.open(RUNTIME_NAME).then((c) => c.put(request, response.clone()))
+          caches.open(RUNTIME_NAME).then((c) => { c.put(request, response.clone()); trimCache(RUNTIME_NAME, 60) })
         }
         return response
       }).catch(async () => {

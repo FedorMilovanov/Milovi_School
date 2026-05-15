@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+---
+
+<BaseLayout
+  title="Страница не найдена — Patisserie Russe"
+  description="Эта страница не существует или была перемещена."
+>
+  <div class="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+    <p class="font-mono text-[11px] uppercase tracking-[0.3em] text-amber-700 dark:text-amber-400">404</p>
+    <h1 class="mt-4 font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl">
+      Страница не найдена
+    </h1>
+    <p class="mt-4 max-w-md text-base leading-7 text-stone-500 dark:text-stone-400">
+      Возможно, адрес изменился или страница была удалена.
+    </p>
+    <a
+      href="/"
+      class="mt-8 inline-flex items-center gap-2 border border-stone-950 px-6 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950"
+    >
+      ← На главную
+    </a>
+  </div>
+</BaseLayout>

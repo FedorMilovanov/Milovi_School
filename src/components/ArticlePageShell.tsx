@@ -1,7 +1,7 @@
 /**
  * ArticlePageShell — React client island rendered on each /articles/<id>/ page.
  */
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import Header from './Header'
 import ArticleView from './ArticleView'
@@ -21,6 +21,8 @@ interface ArticlePageShellProps {
 
 export default function ArticlePageShell({ article, allMeta }: ArticlePageShellProps) {
   const [commandOpen, setCommandOpen] = useState(false)
+  const commandOpenRef = useRef(false)
+  useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
   // FIX B-4: Initialize theme from documentElement (set by inline script)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
@@ -29,7 +31,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     if (document.documentElement.classList.contains('light')) return 'light'
     const saved = safeGetItem('theme')
     if (saved === 'dark' || saved === 'light') return saved
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark'
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   useEffect(() => {
@@ -60,6 +62,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
+        if (commandOpenRef.current && target?.closest('[role="dialog"]')) return
         e.preventDefault()
         setCommandOpen(v => !v)
       }
@@ -82,7 +85,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         />
         <ArticleView
           article={article}
-          allArticles={allMeta as any}
+          allArticles={allMeta}
           onBack={goBack}
           onNavigate={goToArticle}
           disableEscapeBack={commandOpen}
@@ -90,7 +93,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         <Footer />
         <CommandPalette
           open={commandOpen}
-          articles={allMeta as any}
+          articles={allMeta}
           onClose={closeCommand}
           onOpenArticle={openArticleByUrl}
         />

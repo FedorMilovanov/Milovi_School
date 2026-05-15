@@ -86,14 +86,16 @@ function enhanceImageSitemap() {
           const rawCaption = html.match(/<figcaption[^>]*>(.*?)<\/figcaption>/s)?.[1]
             ?? html.match(/<meta name="description" content="([^"]+)"/)?.[1]
             ?? rawTitle
+          const captionText = stripTags(rawCaption)
           imageByLoc.set(loc, {
             image: htmlDecode(image),
             title: stripTags(rawTitle).replace(/\s+—\s+Patisserie Russe$/i, ''),
-            caption: stripTags(rawCaption),
+            // Guard: if regex accidentally captured a large HTML chunk, fall back to title
+            caption: captionText.length <= 500 ? captionText : stripTags(rawTitle),
           })
         }
 
-        const updated = sitemap.replace(/<url><loc>([^<]+)<\/loc>(.*?)<\/url>/g, (block, loc, rest) => {
+        const updated = sitemap.replace(/<url><loc>([^<]+)<\/loc>(.*?)<\/url>/gs, (block, loc, rest) => {
           const data = imageByLoc.get(loc)
           if (!data) return block
           return `<url><loc>${loc}</loc>${rest}<image:image><image:loc>${xmlEscape(data.image)}</image:loc><image:title>${xmlEscape(data.title)}</image:title><image:caption>${xmlEscape(data.caption)}</image:caption></image:image></url>`

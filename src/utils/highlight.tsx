@@ -22,13 +22,16 @@ function buildRanges(
   let last = 0
   const sorted = [...indices].sort((a, b) => a[0] - b[0])
   for (const [start, end] of sorted) {
-    if (start > last) parts.push(text.slice(last, start))
+    // Skip ranges fully consumed by a previous one (handles overlaps from Fuse.js)
+    if (end < last) continue
+    const effectiveStart = Math.max(start, last)
+    if (effectiveStart > last) parts.push(text.slice(last, effectiveStart))
     // Guard: Fuse can return indices that exceed the value string length
     const safeEnd = Math.min(end, text.length - 1)
-    if (start <= safeEnd) {
+    if (effectiveStart <= safeEnd) {
       parts.push(
         <mark key={`${start}-${end}`} className={MARK_CLASS} style={MARK_STYLE}>
-          {text.slice(start, safeEnd + 1)}
+          {text.slice(effectiveStart, safeEnd + 1)}
         </mark>,
       )
     }

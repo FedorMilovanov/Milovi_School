@@ -12,7 +12,6 @@ interface ToastMessage {
 // Global toast emitter — работает без контекста React
 type Listener = (msg: ToastMessage) => void
 const listeners = new Set<Listener>()
-let toastId = 0
 
 export function showToast(type: ToastType, message: string) {
   const msg: ToastMessage = { id: crypto.randomUUID(), type, message }

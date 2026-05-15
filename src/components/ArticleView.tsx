@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { type Article, type ArticleMeta } from '../data/types'
+import { type Article } from '../data/types'
+import type { ArticleClientMeta } from '../data/library'
 import { categories } from '../data/categories'
 import { fallbackImageFor } from '../assets/images'
 import ArticleActions from './ArticleActions'
@@ -14,9 +15,9 @@ import { useScrollProgress as useSharedScrollProgress } from '../hooks/useScroll
 interface ArticleViewProps {
   article: Article
   /** All article metadata — used for related articles. Passed as prop to avoid bundling library.ts. */
-  allArticles: ArticleMeta[]
+  allArticles: ArticleClientMeta[]
   onBack: () => void
-  onNavigate?: (article: ArticleMeta) => void
+  onNavigate?: (article: ArticleClientMeta) => void
   /** Prevent article-level Escape navigation while another modal/dialog is open. */
   disableEscapeBack?: boolean
 }
@@ -56,7 +57,12 @@ const TERMS: Record<string, string> = {
 }
 const TERMS_PATTERN = /\b(crème diplomate|crème pâtissière|ganache montée|pâte à choux|fleur de sel|mise en place|macaronage|maturation|ganache|panade|ruban)\b/gi
 const LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
-const FORMAT_REGEX = /(\*\*.*?\*\*|(?<=\s|^)\*(?!\s).*?(?<!\s)\*(?=\s|[.,;:!?\])]|$))/g;
+// NOTE: Lookbehind assertions ((?<=...) / (?<!...)) crash iOS Safari <16.4 at
+// parse time with a SyntaxError — the whole component fails to mount. This
+// regex achieves the same semantic without any lookbehind:
+//   **bold** — greedy, takes priority in the alternation
+//   *italic* — content must start AND end with a non-whitespace, non-asterisk char
+const FORMAT_REGEX = /(\*\*.*?\*\*|\*(?!\*|\s)(?:[^\s*][^*]*[^\s*]|[^\s*])\*)/g;
 
 function TermTooltip({ piece, translation, tipId }: { piece: string, translation: string, tipId: string }) {
   const [open, setOpen] = useState(false)
@@ -90,24 +96,31 @@ function InlineText({ text }: { text: string }) {
   const parts = text.split(LINK_REGEX);
   return (
     <>
-      {parts.map((part, index) => {
-        const lIdx = Math.floor(index / 3);
+      {parts.flatMap((part, index) => {
+        // FIX: use flatMap + include outer `index` in every key to guarantee
+        // uniqueness across sibling text segments. Previously `key="f-0"` could
+        // appear multiple times when a text had more than one plain-text chunk.
         if (index % 3 === 0) {
+          const lIdx = Math.floor(index / 3);
           const fParts = part.split(FORMAT_REGEX).filter(Boolean);
           return fParts.map((fPart, i) => {
-            if (fPart.startsWith('**') && fPart.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold smart-highlight">{fPart.slice(2, -2)}</strong>;
-            if (fPart.startsWith('*') && fPart.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{fPart.slice(1, -1)}</em>;
-            return <span key={`t-${i}`}>{renderTermText(fPart, `term-${lIdx}-${i}`)}</span>;
+            const key = `txt-${index}-${i}`;
+            if (fPart.startsWith('**') && fPart.endsWith('**')) return <strong key={key} className="font-semibold smart-highlight">{fPart.slice(2, -2)}</strong>;
+            if (fPart.startsWith('*') && fPart.endsWith('*')) return <em key={key} className="italic text-stone-800 dark:text-stone-300">{fPart.slice(1, -1)}</em>;
+            return <span key={key}>{renderTermText(fPart, `term-${lIdx}-${i}`)}</span>;
           });
-        } else if (index % 3 === 1) {
+        }
+        if (index % 3 === 1) {
+          const lIdx = Math.floor(index / 3);
           const linkHref = parts[lIdx * 3 + 2] ?? '#';
-          return (
+          return [
             <a key={`link-${lIdx}`} href={linkHref} target="_blank" rel="noopener noreferrer" className="text-amber-800 underline transition hover:text-stone-950 dark:text-amber-400 dark:hover:text-amber-300">
               {part}
             </a>
-          );
+          ];
         }
-        return null;
+        // index % 3 === 2: href segment, already consumed above
+        return [];
       })}
     </>
   )
@@ -140,14 +153,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   // listener. Use the shared hook (returns 0-100) and normalise to 0-1 here so all
   // internal usages (progress * 100, 1 - progress, progress > 0.05) stay consistent.
   const progress = useSharedScrollProgress() / 100
-  const [largeText, setLargeText] = useState(() => typeof window !== 'undefined' && safeGetItem('pref-large-text') === 'true')
-  const [focusMode, setFocusMode] = useState(() => {
-    if (typeof window === 'undefined') return false
-    const saved = safeGetItem('pref-focus-mode') === 'true'
-    // BUG FIX: sync html class on first render
-    if (saved) document.documentElement.classList.add('focus-mode-active')
-    return saved
-  })
+  // FIX: initialize from localStorage in useEffect (not useState lazy initializer)
+  // so SSR/static pre-render and first client render both see `false` → no hydration mismatch.
+  const [largeText, setLargeText] = useState(false)
+  const [focusMode, setFocusMode] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
   const copiedTimeoutRef = useRef<number | null>(null)
@@ -172,7 +181,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         safeSetItem(`article-progress:${article.id}`, String(window.scrollY))
         const scrollable = document.documentElement.scrollHeight - window.innerHeight
         const pct = scrollable > 0 ? Math.round((window.scrollY / scrollable) * 100) : 0
-        safeSetItem(`article-progress-pct:${article.id}`, String(Math.min(pct, 96)))
+        safeSetItem(`article-progress-pct:${article.id}`, String(Math.min(pct, 100)))
         // Засчитать день чтения при достижении 20%+
         if (!streakMarked && pct >= 20) {
           calculateReadingStreak(true)
@@ -182,8 +191,32 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
     }
     const interval = window.setInterval(save, 2000)
     window.addEventListener('beforeunload', save)
-    return () => { save(); window.clearInterval(interval); window.removeEventListener('beforeunload', save) }
+    // FIX AV-1: don't call save() explicitly in cleanup — beforeunload handles the final save.
+    // Double-calling overwrites progress with a stale value on iOS Safari where cleanup
+    // may run after pagehide but before the actual unload completes.
+    return () => { window.clearInterval(interval); window.removeEventListener('beforeunload', save) }
   }, [article.id])
+
+  // FIX C-2: clean up copiedTimeoutRef on unmount to avoid setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current)
+    }
+  }, [])
+
+  // FIX: initialize both largeText and focusMode from localStorage in a single effect.
+  // useState initializers must be pure — reading localStorage there causes hydration mismatches
+  // (server sees false, client may see true). DOM side-effects (classList.add) also must not
+  // run during render. Merging into one effect avoids two separate microtasks.
+  useEffect(() => {
+    const prefFocusMode = safeGetItem('pref-focus-mode') === 'true'
+    const prefLargeText = safeGetItem('pref-large-text') === 'true'
+    if (prefLargeText) setLargeText(true)
+    if (prefFocusMode) {
+      setFocusMode(true)
+      document.documentElement.classList.add('focus-mode-active')
+    }
+  }, [])
 
   const handleKey = useCallback((e: KeyboardEvent) => {
     if (e.defaultPrevented || disableEscapeBack) return
@@ -207,16 +240,31 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
     return next
   })
 
+  // Z-8 FIX: single parse of article.content shared by both headings and renderedContent
+  const blocks = useMemo(
+    () => article.content.split('\n\n').flatMap(splitInlineBlocks).map(b => b.trim()),
+    [article.content]
+  )
+
   // NEW-IMP-A: memoize — headings is expensive (split+flatMap the full article content)
-  const headings = useMemo(() => article.content
-    .split('\n\n')
-    .flatMap(splitInlineBlocks)          // must mirror renderContent's flatMap so idx values align
-    .map((b, idx) => ({ raw: b.trim(), idx }))
+  //
+  // IMPORTANT — filter order matters:
+  //   1. **bold** exact match
+  //   2. ======== separator  ← must come before isSectionTitle; a block like
+  //                            "======== TITRE ========" has all-caps compact text
+  //                            and isSectionTitle() would accept it first, then
+  //                            the title extraction would keep the raw "===..." prefix
+  //                            producing a headingId mismatch → dead TOC link.
+  //   3. ## / ### markdown   ← must come before isSectionTitle for the same reason:
+  //                            "## SOME CAPS TITLE" passes isSectionTitle() and its
+  //                            title ends up as "## SOME CAPS TITLE" while renderedContent
+  //                            uses only "SOME CAPS TITLE" for the id → dead TOC link.
+  //   4. isSectionTitle      ← generic all-caps detector, last resort
+  const headings = useMemo(() => blocks
+    .map((raw, idx) => ({ raw, idx }))
     .filter(({ raw }) => {
       if (/^\*\*([^*]+)\*\*$/.test(raw)) return true
-      if (isSectionTitle(raw)) return true
-      if (/^#{2,3}\s+(.*)$/.test(raw)) return true
-      // ======== separator blocks — mirror the render logic in renderContent
+      // ======== separator blocks — check BEFORE isSectionTitle (see note above)
       if (raw.includes('========')) {
         const title = raw
           .replace(/={8,}/g, '\n')
@@ -226,6 +274,9 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           .join(' ')
         return title.length > 0 && title.length < 200
       }
+      // Markdown ## / ### headings — check BEFORE isSectionTitle (see note above)
+      if (/^#{2,3}\s+/.test(raw)) return true
+      if (isSectionTitle(raw)) return true
       return false
     })
     .map(({ raw, idx }) => {
@@ -237,12 +288,16 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           .map((l) => l.trim())
           .filter(Boolean)
           .join(' ')
+      } else if (/^#{2,3}\s+/.test(raw)) {
+        // Strip the "## " / "### " prefix so the TOC title matches what
+        // renderedContent passes to headingId() (mdHeadingMatch[2]).
+        title = raw.replace(/^#{2,3}\s+/, '')
       } else {
         title = raw.replace(/^\*\*|\*\*$/g, '')
       }
       return { title, id: headingId(title, idx) }
     })
-  , [article.content])
+  , [blocks])
 
   // F-07: Related articles — same category first, then by shared tags from other categories
   const related = useMemo(() => {
@@ -261,9 +316,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
   // NEW-IMP-A: memoize — full content parse is expensive
   const renderedContent = useMemo(() => {
-    const renderContent = (content: string) =>
-      content.split('\n\n').flatMap(splitInlineBlocks).map((block, idx) => {
-        const p = block.trim()
+    return blocks.map((p, idx) => {
         
       if (!p) return null
 
@@ -271,15 +324,17 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
       if (imgMatch) {
         return (
-          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
-            <img itemProp="image" src={imgMatch[2]} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-auto object-cover object-center max-h-[600px] transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.style.display = 'none' }} />
+          // FIX CLS: aspect-ratio reserves the exact space before the image loads so
+          // surrounding text doesn't shift. max-h-[600px] still caps very tall images.
+          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: '16/9' }}>
+            <img itemProp="image" src={imgMatch[2]} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
             {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
           </figure>
         )
       }
 
 
-      if (/^={10,}$/.test(p)) return <Divider key={idx} />
+      if (/^={10,}$/.test(p)) return <hr key={idx} className="my-10 border-none h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
 
       const separatorTitle = p.replace(/={8,}/g, '\n').split('\n').map(line => line.trim()).filter(Boolean).join(' ')
       if (p.includes('========') && separatorTitle && separatorTitle.length < 200) {
@@ -296,6 +351,24 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       const boldMatch = p.match(/^\*\*([^*]+)\*\*$/)
       if (boldMatch) {
         return <h2 key={idx} id={headingId(boldMatch[1], idx)} className="scroll-mt-28 mt-16 mb-4 font-serif text-2xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 md:text-3xl">{boldMatch[1]}</h2>
+      }
+
+      // Markdown ## / ### headings — headings useMemo catches these for TOC;
+      // renderContent must assign matching id or TOC scrollIntoView finds nothing.
+      const mdHeadingMatch = p.match(/^(#{2,3})\s+(.*)$/)
+      if (mdHeadingMatch) {
+        const level = mdHeadingMatch[1].length as 2 | 3
+        const title = mdHeadingMatch[2]
+        const Tag = level === 2 ? 'h2' : 'h3'
+        return (
+          <Tag
+            key={idx}
+            id={headingId(title, idx)}
+            className={`scroll-mt-28 mt-16 mb-4 font-serif font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 ${level === 3 ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}
+          >
+            {title}
+          </Tag>
+        )
       }
 
       if (isSectionTitle(p)) {
@@ -337,8 +410,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
       return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize} whitespace-pre-line`}><InlineText text={p} /></p>
     })
-    return renderContent(article.content)
-  }, [article.content, largeText])
+  }, [blocks, largeText])
 
 
   const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
@@ -373,14 +445,19 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               <p className="text-xl leading-8 text-stone-600 dark:text-stone-400 md:text-2xl md:leading-9">{article.excerpt}</p>
               <div className="mt-5 flex flex-wrap gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500">
                 {(article.tags ?? []).slice(0, 6).map(tag => (
-                  <a
+                  <button
                     key={tag}
-                    href={`/?q=${encodeURIComponent(tag)}`}
-                    className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400"
+                    type="button"
+                    onClick={() => {
+                      // Write the search query to sessionStorage so HomeApp picks it up on mount
+                      try { sessionStorage.setItem('pending-search', tag) } catch {}
+                      onBack()
+                    }}
+                    className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400 cursor-pointer"
                     title={`Найти материалы по тегу ${tag}`}
                   >
                     #{tag}
-                  </a>
+                  </button>
                 ))}
               </div>
               <div className="mt-6">
@@ -489,8 +566,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 <div className="border border-stone-200 bg-white/70 p-5 dark:border-stone-800 dark:bg-stone-900/70">
                   <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Чтение</p>
                   <div className="mt-3 flex gap-2">
-                    <button type="button" onClick={() => largeText && toggleLargeText()} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
-                    <button type="button" onClick={() => !largeText && toggleLargeText()} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
+                    <button type="button" onClick={() => { if (largeText) toggleLargeText() }} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
+                    <button type="button" onClick={() => { if (!largeText) toggleLargeText() }} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
                   </div>
                   <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
                   <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)); showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок') }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
@@ -502,7 +579,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                   <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Источник</p>
                   <p className="mt-2 text-sm leading-6 text-stone-700 dark:text-stone-300">{article.author}</p>
                   {article.sourceUrl && (
-                    <a href={article.sourceUrl} target="_blank" rel="noreferrer" className="mt-2 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300">
+                    <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300">
                       {article.sourceLabel ?? 'Открыть'} ↗
                     </a>
                   )}
@@ -618,7 +695,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           <a
             href={article.sourceUrl}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-1.5 inline-block font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
           >
             {article.sourceLabel ?? 'Открыть'} ↗

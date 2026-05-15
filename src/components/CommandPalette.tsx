@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
-import type { ArticleMeta } from '../data/types'
+import type { ArticleClientMeta } from '../data/library'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
@@ -9,13 +9,13 @@ import { highlightWithMatches } from '../utils/highlight'
 
 interface CommandPaletteProps {
   open: boolean
-  articles: ArticleMeta[]
+  articles: ArticleClientMeta[]
   onClose: () => void
-  onOpenArticle: (article: ArticleMeta) => void
+  onOpenArticle: (article: ArticleClientMeta) => void
   onSelectCategory?: (id: string) => void
 }
 
-const FUSE_OPTIONS: IFuseOptions<ArticleMeta> = {
+const FUSE_OPTIONS: IFuseOptions<ArticleClientMeta> = {
   keys: [
     { name: 'title',    weight: 0.45 },
     { name: 'excerpt',  weight: 0.2  },
@@ -30,7 +30,7 @@ const FUSE_OPTIONS: IFuseOptions<ArticleMeta> = {
 }
 
 interface ArticleResult {
-  item: ArticleMeta
+  item: ArticleClientMeta
   matches?: ReadonlyArray<FuseResultMatch>
   pct?: number
 }
@@ -91,7 +91,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])
-  const fuse = useMemo(() => new Fuse<ArticleMeta>(articles, FUSE_OPTIONS), [articles])
+  const fuse = useMemo(() => new Fuse<ArticleClientMeta>(articles, FUSE_OPTIONS), [articles])
 
   useEffect(() => {
     if (open) { setQuery(''); setActiveIndex(0); setFilterCat(null); requestAnimationFrame(() => inputRef.current?.focus()) }
@@ -107,7 +107,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   }, [open])
 
   // Re-read localStorage every time palette opens so "Недавно читали" is always fresh
-  const recentArticles = useMemo<Array<{ article: ArticleMeta; pct: number }>>(() => {
+  const recentArticles = useMemo<Array<{ article: ArticleClientMeta; pct: number }>>(() => {
     return articles
       .map(a => ({ article: a, ts: Number(safeGetItem(`article-last-read:${a.id}`) ?? 0), pct: Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0) }))
       .filter(x => x.ts > 0 || x.pct > 0).sort((a, b) => b.ts - a.ts).slice(0, 5)
@@ -158,9 +158,9 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   }, [activeIndex])
 
   const activeResult: ArticleResult | null = useMemo(() => {
-    // When hovering a quick-action, show first article as preview context
+    // When a quick-action is active, hide the article preview panel (would show unrelated content)
     if (showQuickActions && activeIndex < quickActions.length) {
-      return articleResults[0] ?? null
+      return null
     }
     const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
     return articleResults[idx] ?? null
@@ -180,6 +180,12 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
       e.preventDefault()
       e.stopPropagation()
       e.nativeEvent.stopImmediatePropagation?.()
+      // FIX CP-1: first Escape clears the query; second Escape closes the palette
+      if (query.trim()) {
+        setQuery('')
+        setFilterCat(null)
+        return
+      }
       onClose()
       return
     }

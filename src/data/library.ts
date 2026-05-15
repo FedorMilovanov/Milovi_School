@@ -4,12 +4,12 @@ import type { Article, ArticleMeta } from './types'
 // Full articles (with content) — use only at build time / SSG pages
 const unique = new Map<string, Article>()
 for (const article of articles) unique.set(article.id, article)
-export const libraryArticles = Array.from(unique.values()).sort((a, b) => b.readTime - a.readTime)
+export const libraryArticles = Array.from(unique.values()).sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
 
 // Metadata only — safe for React client islands (no content shipped to browser)
 const uniqueMeta = new Map<string, ArticleMeta>()
 for (const a of articlesMeta) uniqueMeta.set(a.id, a)
-export const libraryMeta = Array.from(uniqueMeta.values()).sort((a, b) => b.readTime - a.readTime)
+export const libraryMeta = Array.from(uniqueMeta.values()).sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
 
 // Slimmed-down metadata for client-side islands (CommandPalette, Related, etc.)
 // This dramatically reduces HTML payload size (~60-70% smaller)

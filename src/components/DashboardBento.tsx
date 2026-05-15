@@ -189,7 +189,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
             icon={BookOpenIcon}
             title="Изучено материалов"
             value={readCount}
-            desc="Прочитано более чем на 80%"
+            desc="Прочитано более чем на 95%"
             delay={0}
           />
           <StatCard

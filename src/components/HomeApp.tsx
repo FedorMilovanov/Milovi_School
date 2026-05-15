@@ -58,6 +58,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [])
 
   const [commandOpen, setCommandOpen] = useState(false)
+  const commandOpenRef = useRef(false)
+  useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'dark'
     const saved = safeGetItem('theme')
@@ -94,6 +96,17 @@ export default function HomeApp({ articles }: HomeAppProps) {
     const qs = params.toString()
     window.history.replaceState({}, '', qs ? `?${qs}` : window.location.pathname)
   }, [])
+
+  // FIX C-3: tag buttons in ArticleView write a pending-search to sessionStorage
+  // instead of doing a full page reload. Pick it up here and apply to search state.
+  useEffect(() => {
+    const pending = sessionStorage.getItem('pending-search')
+    if (pending) {
+      sessionStorage.removeItem('pending-search')
+      setSearchQuery(pending)
+      syncUrlQuery(pending)
+    }
+  }, [syncUrlQuery])
 
   const handleSelectCategory = useCallback((id: string | null) => {
     setSelectedCategory(id)
@@ -174,6 +187,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
+        // If palette is open and focus is inside it (e.g. on a button), let it handle its own events
+        if (commandOpenRef.current && target?.closest('[role="dialog"]')) return
         e.preventDefault()
         setCommandOpen(v => !v)
       }

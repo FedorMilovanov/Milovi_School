@@ -94,7 +94,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
           onError={handleError}
           loading={lazy ? 'lazy' : 'eager'}
           decoding="async"
-          {...(fetchPriority !== 'auto' ? ({ fetchpriority: fetchPriority } as Record<string, string>) : {})}
+          fetchPriority={fetchPriority !== 'auto' ? fetchPriority : undefined}
         />
       )}
 

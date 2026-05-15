@@ -1,4 +1,4 @@
-import { useRef, type MouseEvent as ReactMouseEvent } from 'react'
+import { useRef, useEffect, type MouseEvent as ReactMouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { localImages } from '../assets/images'
 import ImageWithFade from './ImageWithFade'
@@ -27,6 +27,18 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false })
 
+  const stopDrag = () => {
+    if (!drag.current.active) return
+    drag.current.active = false
+    if (scrollRef.current) scrollRef.current.style.userSelect = ''
+  }
+
+  // FIX N-H-1: catch mouseup that happens outside the browser window
+  useEffect(() => {
+    window.addEventListener('mouseup', stopDrag)
+    return () => window.removeEventListener('mouseup', stopDrag)
+  }, [])
+
   const onMouseDown = (e: ReactMouseEvent) => {
     const el = scrollRef.current
     if (!el) return
@@ -42,12 +54,6 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
     const delta = x - drag.current.startX
     if (Math.abs(delta) > 4) drag.current.moved = true
     el.scrollLeft = drag.current.scrollLeft - delta
-  }
-
-  const stopDrag = () => {
-    if (!drag.current.active) return
-    drag.current.active = false
-    if (scrollRef.current) scrollRef.current.style.userSelect = ''
   }
 
   // Suppress click on cards when drag moved (prevents accidental navigation)
