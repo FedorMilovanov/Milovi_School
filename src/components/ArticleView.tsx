@@ -41,87 +41,85 @@ function splitInlineBlocks(text: string): string[] {
   return result
 }
 
+const TERMS: Record<string, string> = {
+  ganache: 'ганаш: эмульсия шоколада со сливками',
+  'crème diplomate': 'дипломатический крем: заварной крем со взбитыми сливками',
+  'crème pâtissière': 'заварной кондитерский крем',
+  'ganache montée': 'взбитый ганаш',
+  macaronage: 'макаронаж: вымешивание массы для макарон',
+  panade: 'заваренная масса до добавления яиц',
+  'pâte à choux': 'заварное тесто для эклеров и шу',
+  'fleur de sel': 'цветочная морская соль',
+  maturation: 'созревание: выдержка для стабилизации',
+  ruban: 'лента: стадия массы, когда она стекает лентой',
+  'mise en place': 'подготовка ингредиентов и рабочего места',
+}
+const TERMS_PATTERN = /\b(crème diplomate|crème pâtissière|ganache montée|pâte à choux|fleur de sel|mise en place|macaronage|maturation|ganache|panade|ruban)\b/gi
+const LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
+const FORMAT_REGEX = /(\*\*.*?\*\*|(?<=\s|^)\*(?!\s).*?(?<!\s)\*(?=\s|[.,;:!?\])]|$))/g;
+
+function TermTooltip({ piece, translation, tipId }: { piece: string, translation: string, tipId: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <button
+      type="button"
+      className="relative inline-flex cursor-help touch-manipulation items-baseline border-0 border-b border-amber-700/40 bg-transparent p-0 text-left text-stone-900 [font:inherit] dark:text-amber-200"
+      aria-describedby={tipId}
+      onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
+      onBlur={() => setOpen(false)}
+    >
+      {piece}
+      <span id={tipId} role="tooltip" className={`absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 shadow-xl transition-opacity dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ pointerEvents: open ? 'auto' : 'none' }}>
+        {translation}
+      </span>
+    </button>
+  )
+}
+
 function InlineText({ text }: { text: string }) {
   const uid = useId()
-  const terms: Record<string, string> = {
-    ganache: 'ганаш: эмульсия шоколада со сливками',
-    'crème diplomate': 'дипломатический крем: заварной крем со взбитыми сливками',
-    'crème pâtissière': 'заварной кондитерский крем',
-    'ganache montée': 'взбитый ганаш',
-    macaronage: 'макаронаж: вымешивание массы для макарон',
-    panade: 'заваренная масса до добавления яиц',
-    'pâte à choux': 'заварное тесто для эклеров и шу',
-    'fleur de sel': 'цветочная морская соль',
-    maturation: 'созревание: выдержка для стабилизации',
-    ruban: 'лента: стадия массы, когда она стекает лентой',
-    'mise en place': 'подготовка ингредиентов и рабочего места',
-  }
 
   const renderTermText = (value: string, keyPrefix: string) => {
-    const pattern = /(crème diplomate|crème pâtissière|ganache montée|pâte à choux|fleur de sel|mise en place|macaronage|maturation|ganache|panade|ruban)/gi
-    return value.split(pattern).filter(Boolean).map((piece, index) => {
-      const translation = terms[piece.toLowerCase()]
+    return value.split(TERMS_PATTERN).filter(Boolean).map((piece, index) => {
+      const translation = TERMS[piece.toLowerCase()]
       if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
-      const tipId = `tip-${uid}-${keyPrefix}-${index}`
-      return (
-        <button
-          key={`${keyPrefix}-${index}`}
-          type="button"
-          className="group relative inline-flex cursor-help touch-manipulation items-baseline border-0 border-b border-amber-700/40 bg-transparent p-0 text-left text-stone-900 [font:inherit] dark:text-amber-200"
-          aria-describedby={tipId}
-          onClick={(e) => e.currentTarget.focus()}
-        >
-          {piece}
-          <span id={tipId} role="tooltip" className="absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
-            {translation}
-          </span>
-        </button>
-      )
+      return <TermTooltip key={`${keyPrefix}-${index}`} piece={piece} translation={translation} tipId={`${uid}-tip-${index}`} />
     })
   }
 
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  const formatRegex = /(\*\*.*?\*\*|\*.*?\*)/g;
-
-  const linkParts = [];
-  let lastLinkIdx = 0;
-  let linkMatch;
-  while ((linkMatch = linkRegex.exec(text)) !== null) {
-    if (linkMatch.index > lastLinkIdx) linkParts.push({ type: 'text', content: text.slice(lastLinkIdx, linkMatch.index) });
-    linkParts.push({ type: 'link', text: linkMatch[1], url: linkMatch[2] });
-    lastLinkIdx = linkRegex.lastIndex;
-  }
-  if (lastLinkIdx < text.length) linkParts.push({ type: 'text', content: text.slice(lastLinkIdx) });
-
+  const parts = text.split(LINK_REGEX);
   return (
     <>
-      {linkParts.map((lPart, lIdx) => {
-        if (lPart.type === 'link') {
+      {parts.map((part, index) => {
+        const lIdx = Math.floor(index / 3);
+        if (index % 3 === 0) {
+          const fParts = part.split(FORMAT_REGEX).filter(Boolean);
+          return fParts.map((fPart, i) => {
+            if (fPart.startsWith('**') && fPart.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100 smart-highlight">{fPart.slice(2, -2)}</strong>;
+            if (fPart.startsWith('*') && fPart.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{fPart.slice(1, -1)}</em>;
+            return <span key={`t-${i}`}>{renderTermText(fPart, `term-${lIdx}-${i}`)}</span>;
+          });
+        } else if (index % 3 === 1) {
+          const linkHref = parts[lIdx * 3 + 2] ?? '#';
           return (
-            <a key={`link-${lIdx}`} href={lPart.url} target="_blank" rel="noopener noreferrer" className="border-b border-amber-700/40 text-amber-800 transition hover:bg-amber-50 hover:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-900/20">
-              {lPart.text}
+            <a key={`link-${lIdx}`} href={linkHref} target="_blank" rel="noopener noreferrer" className="text-amber-800 underline transition hover:text-stone-950 dark:text-amber-400 dark:hover:text-amber-300">
+              {part}
             </a>
           );
         }
-        const fParts = (lPart.content ?? '').split(formatRegex).filter(Boolean);
-        return fParts.map((part, i) => {
-          if (part.startsWith('**') && part.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100 smart-highlight">{part.slice(2, -2)}</strong>;
-          if (part.startsWith('*') && part.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>;
-          return <span key={`t-${i}`}>{renderTermText(part, `term-${lIdx}-${i}`)}</span>;
-        });
+        return null;
       })}
     </>
   )
 }
 
-function Divider() {
-  return <div className="my-14" aria-hidden><div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" /></div>
-}
 
 function isSectionTitle(text: string) {
+  const words = text.trim().split(/\s+/)
+  if (words.length < 3) return false
   const compact = text.replace(/[\s\d:.,;()'«»—–-]/g, '')
   if (!compact) return false
-  return compact === compact.toUpperCase() && /[A-ZА-ЯЁ]/.test(compact) && text.length < 96 && !text.includes('*')
+  return compact === compact.toUpperCase() && /[A-ZА-ЯЁ]/.test(compact) && text.length < 150 && !text.includes('*')
 }
 
 function slugify(text: string) {
@@ -129,7 +127,7 @@ function slugify(text: string) {
 }
 
 function headingId(text: string, index: number) {
-  return `h-${slugify(text).slice(0, 40)}-${index}`
+  return `h-${slugify(text)}-${index}`
 }
 
 export default function ArticleView({ article, allArticles, onBack, onNavigate, disableEscapeBack = false }: ArticleViewProps) {
@@ -332,7 +330,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         )
       }
 
-      const isQuote = p.length < 480 && /^[«"❝]/.test(p) && /[»"❞]$/.test(p) && !p.includes("\n") && p.length > 50
+      const isQuote = p.length > 50 && p.length < 480 && !p.includes("\n") && ((p.startsWith("«") && p.endsWith("»")) || (p.startsWith("\"") && p.endsWith("\"")) || (p.startsWith("❝") && p.endsWith("❞")))
       if (isQuote) {
         return <blockquote key={idx} className={`my-10 border-l-2 border-amber-700/60 pl-6 italic leading-9 text-stone-600 dark:text-stone-400 ${textSize}`}><InlineText text={p} /></blockquote>
       }

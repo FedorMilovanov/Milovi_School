@@ -82,7 +82,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         />
         <ArticleView
           article={article}
-          allArticles={allMeta}
+          allArticles={allMeta as any}
           onBack={goBack}
           onNavigate={goToArticle}
           disableEscapeBack={commandOpen}
@@ -90,7 +90,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         <Footer />
         <CommandPalette
           open={commandOpen}
-          articles={allMeta}
+          articles={allMeta as any}
           onClose={closeCommand}
           onOpenArticle={openArticleByUrl}
         />
