@@ -105,7 +105,7 @@ function InlineText({ text }: { text: string }) {
         }
         const fParts = (lPart.content ?? '').split(formatRegex).filter(Boolean);
         return fParts.map((part, i) => {
-          if (part.startsWith('**') && part.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100 moving-word smart-highlight">{part.slice(2, -2)}</strong>;
+          if (part.startsWith('**') && part.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100 smart-highlight">{part.slice(2, -2)}</strong>;
           if (part.startsWith('*') && part.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{part.slice(1, -1)}</em>;
           return <span key={`t-${i}`}>{renderTermText(part, `term-${lIdx}-${i}`)}</span>;
         });
