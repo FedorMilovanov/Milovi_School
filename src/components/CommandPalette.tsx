@@ -158,13 +158,20 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   }, [activeIndex])
 
   const activeResult: ArticleResult | null = useMemo(() => {
-    // When a quick-action is active, hide the article preview panel (would show unrelated content)
-    if (showQuickActions && activeIndex < quickActions.length) {
-      return null
-    }
+    // When a quick-action is highlighted there is no article to preview;
+    // returning null lets the panel render a dedicated quick-action card
+    // (see activeQuickAction below) instead of staying empty.
+    if (showQuickActions && activeIndex < quickActions.length) return null
     const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
     return articleResults[idx] ?? null
   }, [activeIndex, showQuickActions, quickActions.length, articleResults])
+
+  /** The quick-action currently highlighted by ↑/↓ — populates the preview panel. */
+  const activeQuickAction: QuickAction | null = useMemo(() => {
+    if (!showQuickActions) return null
+    if (activeIndex >= quickActions.length) return null
+    return quickActions[activeIndex] ?? null
+  }, [showQuickActions, activeIndex, quickActions])
 
   const handleKeyDown = useCallback((e: ReactKeyboardEvent) => {
     if (e.key === 'Tab') {
@@ -474,6 +481,42 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
                 {/* Right: preview panel (sm+ only) */}
                 <AnimatePresence mode="wait">
+                  {activeQuickAction && wideEnough && (
+                    <motion.div
+                      key={`qa-${activeQuickAction.id}`}
+                      initial={shouldReduce ? false : { opacity: 0, x: 16 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={shouldReduce ? {} : { opacity: 0, x: 10 }}
+                      transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
+                      style={{ width: 260, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '24px 18px' }}
+                    >
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+                        <div style={{ width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--cp-chip)', border: '1px solid var(--cp-chip-border)', borderRadius: 4, fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--text-accent)', letterSpacing: '0.08em' }}>
+                          {activeQuickAction.icon}
+                        </div>
+                        <p className="font-mono text-[8.5px] uppercase tracking-[0.32em]" style={{ color: 'var(--cp-text-mid)' }}>Раздел архива</p>
+                        <p className="font-serif text-[19px] font-semibold leading-tight tracking-[-0.03em]" style={{ color: 'var(--text-primary)' }}>
+                          {activeQuickAction.label}
+                        </p>
+                        {activeQuickAction.sublabel && (
+                          <p className="text-[12px] leading-5" style={{ color: 'var(--text-muted)' }}>
+                            {activeQuickAction.sublabel}
+                          </p>
+                        )}
+                        <button type="button" onClick={activeQuickAction.action}
+                          className="mt-3 flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
+                          style={{ color: 'var(--text-accent)', opacity: 0.85, alignSelf: 'flex-start', padding: '4px 0' }}
+                          onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+                          onMouseLeave={e => (e.currentTarget.style.opacity = '0.85')}
+                        >
+                          Открыть
+                          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                          </svg>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
                   {activeResult && wideEnough && (
                     <motion.div
                       key={activeResult.item.id}

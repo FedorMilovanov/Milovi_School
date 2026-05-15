@@ -19,16 +19,18 @@ interface ArticlePageShellProps {
   allMeta: ArticleClientMeta[]
 }
 
+const THEME_LIGHT = '#f5efe5'
+const THEME_DARK = '#10100f'
+
 export default function ArticlePageShell({ article, allMeta }: ArticlePageShellProps) {
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
-  // FIX B-4: Initialize theme from documentElement (set by inline script)
+  // FIX B-4: Initialize theme from documentElement (set by inline script in BaseLayout).
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'dark'
     if (document.documentElement.classList.contains('dark')) return 'dark'
-    if (document.documentElement.classList.contains('light')) return 'light'
     const saved = safeGetItem('theme')
     if (saved === 'dark' || saved === 'light') return saved
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -36,8 +38,13 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
 
   useEffect(() => {
     safeSetItem('theme', theme)
-    document.documentElement.style.colorScheme = theme
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    const root = document.documentElement
+    root.style.colorScheme = theme
+    root.classList.toggle('dark', theme === 'dark')
+    // Keep the single <meta name="theme-color"> in sync so Android Chrome
+    // updates its system bar immediately when the user toggles theme.
+    const meta = document.getElementById('theme-color-meta')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
@@ -48,9 +55,38 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     window.scrollTo({ top: 0, behavior: 'auto' })
     window.location.href = `/articles/${a.id}/`
   }, [])
+
+  /**
+   * goBack — return to the previous page or fall back to the library.
+   *
+   * Previous implementation relied on `document.referrer.includes(hostname)`
+   * which is empty when the user navigates via window.location.href on the
+   * same origin (browser doesn't always set the Referer header for SPA-style
+   * jumps). Result: pressing "Back" on a deep-linked article would silently
+   * land you on the home page instead of the previous article.
+   *
+   * New strategy: tag our own history entries with a state token. If the
+   * current entry carries our token AND we have somewhere to go back to,
+   * pop history. Otherwise navigate to the home page deterministically.
+   */
   const goBack = useCallback(() => {
-    if (window.history.length > 1 && document.referrer.includes(window.location.hostname)) window.history.back()
-    else window.location.href = '/'
+    const state = window.history.state
+    const isOurs = state && typeof state === 'object' && 'miloviInternal' in state
+    if (isOurs && window.history.length > 1) {
+      window.history.back()
+    } else {
+      window.location.href = '/'
+    }
+  }, [])
+
+  // Tag the current history entry exactly once so future goBack() calls
+  // can distinguish "navigated here from elsewhere on the site" vs.
+  // "landed here cold from an external link".
+  useEffect(() => {
+    const state = window.history.state
+    if (!state || typeof state !== 'object' || !('miloviInternal' in state)) {
+      window.history.replaceState({ ...(state ?? {}), miloviInternal: true }, '')
+    }
   }, [])
 
   const closeCommand = useCallback(() => setCommandOpen(false), [])
@@ -83,13 +119,20 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onGoAbout={() => goToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
-        <ArticleView
-          article={article}
-          allArticles={allMeta}
-          onBack={goBack}
-          onNavigate={goToArticle}
-          disableEscapeBack={commandOpen}
-        />
+        {/*
+          id="main-content" is the target of the global skip-to-content link
+          rendered in BaseLayout.astro. Lets keyboard / screen-reader users
+          jump past the sticky header straight to the article body.
+        */}
+        <div id="main-content">
+          <ArticleView
+            article={article}
+            allArticles={allMeta}
+            onBack={goBack}
+            onNavigate={goToArticle}
+            disableEscapeBack={commandOpen}
+          />
+        </div>
         <Footer />
         <CommandPalette
           open={commandOpen}

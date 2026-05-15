@@ -1,7 +1,16 @@
+/**
+ * Footer — Astro generates this at build time via the `client:load` island
+ * boundary, so SSG renders whatever year the build server has, then the
+ * useEffect below freshens it on the client. This avoids a hydration
+ * mismatch even when the build server's date drifts from the visitor's.
+ */
 import { useState, useEffect } from 'react'
 
 export default function Footer() {
-  const [year, setYear] = useState(2026)
+  // Initial value mirrors what the SSG renderer captured. The effect
+  // updates it client-side if the visitor crosses a year boundary
+  // between deployment and viewing.
+  const [year, setYear] = useState(() => new Date().getFullYear())
   useEffect(() => setYear(new Date().getFullYear()), [])
   return (
     <footer id="about" className="bg-stone-950 text-amber-50">

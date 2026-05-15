@@ -1,4 +1,4 @@
-import { useRef, useEffect, type MouseEvent as ReactMouseEvent } from 'react'
+import { useRef, useEffect, type MouseEvent as ReactMouseEvent, type TouchEvent as ReactTouchEvent } from 'react'
 import { motion } from 'framer-motion'
 import { localImages } from '../assets/images'
 import ImageWithFade from './ImageWithFade'
@@ -23,8 +23,16 @@ interface ShowcaseSliderProps {
   onItemClick?: (categoryId: string) => void
 }
 
+const DRAG_THRESHOLD_PX = 6
+
 export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  /**
+   * `moved` is set true whenever the pointer (mouse OR touch) drags farther
+   * than DRAG_THRESHOLD_PX from its original press point. We use it from
+   * the click-capture phase to suppress the synthetic click that follows
+   * a drag, preventing accidental category navigation while swiping.
+   */
   const drag = useRef({ active: false, startX: 0, scrollLeft: 0, moved: false })
 
   const stopDrag = () => {
@@ -39,6 +47,7 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
     return () => window.removeEventListener('mouseup', stopDrag)
   }, [])
 
+  // ── Mouse handlers ─────────────────────────────────────────────────────────
   const onMouseDown = (e: ReactMouseEvent) => {
     const el = scrollRef.current
     if (!el) return
@@ -52,8 +61,29 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
     if (!el) return
     const x = e.pageX - el.offsetLeft
     const delta = x - drag.current.startX
-    if (Math.abs(delta) > 4) drag.current.moved = true
+    if (Math.abs(delta) > DRAG_THRESHOLD_PX) drag.current.moved = true
     el.scrollLeft = drag.current.scrollLeft - delta
+  }
+
+  // ── Touch handlers ─────────────────────────────────────────────────────────
+  // Mirror the mouse logic so swipes on mobile suppress the click event the
+  // same way a mouse drag does. The browser still drives the actual scrolling
+  // natively via overflow + touch-pan-x, so we only need to record whether
+  // the finger moved, not move the scroll position ourselves.
+  const onTouchStart = (e: ReactTouchEvent) => {
+    if (e.touches.length !== 1) return
+    drag.current = {
+      active: true,
+      startX: e.touches[0].clientX,
+      scrollLeft: scrollRef.current?.scrollLeft ?? 0,
+      moved: false,
+    }
+  }
+
+  const onTouchMove = (e: ReactTouchEvent) => {
+    if (!drag.current.active || e.touches.length !== 1) return
+    const delta = e.touches[0].clientX - drag.current.startX
+    if (Math.abs(delta) > DRAG_THRESHOLD_PX) drag.current.moved = true
   }
 
   // Suppress click on cards when drag moved (prevents accidental navigation)
@@ -77,6 +107,10 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}
         onMouseLeave={stopDrag}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={stopDrag}
+        onTouchCancel={stopDrag}
         onClickCapture={onClickCapture}
       >
         {items.map((item, index) => (

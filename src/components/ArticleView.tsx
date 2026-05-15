@@ -66,13 +66,33 @@ const FORMAT_REGEX = /(\*\*.*?\*\*|\*(?!\*|\s)(?:[^\s*][^*]*[^\s*]|[^\s*])\*)/g;
 
 function TermTooltip({ piece, translation, tipId }: { piece: string, translation: string, tipId: string }) {
   const [open, setOpen] = useState(false)
+  const btnRef = useRef<HTMLButtonElement>(null)
+
+  // Close on outside click + Escape — onBlur alone closes prematurely if the
+  // user tabs into the tooltip itself, and offers no escape hatch on touch.
+  useEffect(() => {
+    if (!open) return
+    const onClick = (e: MouseEvent) => {
+      if (btnRef.current && !btnRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
   return (
     <button
+      ref={btnRef}
       type="button"
       className="relative inline-flex cursor-help touch-manipulation items-baseline border-0 border-b border-amber-700/40 bg-transparent p-0 text-left text-stone-900 [font:inherit] dark:text-amber-200"
       aria-describedby={tipId}
+      aria-expanded={open}
+      aria-haspopup="dialog"
       onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
-      onBlur={() => setOpen(false)}
     >
       {piece}
       <span id={tipId} role="tooltip" className={`absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 shadow-xl transition-opacity dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ pointerEvents: open ? 'auto' : 'none' }}>
@@ -156,13 +176,21 @@ function InlineText({ text }: { text: string }) {
 function isSectionTitle(text: string) {
   const words = text.trim().split(/\s+/)
   if (words.length < 3) return false
-  const compact = text.replace(/[\s\d:.,;()'«»—–-]/g, '')
+  // Normalise diacritics first so accented French heading like "PÂTE À CHOUX"
+  // is correctly identified as all-caps regardless of locale-specific rules.
+  const ascii = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const compact = ascii.replace(/[\s\d:.,;()'«»—–-]/g, '')
   if (!compact) return false
   return compact === compact.toUpperCase() && /[A-ZА-ЯЁ]/.test(compact) && text.length < 150 && !text.includes('*')
 }
 
 function slugify(text: string) {
-  return text.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, '-').replace(/^-|-$/g, '')
+  // NFD splits 'é' → 'e' + combining acute, then we drop combining marks.
+  // Result: French accented words ("crème brûlée") and any other diacritics
+  // produce stable ASCII / Cyrillic-only ids that match between the headings
+  // useMemo and the rendered <h2 id={...}>.
+  const ascii = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return ascii.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, '-').replace(/^-|-$/g, '')
 }
 
 function headingId(text: string, index: number) {

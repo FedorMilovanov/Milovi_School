@@ -19,7 +19,7 @@ function bumpServiceWorkerVersion() {
         try {
           const original = await fs.readFile(swPath, 'utf8')
           const stamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14)
-          const updated = original.replace('__BUILD_HASH__', `v${stamp}`)
+          const updated = original.replaceAll('__BUILD_HASH__', `v${stamp}`)
           if (updated !== original) {
             await fs.writeFile(swPath, updated, 'utf8')
             // eslint-disable-next-line no-console
@@ -138,7 +138,10 @@ export default defineConfig({
           },
         },
       },
-      chunkSizeWarningLimit: 600,
+      // Vite default. Bumping it hides legitimate weight-creep regressions;
+      // if a chunk approaches 500 KB it should be split (e.g. via manualChunks)
+      // rather than silenced.
+      chunkSizeWarningLimit: 500,
     },
   },
 })

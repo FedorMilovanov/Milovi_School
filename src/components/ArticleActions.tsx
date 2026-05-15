@@ -92,6 +92,7 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
         onClick={toggleSave}
         className={`inline-flex items-center gap-1.5 border px-4 py-2 text-[11px] font-mono uppercase tracking-[0.22em] transition ${saved ? 'border-stone-950 bg-stone-950 text-amber-50 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-[var(--border-subtle)] text-stone-700 hover:border-stone-400 hover:text-stone-950 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950'}`}
         aria-label={saved ? 'Убрать из закладок' : 'Добавить в закладки'}
+        aria-pressed={saved}
       >
         {saved ? (
           <motion.svg initial={{ scale: 0.5 }} animate={{ scale: 1 }} className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">

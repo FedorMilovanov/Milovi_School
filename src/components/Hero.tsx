@@ -139,7 +139,11 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
         <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
         <div className="overflow-hidden py-3">
           <div className="animate-marquee flex whitespace-nowrap">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {/* Two copies are sufficient for a seamless marquee loop:
+                CSS keyframe shifts the strip by translateX(-50%), so after
+                animation the second copy lands where the first started.
+                Previously had four copies (~48 DOM nodes for nothing). */}
+            {Array.from({ length: 2 }).map((_, i) => (
               <span key={i} className="mx-8 inline-flex items-center gap-0 font-mono text-[10px] uppercase tracking-[0.4em]">
                 {MARQUEE_CHEFS.map((chef, j) => (
                   <span key={chef.id}>

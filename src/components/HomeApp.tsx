@@ -2,7 +2,7 @@
  * HomeApp — React client island for the home page.
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import Fuse, { type FuseResultMatch } from 'fuse.js'
+import Fuse, { type FuseResultMatch, type IFuseOptions } from 'fuse.js'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
@@ -21,12 +21,33 @@ import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
+import { useChromeVisible } from '../hooks/useScrollDirection'
 import { type ArticleMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
 const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
 )
+
+const NON_CHEF_NON_TECH_IDS = ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire']
+
+const THEME_LIGHT = '#f5efe5'
+const THEME_DARK = '#10100f'
+
+// Shared Fuse options — exported so other consumers (e.g. CommandPalette)
+// can stay aligned on ranking weights when they instantiate their own search.
+export const FUSE_OPTIONS: IFuseOptions<ArticleMeta> = {
+  keys: [
+    { name: 'title',   weight: 0.45 },
+    { name: 'excerpt', weight: 0.2  },
+    { name: 'author',  weight: 0.15 },
+    { name: 'tags',    weight: 0.15 },
+  ],
+  threshold: 0.35,
+  ignoreLocation: true,
+  minMatchCharLength: 2,
+  includeMatches: true,
+}
 
 interface HomeAppProps {
   articles: ArticleMeta[]
@@ -49,8 +70,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [articles])
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  
-  // FIX B-5: Safe hydration — start with empty string, then read URL in useEffect
+
+  // FIX B-5: Safe hydration — start with empty string, then read URL in useEffect.
   const [searchQuery, setSearchQuery] = useState('')
   useEffect(() => {
     const initial = new URLSearchParams(window.location.search).get('q') ?? ''
@@ -62,29 +83,26 @@ export default function HomeApp({ articles }: HomeAppProps) {
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'dark'
+    if (document.documentElement.classList.contains('dark')) return 'dark'
     const saved = safeGetItem('theme')
     if (saved === 'light') return 'light'
     return 'dark'
   })
 
-  const [barVisible, setBarVisible] = useState(true)
-  const lastScrollY = useRef(0)
-  useEffect(() => {
-    const onScroll = () => {
-      const current = window.scrollY
-      const delta = current - lastScrollY.current
-      if (Math.abs(delta) < 6) return
-      setBarVisible(delta < 0 || current < 100)
-      lastScrollY.current = current
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  // FIX P-2: bottom bar visibility now reads from the shared chrome-visibility
+  // store (single passive scroll listener, rAF-throttled). Previously HomeApp
+  // attached its OWN scroll listener in addition to useScrollProgress'.
+  const barVisible = useChromeVisible()
 
   useEffect(() => {
     safeSetItem('theme', theme)
-    document.documentElement.style.colorScheme = theme
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    const root = document.documentElement
+    root.style.colorScheme = theme
+    root.classList.toggle('dark', theme === 'dark')
+    // Keep the single <meta name="theme-color"> in sync so Android Chrome
+    // updates its system bar immediately when the user toggles theme.
+    const meta = document.getElementById('theme-color-meta')
+    if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
@@ -114,18 +132,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     syncUrlQuery('')
   }, [syncUrlQuery])
 
-  const fuse = useMemo(() => new Fuse(articles, {
-    keys: [
-      { name: 'title',   weight: 0.45 },
-      { name: 'excerpt', weight: 0.2  },
-      { name: 'author',  weight: 0.15 },
-      { name: 'tags',    weight: 0.15 },
-    ],
-    threshold: 0.35,
-    ignoreLocation: true,
-    minMatchCharLength: 2,
-    includeMatches: true,
-  }), [articles])
+  const fuse = useMemo(() => new Fuse(articles, FUSE_OPTIONS), [articles])
 
   const { filteredArticles, matchMap } = useMemo(() => {
     const byCategory = selectedCategory
@@ -187,7 +194,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
-        // If palette is open and focus is inside it (e.g. on a button), let it handle its own events
         if (commandOpenRef.current && target?.closest('[role="dialog"]')) return
         e.preventDefault()
         setCommandOpen(v => !v)
@@ -196,6 +202,10 @@ export default function HomeApp({ articles }: HomeAppProps) {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
+
+  const activeSection: 'home' | 'archive' | 'articles' = !selectedCategory
+    ? 'home'
+    : (CHEF_IDS.has(selectedCategory) || NON_CHEF_NON_TECH_IDS.includes(selectedCategory) ? 'archive' : 'articles')
 
   return (
     <div className="min-h-screen bg-[var(--bg-main)] transition-colors dark:bg-stone-950">
@@ -209,41 +219,47 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoAbout={() => scrollToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
-        <Hero
-          totalArticles={articles.length}
-          onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
-        />
-        <ShowcaseSlider onItemClick={(cat) => { handleSelectCategory(cat); scrollToSection('archive') }} />
-        <StatsBar
-          articleCount={statsArticleCount}
-          authorCount={statsAuthorCount}
-          categoryCount={statsCategoryCount}
-          onGoToArticles={() => scrollToSection('articles')}
-        />
-        <MainCategories
-          articles={articles}
-          onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
-        />
-        <ContinueReading articles={articles} onArticleClick={openArticle} />
-        <DashboardBento articles={articles} onArticleClick={openArticle} />
-        <Categories
-          categories={nonEmptyCategories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleSelectCategory}
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          allArticles={articles}
-        />
-        <ArticlesGrid
-          articles={filteredArticles}
-          allArticles={articles}
-          categories={nonEmptyCategories}
-          onArticleClick={openArticle}
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleSelectCategory}
-          searchQuery={searchQuery}
-          matchMap={matchMap as Map<string, ReadonlyArray<FuseResultMatch>>}
-        />
+        {/*
+          id="main-content" is the target of the global skip-to-content link
+          rendered in BaseLayout.astro. <main> is the correct landmark.
+        */}
+        <main id="main-content">
+          <Hero
+            totalArticles={articles.length}
+            onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
+          />
+          <ShowcaseSlider onItemClick={(cat) => { handleSelectCategory(cat); scrollToSection('archive') }} />
+          <StatsBar
+            articleCount={statsArticleCount}
+            authorCount={statsAuthorCount}
+            categoryCount={statsCategoryCount}
+            onGoToArticles={() => scrollToSection('articles')}
+          />
+          <MainCategories
+            articles={articles}
+            onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('archive') }}
+          />
+          <ContinueReading articles={articles} onArticleClick={openArticle} />
+          <DashboardBento articles={articles} onArticleClick={openArticle} />
+          <Categories
+            categories={nonEmptyCategories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleSelectCategory}
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+            allArticles={articles}
+          />
+          <ArticlesGrid
+            articles={filteredArticles}
+            allArticles={articles}
+            categories={nonEmptyCategories}
+            onArticleClick={openArticle}
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleSelectCategory}
+            searchQuery={searchQuery}
+            matchMap={matchMap as Map<string, ReadonlyArray<FuseResultMatch>>}
+          />
+        </main>
         <Footer />
         <CommandPalette
           open={commandOpen}
@@ -258,9 +274,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoArticles={() => scrollToSection('articles')}
           onOpenCommand={() => setCommandOpen(v => !v)}
           visible={barVisible}
-          activeSection={
-            !selectedCategory ? 'home' : (CHEF_IDS.has(selectedCategory) || ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire'].includes(selectedCategory) ? 'archive' : 'articles')
-          }
+          activeSection={activeSection}
         />
       </ErrorBoundary>
       <UpdateNotification />

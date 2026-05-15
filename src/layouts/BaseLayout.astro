@@ -111,9 +111,13 @@ const metaDescription =
     <!-- Robots -->
     <meta name="robots" content="index, follow" />
 
-    <!-- Theme colour — mobile browser chrome -->
-    <meta name="theme-color" content="#f5efe5" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#10100f" media="(prefers-color-scheme: dark)" />
+    <!--
+      Theme colour — single dynamic <meta>. Static media-query variants
+      were ignored by Chrome on Android when the user manually toggled
+      the theme via JS. We expose ONE meta and update it from the
+      pre-paint inline script below + on every theme change in React.
+    -->
+    <meta id="theme-color-meta" name="theme-color" content="#10100f" />
 
     <!-- Favicon — relative paths only (absolute URLs break on localhost) -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
@@ -124,47 +128,58 @@ const metaDescription =
     <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Google Search Console verification.
-         Replace TOKEN with the value from Search Console → HTML tag method:
-         https://search.google.com/search-console → Add property → HTML tag
-    -->
+    <!-- Google Search Console verification slot -->
     <slot name="google-verification" />
 
-    <!-- Preconnect for Unsplash images -->
+    <!--
+      Font loading strategy:
+      1. preconnect — open the TLS handshake early
+      2. preload the critical CSS file so the parser doesn't wait for the
+         <link rel="stylesheet"> further down to discover it
+      3. actual stylesheet still loads non-blocking via the regular link
+    -->
     <link rel="preconnect" href="https://images.unsplash.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+    />
 
     <!--
       Theme — apply BEFORE first paint to prevent flash of unstyled content (FOUC).
-      This blocking inline script reads localStorage and adds the `dark` class
-      to <html> immediately, before React hydrates and its useEffect fires.
+      Sets <html class="dark"> and updates the single theme-color <meta> in one
+      pass so Android Chrome shows the right system bar even on first paint.
 
       ⚠ CSP note: if you ever add a Content-Security-Policy header with
-        `script-src 'self'` (possible on Cloudflare Pages / Vercel / Netlify),
-        this inline script will be blocked. Fix by either:
+        `script-src 'self'`, this inline script will be blocked. Fix by either:
           a) whitelisting it with its SHA-256 hash:
              `script-src 'self' 'sha256-<hash>'`
-          b) replacing it with a `<script src="/theme-init.js">` served from /public
+          b) replacing it with a `<script src="/theme-init.js">` from /public
     -->
     <script is:inline>
       (function () {
+        var THEME_LIGHT = '#f5efe5'
+        var THEME_DARK = '#10100f'
+        var theme = 'dark'
         try {
           var s = localStorage.getItem('theme')
-          // Dark is the default brand style. Only switch to light when the
-          // user has explicitly saved 'light' in their preferences.
-          if (s === 'light') {
-            document.documentElement.style.colorScheme = 'light'
-          } else {
-            document.documentElement.classList.add('dark')
-            document.documentElement.style.colorScheme = 'dark'
-          }
-        } catch (_) {
-          // localStorage blocked — default to dark
-          document.documentElement.classList.add('dark')
-          document.documentElement.style.colorScheme = 'dark'
+          if (s === 'light') theme = 'light'
+        } catch (_) { /* private browsing — fall back to dark */ }
+        var root = document.documentElement
+        if (theme === 'dark') {
+          root.classList.add('dark')
+          root.style.colorScheme = 'dark'
+        } else {
+          root.style.colorScheme = 'light'
         }
+        var meta = document.getElementById('theme-color-meta')
+        if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
       })()
     </script>
 
@@ -172,14 +187,30 @@ const metaDescription =
     <slot name="head" />
   </head>
   <body>
+    <!--
+      Skip-to-content link — keyboard / screen-reader users can jump past
+      the sticky header straight to the article body. Only visible on
+      :focus, has a generous gold focus ring matching the brand.
+    -->
+    <a href="#main-content" class="skip-to-content">Перейти к содержимому</a>
+
     <slot />
 
-    <!-- Service Worker registration (non-blocking, failure is safe) -->
+    <!--
+      Service-worker registration.
+      • Skipped in dev (no real build hash → cache key is the literal
+        "__BUILD_HASH__" placeholder, which would never invalidate).
+      • Production: register on load, ignore failures (e.g. private mode).
+    -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {})
-        })
+        var host = location.hostname
+        var isDev = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0'
+        if (!isDev) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {})
+          })
+        }
       }
     </script>
   </body>
