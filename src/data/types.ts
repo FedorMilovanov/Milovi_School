@@ -36,3 +36,19 @@ export interface Article {
 
 // Metadata only (no full article body) — safe to pass into client islands.
 export type ArticleMeta = Omit<Article, 'content'>
+
+// Slim client payload for interactive islands (CommandPalette, related cards, etc.).
+// Keep this type in the lightweight types module so client components never import
+// `data/library`, which in turn touches the full article dataset at build/runtime.
+export interface ArticleClientMeta {
+  id: string
+  title: string
+  excerpt: string
+  category: string
+  readTime: number
+  image: string
+  imageAlt?: string
+  tags: string[]
+  author: string
+  date?: string
+}

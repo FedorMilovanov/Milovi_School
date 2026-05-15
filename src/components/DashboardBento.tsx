@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ArticleMeta } from '../data/types'
 import ScrollReveal from './ScrollReveal'

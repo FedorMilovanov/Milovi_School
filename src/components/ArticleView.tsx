@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Article } from '../data/types'
-import type { ArticleClientMeta } from '../data/library'
+import type { ArticleClientMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { fallbackImageFor } from '../assets/images'
 import ArticleActions from './ArticleActions'

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useScrollProgress } from '../hooks/useScrollProgress'
 

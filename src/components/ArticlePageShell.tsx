@@ -12,7 +12,7 @@ import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
 import { type Article } from '../data/types'
-import type { ArticleClientMeta } from '../data/library'
+import type { ArticleClientMeta } from '../data/types'
 
 interface ArticlePageShellProps {
   article: Article

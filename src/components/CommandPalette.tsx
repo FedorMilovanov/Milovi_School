@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
-import type { ArticleClientMeta } from '../data/library'
+import type { ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
