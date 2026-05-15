@@ -95,7 +95,7 @@ function InlineText({ text }: { text: string }) {
         if (index % 3 === 0) {
           const fParts = part.split(FORMAT_REGEX).filter(Boolean);
           return fParts.map((fPart, i) => {
-            if (fPart.startsWith('**') && fPart.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold text-stone-950 dark:text-stone-100 smart-highlight">{fPart.slice(2, -2)}</strong>;
+            if (fPart.startsWith('**') && fPart.endsWith('**')) return <strong key={`f-${i}`} className="font-semibold smart-highlight">{fPart.slice(2, -2)}</strong>;
             if (fPart.startsWith('*') && fPart.endsWith('*')) return <em key={`f-${i}`} className="italic text-stone-800 dark:text-stone-300">{fPart.slice(1, -1)}</em>;
             return <span key={`t-${i}`}>{renderTermText(fPart, `term-${lIdx}-${i}`)}</span>;
           });
