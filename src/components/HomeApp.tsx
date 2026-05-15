@@ -175,7 +175,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
       const target = e.target as HTMLElement | null
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
         e.preventDefault()
-        setCommandOpen(true)
+        setCommandOpen(v => !v)
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -192,7 +192,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoCategories={() => scrollToSection('archive')}
           onGoArticles={() => scrollToSection('articles')}
           onGoAbout={() => scrollToSection('about')}
-          onOpenCommand={() => setCommandOpen(true)}
+          onOpenCommand={() => setCommandOpen(v => !v)}
         />
         <Hero
           totalArticles={articles.length}
@@ -241,13 +241,10 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoHome={goHome}
           onGoCategories={goToChefs}
           onGoArticles={() => scrollToSection('articles')}
-          onOpenCommand={() => setCommandOpen(true)}
+          onOpenCommand={() => setCommandOpen(v => !v)}
           visible={barVisible}
           activeSection={
-            selectedCategory === 'techniques' ? 'articles'
-            : selectedCategory === 'recipes' ? 'articles'
-            : selectedCategory && CHEF_IDS.has(selectedCategory) ? 'archive'
-            : 'home'
+            !selectedCategory ? 'home' : (CHEF_IDS.has(selectedCategory) || ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire'].includes(selectedCategory) ? 'archive' : 'articles')
           }
         />
       </ErrorBoundary>

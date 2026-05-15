@@ -4,7 +4,7 @@ import type { FuseResultMatch } from 'fuse.js'
 // ── Style shared between both highlight functions ────────────────────────────
 const MARK_STYLE: CSSProperties = {
   backgroundColor: 'var(--text-accent)',
-  color: 'var(--bg-main)',
+  color: 'var(--stone-950, #0c0a09)',
   opacity: 0.85,
 }
 const MARK_CLASS = 'rounded-sm px-0.5 font-medium transition-colors'

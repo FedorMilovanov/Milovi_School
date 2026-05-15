@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { defaultFallback } from '../assets/images'
 import { pluralRu, MATERIAL } from '../utils/plural'
 
 interface HeroProps {
@@ -7,6 +8,7 @@ interface HeroProps {
   onSelectCategory?: (id: string) => void
 }
 
+// F-11: Structured chef names with their category IDs for clickable marquee
 const MARQUEE_CHEFS = [
   { name: 'Пьер Эрме', id: 'pierre-herme' },
   { name: 'Седрик Гроле', id: 'cedric-grolet' },
@@ -29,47 +31,38 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
     target: containerRef,
     offset: ['start start', 'end start'],
   })
-  
-  // FIX H-2: Single image element, control parallax via style instead of remounting
-  const [isMobile, setIsMobile] = useState(false)
-  const yParallax = useTransform(scrollYProgress, [0, 1], ['0%', shouldReduce ? '0%' : '26%'])
+  const [mobile, setMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
+  const yParallax = useTransform(scrollYProgress, [0, 1], ['0%', shouldReduce ? '0%' : '28%'])
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
+    const check = () => setMobile(window.innerWidth < 768)
     window.addEventListener('resize', check, { passive: true })
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  const parallaxStyle = (!shouldReduce && !isMobile) ? { y: yParallax } : undefined
-
   return (
     <section id="hero" ref={containerRef} className="relative overflow-hidden">
       <div className="absolute inset-0">
-        {/* FIX B-2 + H-2: Responsive optimized hero with <picture> */}
-        <picture>
-          <source
-            type="image/avif"
-            srcSet="/images/hero-640.avif 640w, /images/hero-1280.avif 1280w, /images/hero-1920.avif 1920w"
-            sizes="100vw"
-          />
-          <source
-            type="image/webp"
-            srcSet="/images/hero-640.webp 640w, /images/hero-1280.webp 1280w, /images/hero-1920.webp 1920w"
-            sizes="100vw"
-          />
-          <img
-            src="/images/hero-1280.jpg"
-            alt="Французская кондитерская школа — Patisserie Russe"
+        {mobile ? (
+          <motion.img
+            src={defaultFallback}
+            alt="Французская кондитерская"
             className="h-full w-full object-cover"
-            width={1920}
-            height={1080}
-            fetchPriority="high"
-            decoding="async"
-            style={parallaxStyle}
+            initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={shouldReduce ? { duration: 0 } : { duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
           />
-        </picture>
-
+        ) : (
+          <motion.img
+            src={defaultFallback}
+            alt="Французская кондитерская"
+            className="h-full w-full object-cover"
+            style={{ y: yParallax }}
+            initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={shouldReduce ? { duration: 0 } : { duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+          />
+        )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.96),rgba(12,10,9,0.76)_48%,rgba(12,10,9,0.18))]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[var(--bg-main)] to-transparent" />
       </div>
@@ -141,12 +134,12 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
         </div>
       </div>
 
-      {/* Marquee — FIX H-1: use 2 copies instead of 4 */}
+      {/* Marquee strip — F-11: chef names are now clickable buttons */}
       <div className="relative bg-stone-950/80 backdrop-blur-sm">
         <div className="h-px w-full bg-gradient-to-r from-transparent via-amber-700/40 to-transparent" />
         <div className="overflow-hidden py-3">
           <div className="animate-marquee flex whitespace-nowrap">
-            {Array.from({ length: 2 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <span key={i} className="mx-8 inline-flex items-center gap-0 font-mono text-[10px] uppercase tracking-[0.4em]">
                 {MARQUEE_CHEFS.map((chef, j) => (
                   <span key={chef.id}>
@@ -162,7 +155,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
                     ) : (
                       <span className="text-stone-500">{chef.name}</span>
                     )}
-                    {j < MARQUEE_CHEFS.length - 1 && <span className="text-stone-700 mx-3">·</span>}
+                    {j < MARQUEE_CHEFS.length - 1 && (
+                      <span className="text-stone-700 mx-3">·</span>
+                    )}
                   </span>
                 ))}
                 <span className="text-stone-700 mx-3">·&nbsp;</span>

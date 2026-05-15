@@ -1,4 +1,8 @@
+import { useState, useEffect } from 'react'
+
 export default function Footer() {
+  const [year, setYear] = useState(2026)
+  useEffect(() => setYear(new Date().getFullYear()), [])
   return (
     <footer id="about" className="bg-stone-950 text-amber-50">
       {/* F-22: Newsletter form removed — it pretended to subscribe users while
@@ -60,7 +64,7 @@ export default function Footer() {
       <div className="border-t border-amber-100/10 px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-600">
-            Patisserie Russe · French Pastry Archive · {new Date().getFullYear()}
+            Patisserie Russe · French Pastry Archive · {year}
           </p>
           <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-600">
             <a href="/about/" className="transition hover:text-amber-200">О проекте</a>

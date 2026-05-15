@@ -47,7 +47,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     window.location.href = `/articles/${a.id}/`
   }, [])
   const goBack = useCallback(() => {
-    if (window.history.length > 1) window.history.back()
+    if (window.history.length > 1 && document.referrer.includes(window.location.hostname)) window.history.back()
     else window.location.href = '/'
   }, [])
 
@@ -61,7 +61,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
       const target = e.target as HTMLElement | null
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && target?.tagName !== 'INPUT' && target?.tagName !== 'TEXTAREA') {
         e.preventDefault()
-        setCommandOpen(true)
+        setCommandOpen(v => !v)
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -78,7 +78,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onGoCategories={() => goToSection('archive')}
           onGoArticles={() => goToSection('articles')}
           onGoAbout={() => goToSection('about')}
-          onOpenCommand={() => setCommandOpen(true)}
+          onOpenCommand={() => setCommandOpen(v => !v)}
         />
         <ArticleView
           article={article}

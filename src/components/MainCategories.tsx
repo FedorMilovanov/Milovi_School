@@ -91,7 +91,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
   }, [])
 
   return (
-    <section id="categories" className="py-24 transition-colors" style={{ background: 'var(--bg-deep, #0d0b09)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} ref={sectionRef}>
+    <section id="categories" className="py-24 transition-colors bg-[var(--bg-deep)]" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} ref={sectionRef}>
       <div className="mx-auto max-w-[1380px] px-6 lg:px-10">
         {/* Section header */}
         <div className="reveal mb-16 flex flex-col items-start justify-between gap-6 border-b border-[var(--border)] pb-12 sm:flex-row sm:items-end">
@@ -143,7 +143,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
 
                   {/* "NEW" badge */}
                   {cat.isNew && (
-                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[8px] uppercase tracking-[0.32em] text-white">
+                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[8px] uppercase tracking-[0.32em] text-stone-950">
                       Nouveau
                     </div>
                   )}
@@ -153,7 +153,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.36em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
-                    <span className="haptic-btn block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
+                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-stone-950">
                       {cat.name}
                     </span>
                     <p className="mt-2.5 max-w-xs font-['Cormorant_Garamond'] text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">

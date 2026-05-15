@@ -79,7 +79,7 @@ export default function UpdateNotification() {
             <p style={{ margin: '0.125rem 0 0', fontSize: '0.75rem', opacity: 0.65, lineHeight: 1.3 }}>Обновите страницу, чтобы увидеть изменения</p>
           </div>
           <button type="button" onClick={handleUpdate}
-            style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '0', background: '#d9a455', color: '#11100e', fontSize: '0.8125rem', fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'monospace' }}
+            style={{ flexShrink: 0, padding: '0.375rem 0.875rem', borderRadius: '0.25rem', background: '#d9a455', color: '#11100e', fontSize: '0.8125rem', fontWeight: 700, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
             onMouseEnter={e => (e.currentTarget.style.background = '#f5efe5')}
             onMouseLeave={e => (e.currentTarget.style.background = '#d9a455')}>
             Обновить

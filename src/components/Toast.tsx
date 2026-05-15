@@ -15,7 +15,7 @@ const listeners = new Set<Listener>()
 let toastId = 0
 
 export function showToast(type: ToastType, message: string) {
-  const msg: ToastMessage = { id: String(++toastId), type, message }
+  const msg: ToastMessage = { id: crypto.randomUUID(), type, message }
   listeners.forEach((fn) => fn(msg))
 }
 

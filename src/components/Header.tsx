@@ -97,7 +97,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
           </nav>
 
-          <div className="haptic-btn flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <motion.button
               type="button"
               onClick={onOpenCommand}

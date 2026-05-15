@@ -220,7 +220,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
               aria-label="Поиск по материалам"
               className="w-full overflow-hidden"
               style={{
-                maxWidth: 760,
+                maxWidth: 760, borderRadius: '16px',
                 maxHeight: 'min(92svh, 92vh)',
                 display: 'flex',
                 flexDirection: 'column',

@@ -72,7 +72,7 @@ function InlineText({ text }: { text: string }) {
           onClick={(e) => e.currentTarget.focus()}
         >
           {piece}
-          <span id={tipId} role="tooltip" className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
+          <span id={tipId} role="tooltip" className="absolute bottom-full left-1/2 z-30 mb-2 w-64 -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300">
             {translation}
           </span>
         </button>
@@ -318,7 +318,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       }
 
       const lines = p.split('\n').filter(line => line.trim().length > 0)
-      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d{1,2}[.)])\s+\D/.test(line))
+      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d{1,2}[.)])\s+\S/.test(line))
       if (isList) {
         return (
           <ul key={idx} className={`my-6 space-y-3 pl-0 ${textSize} leading-8 text-stone-700 dark:text-stone-300 md:leading-9`}>
@@ -332,7 +332,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         )
       }
 
-      const isQuote = p.length < 480 && /^[«"❝]/.test(p) && /[»"❞]$/.test(p)
+      const isQuote = p.length < 480 && /^[«"❝]/.test(p) && /[»"❞]$/.test(p) && !p.includes("\n") && p.length > 50
       if (isQuote) {
         return <blockquote key={idx} className={`my-10 border-l-2 border-amber-700/60 pl-6 italic leading-9 text-stone-600 dark:text-stone-400 ${textSize}`}><InlineText text={p} /></blockquote>
       }
@@ -348,7 +348,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   return (
     <main className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
-      <div className="fixed inset-x-0 top-[85px] z-40 h-[2px]">
+      <div className="fixed inset-x-0 top-[84px] z-40 h-[2px]">
         <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
       </div>
 
@@ -393,7 +393,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 />
               </div>
               {resumePosition > 0 && (
-                <button type="button" onClick={() => window.scrollTo({ top: resumePosition, behavior: 'smooth' })} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
+                <button type="button" onClick={() => { window.scrollTo({ top: resumePosition, behavior: 'smooth' }); setResumePosition(0); }} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
                   Продолжить с прошлого места
                 </button>
               )}

@@ -9,27 +9,30 @@ interface ContinueReadingProps {
 }
 
 type ReadingItem = { article: ArticleMeta; progress: number; saved: boolean }
+type ReadingItemWithTs = ReadingItem & { lastRead: number }
 
 export default function ContinueReading({ articles, onArticleClick }: ContinueReadingProps) {
+  // BUG-FIX: reading localStorage during render causes a hydration mismatch
+  // because the SSG-rendered HTML has all values as 0/false while the browser
+  // has real data. Move the read into useEffect so both server and client
+  // first render are identical (empty list), then state is populated client-side.
   const [items, setItems] = useState<ReadingItem[]>([])
 
   useEffect(() => {
     const computed: ReadingItem[] = articles
-      .map((article): ReadingItem & { lastRead: number; savedTs: number } => {
+      .map((article): ReadingItemWithTs => {
         const rawProgress = Number(safeGetItem(`article-progress-pct:${article.id}`) ?? 0)
         const progress = Number.isFinite(rawProgress) ? Math.min(100, Math.max(0, rawProgress)) : 0
         const saved = safeGetItem(`article-saved:${article.id}`) === 'true'
+        // F-15: use last-read timestamp (set by ArticleView) as primary sort key
         const lastRead = Number(safeGetItem(`article-last-read:${article.id}`) ?? 0)
-        // FIX H-4: Give saved items higher priority by using a high timestamp if saved
-        const savedTs = saved ? Math.max(lastRead, Date.now() - 100000) : lastRead
-        return { article, progress, saved, lastRead: savedTs }
+        return { article, progress, saved, lastRead }
       })
       .filter((item) => item.saved || item.progress > 0)
-      // FIX H-4: Better sort — saved items first, then by recency, then progress
+      // Primary: most recently visited; secondary: saved first; tertiary: most progress
       .sort((a, b) => {
-        if (a.saved !== b.saved) return b.saved ? 1 : -1
         if (b.lastRead !== a.lastRead) return b.lastRead - a.lastRead
-        return b.progress - a.progress
+        return Number(b.saved) - Number(a.saved) || b.progress - a.progress
       })
       .slice(0, 4)
       .map(({ article, progress, saved }) => ({ article, progress, saved }))

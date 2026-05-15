@@ -44,7 +44,7 @@ function buildOgImage(input: string | undefined, width?: number, height?: number
 const ogImg = buildOgImage(article.image, article.imageWidth, article.imageHeight)
 
 // ── Structured data ──────────────────────────────────────────────────────────
-const wordCount = Math.round((article.content?.length ?? 0) / 6)
+const wordCount = (article.content ?? '').replace(/\s+/g, ' ').split(' ').filter(Boolean).length
 
 // In article data, `author` is an editorial source/source-list. The real author of
 // this educational adaptation is the project library; original sources are exposed
@@ -111,7 +111,7 @@ const jsonLdBreadcrumb = {
       '@type': 'ListItem',
       position: 2,
       name: categoryName,
-      item: `${siteUrl}/`,
+      item: `${siteUrl}/#archive`,
     },
     {
       '@type': 'ListItem',

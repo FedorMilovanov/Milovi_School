@@ -116,10 +116,10 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
 
     articles.forEach((a) => {
       const pct = Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0)
-      if (pct > 80) completed++
+      if (pct >= 95) completed++
       if (safeGetItem(`article-saved:${a.id}`) === 'true') saved++
       if (pct > 0) {
-        minutes += Math.round((pct / 100) * a.readTime)
+        minutes += (pct / 100) * a.readTime
         // F-06: use last-read timestamp; fall back to pct rank for articles read before this fix
         const ts = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
         if (ts > lastActiveTs) {
@@ -134,7 +134,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
 
     setReadCount(completed)
     setBookmarksCount(saved)
-    setTotalMinutes(minutes)
+    setTotalMinutes(Math.round(minutes))
     if (lastActiveId) {
       const match = articles.find((a) => a.id === lastActiveId)
       if (match) setRecentArticle(match)
@@ -158,7 +158,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
       safeSetItem('quote-seed', String(seed))
     }
     // Advance one quote per calendar day so returning users see a fresh quote daily
-    const dayOffset = new Date().getDate()
+    const dayOffset = Math.floor(Date.now() / 86400000)
     return QUOTES[(seed + dayOffset) % QUOTES.length]
   }, [])
 
