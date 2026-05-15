@@ -1,12 +1,5 @@
 /**
  * HomeApp — React client island for the home page.
- *
- * Receives pre-rendered article metadata (no content) from the Astro page.
- * When a user clicks an article, we navigate to /articles/<id>/ via browser URL —
- * the full article content is served as a static HTML page (SSG).
- *
- * This means deepContents.ts (951 KB) is NEVER shipped to the browser.
- * Each article page only embeds its own content.
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Fuse, { type FuseResultMatch } from 'fuse.js'
@@ -31,13 +24,11 @@ import ScrollToTop from './ScrollToTop'
 import { type ArticleMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
-// F-13: CHEF_IDS derived from NON_CHEF_CATEGORY_IDS (exported from categories.ts)
 const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
 )
 
 interface HomeAppProps {
-  /** All articles metadata (no content) — safe to embed in page HTML */
   articles: ArticleMeta[]
 }
 
@@ -48,9 +39,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [articles])
 
   const statsArticleCount = articles.length
-  // F-21: "Шеф-кондитеров" = number of CHEF categories that have at least one
-  // article. The old logic counted unique `author` strings, which were source
-  // citations like "AFP, Michelin Guide, Pastry Workshop" — wildly inflated.
   const statsAuthorCount = useMemo(() => {
     const articleCats = new Set(articles.map(a => a.category))
     return categories.filter(c => CHEF_IDS.has(c.id) && articleCats.has(c.id)).length
@@ -61,21 +49,22 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [articles])
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState(() => {
-    if (typeof window === 'undefined') return ''
-    return new URLSearchParams(window.location.search).get('q') ?? ''
-  })
+  
+  // FIX B-5: Safe hydration — start with empty string, then read URL in useEffect
+  const [searchQuery, setSearchQuery] = useState('')
+  useEffect(() => {
+    const initial = new URLSearchParams(window.location.search).get('q') ?? ''
+    if (initial) setSearchQuery(initial)
+  }, [])
+
   const [commandOpen, setCommandOpen] = useState(false)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'dark'
     const saved = safeGetItem('theme')
-    // Dark is the default style of the site.
-    // Only switch to light when the user has explicitly chosen it.
     if (saved === 'light') return 'light'
     return 'dark'
   })
 
-  // F-12: MobileBottomBar auto-hide on scroll down, show on scroll up
   const [barVisible, setBarVisible] = useState(true)
   const lastScrollY = useRef(0)
   useEffect(() => {
@@ -93,13 +82,11 @@ export default function HomeApp({ articles }: HomeAppProps) {
   useEffect(() => {
     safeSetItem('theme', theme)
     document.documentElement.style.colorScheme = theme
-    // BUG FIX: Tailwind v4 dark variant targets .dark on html only — adding to body was redundant
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
-  // F-03 helper: update URL search param
   const syncUrlQuery = useCallback((query: string) => {
     const params = new URLSearchParams(window.location.search)
     if (query.trim()) params.set('q', query)
@@ -114,9 +101,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     syncUrlQuery('')
   }, [syncUrlQuery])
 
-  // GAP-08/F-01: Fuse.js for page search — same algorithm as CommandPalette.
-  // CRITICAL FIX: includeMatches:true so we can do accurate fuzzy highlighting
-  // in ArticlesGrid (old split-by-regex approach missed transliteration matches).
   const fuse = useMemo(() => new Fuse(articles, {
     keys: [
       { name: 'title',   weight: 0.45 },
@@ -130,7 +114,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     includeMatches: true,
   }), [articles])
 
-  // matchMap: articleId → Fuse match array, used for accurate highlighting in ArticlesGrid
   const { filteredArticles, matchMap } = useMemo(() => {
     const byCategory = selectedCategory
       ? selectedCategory === 'chefs'
@@ -154,7 +137,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     return { filteredArticles: filtered, matchMap: map }
   }, [articles, selectedCategory, searchQuery, fuse])
 
-  // F-03: Sync search query to URL ?q=
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query)
     syncUrlQuery(query)
@@ -181,8 +163,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     window.location.href = `/articles/${article.id}/`
   }, [])
 
-  // Stable callbacks for CommandPalette — prevents quickActions useMemo from
-  // recomputing on every render because of new inline-function references.
   const closeCommand = useCallback(() => setCommandOpen(false), [])
   const handleCommandSelectCategory = useCallback((id: string) => {
     handleSelectCategory(id)

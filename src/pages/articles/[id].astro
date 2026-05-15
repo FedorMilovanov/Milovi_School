@@ -4,7 +4,7 @@
  */
 import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticlePageShell from '../../components/ArticlePageShell'
-import { libraryArticles, libraryMeta } from '../../data/library'
+import { libraryArticles, libraryClientMeta } from '../../data/library'
 import { categories } from '../../data/categories'
 import type { Article } from '../../data/types'
 
@@ -215,5 +215,5 @@ if (article.faq && article.faq.length > 0) {
   {jsonLdRecipe && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdRecipe)} slot="head" />}
   {jsonLdFAQ && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdFAQ)} slot="head" />}
 
-  <ArticlePageShell article={article} allMeta={libraryMeta} client:load />
+  <ArticlePageShell article={article} allMeta={libraryClientMeta} client:load />
 </BaseLayout>

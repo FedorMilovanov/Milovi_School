@@ -1,14 +1,5 @@
 /**
  * ArticlePageShell — React client island rendered on each /articles/<id>/ page.
- *
- * The article content is baked into the static HTML at build time (SSG),
- * then passed as a prop to this React island for interactive rendering
- * (tooltips, related articles, theme toggle, CommandPalette, etc.)
- *
- * Navigation is purely URL-based:
- *   - Back → history.back() or /
- *   - Related article → /articles/<id>/
- *   - Home sections → /#archive, /#articles, etc.
  */
 import { useState, useCallback, useEffect } from 'react'
 import { safeGetItem, safeSetItem } from '../utils/storage'
@@ -20,56 +11,51 @@ import CommandPalette from './CommandPalette'
 import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
-import { type Article, type ArticleMeta } from '../data/types'
+import { type Article } from '../data/types'
+import type { ArticleClientMeta } from '../data/library'
 
 interface ArticlePageShellProps {
-  /** Full article with content — provided as SSG prop, never fetched by browser */
   article: Article
-  /** Lightweight metadata for related articles + command palette search */
-  allMeta: ArticleMeta[]
+  allMeta: ArticleClientMeta[]
 }
 
 export default function ArticlePageShell({ article, allMeta }: ArticlePageShellProps) {
   const [commandOpen, setCommandOpen] = useState(false)
+
+  // FIX B-4: Initialize theme from documentElement (set by inline script)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light'
+    if (typeof window === 'undefined') return 'dark'
+    if (document.documentElement.classList.contains('dark')) return 'dark'
+    if (document.documentElement.classList.contains('light')) return 'light'
     const saved = safeGetItem('theme')
     if (saved === 'dark' || saved === 'light') return saved
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark'
   })
 
   useEffect(() => {
     safeSetItem('theme', theme)
     document.documentElement.style.colorScheme = theme
-    // BUG FIX: only toggle on documentElement — global.css uses .dark scoped to html,
-    // not body. Toggling body.classList was redundant and inconsistent with HomeApp.tsx.
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
-  // Navigation — URL-based (proper browser history, shareable URLs)
   const goHome = useCallback(() => { window.location.href = '/' }, [])
   const goToSection = useCallback((sectionId: string) => { window.location.href = `/#${sectionId}` }, [])
-  const goToArticle = useCallback((a: ArticleMeta) => {
+  const goToArticle = useCallback((a: ArticleClientMeta) => {
     window.scrollTo({ top: 0, behavior: 'auto' })
     window.location.href = `/articles/${a.id}/`
   }, [])
   const goBack = useCallback(() => {
-    if (window.history.length > 1) {
-      window.history.back()
-    } else {
-      window.location.href = '/'
-    }
+    if (window.history.length > 1) window.history.back()
+    else window.location.href = '/'
   }, [])
 
-  // Stable refs for CommandPalette props — avoids inline function churn.
   const closeCommand = useCallback(() => setCommandOpen(false), [])
-  const openArticleByUrl = useCallback((a: ArticleMeta) => {
+  const openArticleByUrl = useCallback((a: ArticleClientMeta) => {
     window.location.href = `/articles/${a.id}/`
   }, [])
 
-  // Cmd/Ctrl+K → command palette
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
