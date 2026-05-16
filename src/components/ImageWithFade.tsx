@@ -106,15 +106,14 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
           role="img"
           aria-label={alt}
         >
-          <div
-            className="flex items-center justify-center"
+          <img
+            src="/images/logo.png"
+            alt="Patisserie Russe"
             style={{
-              width: 56, height: 56, border: '1px solid #d4af37', borderRadius: 4,
-              fontFamily: 'Georgia, serif', fontWeight: 700, fontSize: 22, color: '#d4af37',
+              width: 56, height: 56, objectFit: 'contain', borderRadius: 4,
+              border: '1px solid rgba(212, 175, 55, 0.3)',
             }}
-          >
-            PR
-          </div>
+          />
         </div>
       )}
     </div>
