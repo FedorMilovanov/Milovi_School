@@ -197,6 +197,11 @@ for html in html_files:
     ids=[t.get('id') for t in soup.find_all(attrs={'id': True})]
     for dup in sorted({x for x in ids if ids.count(x)>1}):
         generated_ui_issues.append(f'{rel}: duplicate id {dup}')
+    main_tags = soup.find_all('main')
+    if len(main_tags) != 1:
+        generated_ui_issues.append(f'{rel}: expected exactly one <main>, found {len(main_tags)}')
+    elif main_tags[0].find('main'):
+        generated_ui_issues.append(f'{rel}: nested <main> landmark')
     for a in soup.find_all('a'):
         if not a.get('href'):
             generated_ui_issues.append(f'{rel}: anchor without href')

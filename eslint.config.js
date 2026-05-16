@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
+import { defineConfig } from 'eslint/config'
 
 const browserGlobals = {
   window: 'readonly',
@@ -31,7 +32,7 @@ const browserGlobals = {
   console: 'readonly',
 }
 
-export default tseslint.config(
+export default defineConfig([
   {
     ignores: ['dist/**', 'node_modules/**', '.astro/**', 'src/**/*.astro'],
   },
@@ -74,4 +75,4 @@ export default tseslint.config(
       },
     },
   },
-)
+])

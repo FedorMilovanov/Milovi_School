@@ -54,7 +54,7 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 
 ## Быстрый старт
 
-Требуется Node.js **22.12.0+**.
+Требуется Node.js **22.13.0+** (из-за актуальных требований ESLint/Astro toolchain).
 
 ```bash
 npm install
@@ -129,6 +129,19 @@ pluralRu(21, MATERIAL) // → 'материал'
 1. Добавьте объект в `src/data/articles.ts`
 2. Добавьте контент в `src/data/deepContents.ts`
 3. `npm run build` — Astro сгенерирует HTML автоматически
+
+
+## Changelog — final QA hardening (2026-05-16)
+
+| # | Fix | File |
+|---|---|---|
+| FQ1 | Безопасная кнопка «Назад» в статье: больше не уводит пользователя на внешний referrer при прямом заходе из Google/мессенджеров; browser back используется только при same-origin referrer | `src/components/ArticlePageShell.tsx` |
+| FQ2 | Убран вложенный `<main>` на страницах статей (`ArticlePageShell` теперь единственный landmark), audit добавил проверку ровно одного `<main>` | `src/components/ArticleView.tsx`, `scripts/audit_site.py` |
+| FQ3 | Исправлены потенциальные hydration mismatches для темы и article-предпочтений: SSR и первый client render теперь совпадают, а реальные значения синхронизируются после mount | `src/components/HomeApp.tsx`, `src/components/ArticlePageShell.tsx`, `src/components/ArticleView.tsx` |
+| FQ4 | CI закреплён на Node 22.13.0 и запускает lint + content audit до build; убран EBADENGINE warning от ESLint toolchain | `.nvmrc`, `package.json`, `.github/workflows/deploy.yml` |
+| FQ5 | `audit_site.py` больше не печатает отчёт дважды | `scripts/audit_site.py` |
+
+---
 
 ## Changelog — scroll & navigation audit (2026-05-14 v2)
 

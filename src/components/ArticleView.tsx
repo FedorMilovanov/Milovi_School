@@ -215,11 +215,11 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   // listener. Use the shared hook (returns 0-100) and normalise to 0-1 here so all
   // internal usages (progress * 100, 1 - progress, progress > 0.05) stay consistent.
   const progress = useSharedScrollProgress() / 100
-  // Preferences are mirrored on <html> by BaseLayout's pre-paint script.
-  // Reading those classes here prevents the visible largeText/focusMode CLS that
-  // would otherwise happen after useEffect.
-  const [largeText, setLargeText] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('pref-large-text'))
-  const [focusMode, setFocusMode] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('focus-mode-active'))
+  // Hydration-safe preferences: keep SSR and the first client render identical.
+  // BaseLayout's pre-paint script still applies the saved CSS classes before paint,
+  // while React synchronises the control state after mount.
+  const [largeText, setLargeText] = useState(false)
+  const [focusMode, setFocusMode] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
   const copiedTimeoutRef = useRef<number | null>(null)
@@ -483,7 +483,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   const readingTimeLeft = Math.max(0, Math.ceil(article.readTime * (1 - progress)))
 
   return (
-    <main className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
+    <div className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
       <div className="fixed inset-x-0 top-[84px] z-40 hidden h-[2px] lg:block">
         <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
@@ -844,6 +844,6 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           </button>
         </div>
       </div>
-    </main>
+    </div>
   )
 }

@@ -2,7 +2,7 @@
  * ArticlePageShell — React client island rendered on each /articles/<id>/ page.
  */
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { safeGetItem, safeSetItem } from '../utils/storage'
+import { safeSetItem } from '../utils/storage'
 import Header from './Header'
 import ArticleView from './ArticleView'
 import Footer from './Footer'
@@ -27,16 +27,20 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
-  // FIX B-4: Initialize theme from documentElement (set by inline script in BaseLayout).
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    if (document.documentElement.classList.contains('dark')) return 'dark'
-    const saved = safeGetItem('theme')
-    if (saved === 'dark' || saved === 'light') return saved
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  })
+  // Hydration-safe theme state: SSR and the first client render both use
+  // "dark" to match the static HTML. The pre-paint script in BaseLayout has
+  // already applied the real visual theme to <html>, so this only synchronises
+  // React controls after mount without causing hydration mismatches.
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [themeReady, setThemeReady] = useState(false)
 
   useEffect(() => {
+    setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    setThemeReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (!themeReady) return
     safeSetItem('theme', theme)
     const root = document.documentElement
     root.style.colorScheme = theme
@@ -45,7 +49,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     // updates its system bar immediately when the user toggles theme.
     const meta = document.getElementById('theme-color-meta')
     if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
-  }, [theme])
+  }, [theme, themeReady])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
@@ -57,15 +61,29 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   }, [])
 
   /**
-   * Safe back navigation with miloviInternal token.
+   * Safe back navigation.
+   *
+   * The previous version marked the current history entry as "internal" on
+   * mount and then blindly called history.back(). On a direct visit from Google,
+   * Telegram, etc. that sent users away from the site. Only go back when the
+   * browser referrer is same-origin; otherwise return to the library home.
    */
+  const canUseBrowserBackRef = useRef(false)
   useEffect(() => {
-    const state = history.state || {}
-    history.replaceState({ ...state, miloviInternal: true }, '')
+    try {
+      const referrer = document.referrer ? new URL(document.referrer) : null
+      canUseBrowserBackRef.current = Boolean(
+        referrer &&
+        referrer.origin === window.location.origin &&
+        referrer.href !== window.location.href,
+      )
+    } catch {
+      canUseBrowserBackRef.current = false
+    }
   }, [])
 
   const goBack = useCallback(() => {
-    if (history.state?.miloviInternal) {
+    if (canUseBrowserBackRef.current) {
       history.back()
     } else {
       window.location.href = '/'

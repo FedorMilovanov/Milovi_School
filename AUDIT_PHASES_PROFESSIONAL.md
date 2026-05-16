@@ -37,6 +37,14 @@
 - Manifest: убран принудительный `orientation`, исправлен dark splash background, добавлена настоящая `logo-192.png`.
 - SW cache busting: build hash теперь включает миллисекунды и UUID-фрагмент, а не только секунды.
 
+### Закрыто в финальной перепроверке 2026-05-16
+
+- Безопасная навигация «Назад» на странице статьи: прямой заход с внешнего сайта больше не вызывает `history.back()` наружу.
+- Убран вложенный `<main>` на страницах статей; статический аудит теперь проверяет ровно один main landmark на HTML-страницу.
+- Исправлены потенциальные hydration mismatches для темы и предпочтений чтения (`theme`, `largeText`, `focusMode`).
+- CI/CD использует Node 22.13.0 и запускает `lint` + `audit:content` до production build.
+- `audit_site.py` больше не печатает отчёт дважды.
+
 ## Контентный контроль
 
 В текущем состоянии репозитория `deepContents.ts` содержит 115 ключей на 115 статей. Скрипт `npm run audit:content` проверяет:
@@ -53,7 +61,7 @@
 ### Phase 5 — CI/CD hardening
 
 - GitHub Actions: `npm ci`, `npm run lint`, `npm run check`, `npm run audit:content`, `npm run build`, `npm run audit:site`.
-- Node pinning: `.nvmrc` / `.node-version` с `22.12+`.
+- Node pinning: `.nvmrc` / `.node-version` с `22.13+`.
 - Lighthouse CI по preview URL: LCP, CLS, accessibility, SEO budgets.
 
 ### Phase 6 — Content platform
@@ -79,4 +87,4 @@
 - `npm run lint` — проходит.
 - `npx tsc --noEmit --pretty false` — проходит.
 - `python3 scripts/audit_content.py` — проходит.
-- `npm run check` / `npm run build` не запускались до конца из-за Node.js v20.20.2 в sandbox; Astro 6.3.2 требует Node >=22.12.0. В CI/локально нужно запускать на Node 22.12+.
+- В финальной перепроверке использован Node.js v22.13.0: `npm ci`, `npm run lint`, `npm run check`, `npx tsc --noEmit --pretty false`, `npm run audit:content`, `npm run build`, `npm run audit:site` — проходят.

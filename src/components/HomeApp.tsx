@@ -3,7 +3,7 @@
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Fuse, { type FuseResultMatch } from 'fuse.js'
-import { safeGetItem, safeSetItem } from '../utils/storage'
+import { safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
 import ShowcaseSlider from './ShowcaseSlider'
@@ -67,13 +67,17 @@ export default function HomeApp({ articles }: HomeAppProps) {
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'dark'
-    if (document.documentElement.classList.contains('dark')) return 'dark'
-    const saved = safeGetItem('theme')
-    if (saved === 'dark' || saved === 'light') return saved
-    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  })
+  // Hydration-safe theme state: SSR and the first client render both use
+  // "dark" to match the static HTML. The pre-paint script in BaseLayout has
+  // already applied the real visual theme to <html>, so this only synchronises
+  // React controls after mount without causing hydration mismatches.
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [themeReady, setThemeReady] = useState(false)
+
+  useEffect(() => {
+    setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    setThemeReady(true)
+  }, [])
 
   // FIX P-2: bottom bar visibility now reads from the shared chrome-visibility
   // store (single passive scroll listener, rAF-throttled). Previously HomeApp
@@ -81,6 +85,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
   const barVisible = useChromeVisible()
 
   useEffect(() => {
+    if (!themeReady) return
     safeSetItem('theme', theme)
     const root = document.documentElement
     root.style.colorScheme = theme
@@ -89,7 +94,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     // updates its system bar immediately when the user toggles theme.
     const meta = document.getElementById('theme-color-meta')
     if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
-  }, [theme])
+  }, [theme, themeReady])
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
