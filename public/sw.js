@@ -93,7 +93,11 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cached = await caches.match(request)
-          return cached ?? caches.match('/') ?? new Response('Offline', { status: 503 })
+          const appShell = await caches.match('/')
+          return cached ?? appShell ?? new Response('Offline', {
+            status: 503,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          })
         })
     )
     return

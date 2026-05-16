@@ -132,10 +132,12 @@ function extractRecipeSteps(content: string | undefined): { '@type': 'HowToStep'
   // Numbered "1. step" or "1) step" lines, must contain at least 12 characters
   // of content (filters out year stamps like "1985." and noise).
   const stepRegex = /^\s*\d{1,2}[.)]\s+(.{12,})$/gm
+  const cookingVerb = /(смеш|взб|добав|введ|растоп|довед|выпек|охлад|замороз|раскат|нареж|собер|перелож|процед|пробей|пробить|нагр|вар|завар|влей|влить|вылож|перемеш|карамелиз|темперир|отсад|накрой|оставь|сними|снять)/i
   const steps: { '@type': 'HowToStep'; text: string }[] = []
   let match: RegExpExecArray | null
   while ((match = stepRegex.exec(content)) !== null) {
-    steps.push({ '@type': 'HowToStep', text: match[1].trim() })
+    const text = match[1].trim()
+    if (cookingVerb.test(text)) steps.push({ '@type': 'HowToStep', text })
   }
   return steps
 }
@@ -194,6 +196,7 @@ if (article.faq && article.faq.length > 0) {
     })),
   }
 }
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 ---
 
 <BaseLayout
@@ -210,10 +213,10 @@ if (article.faq && article.faq.length > 0) {
   articleSection={categoryName}
   articleTags={article.tags}
 >
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdArticle)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdBreadcrumb)} slot="head" />
-  {jsonLdRecipe && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdRecipe)} slot="head" />}
-  {jsonLdFAQ && <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdFAQ)} slot="head" />}
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdArticle)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumb)} slot="head" />
+  {jsonLdRecipe && <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdRecipe)} slot="head" />}
+  {jsonLdFAQ && <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdFAQ)} slot="head" />}
 
   <ArticlePageShell article={article} allMeta={libraryClientMeta} client:load />
 </BaseLayout>

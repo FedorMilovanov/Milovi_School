@@ -49,11 +49,13 @@ export default function UpdateNotification() {
     const reload = () => window.location.reload()
     // Safety fallback — cancelled immediately if controllerchange fires first.
     const fallbackTimer = window.setTimeout(reload, 3500)
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
+    const onControllerChange = () => {
       window.clearTimeout(fallbackTimer)
       reload()
-    }, { once: true })
+    }
+    navigator.serviceWorker.addEventListener('controllerchange', onControllerChange, { once: true })
     worker.postMessage({ type: 'SKIP_WAITING' })
+    if (navigator.serviceWorker.controller === worker) onControllerChange()
   }
 
   const handleDismiss = () => {

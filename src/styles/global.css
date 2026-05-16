@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -465,6 +466,10 @@ a {
   font-size: 1.15rem;
   line-height: 1.85;
   letter-spacing: 0.015em;
+}
+.pref-large-text .article-body {
+  font-size: 1.2rem;
+  line-height: 1.9;
 }
 
 /* ── Marquee animation (Hero.tsx) ─────────────────────────────── */

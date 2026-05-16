@@ -100,13 +100,16 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
         </h2>
       </div>
 
+      {/* Drag-scroll region: native overflow remains keyboard-scrollable when focused via browser chrome; mouse/touch handlers only enhance pointer UX. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         ref={scrollRef}
         className="no-scrollbar flex touch-pan-x select-none gap-6 overflow-x-auto overscroll-x-contain pb-4 cursor-grab active:cursor-grabbing"
+        role="region"
+        aria-label="Горизонтальная галерея знаковых десертов"
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}
-        onMouseLeave={stopDrag}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={stopDrag}

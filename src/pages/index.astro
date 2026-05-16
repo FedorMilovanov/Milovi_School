@@ -8,7 +8,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro'
 import HomeApp from '../components/HomeApp'
-import { libraryMeta } from '../data/library'
+import { libraryClientMeta } from '../data/library'
 
 const siteUrl = 'https://french.milovicake.ru'
 
@@ -44,6 +44,7 @@ const jsonLdWebSite = {
     'query-input': 'required name=search_term_string',
   },
 }
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 ---
 
 <BaseLayout
@@ -56,14 +57,14 @@ const jsonLdWebSite = {
   ogImageHeight={630}
 >
   <!-- JSON-LD: Organization -->
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdOrg)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdOrg)} slot="head" />
   <!-- JSON-LD: WebSite + SearchAction -->
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLdWebSite)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdWebSite)} slot="head" />
 
   <!--
     client:load — гидратируется сразу при загрузке страницы.
     articles содержит только метаданные: id, title, excerpt, category, author,
     readTime, image, tags. Контент статей НЕ передаётся на главную страницу.
   -->
-  <HomeApp articles={libraryMeta} client:load />
+  <HomeApp articles={libraryClientMeta} client:load />
 </BaseLayout>

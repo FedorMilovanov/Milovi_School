@@ -22,6 +22,8 @@ const MARQUEE_CHEFS = [
   { name: 'Сириль Линьяк', id: 'cyril-lignac' },
   { name: 'Жак Жени', id: 'jacques-genin' },
   { name: 'Кристоф Фельдер', id: 'christophe-felder' },
+  { name: 'Николя Пасьелло', id: 'nicolas-paciello' },
+  { name: 'Меркотт', id: 'mercotte' },
 ]
 
 export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
@@ -51,6 +53,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={shouldReduce ? { duration: 0 } : { duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
         ) : (
           <motion.img
@@ -61,6 +66,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={shouldReduce ? { duration: 0 } : { duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
         )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.96),rgba(12,10,9,0.76)_48%,rgba(12,10,9,0.18))]" />

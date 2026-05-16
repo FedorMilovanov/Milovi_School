@@ -71,7 +71,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
                   {saved && progress === 0 ? 'Закладка' : `${progress}%`}
                 </span>
                 <div className="flex-1 h-0.5 bg-stone-200 dark:bg-stone-800">
-                  <div className="h-0.5 bg-amber-600 transition-all duration-300" style={{ width: `${progress > 0 ? Math.max(progress, 8) : (saved ? 12 : 0)}%` }} />
+                  <div className="h-0.5 bg-amber-600 transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
             </a>

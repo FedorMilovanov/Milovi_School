@@ -82,7 +82,6 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
         <motion.img
           src={usingFallback ? fallback : src}
           alt={alt}
-          title={alt}
           className="h-full w-full object-cover"
           style={{ willChange: loaded ? 'auto' : 'opacity, filter' }}
           initial={shouldReduce ? false : { opacity: 0, filter: 'blur(8px)' }}

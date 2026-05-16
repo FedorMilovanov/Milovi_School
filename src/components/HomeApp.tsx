@@ -2,7 +2,7 @@
  * HomeApp — React client island for the home page.
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import Fuse, { type FuseResultMatch, type IFuseOptions } from 'fuse.js'
+import Fuse, { type FuseResultMatch } from 'fuse.js'
 import { safeGetItem, safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
@@ -22,8 +22,9 @@ import ToastContainer from './Toast'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
 import { useChromeVisible } from '../hooks/useScrollDirection'
-import { type ArticleMeta } from '../data/types'
+import { type ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
+import { ARTICLE_FUSE_OPTIONS } from '../utils/search'
 
 const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
@@ -34,23 +35,8 @@ const NON_CHEF_NON_TECH_IDS = ['chiffres-gourmands', 'french-cuisine', 'histoire
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
 
-// Shared Fuse options — exported so other consumers (e.g. CommandPalette)
-// can stay aligned on ranking weights when they instantiate their own search.
-export const FUSE_OPTIONS: IFuseOptions<ArticleMeta> = {
-  keys: [
-    { name: 'title',   weight: 0.45 },
-    { name: 'excerpt', weight: 0.2  },
-    { name: 'author',  weight: 0.15 },
-    { name: 'tags',    weight: 0.15 },
-  ],
-  threshold: 0.35,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  includeMatches: true,
-}
-
 interface HomeAppProps {
-  articles: ArticleMeta[]
+  articles: ArticleClientMeta[]
 }
 
 export default function HomeApp({ articles }: HomeAppProps) {
@@ -85,8 +71,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
     if (typeof window === 'undefined') return 'dark'
     if (document.documentElement.classList.contains('dark')) return 'dark'
     const saved = safeGetItem('theme')
-    if (saved === 'light') return 'light'
-    return 'dark'
+    if (saved === 'dark' || saved === 'light') return saved
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   // FIX P-2: bottom bar visibility now reads from the shared chrome-visibility
@@ -132,7 +118,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     syncUrlQuery('')
   }, [syncUrlQuery])
 
-  const fuse = useMemo(() => new Fuse(articles, FUSE_OPTIONS), [articles])
+  const fuse = useMemo(() => new Fuse(articles, ARTICLE_FUSE_OPTIONS), [articles])
 
   const { filteredArticles, matchMap } = useMemo(() => {
     const byCategory = selectedCategory
@@ -179,7 +165,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     scrollToSection('archive')
   }, [scrollToSection])
 
-  const openArticle = useCallback((article: ArticleMeta) => {
+  const openArticle = useCallback((article: ArticleClientMeta) => {
     window.location.href = `/articles/${article.id}/`
   }, [])
 
@@ -276,11 +262,11 @@ export default function HomeApp({ articles }: HomeAppProps) {
           visible={barVisible}
           activeSection={activeSection}
         />
+        <UpdateNotification />
+        <ToastContainer />
+        <ScrollProgress />
+        <ScrollToTop />
       </ErrorBoundary>
-      <UpdateNotification />
-      <ToastContainer />
-      <ScrollProgress />
-      <ScrollToTop />
     </div>
   )
 }

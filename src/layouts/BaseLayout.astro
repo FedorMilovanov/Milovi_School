@@ -169,9 +169,21 @@ const metaDescription =
         var theme = 'dark'
         try {
           var s = localStorage.getItem('theme')
-          if (s === 'light') theme = 'light'
-        } catch (_) { /* private browsing — fall back to dark */ }
+          if (s === 'light' || s === 'dark') {
+            theme = s
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            theme = 'light'
+          }
+        } catch (_) {
+          try {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) theme = 'light'
+          } catch (__) {}
+        }
         var root = document.documentElement
+        try {
+          if (localStorage.getItem('pref-large-text') === 'true') root.classList.add('pref-large-text')
+          if (localStorage.getItem('pref-focus-mode') === 'true') root.classList.add('focus-mode-active')
+        } catch (_) {}
         if (theme === 'dark') {
           root.classList.add('dark')
           root.style.colorScheme = 'dark'
@@ -208,7 +220,7 @@ const metaDescription =
         var isDev = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0'
         if (!isDev) {
           window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js').catch(() => {})
+            navigator.serviceWorker.register('/sw.js').catch((err) => { console.warn('[service-worker] registration failed', err) })
           })
         }
       }

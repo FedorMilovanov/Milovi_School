@@ -19,6 +19,7 @@ export function calculateReadingStreak(markReadToday = false): { streak: number;
     const today = formatLocalDate(new Date())
     const lastRead = safeGetItem(LAST_READ_KEY)
     let current = Number(safeGetItem(STREAK_KEY) ?? 0)
+    if (!Number.isFinite(current)) current = 0
 
     if (lastRead === today) return { streak: current, visible: current >= 1 }
 

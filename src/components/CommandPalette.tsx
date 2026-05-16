@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import Fuse, { type IFuseOptions, type FuseResultMatch } from 'fuse.js'
+import Fuse, { type FuseResultMatch } from 'fuse.js'
 import type { ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
 import { highlightWithMatches } from '../utils/highlight'
+import { ARTICLE_FUSE_OPTIONS } from '../utils/search'
 
 interface CommandPaletteProps {
   open: boolean
@@ -13,20 +14,6 @@ interface CommandPaletteProps {
   onClose: () => void
   onOpenArticle: (article: ArticleClientMeta) => void
   onSelectCategory?: (id: string) => void
-}
-
-const FUSE_OPTIONS: IFuseOptions<ArticleClientMeta> = {
-  keys: [
-    { name: 'title',    weight: 0.45 },
-    { name: 'excerpt',  weight: 0.2  },
-    { name: 'author',   weight: 0.15 },
-    { name: 'tags',     weight: 0.15 },
-    { name: 'category', weight: 0.05 },
-  ],
-  threshold: 0.35,
-  ignoreLocation: true,
-  minMatchCharLength: 2,
-  includeMatches: true,
 }
 
 interface ArticleResult {
@@ -59,7 +46,7 @@ function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: C
     <div style={{ position: 'relative', overflow: 'hidden', ...style }}>
       {!loaded && !errored && <div className="cp-skeleton" style={{ position: 'absolute', inset: 0 }} />}
       {!errored && (
-        <img src={src} alt={alt} title={alt}
+        <img src={src} alt={alt}
           onLoad={() => setLoaded(true)}
           onError={() => { setErrored(true); setLoaded(false) }}
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block',
@@ -91,7 +78,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])
-  const fuse = useMemo(() => new Fuse<ArticleClientMeta>(articles, FUSE_OPTIONS), [articles])
+  const fuse = useMemo(() => new Fuse<ArticleClientMeta>(articles, ARTICLE_FUSE_OPTIONS), [articles])
 
   useEffect(() => {
     if (open) { setQuery(''); setActiveIndex(0); setFilterCat(null); requestAnimationFrame(() => inputRef.current?.focus()) }
@@ -120,7 +107,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
     return [
       { id:'nav-techniques', label:'Техники', sublabel:'Все техники кондитерского искусства', icon:'TK', action:()=>{ onSelectCategory('techniques'); onClose() } },
       { id:'nav-recipes', label:'Рецепты', sublabel:'Практические карты сборки', icon:'RC', action:()=>{ onSelectCategory('recipes'); onClose() } },
-      ...chefCats.slice(0,6).map(c => ({ id:`nav-${c.id}`, label:c.name, sublabel:c.description, icon:c.icon, action:()=>{ onSelectCategory(c.id); onClose() } })),
+      ...chefCats.map(c => ({ id:`nav-${c.id}`, label:c.name, sublabel:c.description, icon:c.icon, action:()=>{ onSelectCategory(c.id); onClose() } })),
     ]
   }, [onSelectCategory, onClose])
 
@@ -197,14 +184,14 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
       return
     }
     if (totalItems === 0) return
-    if (e.key === 'ArrowDown')  { e.preventDefault(); setActiveIndex(i => Math.min(i+1, totalItems-1)) }
-    else if (e.key === 'ArrowUp')   { e.preventDefault(); setActiveIndex(i => Math.max(i-1, 0)) }
+    if (e.key === 'ArrowDown')  { e.preventDefault(); setActiveIndex(i => (i + 1) % totalItems) }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); setActiveIndex(i => (i - 1 + totalItems) % totalItems) }
     else if (e.key === 'Enter') {
       e.preventDefault()
       if (showQuickActions && activeIndex < quickActions.length) { quickActions[activeIndex].action() }
       else { const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex; const result = articleResults[idx]; if (result) { onClose(); onOpenArticle(result.item) } }
     }
-  }, [totalItems, showQuickActions, quickActions, articleResults, activeIndex, onClose, onOpenArticle])
+  }, [totalItems, showQuickActions, quickActions, articleResults, activeIndex, onClose, onOpenArticle, query])
 
   const spring = shouldReduce ? { duration: 0 } : { type: 'spring' as const, stiffness: 480, damping: 38, mass: 0.85 }
 

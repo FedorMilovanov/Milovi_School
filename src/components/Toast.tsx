@@ -13,8 +13,14 @@ interface ToastMessage {
 type Listener = (msg: ToastMessage) => void
 const listeners = new Set<Listener>()
 
+function createToastId() {
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+}
+
 export function showToast(type: ToastType, message: string) {
-  const msg: ToastMessage = { id: crypto.randomUUID(), type, message }
+  const msg: ToastMessage = { id: createToastId(), type, message }
   listeners.forEach((fn) => fn(msg))
 }
 

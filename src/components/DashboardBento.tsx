@@ -107,6 +107,8 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
   const [streak, setStreak] = useState(0)
   const [recentArticle, setRecentArticle] = useState<ArticleMeta | null>(null)
   const [mounted, setMounted] = useState(false)
+  // Quote state belongs with the rest of state hooks. Effects below may call setQuote.
+  const [quote, setQuote] = useState(QUOTES[0])
 
   useEffect(() => {
     let completed = 0
@@ -152,14 +154,14 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
     if (!Number.isInteger(parsedQuote) || parsedQuote < 0 || parsedQuote >= QUOTES.length) {
       safeSetItem('quote-seed', String(seed))
     }
-    const dayOffset = Math.floor(Date.now() / 86400000)
+    const today = new Date()
+    const dayOffset = Math.floor(new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 86400000)
     setQuote(QUOTES[(seed + dayOffset) % QUOTES.length])
     setMounted(true)
   }, [articles])
 
   // F-20: Per-user random quote seed so each visitor sees a different rotation.
   // Uses safeGetItem/safeSetItem to stay resilient in private-browsing mode.
-  const [quote, setQuote] = useState(QUOTES[0])
 
   // F-17: Don't render until useEffect has run (avoids flicker from SSR zeros).
   // After first article read the streak is set to 1 — include streak in the

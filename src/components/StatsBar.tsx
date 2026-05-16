@@ -17,6 +17,8 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
   const shouldReduce = useReducedMotion()
 
   useEffect(() => {
+    started.current = false
+    setCount(0)
     if (shouldReduce) {
       setCount(target)
       return

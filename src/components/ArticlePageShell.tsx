@@ -57,35 +57,25 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   }, [])
 
   /**
-   * goBack — return to the previous page or fall back to the library.
+   * Safe back navigation.
    *
-   * Previous implementation relied on `document.referrer.includes(hostname)`
-   * which is empty when the user navigates via window.location.href on the
-   * same origin (browser doesn't always set the Referer header for SPA-style
-   * jumps). Result: pressing "Back" on a deep-linked article would silently
-   * land you on the home page instead of the previous article.
-   *
-   * New strategy: tag our own history entries with a state token. If the
-   * current entry carries our token AND we have somewhere to go back to,
-   * pop history. Otherwise navigate to the home page deterministically.
+   * Never trust `history.length`: it includes external pages. We only call
+   * history.back() when the browser referrer is same-origin. Cold entries from
+   * Google/social/messengers deterministically return to the library instead
+   * of ejecting users from the site.
    */
   const goBack = useCallback(() => {
-    const state = window.history.state
-    const isOurs = state && typeof state === 'object' && 'miloviInternal' in state
-    if (isOurs && window.history.length > 1) {
+    const referrer = document.referrer
+    const sameOriginReferrer = (() => {
+      if (!referrer) return false
+      try { return new URL(referrer).origin === window.location.origin }
+      catch { return false }
+    })()
+
+    if (sameOriginReferrer && window.history.length > 1) {
       window.history.back()
     } else {
       window.location.href = '/'
-    }
-  }, [])
-
-  // Tag the current history entry exactly once so future goBack() calls
-  // can distinguish "navigated here from elsewhere on the site" vs.
-  // "landed here cold from an external link".
-  useEffect(() => {
-    const state = window.history.state
-    if (!state || typeof state !== 'object' || !('miloviInternal' in state)) {
-      window.history.replaceState({ ...(state ?? {}), miloviInternal: true }, '')
     }
   }, [])
 
@@ -124,7 +114,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           rendered in BaseLayout.astro. Lets keyboard / screen-reader users
           jump past the sticky header straight to the article body.
         */}
-        <div id="main-content">
+        <main id="main-content">
           <ArticleView
             article={article}
             allArticles={allMeta}
@@ -132,7 +122,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
             onNavigate={goToArticle}
             disableEscapeBack={commandOpen}
           />
-        </div>
+        </main>
         <Footer />
         <CommandPalette
           open={commandOpen}
@@ -140,10 +130,10 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onClose={closeCommand}
           onOpenArticle={openArticleByUrl}
         />
+        <UpdateNotification />
+        <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
+        <ScrollToTop />
       </ErrorBoundary>
-      <UpdateNotification />
-      <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
-      <ScrollToTop />
     </div>
   )
 }

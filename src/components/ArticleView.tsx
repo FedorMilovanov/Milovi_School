@@ -75,7 +75,14 @@ function TermTooltip({ piece, translation, tipId }: { piece: string, translation
     const onClick = (e: MouseEvent) => {
       if (btnRef.current && !btnRef.current.contains(e.target as Node)) setOpen(false)
     }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation?.()
+      setOpen(false)
+      btnRef.current?.focus()
+    }
     document.addEventListener('mousedown', onClick)
     document.addEventListener('keydown', onKey)
     return () => {
@@ -89,13 +96,12 @@ function TermTooltip({ piece, translation, tipId }: { piece: string, translation
       ref={btnRef}
       type="button"
       className="relative inline-flex cursor-help touch-manipulation items-baseline border-0 border-b border-amber-700/40 bg-transparent p-0 text-left text-stone-900 [font:inherit] dark:text-amber-200"
-      aria-describedby={tipId}
+      aria-describedby={open ? tipId : undefined}
       aria-expanded={open}
-      aria-haspopup="dialog"
       onClick={(e) => { e.stopPropagation(); setOpen(v => !v); }}
     >
       {piece}
-      <span id={tipId} role="tooltip" className={`absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 shadow-xl transition-opacity dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ pointerEvents: open ? 'auto' : 'none' }}>
+      <span id={tipId} role="tooltip" aria-hidden={!open} className={`absolute bottom-full left-1/2 z-30 mb-2 w-max max-w-[calc(100vw-2rem)] sm:max-w-[256px] -translate-x-1/2 border border-stone-200 bg-[var(--bg-main)] px-3 py-2 text-xs leading-5 text-stone-700 shadow-xl transition-opacity dark:border-stone-700 dark:bg-stone-900 dark:text-stone-300 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} style={{ pointerEvents: open ? 'auto' : 'none' }}>
         {translation}
       </span>
     </button>
@@ -130,12 +136,13 @@ function MiloviCakeArticleNote() {
 
 function InlineText({ text }: { text: string }) {
   const uid = useId()
+  if (!text) return null
 
   const renderTermText = (value: string, keyPrefix: string) => {
     return value.split(TERMS_PATTERN).filter(Boolean).map((piece, index) => {
       const translation = TERMS[piece.toLowerCase()]
       if (!translation) return <span key={`${keyPrefix}-${index}`}>{piece}</span>
-      return <TermTooltip key={`${keyPrefix}-${index}`} piece={piece} translation={translation} tipId={`${uid}-tip-${index}`} />
+      return <TermTooltip key={`${keyPrefix}-${index}`} piece={piece} translation={translation} tipId={`${uid}-${keyPrefix}-tip-${index}`} />
     })
   }
 
@@ -179,7 +186,8 @@ function isSectionTitle(text: string) {
   // Normalise diacritics first so accented French heading like "PÂTE À CHOUX"
   // is correctly identified as all-caps regardless of locale-specific rules.
   const ascii = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-  const compact = ascii.replace(/[\s\d:.,;()'«»—–-]/g, '')
+  // eslint-disable-next-line no-useless-escape -- keep hyphen escaped to avoid accidental range if class is reordered
+  const compact = ascii.replace(/[\s\d:.,;()'«»—–\-]/g, '')
   if (!compact) return false
   return compact === compact.toUpperCase() && /[A-ZА-ЯЁ]/.test(compact) && text.length < 150 && !text.includes('*')
 }
@@ -207,10 +215,11 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   // listener. Use the shared hook (returns 0-100) and normalise to 0-1 here so all
   // internal usages (progress * 100, 1 - progress, progress > 0.05) stay consistent.
   const progress = useSharedScrollProgress() / 100
-  // FIX: initialize from localStorage in useEffect (not useState lazy initializer)
-  // so SSR/static pre-render and first client render both see `false` → no hydration mismatch.
-  const [largeText, setLargeText] = useState(false)
-  const [focusMode, setFocusMode] = useState(false)
+  // Preferences are mirrored on <html> by BaseLayout's pre-paint script.
+  // Reading those classes here prevents the visible largeText/focusMode CLS that
+  // would otherwise happen after useEffect.
+  const [largeText, setLargeText] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('pref-large-text'))
+  const [focusMode, setFocusMode] = useState(() => typeof document !== 'undefined' && document.documentElement.classList.contains('focus-mode-active'))
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
   const copiedTimeoutRef = useRef<number | null>(null)
@@ -231,11 +240,11 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   useEffect(() => {
     let streakMarked = false
     const save = () => {
-      if (window.scrollY > 120) {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      const pct = scrollable > 0 ? Math.round((window.scrollY / scrollable) * 100) : 0
+      if (window.scrollY > 24 || pct > 0) {
         safeSetItem(`article-progress:${article.id}`, String(window.scrollY))
-        const scrollable = document.documentElement.scrollHeight - window.innerHeight
-        const pct = scrollable > 0 ? Math.round((window.scrollY / scrollable) * 100) : 0
-        safeSetItem(`article-progress-pct:${article.id}`, String(Math.min(pct, 100)))
+        safeSetItem(`article-progress-pct:${article.id}`, String(Math.min(Math.max(pct, 0), 100)))
         // Засчитать день чтения при достижении 20%+
         if (!streakMarked && pct >= 20) {
           calculateReadingStreak(true)
@@ -265,11 +274,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   useEffect(() => {
     const prefFocusMode = safeGetItem('pref-focus-mode') === 'true'
     const prefLargeText = safeGetItem('pref-large-text') === 'true'
-    if (prefLargeText) setLargeText(true)
-    if (prefFocusMode) {
-      setFocusMode(true)
-      document.documentElement.classList.add('focus-mode-active')
-    }
+    setLargeText(prefLargeText)
+    setFocusMode(prefFocusMode)
+    document.documentElement.classList.toggle('pref-large-text', prefLargeText)
+    document.documentElement.classList.toggle('focus-mode-active', prefFocusMode)
   }, [])
 
   const handleKey = useCallback((e: KeyboardEvent) => {
@@ -282,10 +290,15 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
   // BUG FIX: clean up focus-mode class when navigating away from article
   useEffect(() => {
-    return () => { document.documentElement.classList.remove('focus-mode-active') }
+    return () => { document.documentElement.classList.remove('focus-mode-active', 'pref-large-text') }
   }, [])
 
-  const toggleLargeText = () => setLargeText(v => { const next = !v; safeSetItem('pref-large-text', String(next)); return next })
+  const toggleLargeText = () => setLargeText(v => {
+    const next = !v
+    safeSetItem('pref-large-text', String(next))
+    document.documentElement.classList.toggle('pref-large-text', next)
+    return next
+  })
   // BUG FIX: toggle CSS class on <html> so global.css .focus-mode-active rules apply
   const toggleFocusMode = () => setFocusMode(v => {
     const next = !v
@@ -464,15 +477,15 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
       return <p key={idx} className={`leading-[1.85] text-stone-700 dark:text-stone-300 ${textSize} whitespace-pre-line`}><InlineText text={p} /></p>
     })
-  }, [blocks, largeText])
+  }, [article.category, blocks, textSize])
 
 
-  const readingTimeLeft = Math.max(1, Math.ceil(article.readTime * (1 - progress)))
+  const readingTimeLeft = Math.max(0, Math.ceil(article.readTime * (1 - progress)))
 
   return (
     <main className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
-      <div className="fixed inset-x-0 top-[84px] z-40 h-[2px]">
+      <div className="fixed inset-x-0 top-[84px] z-40 hidden h-[2px] lg:block">
         <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
       </div>
 
@@ -491,7 +504,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 {category?.name ?? article.category}
                 <span className="mx-2 text-stone-400">·</span>
                 <ReadingTime minutes={article.readTime} />
-                {progress > 0.05 && <span className="text-stone-400"> · ещё ~{readingTimeLeft} мин</span>}
+                {progress > 0.05 && progress < 0.995 && readingTimeLeft > 0 && <span className="text-stone-400"> · ещё ~{readingTimeLeft} мин</span>}
               </p>
               <h1 className="font-serif text-4xl font-semibold leading-tight tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-5xl md:text-6xl">{article.title}</h1>
             </div>
@@ -504,7 +517,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                     type="button"
                     onClick={() => {
                       // Write the search query to sessionStorage so HomeApp picks it up on mount
-                      try { sessionStorage.setItem('pending-search', tag) } catch {}
+                      try { sessionStorage.setItem('pending-search', tag) } catch (_) { /* sessionStorage unavailable */ }
                       onBack()
                     }}
                     className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400 cursor-pointer"
@@ -732,7 +745,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 {related.map(r => (
                   <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">
                     <div className="mb-4 aspect-[16/9] overflow-hidden bg-stone-200 dark:bg-stone-800">
-                      <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} title={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
+                      <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
                     <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>
                     <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>
@@ -798,7 +811,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               setSaved(next)
               safeSetItem(`article-saved:${article.id}`, String(next))
               // F-05: show toast confirmation (was silent on mobile)
-              showToast('save', next ? 'Добавлено в закладки' : 'Удалено из закладок')
+              showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок')
             }}
             className={`haptic-btn group flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${saved ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-amber-800 dark:text-stone-500 dark:hover:text-amber-400'}`}
           >

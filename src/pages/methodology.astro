@@ -12,6 +12,7 @@ const jsonLd = {
   inLanguage: 'ru',
   isPartOf: { '@type': 'WebSite', name: 'Patisserie Russe', url: siteUrl },
 }
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 ---
 
 <BaseLayout
@@ -23,7 +24,7 @@ const jsonLd = {
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLd)} slot="head" />
 
   <main class="min-h-screen bg-[var(--bg-main)] px-4 py-12 text-stone-900 dark:bg-stone-950 dark:text-stone-100 sm:px-6 lg:px-8">
     <article class="mx-auto max-w-4xl">

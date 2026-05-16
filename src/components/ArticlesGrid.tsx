@@ -65,7 +65,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
           </span>
         </div>
         <h4 className="font-serif text-[15px] font-semibold leading-snug tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-2 kinetic-text">
-          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+          <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
         </h4>
       </div>
       <svg className="mt-1 h-3.5 w-3.5 shrink-0 text-stone-300 opacity-0 transition group-hover:opacity-100 dark:text-stone-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -99,6 +99,8 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
           src={article.image || fallbackImageFor(article.category)}
           alt={article.imageAlt ?? article.title}
           className="h-64 w-full transition-transform duration-700 group-hover:scale-[1.03] sm:h-80"
+          lazy={false}
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent" />
         <div className="absolute bottom-4 left-4">
@@ -114,10 +116,10 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
           <span>{article.readTime} мин</span>
         </div>
         <h3 className="font-serif text-xl font-semibold leading-[1.2] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 sm:text-2xl kinetic-text">
-          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+          <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
         </h3>
         <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-2">
-          {<HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+          <HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />
         </p>
         <span className="mt-1 inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.24em] text-amber-800 dark:text-amber-300">
           Читать
@@ -163,7 +165,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
           </span>
         </div>
         <h4 className="font-serif text-sm font-semibold leading-snug tracking-[-0.02em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 line-clamp-3 kinetic-text">
-          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+          <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
         </h4>
       </div>
     </motion.a>
@@ -194,7 +196,7 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
       <span>
         <span className="mb-0.5 block font-mono text-[9px] uppercase tracking-[0.22em] text-stone-500">{cat?.name} · {article.readTime} мин</span>
         <span className="block font-serif text-[17px] font-semibold leading-tight tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
-          {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+          <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
         </span>
       </span>
       <svg className="hidden h-4 w-4 text-stone-300 transition group-hover:text-amber-700 dark:text-stone-700 dark:group-hover:text-amber-300 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -361,10 +363,10 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
                 <span>{article.readTime} мин</span>
               </div>
               <h3 className="font-serif text-2xl font-semibold leading-[1.15] tracking-[-0.04em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200 kinetic-text">
-                {<HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+                <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
               </h3>
               <p className="text-sm leading-6 text-stone-600 dark:text-stone-400 line-clamp-3">
-                {<HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />}
+                <HL text={article.excerpt ?? ''} field="excerpt" matchMap={matchMap} articleId={article.id} query={searchQuery} />
               </p>
               <span className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.22em] text-amber-800 dark:text-amber-300">
                 Читать исследование
