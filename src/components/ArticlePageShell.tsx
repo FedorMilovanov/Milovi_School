@@ -57,23 +57,16 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   }, [])
 
   /**
-   * Safe back navigation.
-   *
-   * Never trust `history.length`: it includes external pages. We only call
-   * history.back() when the browser referrer is same-origin. Cold entries from
-   * Google/social/messengers deterministically return to the library instead
-   * of ejecting users from the site.
+   * Safe back navigation with miloviInternal token.
    */
-  const goBack = useCallback(() => {
-    const referrer = document.referrer
-    const sameOriginReferrer = (() => {
-      if (!referrer) return false
-      try { return new URL(referrer).origin === window.location.origin }
-      catch { return false }
-    })()
+  useEffect(() => {
+    const state = history.state || {}
+    history.replaceState({ ...state, miloviInternal: true }, '')
+  }, [])
 
-    if (sameOriginReferrer && window.history.length > 1) {
-      window.history.back()
+  const goBack = useCallback(() => {
+    if (history.state?.miloviInternal) {
+      history.back()
     } else {
       window.location.href = '/'
     }
@@ -109,7 +102,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onGoAbout={() => goToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
-        {/*
+        {/* 
           id="main-content" is the target of the global skip-to-content link
           rendered in BaseLayout.astro. Lets keyboard / screen-reader users
           jump past the sticky header straight to the article body.

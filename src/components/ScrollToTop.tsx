@@ -3,7 +3,7 @@ import { useScrollProgress } from '../hooks/useScrollProgress'
 
 export default function ScrollToTop() {
   const progress = useScrollProgress()
-  const visible = progress > 5
+  const visible = progress > 12
 
   return (
     <AnimatePresence>
