@@ -146,6 +146,19 @@ function InlineText({ text }: { text: string }) {
     })
   }
 
+  // FIX: process bold/italic inside link text (term tooltips excluded —
+  // <button> inside <a> is invalid HTML).
+  const renderLinkText = (value: string, keyPrefix: string) => {
+    return value.split(FORMAT_REGEX).filter(Boolean).map((fPart, i) => {
+      const key = `${keyPrefix}-${i}`;
+      if (fPart.startsWith('**') && fPart.endsWith('**'))
+        return <strong key={key}>{fPart.slice(2, -2)}</strong>;
+      if (fPart.startsWith('*') && fPart.endsWith('*'))
+        return <em key={key}>{fPart.slice(1, -1)}</em>;
+      return <span key={key}>{fPart}</span>;
+    });
+  };
+
   const parts = text.split(LINK_REGEX);
   return (
     <>
@@ -168,7 +181,7 @@ function InlineText({ text }: { text: string }) {
           const linkHref = parts[lIdx * 3 + 2] ?? '#';
           return [
             <a key={`link-${lIdx}`} href={linkHref} target="_blank" rel="noopener noreferrer" className="text-amber-800 underline transition hover:text-stone-950 dark:text-amber-400 dark:hover:text-amber-300">
-              {part}
+              {renderLinkText(part, `link-${lIdx}`)}
             </a>
           ];
         }
@@ -456,14 +469,14 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       }
 
       const lines = p.split('\n').filter(line => line.trim().length > 0)
-      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d{1,2}[.)])\s+\S/.test(line))
+      const isList = lines.length > 1 && lines.every(line => /^\s*(-|•|\d+[.)])\s+\S/.test(line))
       if (isList) {
         return (
           <ul key={idx} className={`my-6 space-y-3 pl-0 ${textSize} leading-8 text-stone-700 dark:text-stone-300 md:leading-9`}>
             {lines.map((line, li) => (
               <li key={li} className="flex gap-3">
                 <span className="mt-[0.55em] h-1.5 w-1.5 flex-shrink-0 rounded-full bg-amber-700/60" />
-                <InlineText text={line.replace(/^\s*(-|•|\d{1,2}[.)])\s+/, '')} />
+                <InlineText text={line.replace(/^\s*(-|•|\d+[.)])\s+/, '')} />
               </li>
             ))}
           </ul>

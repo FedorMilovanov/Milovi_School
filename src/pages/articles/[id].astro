@@ -131,7 +131,7 @@ function extractRecipeSteps(content: string | undefined): { '@type': 'HowToStep'
   if (!content) return []
   // Numbered "1. step" or "1) step" lines, must contain at least 12 characters
   // of content (filters out year stamps like "1985." and noise).
-  const stepRegex = /^\s*\d{1,2}[.)]\s+(.{12,})$/gm
+  const stepRegex = /^\s*\d+[.)]\s+(.{12,})$/gm
   const cookingVerb = /(смеш|взб|добав|введ|растоп|довед|выпек|охлад|замороз|раскат|нареж|собер|перелож|процед|пробей|пробить|нагр|вар|завар|влей|влить|вылож|перемеш|карамелиз|темперир|отсад|накрой|оставь|сними|снять)/i
   const steps: { '@type': 'HowToStep'; text: string }[] = []
   let match: RegExpExecArray | null
