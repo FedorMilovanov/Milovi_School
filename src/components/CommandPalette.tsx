@@ -67,7 +67,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   const [query, setQuery]             = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [filterCat, setFilterCat]     = useState<string | null>(null)
-  const [wideEnough, setWideEnough]   = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 640 : true)
+  const [wideEnough, setWideEnough]   = useState(true)
   const inputRef     = useRef<HTMLInputElement>(null)
   const listRef      = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -75,6 +75,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
   useEffect(() => {
     const onResize = () => setWideEnough(window.innerWidth >= 640)
+    onResize() // Sync initial value — without this wideEnough stays true until first resize
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
   }, [])

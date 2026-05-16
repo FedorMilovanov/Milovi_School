@@ -516,9 +516,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                     key={tag}
                     type="button"
                     onClick={() => {
-                      // Write the search query to sessionStorage so HomeApp picks it up on mount
-                      try { sessionStorage.setItem('pending-search', tag) } catch (_) { /* sessionStorage unavailable */ }
-                      onBack()
+                      // Navigate directly to home with the tag as a search query.
+                      // Using URL param instead of sessionStorage avoids history.back()
+                      // issues where the user came from another article.
+                      window.location.href = '/?q=' + encodeURIComponent(tag)
                     }}
                     className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400 cursor-pointer"
                     title={`Найти материалы по тегу ${tag}`}
@@ -670,7 +671,8 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
             </aside>
 
             {/* Article body */}
-            <div className="space-y-7 min-w-0 article-body"><div className="drop-cap relative">{renderedContent}</div>
+            <div className="space-y-7 min-w-0 article-body">
+              <div className="drop-cap relative">{renderedContent}</div>
 
           {/* ================= FAQ UI ================= */}
           {article.faq && article.faq.length > 0 && (
@@ -696,7 +698,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               </div>
             </section>
           )}
-</div>
+            </div>
 
             {/* Spacer for right column */}
             <div className={focusMode ? 'hidden' : 'hidden lg:block'} />

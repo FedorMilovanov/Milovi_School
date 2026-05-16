@@ -143,7 +143,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
 
                   {/* "NEW" badge */}
                   {cat.isNew && (
-                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[8px] uppercase tracking-[0.32em] text-stone-950">
+                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[8px] uppercase tracking-[0.32em] text-white">
                       Nouveau
                     </div>
                   )}
@@ -153,7 +153,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.36em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
-                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-stone-950">
+                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
                       {cat.name}
                     </span>
                     <p className="mt-2.5 max-w-xs font-['Cormorant_Garamond'] text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">

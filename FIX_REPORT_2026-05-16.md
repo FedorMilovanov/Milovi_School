@@ -1,61 +1,65 @@
-# Milovi School — финальная перепроверка и исправления
+# Milovi School — Аудит и хирургические исправления
 
-Дата: 2026-05-16
+**Дата:** 2026-05-16  
+**Файлов исправлено:** 5  
+**Характер:** только функциональные исправления, без косметики
 
-## Исправлено
+---
 
-1. **Безопасная кнопка «Назад» в статье**
-   - `src/components/ArticlePageShell.tsx`
-   - Прямой заход из Google/мессенджеров/внешних сайтов больше не вызывает `history.back()` наружу.
-   - Browser back используется только если `document.referrer` — same-origin.
+## 🔴 БАГ №1 (Critical) — ArticleView.tsx — разваленная вёрстка 3-колоночного grid
 
-2. **Семантика страниц статей / accessibility**
-   - `src/components/ArticleView.tsx`
-   - `src/pages/404.astro`
-   - Убран вложенный `<main>` в статье; 404 также получил корректный `<main id="main-content">`.
+**Симптом:** На странице статьи FAQ-секция отображалась вне `.article-body`, а правый спейсер оказывался вне grid-контейнера. Блок `.drop-cap` закрывался неправильно из-за того, что `<div className="space-y-7 min-w-0 article-body">` и `<div className="drop-cap relative">` были на одной строке — единственный `</div>` закрывал оба.
 
-3. **Hydration mismatch fixes**
-   - `src/components/HomeApp.tsx`
-   - `src/components/ArticlePageShell.tsx`
-   - `src/components/ArticleView.tsx`
-   - Тема и предпочтения чтения теперь не дают расхождения SSR/первого client render. Реальные значения синхронизируются после mount; pre-paint CSS по-прежнему работает до первого кадра.
+**Исправление:** Разделил открытие article-body и drop-cap на разные строки. Drop-cap закрывается ДО FAQ. FAQ находится ВНУТРИ article-body. Article-body закрывается отдельно. Spacer и grid закрываются корректно. Убрана лишняя «сиротская» `</div>`.
 
-4. **CI/CD и Node toolchain**
-   - `.nvmrc`, `package.json`, `package-lock.json`, `.github/workflows/deploy.yml`
-   - Node закреплён на `22.13.0+`, чтобы убрать EBADENGINE warning от актуального ESLint toolchain.
-   - GitHub Actions теперь запускает `lint` и `audit:content` до production build.
+---
 
-5. **Аудит сайта усилен**
-   - `scripts/audit_site.py`
-   - Добавлена проверка ровно одного `<main>` на HTML-страницу и отсутствие вложенного main landmark.
-   - Отчёт больше не печатается дважды.
+## 🟠 БАГ №2 (High) — MainCategories.tsx — нечитаемый текст на тёмном overlay
 
-6. **Документация обновлена**
-   - `README.md`
-   - `AUDIT_PHASES_PROFESSIONAL.md`
+**Симптом:** Название категории (`text-stone-950` = #151311) на почти чёрном градиентном overlay (`rgba(10,8,7,0.82)`). NEW badge на тёмно-золотом фоне. В обеих темах текст практически неразличим.
 
-## Проверка
+**Исправление:** Заменил `text-stone-950` → `text-white` на обоих элементах. Белый текст контрастен в обеих темах.
 
-Запущено на Node.js `v22.13.0`:
+---
 
-```bash
-npm ci
-npm run lint
-npm run check
-npx tsc --noEmit --pretty false
-npm run audit:content
-npm run audit:security
-npm run build
-npm run audit:site
-npm run validate
+## 🟡 БАГ №3 (Medium) — ShowcaseSlider.tsx — флаг moved не сбрасывался
+
+**Симптом:** После touch-свайпа на мобильном устройстве `drag.current.moved` оставался `true`. При следующем mouse-клике `onClickCapture` ошибочно подавлял нажатие на карточку.
+
+**Исправление:** Добавлен `drag.current.moved = false` в `stopDrag()`.
+
+---
+
+## 🔵 БАГ №4 (Medium) — Hero.tsx — hydration mismatch (React warn)
+
+**Симптом:** `useState(() => typeof window !== 'undefined' && window.innerWidth < 768)` на сервере возвращал `false`, на клиенте на мобильных — `true`. React hydration warning.
+
+**Исправление:** `useState(false)` (SSR-safe). Реальное значение синхронизируется в `useEffect`.
+
+---
+
+## 🔵 БАГ №5 (Medium) — CommandPalette.tsx — hydration mismatch (React warn)
+
+**Симптом:** `useState(() => typeof window !== 'undefined' ? window.innerWidth >= 640 : true)` вызывал hydration mismatch на мобильных.
+
+**Исправление:** `useState(true)` (SSR-safe). Реальное значение устанавливается в `useEffect`.
+
+---
+
+## 🟣 БАГ №6 (Low-Medium) — ArticleView.tsx — ненадёжная навигация по тегам
+
+**Симптом:** Клик по тегу писал `pending-search` в `sessionStorage` и вызывал `onBack()`. `onBack()` мог выполнить `history.back()` на другую статью (не на главную) — поиск терялся.
+
+**Исправление:** Теперь `window.location.href = '/?q=' + encodeURIComponent(tag)`. Домашняя страница читает `?q=` из URL, sessionStorage больше не используется для этой цели.
+
+---
+
+## ✅ Проверка структуры
+
 ```
-
-Итог:
-
-- `astro check`: 0 errors / 0 warnings / 0 hints
-- `npm audit`: 0 vulnerabilities
-- `audit:content`: OK, 115 статей имеют уникальный deep content
-- `audit:site`: 0 errors / 0 warnings
-- build: 119 страниц, 115 article pages
-
-Картинки в архив не добавлялись.
+ArticleView.tsx:     Grid OPEN → aside / article-body / spacer → Grid CLOSE ✓
+MainCategories.tsx:  2 text colors `text-stone-950` → `text-white`     ✓
+ShowcaseSlider.tsx:  stopDrag сбрасывает `moved`                       ✓
+Hero.tsx:            `useState(false)` SSR-safe, sync в useEffect       ✓
+CommandPalette.tsx:  `useState(true)` SSR-safe, sync в useEffect        ✓
+```

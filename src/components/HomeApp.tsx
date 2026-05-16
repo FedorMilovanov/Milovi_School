@@ -106,17 +106,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
     window.history.replaceState({}, '', qs ? `?${qs}` : window.location.pathname)
   }, [])
 
-  // FIX C-3: tag buttons in ArticleView write a pending-search to sessionStorage
-  // instead of doing a full page reload. Pick it up here and apply to search state.
-  useEffect(() => {
-    const pending = sessionStorage.getItem('pending-search')
-    if (pending) {
-      sessionStorage.removeItem('pending-search')
-      setSearchQuery(pending)
-      syncUrlQuery(pending)
-    }
-  }, [syncUrlQuery])
-
   const handleSelectCategory = useCallback((id: string | null) => {
     setSelectedCategory(id)
     setSearchQuery('')

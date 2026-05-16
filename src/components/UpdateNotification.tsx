@@ -55,7 +55,11 @@ export default function UpdateNotification() {
     }
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange, { once: true })
     worker.postMessage({ type: 'SKIP_WAITING' })
-    if (navigator.serviceWorker.controller === worker) onControllerChange()
+    // Edge-case: if another tab already sent SKIP_WAITING, this SW is now
+    // 'activated' and clients.claim() has already run — controllerchange
+    // already fired in this tab and will NOT fire again. Detect via the SW's
+    // own .state property (reliable, no object-identity assumption needed).
+    if (worker.state === 'activated') onControllerChange()
   }
 
   const handleDismiss = () => {

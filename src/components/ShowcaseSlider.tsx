@@ -38,6 +38,7 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
   const stopDrag = () => {
     if (!drag.current.active) return
     drag.current.active = false
+    drag.current.moved = false
     if (scrollRef.current) scrollRef.current.style.userSelect = ''
   }
 

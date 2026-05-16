@@ -33,11 +33,12 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
     target: containerRef,
     offset: ['start start', 'end start'],
   })
-  const [mobile, setMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768)
+  const [mobile, setMobile] = useState(false)
   const yParallax = useTransform(scrollYProgress, [0, 1], ['0%', shouldReduce ? '0%' : '28%'])
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768)
+    check() // Sync initial value — without this mobile stays false until first resize
     window.addEventListener('resize', check, { passive: true })
     return () => window.removeEventListener('resize', check)
   }, [])
