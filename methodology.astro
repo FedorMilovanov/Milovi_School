@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import StaticPageShell from '../components/StaticPageShell'
+
+const siteUrl = 'https://french.milovicake.ru'
+const canonicalUrl = `${siteUrl}/methodology/`
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Методология и источники Patisserie Russe',
+  url: canonicalUrl,
+  inLanguage: 'ru',
+  isPartOf: { '@type': 'WebSite', name: 'Patisserie Russe', url: siteUrl },
+}
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+---
+
+<BaseLayout
+  title="Методология и источники — Patisserie Russe"
+  description="Как Patisserie Russe отбирает французские источники, переводит материалы и превращает их в образовательные разборы по pâtisserie."
+  canonicalUrl={canonicalUrl}
+  ogType="website"
+  image="/images/og-preview.webp"
+  ogImageWidth={1200}
+  ogImageHeight={630}
+>
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLd)} slot="head" />
+
+  <StaticPageShell client:load>
+    <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <article>
+        <a
+          href="/"
+          class="font-mono text-[11px] uppercase tracking-[0.24em] text-amber-800 underline decoration-amber-300 underline-offset-4 transition hover:text-amber-600 dark:text-amber-300 dark:hover:text-amber-200"
+        >
+          ← На главную
+        </a>
+
+        <header class="mt-10 border-y border-[var(--border-subtle)] py-10">
+          <p class="font-mono text-[10px] uppercase tracking-[0.34em] text-amber-800 dark:text-amber-300">
+            Редакционные стандарты
+          </p>
+          <h1 class="mt-4 font-serif text-5xl font-semibold leading-tight tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-6xl">
+            Методология и источники
+          </h1>
+          <p class="mt-6 text-xl leading-8 text-stone-600 dark:text-stone-400">
+            Мы строим библиотеку как русскоязычный навигатор по французской pâtisserie: не как копию чужих публикаций, а как проверяемую систему конспектов, переводов терминов, сравнений и технологических выводов.
+          </p>
+        </header>
+
+        <section class="prose prose-stone mt-12 max-w-none dark:prose-invert prose-headings:font-serif prose-headings:tracking-[-0.04em] prose-a:text-amber-800 dark:prose-a:text-amber-300">
+          <h2>1. Иерархия источников</h2>
+          <p>Для биографий и техник приоритет получают официальные сайты шефов, домов, школ и ресторанов. Для профессионального контекста — французские школы и отраслевые организации. Например, FERRANDI Paris описывает CAP Pâtissier как подготовку к экзаменам Éducation Nationale; INBP подчёркивает фундаментальные техники, экзаменационные référentiels и стажировку; Institut Lyfe / Paul Bocuse в курсах классической pâtisserie связывает Saint-Honoré и Paris-Brest с pâte à choux, pâte feuilletée, chantilly и praliné noisette.</p>
+
+          <h2>2. Как мы работаем с переводом</h2>
+          <p>Мы не публикуем дословные полные переводы современных авторских материалов без разрешения правообладателей. Вместо этого делаем смысловой перевод, краткую цитату при необходимости, пересборку структуры и собственное объяснение техники на русском языке. Если рецепт или метод опубликован официально, мы указываем источник и отделяем факты от редакционных выводов.</p>
+
+          <h2>3. Как проверяем технологию</h2>
+          <p>Каждый рецепт должен постепенно получить одинаковую профессиональную структуру: выход, активное и общее время, температуру, оборудование, ингредиенты по компонентам, пошаговую сборку, хранение, диагностику ошибок и FAQ. Если у рецепта нет реальных шагов и ингредиентов, Recipe schema не добавляется, чтобы не создавать разметку-спам.</p>
+
+          <h2>4. История и архивы</h2>
+          <p>Для исторических материалов используем не только современные пересказы, но и архивы. Например, Gallica / BnF хранит издания и подборки, связанные с Антоненом Каремом, включая <em>Le pâtissier pittoresque</em>. Такие источники помогают отделять устойчивый миф от документального факта.</p>
+
+          <h2>5. Image SEO</h2>
+          <p>Каждая статья получает не только обложку, но и человекочитаемые alt, title, caption и ImageObject-разметку. Изображения привязываются к статьям через image sitemap, чтобы поисковые системы понимали: картинка не самостоятельная иллюстрация, а часть конкретного образовательного материала.</p>
+
+          <h2>6. Что будет улучшаться дальше</h2>
+          <ul>
+            <li>углубление коротких статей до полноценных материалов;</li>
+            <li>добавление hub-страниц по рецептам, техникам, ингредиентам и шефам;</li>
+            <li>расширение FAQ и диагностики ошибок;</li>
+            <li>переход от общих источников к нескольким точным citations в каждой статье;</li>
+            <li>публикация карточек ингредиентов: pectin NH, gélatine bloom, beurre sec, couverture, praliné.</li>
+          </ul>
+
+          <h2>Базовые внешние ориентиры</h2>
+          <ul>
+            <li><a href="https://www.ferrandi-paris.com/fr/formation-continue-pour-adultes/patisserie/cap-patisserie-pour-adultes" target="_blank" rel="noopener noreferrer">FERRANDI Paris — CAP Pâtisserie</a></li>
+            <li><a href="https://www.inbp.com/formations-de-base-cap/" target="_blank" rel="noopener noreferrer">INBP — formations de base CAP</a></li>
+            <li><a href="https://www.ecoledecuisine.institutpaulbocuse.com/cours/les-classiques-de-la-patisserie.html" target="_blank" rel="noopener noreferrer">Institut Lyfe / Paul Bocuse — classiques de la pâtisserie</a></li>
+            <li><a href="https://gallica.bnf.fr/selections/fr/html/antonin-careme" target="_blank" rel="noopener noreferrer">BnF / Gallica — Antonin Carême</a></li>
+          </ul>
+        </section>
+      </article>
+    </div>
+  </StaticPageShell>
+</BaseLayout>
