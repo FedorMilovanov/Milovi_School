@@ -61,7 +61,7 @@
 │   ├── components/                 ← React Islands
 │   │   ├── HomeApp.tsx             ← корневой client island главной
 │   │   ├── ArticleView.tsx, ArticlePageShell.tsx, ArticleActions.tsx
-│   │   ├── Header.tsx, Footer.tsx, Hero.tsx
+│   │   ├── Header.tsx, Footer.tsx, Hero.tsx, StaticPageShell.tsx
 │   │   ├── CommandPalette.tsx      ← Ctrl+K поиск (Fuse.js)
 │   │   ├── Categories.tsx, MainCategories.tsx, ArticlesGrid.tsx
 │   │   ├── DashboardBento.tsx, StatsBar.tsx, ContinueReading.tsx
@@ -273,6 +273,10 @@ if (typeof window !== 'undefined') {
 | `client:only="react"` | Только в браузере (если SSR ломается) |
 
 **Правило:** не использовать `client:load` на тяжёлых компонентах. Сначала `client:visible` или `client:idle`.
+
+### 6.1.1 StaticPageShell
+
+`src/components/StaticPageShell.tsx` — единственная разрешённая React-обёртка для статических Astro-страниц `/about/` и `/methodology/`. Она подключает общий `Header`/`Footer`, не импортирует `deepContents.ts` и не должна превращаться во второй `HomeApp`. Поиск со статических страниц ведёт на `/?command=1`, где палитра открывается уже внутри основной SPA.
 
 ### 6.2 Astro Image оптимизация
 

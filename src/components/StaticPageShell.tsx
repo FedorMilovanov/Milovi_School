@@ -55,7 +55,7 @@ export default function StaticPageShell({ children }: StaticPageShellProps) {
   // Command palette is a HomeApp feature; on static pages the safest action is
   // to return to the SPA and let users search from there.
   const openCommand = useCallback(() => {
-    window.location.href = '/'
+    window.location.href = '/?command=1'
   }, [])
 
   const toggleTheme = useCallback(() => {

@@ -57,16 +57,28 @@ export default function HomeApp({ articles }: HomeAppProps) {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
-  // FIX B-5: Safe hydration — start with empty string, then read URL in useEffect.
-  const [searchQuery, setSearchQuery] = useState('')
-  useEffect(() => {
-    const initial = new URLSearchParams(window.location.search).get('q') ?? ''
-    if (initial) setSearchQuery(initial)
-  }, [])
-
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
+
+  // FIX B-5: Safe hydration — start with empty string, then read URL in useEffect.
+  const [searchQuery, setSearchQuery] = useState('')
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const initial = params.get('q') ?? ''
+    if (initial) {
+      setSearchQuery(initial)
+      window.setTimeout(() => {
+        document.getElementById('archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 0)
+    }
+    if (params.get('command') === '1') {
+      setCommandOpen(true)
+      params.delete('command')
+      const qs = params.toString()
+      window.history.replaceState({}, '', qs ? `?${qs}` : window.location.pathname)
+    }
+  }, [])
   // Hydration-safe theme state: SSR and the first client render both use
   // "dark" to match the static HTML. The pre-paint script in BaseLayout has
   // already applied the real visual theme to <html>, so this only synchronises
@@ -166,12 +178,12 @@ export default function HomeApp({ articles }: HomeAppProps) {
     window.location.href = `/articles/${article.id}/`
   }, [])
 
-  const closeCommand = useCallback(() => setCommandOpen(false), [])
+  const closeCommand = useCallback(() => setCommandOpen(false), [setCommandOpen])
   const handleCommandSelectCategory = useCallback((id: string) => {
     handleSelectCategory(id)
     scrollToSection('archive')
     setCommandOpen(false)
-  }, [handleSelectCategory, scrollToSection])
+  }, [handleSelectCategory, scrollToSection, setCommandOpen])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
