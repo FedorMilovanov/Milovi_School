@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import StaticPageShell from '../components/StaticPageShell'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/about/`
@@ -40,7 +41,8 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u00
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdAbout)} slot="head" />
 
-  <main id="main-content" class="min-h-screen bg-[var(--bg-main)] px-4 py-12 text-[var(--text-primary)] dark:bg-[var(--bg-main)] sm:px-6 lg:px-8">
+  <StaticPageShell client:load>
+    <div class="px-4 py-12 sm:px-6 lg:px-8">
     <article class="mx-auto max-w-4xl">
       <a href="/" class="font-mono text-[11px] uppercase tracking-[0.24em] text-amber-800 underline decoration-amber-300 underline-offset-4 dark:text-amber-300">← На главную</a>
 
@@ -76,5 +78,6 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u00
         <p>Имена шефов, домов, школ и десертов используются для образовательного описания и атрибуции источников. Проект не заявляет партнёрство с этими брендами, если оно явно не указано. При обнаружении неточности или спорного фрагмента можно написать команде Milovi Cake через основной сайт.</p>
       </section>
     </article>
-  </main>
+    </div>
+  </StaticPageShell>
 </BaseLayout>

@@ -110,6 +110,9 @@ export default function HomeApp({ articles }: HomeAppProps) {
     setSelectedCategory(id)
     setSearchQuery('')
     syncUrlQuery('')
+    window.setTimeout(() => {
+      document.getElementById('archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
   }, [syncUrlQuery])
 
   const fuse = useMemo(() => new Fuse(articles, ARTICLE_FUSE_OPTIONS), [articles])

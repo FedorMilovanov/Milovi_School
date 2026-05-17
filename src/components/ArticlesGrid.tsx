@@ -47,6 +47,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -82,6 +83,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -139,6 +141,7 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -180,6 +183,7 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
   onArticleClick: (a: ArticleMeta) => void
   searchQuery?: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   const cat = categories.find(c => c.id === article.category)
   return (
@@ -217,6 +221,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
   onSelectCategory: (id: string | null) => void
   searchQuery: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   const [expanded, setExpanded] = useState(false)
   const preview = expanded ? articles : articles.slice(0, SECTION_PREVIEW)
@@ -334,6 +339,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
   onArticleClick: (a: ArticleMeta) => void
   searchQuery: string
   matchMap?: Map<string, ReadonlyArray<FuseResultMatch>>
+  isFirst?: boolean
 }) {
   return (
     <div className="space-y-10">
