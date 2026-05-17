@@ -67,7 +67,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   const [query, setQuery]             = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [filterCat, setFilterCat]     = useState<string | null>(null)
-  const [wideEnough, setWideEnough]   = useState(true)
+  const [wideEnough, setWideEnough]   = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768)
   const inputRef     = useRef<HTMLInputElement>(null)
   const listRef      = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -126,15 +126,26 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   }, [articles, fuse, query, recentArticles, filterCat])
 
   const chipCategories = useMemo(() => {
+    // BUG #17 FIX: build chips from the unfiltered result set so chips don't vanish
+    // when a filter narrows results to a single category
+    const trimmed = query.trim()
+    let base: ArticleResult[]
+    if (!trimmed) {
+      base = recentArticles.length > 0
+        ? recentArticles.map(r => ({ item: r.article, pct: r.pct }))
+        : articles.slice(0, 10).map(a => ({ item: a }))
+    } else {
+      base = fuse.search(trimmed, { limit: 12 }).map(r => ({ item: r.item, matches: r.matches as ReadonlyArray<FuseResultMatch> | undefined }))
+    }
     const seen = new Set<string>(); const chips: typeof categories = []
-    for (const r of articleResults) {
+    for (const r of base) {
       if (!seen.has(r.item.category)) { seen.add(r.item.category); const cat = categories.find(c => c.id === r.item.category); if (cat) chips.push(cat) }
       if (chips.length >= 7) break
     }
     return chips
-  }, [articleResults])
+  }, [articles, fuse, query, recentArticles])
 
-  const showChips        = chipCategories.length > 1
+  const showChips        = chipCategories.length >= 1
   const showQuickActions = !query.trim() && !filterCat && quickActions.length > 0
   const totalItems       = (showQuickActions ? quickActions.length : 0) + articleResults.length
 
@@ -251,7 +262,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                 <input
                   ref={inputRef}
                   value={query}
-                  onChange={e => { setQuery(e.target.value); setFilterCat(null) }}
+                  onChange={e => { setQuery(e.target.value) }}
                   placeholder="Поиск материалов, шефов, техник..."
                   aria-label="Поиск материалов, шефов и техник"
                   className="flex-1 bg-transparent text-[17px] font-light tracking-wide outline-none"
@@ -364,7 +375,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                       <SectionLabel inline>
                         {query.trim() ? `${articleResults.length} ${pluralRu(articleResults.length, RESULT)}` : recentArticles.length > 0 ? 'Недавно читали' : 'Материалы'}
                       </SectionLabel>
-                      {filterCat && (
+                      {filterCat && articleResults.length >= 0 && (
                         <button type="button" onClick={() => setFilterCat(null)}
                           className="font-mono text-[7.5px] uppercase tracking-[0.18em] transition-opacity"
                           style={{ color: 'var(--text-accent)', opacity: 0.65 }}
@@ -450,12 +461,18 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                       })}
                     </AnimatePresence>
 
-                    {articleResults.length === 0 && query.trim() && (
+                    {articleResults.length === 0 && (query.trim() || filterCat) && (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="px-5 py-12 text-center">
                         <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center font-mono text-base"
                           style={{ background: 'var(--cp-chip)', borderRadius: 4, color: 'var(--cp-text-mid)' }}>∅</div>
                         <p className="font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>Ничего не найдено</p>
-                        <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>«{query}»</p>
+                        {query.trim() && <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>«{query}»</p>}
+                        {filterCat && (
+                          <button type="button" onClick={() => setFilterCat(null)}
+                            className="mt-3 font-mono text-[9px] uppercase tracking-[0.18em] transition-opacity"
+                            style={{ color: 'var(--text-accent)' }}
+                          >× сбросить фильтр</button>
+                        )}
                         <p className="mt-3 font-mono text-[8.5px]" style={{ color: 'var(--cp-text-lo)' }}>Попробуйте: шоколад · ваниль · крем · техники</p>
                       </motion.div>
                     )}
@@ -549,8 +566,13 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                         )}
                         <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em]" style={{ color: 'var(--cp-text-mid)' }}>
                           <span>{activeResult.item.readTime} мин</span>
-                          {activeResult.item.date && <><span style={{ opacity: 0.4 }}>·</span><span>{new Date(activeResult.item.date).toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' })}</span></>}
+                          {activeResult.item.date && <><span style={{ opacity: 0.4 }}>·</span><span>{new Date(activeResult.item.date + 'T12:00:00').toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' })}</span></>}
                         </div>
+                        {activeResult.item.author && (
+                          <p className="font-mono text-[9px] tracking-[0.1em]" style={{ color: 'var(--cp-text-mid)' }}>
+                            {activeResult.item.author}
+                          </p>
+                        )}
                         {(activeResult.item.tags ?? []).length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {(activeResult.item.tags ?? []).slice(0, 3).map(tag => (

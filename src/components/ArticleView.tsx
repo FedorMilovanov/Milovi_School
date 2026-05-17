@@ -195,7 +195,7 @@ function InlineText({ text }: { text: string }) {
 
 function isSectionTitle(text: string) {
   const words = text.trim().split(/\s+/)
-  if (words.length < 3) return false
+  if (words.length < 2) return false
   // Normalise diacritics first so accented French heading like "PÂTE À CHOUX"
   // is correctly identified as all-caps regardless of locale-specific rules.
   const ascii = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -496,10 +496,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   const readingTimeLeft = Math.max(0, Math.ceil(article.readTime * (1 - progress)))
 
   return (
-    <div className="relative bg-[var(--bg-main)] pb-32 pt-0 dark:bg-stone-950 lg:pb-24">
+    <div className="relative bg-[var(--bg-main)] pb-32 pt-0 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
-      <div className="fixed inset-x-0 top-[84px] z-40 hidden h-[2px] lg:block">
-        <div className="h-full bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
+      <div className="fixed inset-x-0 top-[84px] z-40 hidden h-[3px] lg:block">
+        <div className="h-[3px] bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
       </div>
 
       <div className="px-4 pt-8 sm:px-6">
@@ -518,6 +518,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 <span className="mx-2 text-stone-400">·</span>
                 <ReadingTime minutes={article.readTime} />
                 {progress > 0.05 && progress < 0.995 && readingTimeLeft > 0 && <span className="text-stone-400"> · ещё ~{readingTimeLeft} мин</span>}
+              </p>
+              <p className="mb-2 text-sm text-stone-500 dark:text-stone-400">
+                {article.author}
+                {article.date && <><span className="mx-2">·</span><time dateTime={article.date}>{new Date(article.date + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</time></>}
               </p>
               <h1 className="font-serif text-4xl font-semibold leading-tight tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-5xl md:text-6xl">{article.title}</h1>
             </div>
@@ -580,7 +584,62 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                 {article.imageCaption}
               </figcaption>
             )}
+            {article.imageCredit && article.imageCredit !== 'Patisserie Russe / Milovi School' && (
+              <p className="mx-auto mt-1 max-w-3xl px-2 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500">
+                {article.imageCredit}
+              </p>
+            )}
           </figure>
+
+          {/* Recipe data section — ingredients, timing */}
+          {article.recipeData && (
+            <div className={focusMode ? 'mx-auto max-w-3xl' : 'mx-auto max-w-6xl'}>
+              <section className="my-8 border border-amber-700/20 bg-amber-50/30 dark:border-amber-500/15 dark:bg-amber-950/10 p-6 sm:p-8">
+                <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-800 dark:text-amber-400">Рецепт</p>
+                <div className="grid gap-6 sm:grid-cols-[1fr_2fr]">
+                  <div className="space-y-3">
+                    {article.recipeData.prepTime && (
+                      <div>
+                        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Подготовка</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.prepTime}</span>
+                      </div>
+                    )}
+                    {article.recipeData.cookTime && (
+                      <div>
+                        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Приготовление</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.cookTime}</span>
+                      </div>
+                    )}
+                    {article.recipeData.yield && (
+                      <div>
+                        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Выход</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.yield}</span>
+                      </div>
+                    )}
+                    {article.recipeData.calories && (
+                      <div>
+                        <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Калорийность</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.calories}</span>
+                      </div>
+                    )}
+                  </div>
+                  {article.recipeData.ingredients.length > 0 && (
+                    <div>
+                      <span className="block mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Ингредиенты</span>
+                      <ul className="space-y-1.5">
+                        {article.recipeData.ingredients.map((ing, i) => (
+                          <li key={i} className="flex gap-2 text-sm leading-6 text-stone-700 dark:text-stone-300">
+                            <span className="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-amber-700/60" />
+                            {ing}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>
+          )}
 
           <div className={focusMode ? 'mx-auto max-w-3xl' : 'mx-auto max-w-6xl'}>
             <MiloviCakeArticleNote />
@@ -617,7 +676,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden border-t border-stone-100 dark:border-stone-800"
+                    className="overflow-hidden border-t border-stone-100 dark:border-stone-800 max-h-[70vh] overflow-y-auto"
                   >
                     {headings.map((h, i) => (
                       <li key={h.id}>
@@ -691,7 +750,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           {article.faq && article.faq.length > 0 && (
             <section className="my-20 pt-12 border-t border-stone-200 dark:border-stone-800">
               <div className="mb-10 text-center">
-                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-800 dark:text-amber-500">Траблшутинг</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-800 dark:text-amber-500">Диагностика ошибок</span>
                 <h2 className="mt-3 font-serif text-3xl md:text-4xl font-semibold text-stone-900 dark:text-stone-100">Частые ошибки и вопросы</h2>
               </div>
               <div className="mx-auto max-w-3xl space-y-4">
@@ -815,7 +874,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
             <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">Назад</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]">Назад</span>
           </button>
 
           {/* Save / bookmark */}
@@ -833,7 +892,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
             <svg className="h-[18px] w-[18px]" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
             </svg>
-            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{saved ? 'Сохранено' : 'Сохранить'}</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]">{saved ? 'Сохранено' : 'Сохранить'}</span>
           </button>
 
           {/* Font size toggle */}
@@ -843,7 +902,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
             className="haptic-btn flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 text-stone-500 transition-colors hover:text-stone-950 dark:border-stone-800 dark:text-stone-500 dark:hover:text-stone-100"
           >
             <span className={`font-serif leading-none transition-all ${largeText ? 'text-[20px] text-amber-800 dark:text-amber-400' : 'text-[15px]'}`}>A</span>
-            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{largeText ? 'Меньше' : 'Больше'}</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]">{largeText ? 'Меньше' : 'Больше'}</span>
           </button>
 
           {/* Focus mode */}
@@ -855,7 +914,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
             <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
             </svg>
-            <span className="font-mono text-[8px] uppercase tracking-[0.22em]">{focusMode ? 'Выйти' : 'Фокус'}</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em]">{focusMode ? 'Выйти' : 'Фокус'}</span>
           </button>
         </div>
       </div>

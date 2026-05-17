@@ -32,7 +32,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
       // Primary: most recently visited; secondary: saved first; tertiary: most progress
       .sort((a, b) => {
         if (b.lastRead !== a.lastRead) return b.lastRead - a.lastRead
-        return Number(b.saved) - Number(a.saved) || b.progress - a.progress
+        return Number(b.saved) - Number(a.saved) || b.progress - a.progress || a.article.id.localeCompare(b.article.id)
       })
       .slice(0, 4)
       .map(({ article, progress, saved }) => ({ article, progress, saved }))
@@ -70,8 +70,8 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
                 <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
                   {saved && progress === 0 ? 'Закладка' : `${progress}%`}
                 </span>
-                <div className="flex-1 h-0.5 bg-stone-200 dark:bg-stone-800">
-                  <div className="h-0.5 bg-amber-600 transition-all duration-300" style={{ width: `${progress}%` }} />
+                <div className="flex-1 h-1 bg-stone-200 dark:bg-stone-800">
+                  <div className="h-1 bg-amber-600 transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
             </a>

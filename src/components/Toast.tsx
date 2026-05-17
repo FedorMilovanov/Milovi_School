@@ -69,7 +69,7 @@ export default function ToastContainer({ className }: { className?: string }) {
   }, [])
 
   return (
-    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none ${className || "max-md:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6"}`}>
+    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none ${className || "max-lg:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"}`}>
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div

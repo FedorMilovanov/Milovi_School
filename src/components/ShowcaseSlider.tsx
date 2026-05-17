@@ -15,7 +15,7 @@ const items: ShowcaseItem[] = [
   { title: 'Ispahan',        chef: 'Pierre Hermé',   categoryId: 'pierre-herme',   image: localImages.macarons,  desc: 'Роза · Малина · Личи' },
   { title: 'Citron',         chef: 'Cédric Grolet',  categoryId: 'cedric-grolet',  image: localImages.fruits,    desc: 'Юдзу · Тонкая оболочка' },
   { title: 'Éclair Noisette',chef: 'Yann Couvreur',  categoryId: 'yann-couvreur',  image: localImages.pecan,     desc: 'Пралине · Сливки' },
-  { title: 'Mogador',        chef: 'Pierre Hermé',   categoryId: 'pierre-herme',   image: localImages.chef,      desc: 'Маракуйя · Шоколад' },
+  { title: 'Mogador',        chef: 'Pierre Hermé',   categoryId: 'pierre-herme',   image: localImages.mogador,   desc: 'Маракуйя · Шоколад' },
   { title: 'Tarte Chocolat', chef: 'Jacques Genin',  categoryId: 'jacques-genin',  image: localImages.chocolate, desc: 'Горький шоколад · Соль' },
 ]
 

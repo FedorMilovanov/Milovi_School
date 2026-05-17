@@ -76,7 +76,7 @@ function CompactCard({ article, categories, onArticleClick, searchQuery = '', ma
 }
 
 // ─── Featured (hero) card in a section ────────────────────────────────────────
-function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', matchMap }: {
+function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', matchMap, isFirst = false }: {
   article: ArticleMeta
   categories: Category[]
   onArticleClick: (a: ArticleMeta) => void
@@ -100,7 +100,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
           alt={article.imageAlt ?? article.title}
           className="h-64 w-full transition-transform duration-700 group-hover:scale-[1.03] sm:h-80"
           lazy={false}
-          fetchPriority="high"
+          fetchPriority={isFirst ? "high" : "auto"}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent" />
         <div className="absolute bottom-4 left-4">

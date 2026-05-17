@@ -30,7 +30,7 @@ const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
 )
 
-const NON_CHEF_NON_TECH_IDS = ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire']
+const NON_CHEF_NON_TECH_IDS = ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire', 'techniques', 'recipes']
 
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
@@ -194,7 +194,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           theme={theme}
           onToggleTheme={toggleTheme}
           onGoHome={goHome}
-          onGoCategories={() => scrollToSection('archive')}
+          onGoCategories={goToChefs}
           onGoArticles={() => scrollToSection('articles')}
           onGoAbout={() => scrollToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
@@ -252,6 +252,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoHome={goHome}
           onGoCategories={goToChefs}
           onGoArticles={() => scrollToSection('articles')}
+          onGoAbout={() => scrollToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
           visible={barVisible}
           activeSection={activeSection}

@@ -19,10 +19,10 @@ export default function ScrollReveal({
   once = true,
 }: ScrollRevealProps) {
   const directionMap = {
-    up: { y: 40, x: 0 },
-    down: { y: -40, x: 0 },
-    left: { y: 0, x: 40 },
-    right: { y: 0, x: -40 },
+    up: { y: 20, x: 0 },
+    down: { y: -20, x: 0 },
+    left: { y: 0, x: 20 },
+    right: { y: 0, x: -20 },
   }
 
   const offset = directionMap[direction]
@@ -33,7 +33,7 @@ export default function ScrollReveal({
       className={className}
       initial={shouldReduce ? false : { opacity: 0, ...offset }}
       whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once, margin: '-50px' }}
+      viewport={{ once, amount: 0.01 }}
       transition={shouldReduce ? { duration: 0 } : {
         duration,
         delay,

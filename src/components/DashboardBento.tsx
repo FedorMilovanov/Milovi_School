@@ -124,20 +124,23 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
       if (pct > 0) {
         minutes += (pct / 100) * a.readTime
         // F-06: use last-read timestamp; fall back to pct rank for articles read before this fix
+        // BUG #20 FIX: only suggest "continue reading" for incomplete articles (pct < 95)
         const ts = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
-        if (ts > lastActiveTs) {
-          lastActiveTs = ts
-          lastActiveId = a.id
-        } else if (ts === 0 && pct > 0 && lastActiveTs === 0) {
-          // Legacy fallback: no timestamp yet — pick first article with progress
-          lastActiveId = lastActiveId ?? a.id
+        if (pct < 95) {
+          if (ts > lastActiveTs) {
+            lastActiveTs = ts
+            lastActiveId = a.id
+          } else if (ts === 0 && pct > 0 && lastActiveTs === 0) {
+            // Legacy fallback: no timestamp yet — pick first article with progress
+            lastActiveId = lastActiveId ?? a.id
+          }
         }
       }
     })
 
     setReadCount(completed)
     setBookmarksCount(saved)
-    setTotalMinutes(Math.round(minutes))
+    setTotalMinutes(minutes > 0 ? Math.max(1, Math.round(minutes)) : 0)
     if (lastActiveId) {
       const match = articles.find((a) => a.id === lastActiveId)
       if (match) setRecentArticle(match)

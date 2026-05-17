@@ -101,7 +101,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
         <div
           className="absolute inset-0 flex flex-col items-center justify-center text-center"
           style={{
-            background: 'linear-gradient(135deg, #111 0%, #000 100%)',
+            background: 'linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-main) 100%)',
           }}
           role="img"
           aria-label={alt}

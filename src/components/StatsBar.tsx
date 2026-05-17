@@ -106,7 +106,7 @@ interface StatsBarProps {
 export default function StatsBar({ articleCount, authorCount, categoryCount, onGoToArticles }: StatsBarProps) {
   return (
     <section className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
-      <div className="mx-auto max-w-7xl px-4 pt-10 pb-0 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6">
         <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-amber-800 dark:text-amber-400">
           Архив · Статистика библиотеки
         </p>

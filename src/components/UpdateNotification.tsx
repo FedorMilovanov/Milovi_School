@@ -73,7 +73,7 @@ export default function UpdateNotification() {
     <>
       <style>{`
         .update-notification-root { bottom: 1.5rem; }
-        @media (max-width: 1023px) { .update-notification-root { bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); } }
+        @media (max-width: 1024px) { .update-notification-root { bottom: calc(5rem + env(safe-area-inset-bottom, 0px)); } }
       `}</style>
       <div className="update-notification-root" role="alert" aria-live="polite"
         style={{ position: 'fixed', left: '50%', transform: `translateX(-50%) translateY(${animateIn ? '0' : '120%'})`, transition: 'transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)', zIndex: 9999, width: 'calc(100% - 2rem)', maxWidth: '480px' }}>

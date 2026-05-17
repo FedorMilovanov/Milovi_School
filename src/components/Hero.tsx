@@ -72,7 +72,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             fetchPriority="high"
           />
         )}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.96),rgba(12,10,9,0.76)_48%,rgba(12,10,9,0.18))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.85),rgba(12,10,9,0.50)_48%,rgba(12,10,9,0.08))]" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[var(--bg-main)] to-transparent" />
       </div>
 

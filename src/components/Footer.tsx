@@ -14,32 +14,7 @@ export default function Footer() {
   useEffect(() => setYear(new Date().getFullYear()), [])
   return (
     <footer id="about" className="bg-stone-950 text-amber-50">
-      {/* F-22: Newsletter form removed — it pretended to subscribe users while
-         silently dropping their email. Until a real backend (Formspree /
-         Mailchimp / etc.) is wired up, show a passive "coming soon" notice. */}
-      <div className="border-b border-amber-100/10 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl lg:grid lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">
-          <div>
-            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.34em] text-amber-200/60">Newsletter</p>
-            <h3 className="font-serif text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">
-              Новые материалы — прямо в почту
-            </h3>
-            <p className="mt-3 max-w-lg text-sm leading-6 text-stone-400">
-              Без спама. Только новые статьи о техниках, рецептах и шеф-кондитерах. Раз в неделю.
-            </p>
-          </div>
-          <div className="mt-6 lg:mt-0">
-            <div className="border border-amber-100/20 px-6 py-4 text-sm leading-6 text-amber-100/80">
-              <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-amber-200/60">
-                Coming soon
-              </p>
-              <p className="mt-2 max-w-xs">
-                Рассылка в разработке. Скоро здесь появится подписка — следите за главной.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Newsletter section removed — was a non-functional "Coming soon" placeholder */}
 
       {/* Main footer */}
       <div className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">

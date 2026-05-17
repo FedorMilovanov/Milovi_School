@@ -138,7 +138,7 @@ const metaDescription =
          <link rel="stylesheet"> further down to discover it
       3. actual stylesheet still loads non-blocking via the regular link
     -->
-    <link rel="preconnect" href="https://images.unsplash.com" />
+    <!-- BUG #38 FIX: removed dead preconnect to images.unsplash.com (all images are local) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

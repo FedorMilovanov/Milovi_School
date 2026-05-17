@@ -42,6 +42,7 @@ export function fallbackImageFor(categoryId: string): string {
     case 'mercotte':
     case 'pierre-herme':
     case 'chiffres-gourmands':
+    case 'histoire-culinaire':
       return pastryMacarons
     case 'christophe-michalak':
     case 'philippe-conticini':

@@ -3,8 +3,8 @@ import type { FuseResultMatch } from 'fuse.js'
 
 // ── Style shared between both highlight functions ────────────────────────────
 const MARK_STYLE: CSSProperties = {
-  backgroundColor: 'var(--text-accent)',
-  color: 'var(--stone-950, #0c0a09)',
+  backgroundColor: 'var(--search-highlight-bg, #fde68a)',
+  color: 'var(--search-highlight-fg, #451a03)',
   opacity: 0.85,
 }
 const MARK_CLASS = 'rounded-sm px-0.5 font-medium transition-colors'
