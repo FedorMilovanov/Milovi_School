@@ -182,6 +182,11 @@ button_missing=[]
 for comp in (SRC/'components').glob('*.tsx'):
     txt=comp.read_text('utf-8', errors='replace')
     for m in re.finditer(r'<button(\s|>)', txt):
+        # Skip <button> occurrences inside JS/TS comment lines
+        line_start = txt.rfind('\n', 0, m.start()) + 1
+        line_prefix = txt[line_start:m.start()]
+        if '//' in line_prefix:
+            continue
         tag=txt[m.start():txt.find('>', m.start())+1]
         if 'type=' not in tag:
             button_missing.append(f'{comp.relative_to(ROOT)}:{txt[:m.start()].count(chr(10))+1}')

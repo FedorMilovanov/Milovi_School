@@ -147,7 +147,7 @@ function InlineText({ text }: { text: string }) {
   }
 
   // FIX: process bold/italic inside link text (term tooltips excluded —
-  // <button> inside <a> is invalid HTML).
+  // (button-inside-a is invalid HTML).
   const renderLinkText = (value: string, keyPrefix: string) => {
     return value.split(FORMAT_REGEX).filter(Boolean).map((fPart, i) => {
       const key = `${keyPrefix}-${i}`;
