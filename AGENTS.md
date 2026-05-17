@@ -6,13 +6,13 @@
 
 **Владелец:** Виктория Милованова (бренд Milovi)
 **Производственный сайт:** https://french.milovicake.ru
-**Дата документа:** 2026-05-17 | **Версия:** AGENTS-r1
+**Дата документа:** 2026-05-17 | **Версия:** AGENTS-r2
 
 ---
 
 ## 0. TLDR — что СРАЗУ нельзя делать
 
-1. ❌ Создавать новые компоненты, страницы, hooks, utils без явного запроса.
+1. ❌ Создавать компоненты/страницы/hooks/utils вне `src/`. Исходники в корне репозитория запрещены: они ломают `astro check`.
 2. ❌ Менять `astro.config.mjs`, `tsconfig.json`, `eslint.config.js` без согласия.
 3. ❌ Обновлять зависимости в `package.json` (Astro / React / Tailwind / Fuse).
 4. ❌ Импортировать `deepContents.ts` в **client islands** (это 1.1 MB → в браузер не должен попадать).
@@ -86,6 +86,7 @@
 │   ├── utils/
 │   │   ├── storage.ts              ← SSR-safe localStorage (ОБЯЗАТЕЛЬНО использовать)
 │   │   ├── search.ts               ← Fuse конфиг (вынесен из HomeApp)
+│   │   ├── navigation.ts           ← Astro ClientRouter helper для программных переходов
 │   │   ├── highlight.tsx           ← подсветка результатов поиска
 │   │   ├── plural.ts               ← русские плюрализация
 │   │   └── streak.ts               ← логика "стрика" чтения
@@ -100,7 +101,7 @@
 │
 ├── public/                         ← статика, копируется в dist/ как есть
 │   ├── sw.js                       ← Service Worker (с __BUILD_HASH__ placeholder)
-│   ├── favicon.svg, images/        ← (логотипы категорий, OG-картинки)
+│   ├── favicon.svg, images/        ← логотипы, категории, `logo-maskable.png` для PWA
 │   └── google*.html, yandex*.html  ← верификации поисковиков
 │
 ├── scripts/                        ← Python build-time скрипты
@@ -110,6 +111,18 @@
 │
 └── audit/site-audit-report.md      ← последний отчёт аудита (обновляется CI)
 ```
+
+### 2.1 Корень репозитория — только конфиги и документация
+
+В корне **не должно быть** React/Astro/CSS/TS source-файлов вроде `ArticleView.tsx`, `HomeApp.tsx`, `about.astro`, `global.css`, `storage.ts`.
+
+Почему это критично:
+- реальные рабочие файлы лежат в `src/components`, `src/pages`, `src/styles`, `src/utils`;
+- TypeScript/Astro всё равно сканирует source-файлы в корне;
+- дубликаты в корне имеют неправильные относительные импорты (`../data`, `../utils`, `./Toast`) и дают десятки ошибок в `astro check`;
+- если в корне оказался «большой файл с кодом», это почти всегда копия/мусор после upload. Нужные изменения надо переносить в canonical-файл внутри `src/`, а корневой дубль удалять.
+
+Разрешены в корне: `README.md`, `AGENTS.md`, `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore`, `.nvmrc`, workflow/config-файлы.
 
 ---
 
@@ -207,6 +220,21 @@ if (typeof window !== 'undefined') {
 ### 3.7 Атрибуция
 
 Все статьи — **переводы и адаптации** из французских источников + проверка ИИ. **Не указывать "Автор: Виктория Милованова"** в статьях. Если нужно — спросить владельца про формат.
+
+### 3.8 Навигация и View Transitions
+
+`src/layouts/BaseLayout.astro` подключает `ClientRouter` из `astro:transitions`.
+
+Программные переходы из React-islands должны идти через:
+
+```ts
+import { navigateTo } from '../utils/navigation'
+void navigateTo('/articles/example/')
+```
+
+Не использовать `window.location.href = ...` для внутренних переходов, если нет специальной причины. `navigateTo()` использует Astro client router и имеет fallback на native navigation.
+
+Клик по тегу внутри статьи не должен уводить пользователя reload-ом на `/?q=`: правильный паттерн — открыть `CommandPalette` с `initialQuery`.
 
 ---
 
@@ -349,6 +377,7 @@ npm run validate
 
 | Версия | Дата | Что |
 |---|---|---|
+| AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + Astro ClientRouter для внутренних переходов, curated audit Markdown можно коммитить. |
 | AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 6 + React 18 + TS strict + Tailwind 4) |
 
 ---
