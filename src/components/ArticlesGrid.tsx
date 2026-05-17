@@ -111,7 +111,7 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
         </div>
       </div>
       <div className="flex flex-col gap-2 pt-4">
-        <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500">
+        <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500">
           <span>{cat?.name ?? 'Patisserie'}</span>
           <span>·</span>
           <span>{article.readTime} мин</span>
@@ -241,7 +241,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
       {/* Section header */}
       <div className="mb-7 flex items-start justify-between gap-4">
         <div>
-          <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.36em] text-amber-800 dark:text-amber-300">
+          <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.18em] text-amber-800 dark:text-amber-300">
             {category?.icon} / {category?.name}
           </p>
           <h2 className="font-serif text-2xl font-semibold leading-tight tracking-[-0.045em] text-stone-950 dark:text-stone-100 sm:text-3xl">
@@ -270,7 +270,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
 
           {/* Compact right column */}
           {rightList.length > 0 && (
-            <div className="flex flex-col border-l border-[var(--border-subtle)] pl-8">
+            <div className={`flex flex-col ${articles.length > 2 ? 'border-l border-[var(--border-subtle)] pl-8' : ''}`}>
               {rightList.map(a => (
                 <CompactCard key={a.id} article={a} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
               ))}
@@ -311,14 +311,14 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
           <button
             type="button"
             onClick={() => setExpanded(e => !e)}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-stone-500 transition hover:text-stone-950 dark:hover:text-amber-100"
+            className="font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 transition hover:text-stone-950 dark:hover:text-amber-100"
           >
             {expanded ? '← Свернуть' : `Ещё ${articles.length - SECTION_PREVIEW} ${pluralRu(articles.length - SECTION_PREVIEW, MATERIAL)}`}
           </button>
           <button
             type="button"
             onClick={() => onSelectCategory(categoryId)}
-            className="font-mono text-[10px] uppercase tracking-[0.28em] text-stone-400 transition hover:text-stone-700 dark:hover:text-stone-300"
+            className="font-mono text-[10px] uppercase tracking-[0.2em] text-stone-400 transition hover:text-stone-700 dark:hover:text-stone-300"
           >
             Только {category?.name} →
           </button>
@@ -424,7 +424,7 @@ export default function ArticlesGrid({
       {/* Section header */}
       <div className="mb-10 flex flex-col gap-5 border-y border-[var(--border-subtle)] py-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.34em] text-amber-800 dark:text-amber-300">
+          <p className="mb-1 font-mono text-[9px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-300">
             Библиотека чтения
           </p>
           <h2 className="font-serif text-4xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-5xl">

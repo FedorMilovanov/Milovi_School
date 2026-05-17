@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { ArticleMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { safeGetItem } from '../utils/storage'
+import { fallbackImageFor } from '../assets/images'
+import ImageWithFade from './ImageWithFade'
 
 interface ContinueReadingProps {
   articles: ArticleMeta[]
@@ -54,15 +56,22 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {items.map(({ article, progress, saved }) => (
-            <a key={article.id} href={`/articles/${article.id}/`} onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }} className="group block w-full border border-[var(--border-subtle)] p-5 text-left transition-all duration-300 hover:border-stone-300 hover:shadow-md active:scale-[0.98] dark:hover:border-stone-600">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="flex h-5 w-5 items-center justify-center bg-stone-950 text-[7px] font-bold text-amber-100 dark:bg-amber-100 dark:text-stone-950">
+            <a key={article.id} href={`/articles/${article.id}/`} onClick={(e) => { if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) { e.preventDefault(); onArticleClick(article) } }} className="group block w-full overflow-hidden border border-[var(--border-subtle)] text-left transition-all duration-300 hover:border-stone-300 hover:shadow-md active:scale-[0.98] dark:hover:border-stone-600">
+              <div className="relative h-28 w-full">
+                <ImageWithFade
+                  src={article.image || fallbackImageFor(article.category)}
+                  alt={article.imageAlt ?? article.title}
+                  className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-stone-950/60 to-transparent" />
+                <span className="absolute bottom-3 left-3 flex h-5 w-5 items-center justify-center bg-stone-950 text-[7px] font-bold text-amber-100 dark:bg-amber-100 dark:text-stone-950">
                   {categories.find((c) => c.id === article.category)?.icon || '·'}
                 </span>
-                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500">
+                <span className="absolute bottom-3 right-3 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-50/90">
                   {article.readTime} мин
                 </span>
               </div>
+              <div className="p-5">
               <h3 className="font-serif text-lg font-semibold leading-snug tracking-[-0.04em] text-stone-950 transition-colors group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-100">
                 {article.title}
               </h3>
@@ -73,6 +82,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
                 <div className="flex-1 h-1 bg-stone-200 dark:bg-stone-800">
                   <div className="h-1 bg-amber-600 transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
+              </div>
               </div>
             </a>
           ))}

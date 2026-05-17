@@ -25,6 +25,7 @@ import { useChromeVisible } from '../hooks/useScrollDirection'
 import { type ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { ARTICLE_FUSE_OPTIONS } from '../utils/search'
+import { navigateTo } from '../utils/navigation'
 
 const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
@@ -175,15 +176,20 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [scrollToSection])
 
   const openArticle = useCallback((article: ArticleClientMeta) => {
-    window.location.href = `/articles/${article.id}/`
+    void navigateTo(`/articles/${article.id}/`)
   }, [])
 
   const closeCommand = useCallback(() => setCommandOpen(false), [setCommandOpen])
   const handleCommandSelectCategory = useCallback((id: string) => {
-    handleSelectCategory(id)
-    scrollToSection('archive')
+    // Close the modal first; then wait two frames so the body overflow lock is
+    // restored before we scroll. This avoids iOS/Chrome races where
+    // scrollIntoView runs against a still-locked <body>.
     setCommandOpen(false)
-  }, [handleSelectCategory, scrollToSection, setCommandOpen])
+    setSelectedCategory(id)
+    setSearchQuery('')
+    syncUrlQuery('')
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollToSection('archive')))
+  }, [scrollToSection, syncUrlQuery])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

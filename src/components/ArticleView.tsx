@@ -18,6 +18,8 @@ interface ArticleViewProps {
   allArticles: ArticleClientMeta[]
   onBack: () => void
   onNavigate?: (article: ArticleClientMeta) => void
+  /** Open in-page CommandPalette prefilled with a tag instead of hard-reloading home. */
+  onTagSearch?: (tag: string) => void
   /** Prevent article-level Escape navigation while another modal/dialog is open. */
   disableEscapeBack?: boolean
 }
@@ -218,7 +220,7 @@ function headingId(text: string, index: number) {
   return `h-${slugify(text)}-${index}`
 }
 
-export default function ArticleView({ article, allArticles, onBack, onNavigate, disableEscapeBack = false }: ArticleViewProps) {
+export default function ArticleView({ article, allArticles, onBack, onNavigate, onTagSearch, disableEscapeBack = false }: ArticleViewProps) {
   const category = categories.find((c) => c.id === article.category)
   const imageWidth = article.imageWidth ?? 1280
   const imageHeight = article.imageHeight ?? 800
@@ -407,7 +409,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           // FIX CLS: aspect-ratio reserves the exact space before the image loads so
           // surrounding text doesn't shift. max-h-[600px] still caps very tall images.
           <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: '16/9' }}>
-            <img itemProp="image" src={imgMatch[2]} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
+            <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
             {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
           </figure>
         )
@@ -421,7 +423,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         return (
           <section key={idx} id={headingId(separatorTitle, idx)} className="scroll-mt-28 mt-16 mb-8">
             <div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
-            <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.36em] text-amber-800/70 dark:text-amber-500/70">Раздел</p>
+            <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.18em] text-amber-800/70 dark:text-amber-500/70">Раздел</p>
             <h2 className="mt-2 font-serif text-2xl font-semibold leading-snug tracking-[-0.04em] text-stone-950 dark:text-stone-100 md:text-3xl">{separatorTitle}</h2>
             <div className="mt-6 h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
           </section>
@@ -455,7 +457,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         return (
           <div key={idx} id={headingId(p, idx)} className="scroll-mt-28 mt-14 mb-6">
             <div className="h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
-            <h2 className="mt-5 font-mono text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-900/80 dark:text-amber-400/80 md:text-xs">{p}</h2>
+            <h2 className="mt-5 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-900/80 dark:text-amber-400/80 md:text-xs">{p}</h2>
           </div>
         )
       }
@@ -498,7 +500,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   return (
     <div className="relative bg-[var(--bg-main)] pb-32 pt-0 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
-      <div className="fixed inset-x-0 top-[84px] z-40 hidden h-[3px] lg:block">
+      <div className="fixed inset-x-0 top-[var(--header-height)] z-40 hidden h-[3px] lg:block">
         <div className="h-[3px] bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
       </div>
 
@@ -533,10 +535,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                     key={tag}
                     type="button"
                     onClick={() => {
-                      // Navigate directly to home with the tag as a search query.
-                      // Using URL param instead of sessionStorage avoids history.back()
-                      // issues where the user came from another article.
-                      window.location.href = '/?q=' + encodeURIComponent(tag)
+                      onTagSearch?.(tag)
                     }}
                     className="border border-stone-200 dark:border-stone-700 px-2 py-0.5 transition hover:border-amber-700 hover:text-amber-800 dark:hover:border-amber-500 dark:hover:text-amber-400 cursor-pointer"
                     title={`Найти материалы по тегу ${tag}`}
@@ -702,7 +701,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           )}
 
           {/* 3-column body */}
-          <div className={`grid gap-10 ${focusMode ? 'lg:grid-cols-[minmax(0,54rem)] lg:justify-center' : 'lg:grid-cols-[15rem_minmax(0,52rem)_1fr]'}`}>
+          <div className={`grid gap-10 ${focusMode ? 'lg:grid-cols-[minmax(0,54rem)] lg:justify-center' : 'lg:grid-cols-[15rem_minmax(0,54rem)_15rem]'}`}>
             {/* Desktop sidebar */}
             <aside className={`${focusMode ? 'hidden' : 'hidden lg:block'}`}>
               <div className="sticky top-28 space-y-8">
@@ -750,7 +749,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           {article.faq && article.faq.length > 0 && (
             <section className="my-20 pt-12 border-t border-stone-200 dark:border-stone-800">
               <div className="mb-10 text-center">
-                <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-amber-800 dark:text-amber-500">Диагностика ошибок</span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-500">Диагностика ошибок</span>
                 <h2 className="mt-3 font-serif text-3xl md:text-4xl font-semibold text-stone-900 dark:text-stone-100">Частые ошибки и вопросы</h2>
               </div>
               <div className="mx-auto max-w-3xl space-y-4">
@@ -814,7 +813,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
           {/* Related articles */}
           {!focusMode && related.length > 0 && (
             <section className="mt-20 border-t border-stone-200 dark:border-stone-800 pt-12">
-              <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.32em] text-stone-500">Читайте также — {category?.name}</p>
+              <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.2em] text-stone-500">Читайте также — {category?.name}</p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map(r => (
                   <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">

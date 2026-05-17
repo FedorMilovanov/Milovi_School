@@ -65,7 +65,7 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
       >
         {prefix}{count}{suffix}
       </span>
-      <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.3em] text-stone-500 dark:text-stone-400">
+      <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
         {label}
       </span>
       {onClick && (
@@ -107,7 +107,7 @@ export default function StatsBar({ articleCount, authorCount, categoryCount, onG
   return (
     <section className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
       <div className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6">
-        <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-amber-800 dark:text-amber-400">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-400">
           Архив · Статистика библиотеки
         </p>
         <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.05em] text-stone-950 dark:text-stone-100 sm:text-4xl">

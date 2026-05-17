@@ -60,7 +60,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
     <section id="archive" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
       <div className="grid gap-10 border-y border-[var(--border-subtle)] py-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <div>
-          <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-amber-800 dark:text-amber-200">Навигация по архиву</p>
+          <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-200">Навигация по архиву</p>
           <h2 className="font-serif text-5xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 md:text-7xl">Шефы, техники, кухня</h2>
         </div>
         <div className="relative">

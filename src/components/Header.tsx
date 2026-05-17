@@ -158,7 +158,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             aria-modal="true"
             aria-label="Навигационное меню"
             id="mobile-navigation-menu"
-            className="fixed inset-x-0 top-[84px] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
+            className="fixed inset-x-0 top-[var(--header-height)] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
             initial={shouldReduce ? false : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}

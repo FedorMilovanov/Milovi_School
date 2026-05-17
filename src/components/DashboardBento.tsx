@@ -176,7 +176,7 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
       <div className="mx-auto max-w-7xl">
         <ScrollReveal direction="up">
           <p
-            className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em]"
+            className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em]"
             style={{ color: 'var(--text-muted)' }}
           >
             Ваш прогресс

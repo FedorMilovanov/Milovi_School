@@ -14,6 +14,7 @@ interface CommandPaletteProps {
   onClose: () => void
   onOpenArticle: (article: ArticleClientMeta) => void
   onSelectCategory?: (id: string) => void
+  initialQuery?: string
 }
 
 interface ArticleResult {
@@ -63,7 +64,7 @@ function ArticleImage({ src, alt, style }: { src: string; alt: string; style?: C
   )
 }
 
-export default function CommandPalette({ open, articles, onClose, onOpenArticle, onSelectCategory }: CommandPaletteProps) {
+export default function CommandPalette({ open, articles, onClose, onOpenArticle, onSelectCategory, initialQuery = '' }: CommandPaletteProps) {
   const [query, setQuery]             = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [filterCat, setFilterCat]     = useState<string | null>(null)
@@ -82,8 +83,8 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   const fuse = useMemo(() => new Fuse<ArticleClientMeta>(articles, ARTICLE_FUSE_OPTIONS), [articles])
 
   useEffect(() => {
-    if (open) { setQuery(''); setActiveIndex(0); setFilterCat(null); requestAnimationFrame(() => inputRef.current?.focus()) }
-  }, [open])
+    if (open) { setQuery(initialQuery); setActiveIndex(0); setFilterCat(null); requestAnimationFrame(() => inputRef.current?.focus()) }
+  }, [open, initialQuery])
 
   useEffect(() => {
     if (!open) return
@@ -298,7 +299,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                 <button
                   type="button"
                   onClick={onClose}
-                  className="font-mono text-[8px] uppercase tracking-[0.32em] shrink-0 transition-opacity"
+                  className="font-mono text-[11px] uppercase tracking-[0.18em] shrink-0 transition-opacity"
                   style={{ color: 'var(--cp-text-mid)' }}
                   onMouseEnter={e => (e.currentTarget.style.opacity = '0.6')}
                   onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -465,7 +466,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="px-5 py-12 text-center">
                         <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center font-mono text-base"
                           style={{ background: 'var(--cp-chip)', borderRadius: 4, color: 'var(--cp-text-mid)' }}>∅</div>
-                        <p className="font-mono text-[10px] uppercase tracking-[0.3em]" style={{ color: 'var(--text-muted)' }}>Ничего не найдено</p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>Ничего не найдено</p>
                         {query.trim() && <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>«{query}»</p>}
                         {filterCat && (
                           <button type="button" onClick={() => setFilterCat(null)}
@@ -500,7 +501,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                         <div style={{ width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--cp-chip)', border: '1px solid var(--cp-chip-border)', borderRadius: 4, fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--text-accent)', letterSpacing: '0.08em' }}>
                           {activeQuickAction.icon}
                         </div>
-                        <p className="font-mono text-[8.5px] uppercase tracking-[0.32em]" style={{ color: 'var(--cp-text-mid)' }}>Раздел архива</p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-mid)' }}>Раздел архива</p>
                         <p className="font-serif text-[19px] font-semibold leading-tight tracking-[-0.03em]" style={{ color: 'var(--text-primary)' }}>
                           {activeQuickAction.label}
                         </p>
@@ -618,8 +619,8 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 }
 
 function SectionLabel({ children, inline }: { children: ReactNode; inline?: boolean }) {
-  if (inline) return <span className="font-mono text-[9.5px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
-  return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[9.5px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
+  if (inline) return <span className="font-mono text-[9.5px] uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
+  return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[9.5px] uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
 }
 
 function Divider() {

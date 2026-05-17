@@ -79,7 +79,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
       <div className="relative mx-auto flex min-h-[88vh] max-w-7xl items-end px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div className="max-w-4xl hero-text text-white">
           <motion.p
-            className="mb-5 font-mono text-[10px] uppercase tracking-[0.38em] text-amber-200/85 sm:text-xs"
+            className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/85 sm:text-xs"
             initial={shouldReduce ? false : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={shouldReduce ? { duration: 0 } : { duration: 0.7, delay: 0.15 }}

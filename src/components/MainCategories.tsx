@@ -103,7 +103,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
               Архив по темам
             </h2>
           </div>
-          <p className="max-w-md font-['Cormorant_Garamond'] text-base italic leading-[1.82] text-[var(--ink-50)]">
+          <p className="max-w-md font-serif text-base italic leading-[1.82] text-[var(--ink-50)]">
             Четыре главных раздела — шефы, техники, рецепты и аналитика кондитерского мира. Выберите направление или читайте всё подряд.
           </p>
         </div>
@@ -143,20 +143,20 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
 
                   {/* "NEW" badge */}
                   {cat.isNew && (
-                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[8px] uppercase tracking-[0.32em] text-white">
+                    <div className="absolute left-5 top-5 z-10 bg-[var(--gold)] px-3 py-[5px] font-mono text-[10px] uppercase tracking-[0.18em] text-white">
                       Nouveau
                     </div>
                   )}
 
                   {/* Body overlay */}
                   <div className="absolute inset-x-0 bottom-0 p-9">
-                    <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.36em] text-[rgba(212,169,106,0.75)]">
+                    <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
                     <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
                       {cat.name}
                     </span>
-                    <p className="mt-2.5 max-w-xs font-['Cormorant_Garamond'] text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">
+                    <p className="mt-2.5 max-w-xs font-serif text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">
                       {cat.desc}
                     </p>
                     <div className="mt-5 flex items-center justify-between border-t border-[rgba(255,255,255,0.1)] pt-4">

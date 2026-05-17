@@ -47,6 +47,9 @@
   /* Shadows */
   --glow-gold: 0 8px 32px rgba(184, 134, 11, 0.08);
 
+  /* Layout */
+  --header-height: 84px;
+
   /* Effects */
   --glass-blur: blur(32px) saturate(180%);
 

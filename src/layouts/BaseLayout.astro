@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import { ClientRouter } from 'astro:transitions'
 
 interface Props {
   title?: string
@@ -125,6 +126,9 @@ const metaDescription =
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
+    <!-- Smooth same-origin MPA navigation / View Transitions -->
+    <ClientRouter />
+
     <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest" />
 
@@ -138,7 +142,6 @@ const metaDescription =
          <link rel="stylesheet"> further down to discover it
       3. actual stylesheet still loads non-blocking via the regular link
     -->
-    <!-- BUG #38 FIX: removed dead preconnect to images.unsplash.com (all images are local) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

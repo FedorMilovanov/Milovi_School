@@ -95,7 +95,7 @@ export default function ShowcaseSlider({ onItemClick }: ShowcaseSliderProps) {
   return (
     <section className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
       <div className="mb-8">
-        <p className="font-mono text-[10px] uppercase tracking-[0.34em] text-amber-800 dark:text-amber-200">Знаковые творения</p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-200">Знаковые творения</p>
         <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.05em] text-stone-950 dark:text-stone-100 sm:text-4xl">
           Иконы современной pâtisserie
         </h2>

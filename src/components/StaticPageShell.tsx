@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import Footer from './Footer'
 import Header from './Header'
 import { safeSetItem } from '../utils/storage'
+import { navigateTo } from '../utils/navigation'
 
 type Theme = 'light' | 'dark'
 
@@ -37,25 +38,25 @@ export default function StaticPageShell({ children }: StaticPageShellProps) {
   }, [theme, themeReady])
 
   const goHome = useCallback(() => {
-    window.location.href = '/'
+    void navigateTo('/')
   }, [])
 
   const goCategories = useCallback(() => {
-    window.location.href = '/#archive'
+    void navigateTo('/#archive')
   }, [])
 
   const goArticles = useCallback(() => {
-    window.location.href = '/#articles'
+    void navigateTo('/#articles')
   }, [])
 
   const goAbout = useCallback(() => {
-    window.location.href = '/about/'
+    void navigateTo('/about/')
   }, [])
 
   // Command palette is a HomeApp feature; on static pages the safest action is
   // to return to the SPA and let users search from there.
   const openCommand = useCallback(() => {
-    window.location.href = '/?command=1'
+    void navigateTo('/?command=1')
   }, [])
 
   const toggleTheme = useCallback(() => {

@@ -20,7 +20,7 @@ export default function Footer() {
       <div className="px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.2fr_0.8fr]">
           <div>
-            <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.34em] text-amber-200/70">О проекте</p>
+            <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/70">О проекте</p>
             <h2 className="max-w-3xl font-serif text-4xl font-semibold leading-[0.95] tracking-[-0.06em] sm:text-6xl">
               Французская pâtisserie на русском языке
             </h2>

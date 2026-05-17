@@ -13,6 +13,7 @@ import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
 import { type Article } from '../data/types'
 import type { ArticleClientMeta } from '../data/types'
+import { navigateTo } from '../utils/navigation'
 
 interface ArticlePageShellProps {
   article: Article
@@ -24,6 +25,7 @@ const THEME_DARK = '#10100f'
 
 export default function ArticlePageShell({ article, allMeta }: ArticlePageShellProps) {
   const [commandOpen, setCommandOpen] = useState(false)
+  const [commandInitialQuery, setCommandInitialQuery] = useState('')
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
@@ -53,11 +55,11 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
 
   const toggleTheme = useCallback(() => setTheme(t => (t === 'dark' ? 'light' : 'dark')), [])
 
-  const goHome = useCallback(() => { window.location.href = '/' }, [])
-  const goToSection = useCallback((sectionId: string) => { window.location.href = `/#${sectionId}` }, [])
+  const goHome = useCallback(() => { void navigateTo('/') }, [])
+  const goToSection = useCallback((sectionId: string) => { void navigateTo(`/#${sectionId}`) }, [])
   const goToArticle = useCallback((a: ArticleClientMeta) => {
     window.scrollTo({ top: 0, behavior: 'auto' })
-    window.location.href = `/articles/${a.id}/`
+    void navigateTo(`/articles/${a.id}/`)
   }, [])
 
   /**
@@ -86,13 +88,18 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     if (canUseBrowserBackRef.current) {
       history.back()
     } else {
-      window.location.href = '/'
+      void navigateTo('/')
     }
   }, [])
 
   const closeCommand = useCallback(() => setCommandOpen(false), [])
   const openArticleByUrl = useCallback((a: ArticleClientMeta) => {
-    window.location.href = `/articles/${a.id}/`
+    void navigateTo(`/articles/${a.id}/`)
+  }, [])
+
+  const openTagSearch = useCallback((tag: string) => {
+    setCommandInitialQuery(tag)
+    setCommandOpen(true)
   }, [])
 
   useEffect(() => {
@@ -132,6 +139,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
             onBack={goBack}
             onNavigate={goToArticle}
             disableEscapeBack={commandOpen}
+            onTagSearch={openTagSearch}
           />
         </main>
         <Footer />
@@ -140,6 +148,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           articles={allMeta}
           onClose={closeCommand}
           onOpenArticle={openArticleByUrl}
+          initialQuery={commandInitialQuery}
         />
         <UpdateNotification />
         <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
