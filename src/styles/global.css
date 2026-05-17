@@ -429,18 +429,10 @@ a {
 /* ── Smart highlight (bionic reading) ────────────────────────── */
 .smart-highlight {
   font-weight: 600;
-  color: #1e3a8a; /* Deep blue text for contrast */
-  background: rgba(147, 197, 253, 0.15); /* Very faint premium blue background */
-  padding: 0.05em 0.3em;
-  border-radius: 4px;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-  transition: all 0.3s ease;
+  color: #1e3a8a;
 }
 .dark .smart-highlight {
-  color: #93c5fd; /* Soft blue text */
-  background: rgba(59, 130, 246, 0.15); /* Faint blue background for dark theme */
-  text-shadow: 0 0 12px rgba(147, 197, 253, 0.2);
+  color: #93c5fd;
 }
 
 /* ── Category image cards (MainCategories) ────────────────────── */

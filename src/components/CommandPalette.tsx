@@ -74,7 +74,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
   const shouldReduce = useReducedMotion()
 
   useEffect(() => {
-    const onResize = () => setWideEnough(window.innerWidth >= 640)
+    const onResize = () => setWideEnough(window.innerWidth >= 768)
     onResize() // Sync initial value — without this wideEnough stays true until first resize
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
@@ -201,12 +201,13 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-start justify-center px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
             style={{
               background: 'rgba(5,4,3,0.88)',
               backdropFilter: 'blur(22px) saturate(130%)',
-              paddingTop: 'max(5svh, env(safe-area-inset-top, 20px))',
+              paddingTop: 'max(4svh, env(safe-area-inset-top, 16px))',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              alignItems: 'flex-start',
             }}
             initial={shouldReduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -221,7 +222,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
               aria-label="Поиск по материалам"
               className="w-full overflow-hidden"
               style={{
-                maxWidth: 760, borderRadius: '16px',
+                maxWidth: 980, borderRadius: '16px',
                 maxHeight: 'min(92svh, 92vh)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -237,9 +238,9 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
               onKeyDown={handleKeyDown}
             >
               {/* Search bar */}
-              <div className="flex items-center gap-3 px-5 shrink-0" style={{ height: 54 }}>
+              <div className="flex items-center gap-3 px-5 shrink-0" style={{ height: 62 }}>
                 <motion.svg
-                  className="h-[15px] w-[15px] shrink-0"
+                  className="h-[18px] w-[18px] shrink-0"
                   animate={{ opacity: query ? 0.6 : 0.28, color: query ? 'var(--text-accent)' : 'var(--text-primary)' }}
                   transition={{ duration: 0.2 }}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}
@@ -253,7 +254,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                   onChange={e => { setQuery(e.target.value); setFilterCat(null) }}
                   placeholder="Поиск материалов, шефов, техник..."
                   aria-label="Поиск материалов, шефов и техник"
-                  className="flex-1 bg-transparent text-[16px] md:text-[14px] font-light tracking-wide outline-none"
+                  className="flex-1 bg-transparent text-[17px] font-light tracking-wide outline-none"
                   style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
                 />
 
@@ -262,7 +263,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                     <motion.span
                       initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-                      className="font-mono text-[9px] uppercase tracking-[0.18em] shrink-0"
+                      className="font-mono text-[11px] uppercase tracking-[0.18em] shrink-0"
                       style={{ color: 'var(--text-accent)', opacity: 0.6 }}
                     >
                       {articleResults.length}&nbsp;{pluralRu(articleResults.length, RESULT)}
@@ -306,14 +307,14 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                     <div className="cp-chips flex items-center gap-1.5 overflow-x-auto px-5 py-2" style={{ borderBottom: '1px solid var(--cp-divider)' }}>
                       <button
                         type="button" onClick={() => setFilterCat(null)}
-                        className="cp-chip shrink-0 font-mono text-[7.5px] uppercase tracking-[0.2em] transition-all"
+                        className="cp-chip shrink-0 font-mono text-[9px] uppercase tracking-[0.2em] transition-all"
                         style={{ padding: '4px 10px', borderRadius: 2, background: !filterCat ? 'var(--text-accent)' : 'var(--cp-chip)', color: !filterCat ? 'var(--bg-main)' : 'var(--text-muted)', border: '1px solid', borderColor: !filterCat ? 'transparent' : 'var(--cp-chip-border)' }}
                       >Все</button>
                       {chipCategories.map(cat => (
                         <motion.button
                           key={cat.id} type="button" layout
                           onClick={() => setFilterCat(prev => prev === cat.id ? null : cat.id)}
-                          className="cp-chip shrink-0 font-mono text-[7.5px] uppercase tracking-[0.15em] transition-all"
+                          className="cp-chip shrink-0 font-mono text-[9px] uppercase tracking-[0.15em] transition-all"
                           style={{ padding: '4px 10px', borderRadius: 2, whiteSpace: 'nowrap', background: filterCat === cat.id ? 'var(--text-accent)' : 'var(--cp-chip)', color: filterCat === cat.id ? 'var(--bg-main)' : 'var(--text-muted)', border: '1px solid', borderColor: filterCat === cat.id ? 'transparent' : 'var(--cp-chip-border)' }}
                         >
                           <span style={{ marginRight: 4, opacity: 0.65 }}>{cat.icon}</span>{cat.name}
@@ -327,7 +328,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
               {/* Body */}
               <div style={{ display: 'flex', alignItems: 'stretch', minHeight: 0, flex: 1, overflow: 'hidden' }}>
                 {/* Left: list */}
-                <div ref={listRef} className="cp-list min-w-0 flex-1 overflow-y-auto" style={{ maxHeight: 'min(58svh, 60vh)' }}>
+                <div ref={listRef} className="cp-list min-w-0 flex-1 overflow-y-auto" style={{ maxHeight: 'min(72svh, 72vh)' }}>
 
                   {/* Quick actions */}
                   {showQuickActions && (
@@ -345,8 +346,8 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                                 style={{ borderRadius: 2, background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)', color: isActive ? 'var(--bg-main)' : 'var(--text-muted)', transition: 'all 0.09s ease' }}
                               >{action.icon}</span>
                               <div className="min-w-0 flex-1">
-                                <p className="text-[12px] font-normal" style={{ color: 'var(--text-primary)' }}>{action.label}</p>
-                                {action.sublabel && <p className="truncate font-mono text-[9px]" style={{ color: 'var(--text-muted)' }}>{action.sublabel}</p>}
+                                <p className="text-[14px] font-normal" style={{ color: 'var(--text-primary)' }}>{action.label}</p>
+                                {action.sublabel && <p className="truncate font-mono text-[10px]" style={{ color: 'var(--text-muted)' }}>{action.sublabel}</p>}
                               </div>
                               <ArrowRight />
                             </button>
@@ -393,15 +394,15 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                             transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32, delay: Math.min(idx * 0.02, 0.14) }}
                             onClick={() => { onClose(); onOpenArticle(article) }}
                             onMouseEnter={() => setActiveIndex(globalIdx)}
-                            className="flex w-full items-start gap-3 px-5 py-3 text-left"
+                            className="flex w-full items-start gap-3 px-5 py-3.5 text-left"
                             style={{ background: isActive ? 'var(--cp-surface)' : 'transparent', borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent', transition: 'background 0.1s ease, border-color 0.08s ease' }}
                           >
                             {/* Thumbnail */}
                             <div style={{ position: 'relative', marginTop: 2, flexShrink: 0 }}>
                               {article.image ? (
-                                <ArticleImage src={article.image} alt="" style={{ width: 52, height: 52, borderRadius: 2 }} />
+                                <ArticleImage src={article.image} alt="" style={{ width: 72, height: 72, borderRadius: 4 }} />
                               ) : (
-                                <div style={{ width: 52, height: 52, borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)', color: isActive ? 'var(--bg-main)' : 'var(--text-muted)', fontFamily: 'monospace', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', transition: 'all 0.1s ease' }}>
+                                <div style={{ width: 72, height: 72, borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)', color: isActive ? 'var(--bg-main)' : 'var(--text-muted)', fontFamily: 'monospace', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', transition: 'all 0.1s ease' }}>
                                   {cat?.icon ?? '·'}
                                 </div>
                               )}
@@ -412,7 +413,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
                               {isActive && article.image && (
                                 <motion.div layoutId="cp-active-ring"
-                                  style={{ position: 'absolute', inset: -1, border: '1.5px solid var(--text-accent)', borderRadius: 3, opacity: 0.5, pointerEvents: 'none' }}
+                                  style={{ position: 'absolute', inset: -1, border: '1.5px solid var(--text-accent)', borderRadius: 5, opacity: 0.5, pointerEvents: 'none' }}
                                   transition={{ type: 'spring', stiffness: 600, damping: 42 }}
                                 />
                               )}
@@ -420,10 +421,10 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
                             {/* Text */}
                             <div style={{ minWidth: 0, flex: 1 }}>
-                              <p className="truncate text-[13px] font-normal leading-snug" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)', transition: 'color 0.1s ease' }}>
+                              <p className="truncate text-[15px] font-normal leading-snug" style={{ color: isActive ? 'var(--text-primary)' : 'var(--text-muted)', transition: 'color 0.1s ease' }}>
                                 <H text={article.title} matches={result.matches} field="title" />
                               </p>
-                              <p className="mt-0.5 truncate font-mono text-[9px]" style={{ color: 'var(--cp-text-mid)' }}>
+                              <p className="mt-0.5 truncate font-mono text-[10px]" style={{ color: 'var(--cp-text-mid)' }}>
                                 <span style={{ opacity: 0.7 }}>{cat?.icon ?? '·'}</span>{' '}{cat?.name ?? article.category}{' · '}{article.readTime} мин
                                 {article.author && <>{' · '}<span style={byAuthor ? { color: 'var(--text-accent)', opacity: 0.8 } : undefined}><H text={article.author} matches={result.matches} field="author" /></span></>}
                               </p>
@@ -467,8 +468,8 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                   </div>
                 </div>
 
-                {/* Right: preview panel (sm+ only) */}
-                <AnimatePresence mode="wait">
+                {/* Right: preview panel (md+ only) */}
+                <AnimatePresence mode="sync">
                   {activeQuickAction && wideEnough && (
                     <motion.div
                       key={`qa-${activeQuickAction.id}`}
@@ -476,7 +477,7 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                       animate={{ opacity: 1, x: 0 }}
                       exit={shouldReduce ? {} : { opacity: 0, x: 10 }}
                       transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
-                      style={{ width: 260, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '24px 18px' }}
+                      style={{ width: 320, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: '28px 22px' }}
                     >
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
                         <div style={{ width: 56, height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--cp-chip)', border: '1px solid var(--cp-chip-border)', borderRadius: 4, fontFamily: 'var(--font-mono)', fontSize: 14, color: 'var(--text-accent)', letterSpacing: '0.08em' }}>
@@ -512,10 +513,10 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                       animate={{ opacity: 1, x: 0 }}
                       exit={shouldReduce ? {} : { opacity: 0, x: 10 }}
                       transition={shouldReduce ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 40 }}
-                      style={{ width: 260, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                      style={{ width: 320, flexShrink: 0, borderLeft: '1px solid var(--cp-divider)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                       className="flex"
                     >
-                      <div style={{ position: 'relative', height: 200, flexShrink: 0 }}>
+                      <div style={{ position: 'relative', height: 260, flexShrink: 0 }}>
                         {activeResult.item.image ? (
                           <ArticleImage src={activeResult.item.image} alt={activeResult.item.title} style={{ width: '100%', height: '100%' }} />
                         ) : (
@@ -537,16 +538,16 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
                         )}
                       </div>
 
-                      <div style={{ padding: '14px 16px 12px', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <p className="text-[13px] font-normal" style={{ color: 'var(--text-primary)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <div style={{ padding: '16px 18px 14px', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <p className="text-[15px] font-normal" style={{ color: 'var(--text-primary)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                           <H text={activeResult.item.title} matches={activeResult.matches} field="title" />
                         </p>
                         {activeResult.item.excerpt && (
-                          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                             <H text={activeResult.item.excerpt} matches={activeResult.matches} field="excerpt" />
                           </p>
                         )}
-                        <div className="flex items-center gap-2 font-mono text-[8px] uppercase tracking-[0.14em]" style={{ color: 'var(--cp-text-mid)' }}>
+                        <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.14em]" style={{ color: 'var(--cp-text-mid)' }}>
                           <span>{activeResult.item.readTime} мин</span>
                           {activeResult.item.date && <><span style={{ opacity: 0.4 }}>·</span><span>{new Date(activeResult.item.date).toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' })}</span></>}
                         </div>
@@ -577,12 +578,12 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 
               {/* Footer */}
               <div className="flex items-center justify-between px-5 py-2.5 shrink-0" style={{ borderTop: '1px solid var(--cp-divider)' }}>
-                <div className="flex items-center gap-5 font-mono text-[7.5px] uppercase tracking-[0.24em]" style={{ color: 'var(--cp-text-mid)' }}>
+                <div className="flex items-center gap-5 font-mono text-[9px] uppercase tracking-[0.24em]" style={{ color: 'var(--cp-text-mid)' }}>
                   <span>↑↓ навигация</span>
                   <span>↵ открыть</span>
                   <span className="hidden sm:inline">esc закрыть</span>
                 </div>
-                <span className="font-mono text-[7.5px] uppercase tracking-[0.2em]" style={{ color: 'var(--cp-text-lo)' }}>
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em]" style={{ color: 'var(--cp-text-lo)' }}>
                   {articles.length}&thinsp;{pluralRu(articles.length, MATERIAL)}
                 </span>
               </div>
@@ -595,8 +596,8 @@ export default function CommandPalette({ open, articles, onClose, onOpenArticle,
 }
 
 function SectionLabel({ children, inline }: { children: ReactNode; inline?: boolean }) {
-  if (inline) return <span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
-  return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[8px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
+  if (inline) return <span className="font-mono text-[9.5px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span>
+  return <div className="px-5 pb-1 pt-3"><span className="font-mono text-[9.5px] uppercase tracking-[0.36em]" style={{ color: 'var(--cp-text-mid)' }}>{children}</span></div>
 }
 
 function Divider() {
