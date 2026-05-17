@@ -266,6 +266,7 @@ if errors:
     report.append('\n## Errors')
     for m in errors: report.append(f'- {m}')
 (ROOT/'audit').mkdir(exist_ok=True)
-(ROOT/'audit/site-audit-report.md').write_text('\n'.join(report), encoding='utf-8')
-print('\n'.join(report))
+report_text = '\n'.join(report) + '\n'
+(ROOT/'audit/site-audit-report.md').write_text(report_text, encoding='utf-8')
+print(report_text, end='')
 sys.exit(1 if errors else 0)

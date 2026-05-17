@@ -5,7 +5,7 @@
 
 ## Passed checks
 - Source/public text files scanned for broken UTF-8
-- Images verified: 140 files
+- Images verified: 141 files
 - Article image dimensions map checked: 115 records
 - HTML routes checked: 121, local refs checked: 2445, JSON-LD blocks: 245
 - Built article pages: 115
