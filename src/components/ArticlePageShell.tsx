@@ -126,7 +126,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onToggleTheme={toggleTheme}
           onGoHome={goHome}
           onGoCategories={() => goToSection('archive')}
-          onGoArticles={() => goToSection('articles')}
+          onGoArticles={() => { void navigateTo('/materials/') }}
           onGoAbout={() => goToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />

@@ -54,10 +54,10 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           <div className="mx-auto max-w-[1600px] px-6 lg:px-10">
             <div className="mb-16 flex flex-col items-start gap-6 border-b border-[var(--border)] pb-12">
               <h1 className="section-title-lux font-serif text-[clamp(2.8rem,5.5vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[var(--ink)]">
-                <LuxuryText tone="section" as="span">Библиотека материалов</LuxuryText>
+                <LuxuryText tone="section" as="span">Галерея материалов</LuxuryText>
               </h1>
               <p className="max-w-xl font-serif text-lg italic leading-[1.82] text-[var(--ink-50)]">
-                Все статьи, рецепты и переводы.
+                Все статьи, рецепты и переводы — визуальная плитка с фотографиями и premium-hover карточек.
               </p>
             </div>
 
@@ -93,8 +93,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                           {article.category}
                         </span>
-                        <span className="cat-card-name-lux block font-serif text-[1.4rem] font-semibold leading-tight tracking-[-0.03em] text-white section-title-lux">
-                          <LuxuryText tone="about-white" as="span">{article.title}</LuxuryText>
+                        <span className="cat-card-name-lux block font-serif text-[1.4rem] font-semibold leading-tight tracking-[-0.03em] text-white">
+                          {article.title}
                         </span>
                         <div className="mt-4 flex items-center justify-between border-t border-[rgba(255,255,255,0.1)] pt-3">
                           <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[rgba(212,169,106,0.6)]">

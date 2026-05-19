@@ -1,25 +1,26 @@
 /**
- * Small navigation helper shared by React islands.
+ * Native navigation helper shared by React islands.
  *
- * When Astro's ClientRouter is available, programmatic navigation uses the
- * same view-transition client router as normal <a> clicks. If the router module
- * is unavailable for any reason (older Astro, disabled JS, test environment),
- * we fall back to the browser's native navigation.
+ * We intentionally do NOT use Astro ClientRouter here. The site has heavy
+ * interactive islands on the home page (custom cursor, search, Framer Motion),
+ * and SPA/view-transition navigation to article pages can keep those islands
+ * alive while the next page hydrates, causing freezes on slower devices.
  */
 type NavigateOptions = { history?: 'auto' | 'push' | 'replace' }
-type AstroNavigate = (href: string, options?: NavigateOptions) => void | Promise<void>
 
 export async function navigateTo(href: string, options?: NavigateOptions) {
-  try {
-    const mod = (await import('astro:transitions/client')) as { navigate?: AstroNavigate }
-    if (typeof mod.navigate === 'function') {
-      await mod.navigate(href, options)
-      return
-    }
-  } catch {
-    // Fall through to native navigation.
+  if (typeof window === 'undefined') return
+
+  const target = new URL(href, window.location.href)
+  const current = new URL(window.location.href)
+
+  // Same path + different hash: native hash update/scroll without a full reload.
+  if (target.origin === current.origin && target.pathname === current.pathname && target.search === current.search && target.hash) {
+    if (options?.history === 'replace') window.location.replace(target.href)
+    else window.location.href = target.href
+    return
   }
 
-  if (options?.history === 'replace') window.location.replace(href)
-  else window.location.assign(href)
+  if (options?.history === 'replace') window.location.replace(target.href)
+  else window.location.assign(target.href)
 }

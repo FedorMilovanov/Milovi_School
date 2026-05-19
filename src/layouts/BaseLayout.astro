@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css'
-import { ClientRouter } from 'astro:transitions'
 
 interface Props {
   title?: string
@@ -126,8 +125,12 @@ const metaDescription =
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Smooth same-origin MPA navigation / View Transitions -->
-    <ClientRouter />
+    <!--
+      Native MPA navigation only.
+      Astro ClientRouter/View Transitions were removed because transitions from
+      the interactive home page to article pages could keep the heavy home
+      island/cursor alive during fetch+hydrate and cause visible freezes.
+    -->
 
     <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest" />

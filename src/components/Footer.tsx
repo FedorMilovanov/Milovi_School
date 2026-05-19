@@ -57,6 +57,7 @@ export default function Footer() {
             <span className="logo-name-patisserie">Pâtisserie</span> Russe · French Pastry Archive · {year}
           </p>
           <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-600">
+            <a href="/materials/" className="transition hover:text-amber-200">Галерея</a>
             <a href="/about/" className="transition hover:text-amber-200">О проекте</a>
             <a href="/methodology/" className="transition hover:text-amber-200">Методология</a>
             <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="transition hover:text-amber-200">Milovi Cake ↗</a>

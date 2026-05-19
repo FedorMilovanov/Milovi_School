@@ -86,7 +86,7 @@
 │   ├── utils/
 │   │   ├── storage.ts              ← SSR-safe localStorage (ОБЯЗАТЕЛЬНО использовать)
 │   │   ├── search.ts               ← Fuse конфиг (вынесен из HomeApp)
-│   │   ├── navigation.ts           ← Astro ClientRouter helper для программных переходов
+│   │   ├── navigation.ts           ← native navigation helper для программных переходов
 │   │   ├── highlight.tsx           ← подсветка результатов поиска
 │   │   ├── plural.ts               ← русские плюрализация
 │   │   └── streak.ts               ← логика "стрика" чтения
@@ -232,7 +232,7 @@ if (typeof window !== 'undefined') {
 
 ### 3.8 Навигация и View Transitions
 
-`src/layouts/BaseLayout.astro` подключает `ClientRouter` из `astro:transitions`.
+`src/layouts/BaseLayout.astro` использует нативную MPA-навигацию; Astro ClientRouter отключён из-за подвисаний при переходах на статьи.
 
 Программные переходы из React-islands должны идти через:
 
@@ -388,7 +388,7 @@ npm run validate
 | Версия | Дата | Что |
 |---|---|---|
 | AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§3.9) с описанием багов и архитектуры поиска |
-| AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + Astro ClientRouter для внутренних переходов, curated audit Markdown можно коммитить. |
+| AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + нативная MPA-навигация для внутренних переходов, curated audit Markdown можно коммитить. |
 | AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 6 + React 18 + TS strict + Tailwind 4) |
 
 ---

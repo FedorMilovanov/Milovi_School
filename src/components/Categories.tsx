@@ -94,6 +94,21 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
         </div>
       </div>
 
+      <div className="mt-8 flex flex-col gap-3 border border-[var(--border-subtle)] bg-[var(--bg-deep)] p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-amber-800 dark:text-amber-300">Визуальная галерея</p>
+          <p className="mt-1 text-sm leading-6 text-stone-600 dark:text-stone-400">
+            Все {allArticles.length} материалов плиткой с фотографиями и тем же premium-hover, что у «Архива по темам».
+          </p>
+        </div>
+        <a
+          href="/materials/"
+          className="inline-flex shrink-0 items-center justify-center border border-stone-900 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-50 dark:border-amber-100/40 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950"
+        >
+          Открыть галерею →
+        </a>
+      </div>
+
       <div className="-mx-6 mt-8 overflow-x-auto overscroll-x-contain px-6 pb-2 md:mx-0 md:overflow-visible md:overscroll-auto md:px-0">
         <div className="flex min-w-max gap-x-8 gap-y-4 md:min-w-0 md:flex-wrap">
           <motion.button
