@@ -534,3 +534,238 @@ a {
 .hero-text {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* ============================================================================
+   ARENA AI PREMIUM IMPORT — 2026-05-19
+   Перенос premium-эффектов из ARENA AI CODE drop (gold cursor, luxury-letter
+   pass, blue Pâtisserie, section-title glow, MainCategories blur-hover).
+   Изолированный блок: все классы префиксированы или новые, ничего из
+   существующего стиля не переопределяется.
+   ============================================================================ */
+
+/* ── 1. PREMIUM CUSTOM CURSOR — gold spark trail ─────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  html, body, * { cursor: none !important; }
+}
+#cursorCanvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999999;
+}
+#cursorAim {
+  position: fixed;
+  top: 0; left: 0;
+  width: 28px; height: 28px;
+  border: 1.2px solid #c5a880;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1000000;
+  transform: translate3d(-50%, -50%, 0);
+  display: flex; align-items: center; justify-content: center;
+  /* never animate left/top, only visual properties */
+  transition: width .16s ease-out, height .16s ease-out, border-color .16s ease-out, box-shadow .16s ease-out, background .16s ease-out;
+  will-change: left, top, transform;
+  background: radial-gradient(circle at 30% 30%, rgba(212,169,106,0.08), transparent 60%);
+  box-shadow: 0 0 12px rgba(197,168,128,0.25), inset 0 0 8px rgba(197,168,128,0.12);
+}
+#cursorAim.light-theme {
+  border-color: #5a4228;
+  box-shadow: 0 0 14px rgba(90,66,40,0.45), inset 0 0 8px rgba(90,66,40,0.22);
+  background: radial-gradient(circle at 30% 30%, rgba(90,66,40,0.15), transparent 60%);
+}
+#cursorAim::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(197,168,128,0.15), rgba(212,169,106,0.28), rgba(197,168,128,0.15), rgba(212,169,106,0.28), rgba(197,168,128,0.15));
+  opacity: 0.65;
+  animation: cursorSpin 4s linear infinite;
+}
+@keyframes cursorSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+#cursorAim::after {
+  content: '';
+  width: 5px; height: 5px;
+  background: radial-gradient(circle at 35% 35%, #f5e6d3, #c5a880, #8b6746);
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 8px rgba(197,168,128,0.85);
+}
+#cursorAim.light-theme::after {
+  background: radial-gradient(circle at 35% 35%, #fff8f0, #a07050, #5a4228);
+  box-shadow: 0 0 10px rgba(90,66,40,0.85);
+}
+@media (hover: none) and (pointer: coarse) {
+  #cursorCanvas, #cursorAim { display: none !important; }
+  html, body, * { cursor: auto !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #cursorAim::before { animation: none; }
+}
+
+/* ── 2. LUXURY LETTER SYSTEM ─────────────────────────────────────────────── */
+/* Группа: filter-glow (контролируется JS через --group-glow-alpha) */
+.luxury-color-text {
+  display: inline;
+  position: relative;
+  color: inherit;
+  --group-glow-alpha: 0;
+  --group-glow-rgb: 176 128 80;
+  filter:
+    drop-shadow(0 0 calc(3px  * var(--group-glow-alpha)) rgb(var(--group-glow-rgb) / calc(var(--group-glow-alpha) * 0.38)))
+    drop-shadow(0 0 calc(8px  * var(--group-glow-alpha)) rgb(var(--group-glow-rgb) / calc(var(--group-glow-alpha) * 0.12)))
+    drop-shadow(0 0 calc(18px * var(--group-glow-alpha)) rgb(var(--group-glow-rgb) / calc(var(--group-glow-alpha) * 0.05)));
+  transition: filter 140ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  isolation: isolate;
+}
+/* Буква: display:inline сохраняет естественный кернинг крупного serif.
+   НЕ ставить inline-block — буквы расползутся. */
+.luxury-letter {
+  color: inherit;
+  display: inline;
+  transition: color 160ms cubic-bezier(0.23, 1, 0.32, 1),
+              text-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hero h1 — две строки, Pâtisserie синий italic */
+.hero-h1-lux .hero-line-1 { display: block; }
+.hero-h1-lux .hero-line-2 {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  /* Базовый цвет — задаётся через Cursor.tsx (palette platinum) при hover.
+     В покое подсвечиваем синим, чтобы соответствовать дизайну дропа. */
+  color: #6da8e2;
+  margin-top: -0.04em;
+}
+.dark .hero-h1-lux .hero-line-2 { color: #6da8e2; }
+:root:not(.dark) .hero-h1-lux .hero-line-2 { color: #4a7eb8; }
+
+/* ── 3. INTERACTIVE TEXT (group glow по близости курсора) ───────────────── */
+/* Управляется через CSS-переменную --wave-alpha (Cursor.tsx). */
+.interactive-text {
+  --wave-alpha: 0;
+  position: relative;
+  transition: text-shadow 180ms ease;
+  -webkit-font-smoothing: antialiased;
+}
+.section-title-lux.interactive-text {
+  text-shadow:
+    0 0 calc(6px  * var(--wave-alpha)) rgba(176,128,80, 0.58),
+    0 0 calc(16px * var(--wave-alpha)) rgba(176,128,80, 0.14),
+    0 0 calc(32px * var(--wave-alpha)) rgba(176,128,80, 0.04);
+}
+.dark .section-title-lux.interactive-text {
+  text-shadow:
+    0 0 calc(8px  * var(--wave-alpha)) rgba(212,169,106, 0.65),
+    0 0 calc(20px * var(--wave-alpha)) rgba(255,236,200, 0.18),
+    0 0 calc(36px * var(--wave-alpha)) rgba(255,236,200, 0.05);
+}
+.about-h2.interactive-text {
+  text-shadow:
+    0 0 calc(6px  * var(--wave-alpha)) rgba(245,240,228, 0.55),
+    0 0 calc(16px * var(--wave-alpha)) rgba(212,169,106, 0.20),
+    0 0 calc(32px * var(--wave-alpha)) rgba(212,169,106, 0.06);
+}
+.about-h2 em.interactive-text {
+  font-style: italic;
+  color: #4a7eb8;
+  text-shadow:
+    0 0 calc(5px  * var(--wave-alpha)) rgba(26,122,239, 0.85),
+    0 0 calc(14px * var(--wave-alpha)) rgba(26,122,239, 0.35),
+    0 0 calc(28px * var(--wave-alpha)) rgba(26,122,239, 0.10);
+}
+.dark .about-h2 em.interactive-text { color: #6da8e2; }
+
+/* ── 4. LOGO Pâtisserie BLUE (header + footer) ──────────────────────────── */
+.logo-name-patisserie {
+  font-style: italic;
+  font-weight: 400;
+  color: #4a7eb8;
+  transition: color 0.3s cubic-bezier(0.23, 1, 0.32, 1),
+              text-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.dark .logo-name-patisserie { color: #6da8e2; }
+.haptic-btn:hover .logo-name-patisserie,
+a:hover .logo-name-patisserie {
+  color: #6da8e2;
+  text-shadow:
+    0 0 6px  rgba(74,126,184,0.55),
+    0 0 16px rgba(74,126,184,0.20),
+    0 0 28px rgba(74,126,184,0.08);
+}
+.dark .haptic-btn:hover .logo-name-patisserie,
+.dark a:hover .logo-name-patisserie {
+  color: #92c4f0;
+  text-shadow:
+    0 0 8px  rgba(109,168,226,0.60),
+    0 0 20px rgba(109,168,226,0.25),
+    0 0 32px rgba(109,168,226,0.10);
+}
+
+/* ── 5. MainCategories — premium hover (image fade-to-blur + scale) ─────── */
+/* НЕ ломаем .cat-img-card (оригинал), только усиливаем через `-lux`. */
+.cat-img-card-lux .cat-card-img-wrap-lux {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+.cat-img-card-lux .cat-card-img-lux {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  z-index: 1;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .cat-img-card-lux:hover .cat-card-img-lux {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+.cat-card-img-wrap-lux::after {
+  content: '';
+  position: absolute;
+  top: -12%; left: -10%;
+  width: 120%; height: 124%;
+  z-index: 0;
+  background: var(--cat-bg, none) center / cover no-repeat;
+  filter: blur(40px) brightness(0.15) contrast(1.2) saturate(1.2);
+  -webkit-filter: blur(40px) brightness(0.15) contrast(1.2) saturate(1.2);
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .cat-img-card-lux:hover .cat-card-img-wrap-lux::after { opacity: 1; }
+}
+/* На touch не нужен fade — оставляем картинку видимой. */
+@media (hover: none) and (pointer: coarse) {
+  .cat-img-card-lux:active { transform: scale(0.98); }
+}
+
+/* ── 6. Selection: не перебивать JS inline color на luxury-letter ──────── */
+.luxury-letter::selection {
+  background: rgba(176, 128, 80, 0.30);
+  color: #1a1510;
+  -webkit-text-fill-color: #1a1510;
+  text-shadow: none;
+}
+.dark .luxury-letter::selection {
+  background: rgba(212, 169, 106, 0.32);
+  color: #ffffff;
+  -webkit-text-fill-color: #ffffff;
+  text-shadow: none;
+}

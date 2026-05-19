@@ -21,6 +21,7 @@ import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
+import Cursor from './Cursor'
 import { useChromeVisible } from '../hooks/useScrollDirection'
 import { type ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
@@ -283,6 +284,10 @@ export default function HomeApp({ articles }: HomeAppProps) {
         <ToastContainer />
         <ScrollProgress />
         <ScrollToTop />
+        {/* Премиальный курсор с золотым трейлом + посимвольной подсветкой
+            заголовков. Перенесён из ARENA AI drop 1-в-1. Сам компонент
+            на mobile / touch-устройствах гасит себя через ранний return. */}
+        <Cursor theme={theme} />
       </ErrorBoundary>
     </div>
   )

@@ -106,13 +106,14 @@ interface StatsBarProps {
 export default function StatsBar({ articleCount, authorCount, categoryCount, onGoToArticles }: StatsBarProps) {
   return (
     <section className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
+      {/* Лишний подзаголовок "Сладкие цифры Франции" удалён по запросу клиента —
+          в этом отделе оставляем только хлебную крошку "Архив · Статистика
+          библиотеки". Сам термин "Сладкие цифры Франции" живёт в категории
+          chiffres-gourmands (см. data/categories.ts → "Chiffres Gourmands"). */}
       <div className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6">
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-400">
           Архив · Статистика библиотеки
         </p>
-        <h2 className="mt-2 font-serif text-3xl font-semibold tracking-[-0.05em] text-stone-950 dark:text-stone-100 sm:text-4xl">
-          Сладкие цифры Франции
-        </h2>
       </div>
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-px sm:grid-cols-4">
         <AnimatedCounter target={articleCount} label="материалов"     onClick={onGoToArticles} />

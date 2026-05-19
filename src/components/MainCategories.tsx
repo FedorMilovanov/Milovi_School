@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
+import LuxuryText from './LuxuryText'
 
 
 const STATIC_CATS = [
@@ -40,7 +41,7 @@ const STATIC_CATS = [
   {
     id: 'chiffres-gourmands',
     badge: 'Статистика · Рейтинги · Аналитика',
-    name: 'Цифры гурмана',
+    name: 'Цифры Гурмана',
     desc: 'Рейтинги пекарен, обороты кондитерских домов, мировое потребление шоколада и другая аналитика индустрии.',
     unit: 'материалов',
     img: '/images/cat-chiffres.webp',
@@ -99,8 +100,12 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
             <span className="mb-3 block font-mono text-[9px] uppercase tracking-[0.44em] text-[var(--gold)]">
               Четыре направления
             </span>
-            <h2 className="mt-2 font-serif text-[clamp(2.8rem,5.5vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[var(--ink)]">
-              Архив по темам
+            {/* "Архив по темам" — реагирует на курсор:
+                1) text-shadow glow всего h2 (через .interactive-text + .section-title-lux)
+                2) посимвольная прогонка золота (LuxuryText tone=section)
+                Оба эффекта работают одновременно (см. Cursor.tsx). */}
+            <h2 className="section-title-lux mt-2 font-serif text-[clamp(2.8rem,5.5vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[var(--ink)]">
+              <LuxuryText tone="section" as="span">Архив по темам</LuxuryText>
             </h2>
           </div>
           <p className="max-w-md font-serif text-base italic leading-[1.82] text-[var(--ink-50)]">
@@ -120,16 +125,21 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                 key={cat.id}
                 type="button"
                 onClick={() => onSelectCategory(cat.id)}
-                className={`cat-img-card reveal group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors ${i > 0 ? `reveal-delay-${Math.min(i, 3)}` : ''}`}
+                className={`cat-img-card cat-img-card-lux reveal group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors ${i > 0 ? `reveal-delay-${Math.min(i, 3)}` : ''}`}
               >
-                {/* Image */}
-                <div className="relative aspect-[16/10] overflow-hidden">
+                {/* Image. cat-card-img-wrap-lux подключает CodyHouse-blur
+                    эффект: на hover изображение растворяется и за ним
+                    проявляется размытая копия (см. global.css → cat-bg URL). */}
+                <div
+                  className="cat-card-img-wrap-lux relative aspect-[16/10] overflow-hidden"
+                  style={{ ['--cat-bg' as string]: `url(${cat.img})` }}
+                >
                   <img
                     src={cat.img}
                     alt={cat.imgAlt} title={cat.imgAlt}
                     loading="lazy"
                     decoding="async"
-                    className="cat-img h-full w-full object-cover"
+                    className="cat-img cat-card-img-lux h-full w-full object-cover"
                     onError={(e) => {
                       const el = e.currentTarget
                       const fb = (cat as { localFallback?: string }).localFallback

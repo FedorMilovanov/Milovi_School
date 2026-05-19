@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { defaultFallback } from '../assets/images'
 import { pluralRu, MATERIAL } from '../utils/plural'
+import LuxuryText from './LuxuryText'
 
 interface HeroProps {
   totalArticles: number
@@ -96,13 +97,16 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
           </motion.p>
 
           <motion.h1
-            className="max-w-4xl font-serif text-[clamp(3.25rem,12vw,9rem)] font-semibold leading-[0.88] tracking-[-0.08em]"
+            className="hero-h1-lux max-w-4xl font-serif text-[clamp(3.25rem,12vw,9rem)] font-semibold leading-[1.02] tracking-[-0.08em]"
             initial={shouldReduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={shouldReduce ? { duration: 0 } : { duration: 0.9, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
-            Французская
-            <span className="block italic text-amber-100">кондитерская</span>
+            {/* Hero h1 — две строки. Курсор покрасит каждую букву по палитре
+                (см. Cursor.tsx). "Французская" — ваниль→золото (tone=title).
+                "Pâtisserie" — синий→ярко-синий (tone=platinum, как в drop). */}
+            <LuxuryText tone="title"    as="span" className="hero-line-1">Французская</LuxuryText>
+            <LuxuryText tone="platinum" as="em"   className="hero-line-2">Pâtisserie</LuxuryText>
           </motion.h1>
 
           <motion.div

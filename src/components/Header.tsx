@@ -84,8 +84,14 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 lg:px-8">
           <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="haptic-btn group flex items-center gap-3 text-left">
             <img src="/images/logo.png" alt="Patisserie Russe" title="Patisserie Russe" width="44" height="44" className="h-11 w-11 rounded-sm transition group-hover:scale-105" loading="eager" decoding="async" />
-            <span>
-              <span className="block font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">Patisserie Russe</span>
+            <span className="logo-text-lux">
+              {/* Бренд "Pâtisserie Russe": слово "Pâtisserie" — синий italic
+                  с blue glow при hover (см. .logo-name-patisserie в global.css).
+                  Стиль перенесён из ARENA AI drop 1-в-1. */}
+              <span className="block font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">
+                <span className="logo-name-patisserie">Pâtisserie</span>{' '}
+                <span className="logo-name-russe">Russe</span>
+              </span>
               <span className="block font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500 dark:text-stone-400">French Pastry Archive</span>
             </span>
           </a>
