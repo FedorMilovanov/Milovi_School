@@ -96,6 +96,17 @@ const SECTIONS: SectionDef[] = [
 
 const SECTION_BY_ID = new Map(SECTIONS.map(s => [s.id, s]))
 
+/** Cover images shown in the right panel when the user hovers a section nav item.
+    Источники: /public/images/ (4 дедикатные) + лучшие статьи для остальных разделов. */
+const SECTION_COVER: Record<string, string> = {
+  chefs:                '/images/cat-chefs.webp',
+  techniques:           '/images/cat-techniques.webp',
+  recipes:              '/images/cat-recipes.webp',
+  'chiffres-gourmands': '/images/cat-chiffres.webp',
+  'histoire-culinaire': '/images/articles/stohrer-1730.webp',
+  'french-cuisine':     '/images/articles/cuisine-brigade.webp',
+}
+
 /** Returns the section id a given article belongs to (first match wins). */
 function sectionIdFor(a: ArticleClientMeta): string {
   for (const s of SECTIONS) if (s.matches(a)) return s.id
@@ -125,6 +136,7 @@ interface ArticleResult {
 
 interface QuickAction {
   id: string
+  sectionId: string
   label: string
   sublabel?: string
   icon: string
@@ -415,6 +427,7 @@ export default function CommandPalette({
     if (!onSelectCategory) return []
     return SECTIONS.map(s => ({
       id: `nav-${s.id}`,
+      sectionId: s.id,
       label: s.label,
       sublabel:
         s.id === 'chefs'
@@ -454,24 +467,56 @@ export default function CommandPalette({
     }))
   }, [articles, fuse, query, recentArticles])
 
-  /* ── Section counts (always over baseResults, never filtered) ── */
+  /* ── Section counts — ВСЕГДА по полному набору, не по baseResults ──
+       Причина бага: baseResults лимитирован (8 недавних или 30 интерливных),
+       поэтому разделы с нулём в выборке отображались как disabled.
+       Теперь: без запроса — считаем все articles, с запросом — все Fuse-результаты. */
   const sectionCounts = useMemo(() => {
     const counts = new Map<string, number>()
-    for (const r of baseResults) {
-      const sid = sectionIdFor(r.item)
-      counts.set(sid, (counts.get(sid) ?? 0) + 1)
+    const trimmed = query.trim()
+    if (trimmed) {
+      // Full Fuse scan (no limit) for accurate per-section counts
+      for (const r of fuse.search(trimmed)) {
+        const sid = sectionIdFor(r.item)
+        counts.set(sid, (counts.get(sid) ?? 0) + 1)
+      }
+    } else {
+      // All articles — no sampling
+      for (const a of articles) {
+        const sid = sectionIdFor(a)
+        counts.set(sid, (counts.get(sid) ?? 0) + 1)
+      }
     }
     return counts
-  }, [baseResults])
+  }, [articles, fuse, query])
 
-  /* ── Apply filter chip (by SECTION) ── */
-  const filteredResults = useMemo<ArticleResult[]>(
-    () =>
-      filterSection
-        ? baseResults.filter(r => sectionIdFor(r.item) === filterSection)
-        : baseResults,
-    [baseResults, filterSection],
+  /** Total matching count for the «Все» chip. */
+  const totalMatchCount = useMemo(
+    () => [...sectionCounts.values()].reduce((acc, n) => acc + n, 0),
+    [sectionCounts],
   )
+
+  /* ── Apply filter chip (by SECTION) ──
+       When a chip is active, show ALL articles in that section (full set or
+       full fuse results). Never limit to baseResults — the sample is too small. */
+  const filteredResults = useMemo<ArticleResult[]>(() => {
+    if (!filterSection) return baseResults
+
+    const trimmed = query.trim()
+    if (trimmed) {
+      // All Fuse results (no limit) filtered to the selected section
+      return fuse.search(trimmed).reduce<ArticleResult[]>((acc, r) => {
+        if (sectionIdFor(r.item) === filterSection) {
+          acc.push({ item: r.item, matches: r.matches as ReadonlyArray<FuseResultMatch> | undefined })
+        }
+        return acc
+      }, [])
+    }
+    // No query — all articles in this section
+    return articles
+      .filter(a => sectionIdFor(a) === filterSection)
+      .map(a => ({ item: a }))
+  }, [baseResults, filterSection, articles, fuse, query])
 
   /* ── Build the actually visible list (grouped or flat) ──
        - When filterSection set: one block, fully expanded.
@@ -520,7 +565,7 @@ export default function CommandPalette({
   )
 
   /* ── Derived flags ── */
-  const showChips = baseResults.length > 0
+  const showChips = totalMatchCount > 0
   const showQuickActions = !query.trim() && !filterSection && quickActions.length > 0
   const totalItems = (showQuickActions ? quickActions.length : 0) + flatVisible.length
 
@@ -810,7 +855,7 @@ export default function CommandPalette({
                         borderColor: !filterSection ? 'transparent' : 'var(--cp-chip-border)',
                       }}
                     >
-                      Все ·&nbsp;{baseResults.length}
+                      Все ·&nbsp;{totalMatchCount}
                     </button>
 
                     {SECTIONS.map(section => {
@@ -1166,32 +1211,58 @@ export default function CommandPalette({
                           inset: 0,
                           display: 'flex',
                           flexDirection: 'column',
-                          padding: '28px 22px',
                           overflow: 'hidden',
                         }}
                       >
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-                          <div style={{
-                            width: 56, height: 56,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            background: 'var(--cp-chip)',
-                            border: '1px solid var(--cp-chip-border)',
-                            borderRadius: 4,
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: 14,
-                            color: 'var(--text-accent)',
-                            letterSpacing: '0.08em',
-                          }}>
-                            {activeQuickAction.icon}
+                        {/* Section cover image */}
+                        {SECTION_COVER[activeQuickAction.sectionId] && (
+                          <div style={{ position: 'relative', height: 200, flexShrink: 0 }}>
+                            <ArticleImage
+                              src={SECTION_COVER[activeQuickAction.sectionId]!}
+                              alt={activeQuickAction.label}
+                              style={{ width: '100%', height: '100%' }}
+                              fadeInDuration={350}
+                              loading="eager"
+                            />
+                            <div style={{
+                              position: 'absolute', inset: 0,
+                              background: 'linear-gradient(to bottom, rgba(0,0,0,0.04) 30%, var(--bg-command) 100%)',
+                              pointerEvents: 'none',
+                            }} />
                           </div>
+                        )}
 
-                          <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-mid)' }}>
-                            Раздел архива
-                          </p>
+                        <div style={{
+                          padding: '18px 22px 22px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                          flex: 1,
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <div style={{
+                              width: 40, height: 40,
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              background: 'var(--cp-chip)',
+                              border: '1px solid var(--cp-chip-border)',
+                              borderRadius: 4,
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: 11,
+                              color: 'var(--text-accent)',
+                              letterSpacing: '0.08em',
+                              flexShrink: 0,
+                            }}>
+                              {activeQuickAction.icon}
+                            </div>
+
+                            <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--cp-text-mid)' }}>
+                              Раздел архива
+                            </p>
+                          </div>
 
                           <p
                             className="font-serif text-[19px] font-semibold leading-tight tracking-[-0.03em]"
-                            style={{ color: 'var(--text-primary)', minHeight: '2.4em', display: 'flex', alignItems: 'flex-start' }}
+                            style={{ color: 'var(--text-primary)' }}
                           >
                             {activeQuickAction.label}
                           </p>
@@ -1205,7 +1276,7 @@ export default function CommandPalette({
                           <button
                             type="button"
                             onClick={activeQuickAction.action}
-                            className="mt-3 flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
+                            className="mt-auto flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
                             style={{
                               color: 'var(--text-accent)',
                               opacity: 0.85,
