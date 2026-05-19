@@ -1,9 +1,19 @@
-// CommandPalette v4.0 Final
-// Architecture decisions:
-//  [IMG] useEffect + img.decode() with tokens → no blocking, cached images show instantly,
-//        stale onLoad/onError never corrupt state.
-//  [PRV] mode="wait" inside static container (320px) → single DOM node at a time,
-//        eliminates layout shift and double-text artifact completely.
+// CommandPalette v5.0 — grouped sections + robust image fallback
+// What changed vs v4.0:
+//  [SEC] Results are grouped under fixed top-level sections, NOT chef names:
+//        Шефы и Мастера · Техники · Рецепты · Цифры Гурмана · Histoire Culinaire · Французская кухня
+//        Section chips are always the same six (Algolia/Linear/Raycast pattern),
+//        with per-section result counts.
+//  [LIM] Fuse limit raised 12 → 60, idle slice 10 → 24 — Algolia recommends 20–50
+//        hits per group; we cap per-section visible to 6 with «показать ещё N».
+//  [GRP] Groups render with sticky-section headers; flat keyboard index walks
+//        only currently visible items so ↑/↓ behaves naturally across groups.
+//  [IMG] Failed images now fall back to a local pastry photo (fallbackImageFor)
+//        instead of an empty «✦» glyph. Reset on every src change via token.
+//
+// Architecture decisions kept from v4.0:
+//  [IMG] useEffect + img.decode() with tokens → no blocking, cached images show instantly.
+//  [PRV] mode="wait" inside static container (320px) → single DOM node at a time.
 //  [HVR] Debounced setActiveIndex (45ms) → reduces re-renders during fast mouse sweeps.
 //  [SCR] RAF-throttled visibility-based scrollIntoView('auto') → no layout thrashing.
 //  [PFC] Preload current + adjacent images → instant crossfades in preview.
@@ -27,11 +37,73 @@ import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
 import { highlightWithMatches } from '../utils/highlight'
 import { ARTICLE_FUSE_OPTIONS } from '../utils/search'
+import { fallbackImageFor } from '../assets/images'
 
 /* ═════════════════════════════════════════
    Static data – computed once
    ═════════════════════════════════════════ */
 const categoryById = new Map(categories.map(c => [c.id, c]))
+
+/* ───── Top-level sections (single source of truth for grouping + chips) ─────
+   The user sees results split by these six fixed sections, NEVER by individual
+   chef names. Chef-specific categories collapse into the «Шефы и Мастера»
+   group; the rest are first-class buckets.                                    */
+interface SectionDef {
+  id: string
+  label: string
+  icon: string
+  matches: (a: ArticleClientMeta) => boolean
+}
+
+const SECTIONS: SectionDef[] = [
+  {
+    id: 'chefs',
+    label: 'Шефы и Мастера',
+    icon: '✦',
+    matches: (a) => !NON_CHEF_CATEGORY_IDS.has(a.category),
+  },
+  {
+    id: 'techniques',
+    label: 'Техники',
+    icon: 'TK',
+    matches: (a) => a.category === 'techniques',
+  },
+  {
+    id: 'recipes',
+    label: 'Рецепты',
+    icon: 'RC',
+    matches: (a) => a.category === 'recipes',
+  },
+  {
+    id: 'chiffres-gourmands',
+    label: 'Цифры Гурмана',
+    icon: 'EC',
+    matches: (a) => a.category === 'chiffres-gourmands',
+  },
+  {
+    id: 'histoire-culinaire',
+    label: 'Histoire Culinaire',
+    icon: 'HC',
+    matches: (a) => a.category === 'histoire-culinaire',
+  },
+  {
+    id: 'french-cuisine',
+    label: 'Французская кухня',
+    icon: 'FR',
+    matches: (a) => a.category === 'french-cuisine',
+  },
+]
+
+const SECTION_BY_ID = new Map(SECTIONS.map(s => [s.id, s]))
+
+/** Returns the section id a given article belongs to (first match wins). */
+function sectionIdFor(a: ArticleClientMeta): string {
+  for (const s of SECTIONS) if (s.matches(a)) return s.id
+  return 'chefs' // safe default — chef catch-all
+}
+
+/** Initial visible items per section (before user expands). */
+const PER_SECTION_INITIAL = 6
 
 /* ═════════════════════════════════════════
    Types
@@ -100,13 +172,12 @@ function ArrowRight() {
 }
 
 /* ═════════════════════════════════════════
-   ArticleImage – robust image loading
+   ArticleImage – robust image loading + local fallback
    ═════════════════════════════════════════
-   Key insight: We do NOT use useLayoutEffect to block the render thread.
-   Instead we use a token system + src guard so that rapid src changes
-   cannot cause stale callbacks to corrupt state.
-   For already-cached images (complete=true) we call decode() which resolves
-   synchronously or nearly-so, letting us set loaded=true immediately.
+   On network/404 error we automatically swap to a bundled local fallback
+   chosen by category (fallbackImageFor). Only after the FALLBACK also fails
+   do we show the «✦» glyph — so the search preview never breaks the layout.
+   Token + srcRef guard against stale callbacks when src changes rapidly.
    ═════════════════════════════════════════ */
 function ArticleImage({
   src,
@@ -114,30 +185,49 @@ function ArticleImage({
   style,
   fadeInDuration = 350,
   loading = 'lazy',
+  fallbackSrc,
 }: {
   src: string
   alt: string
   style?: CSSProperties
   fadeInDuration?: number
-  loading?: 'lazy' | 'eager' | 'auto'
+  loading?: 'lazy' | 'eager'
+  /** Local guaranteed image to use if `src` fails (404, CORS, decode error). */
+  fallbackSrc?: string
 }) {
   const [loaded, setLoaded] = useState(false)
   const [errored, setErrored] = useState(false)
+  const [currentSrc, setCurrentSrc] = useState(src)
+  const fallbackTriedRef = useRef(false)
 
   const imgRef = useRef<HTMLImageElement>(null)
-  // Guard against stale callbacks when src changes rapidly
-  const srcRef = useRef(src)
-  // Token invalidates any pending async work when src changes
+  const srcRef = useRef(currentSrc)
   const tokenRef = useRef(0)
 
-  // Keep srcRef up-to-date (for callback guards)
-  useEffect(() => { srcRef.current = src }, [src])
+  useEffect(() => { srcRef.current = currentSrc }, [currentSrc])
+
+  // Reset when the upstream src prop changes (new article hovered)
+  useEffect(() => {
+    fallbackTriedRef.current = false
+    setCurrentSrc(src)
+  }, [src])
+
+  const triggerFallback = useCallback(() => {
+    if (!fallbackTriedRef.current && fallbackSrc && fallbackSrc !== currentSrc) {
+      fallbackTriedRef.current = true
+      setErrored(false)
+      setLoaded(false)
+      setCurrentSrc(fallbackSrc)
+      return
+    }
+    setErrored(true)
+    setLoaded(false)
+  }, [currentSrc, fallbackSrc])
 
   // Main effect: reset state + handle cache
   useEffect(() => {
-    // Invalidate all previous async work
     const tok = ++tokenRef.current
-    const currentSrc = src
+    const cs = currentSrc
 
     setLoaded(false)
     setErrored(false)
@@ -145,48 +235,36 @@ function ArticleImage({
     const img = imgRef.current
     if (!img) return
 
-    // If image is already fully available (from bfcache / preload / eager)
     if (img.complete) {
-      // Decode ensures the browser has finished decompressing;
-      // for small/cached images this is effectively synchronous.
       img
         .decode()
         .then(() => {
-          // Check validity after potential microtask yield
           if (tok !== tokenRef.current) return
-          if (srcRef.current !== currentSrc) return
+          if (srcRef.current !== cs) return
           if (img.naturalWidth > 0 && img.naturalHeight > 0) {
             setLoaded(true)
           } else {
-            setErrored(true)
+            triggerFallback()
           }
         })
         .catch(() => {
           if (tok !== tokenRef.current) return
-          if (srcRef.current !== currentSrc) return
-          setErrored(true)
-          setLoaded(false)
+          if (srcRef.current !== cs) return
+          triggerFallback()
         })
-
-      // Important: still let normal load/error handlers run as fallback
-      // in case decode resolved but image was replaced before our checks.
-      // The callbacks below also guard against staleness.
     }
-    // If not complete yet, load/error handlers will fire normally later.
-  }, [src])
+  }, [currentSrc, triggerFallback])
 
   const handleLoad = useCallback(() => {
-    // Ignore events belonging to a previous src instance
-    if (srcRef.current !== src) return
+    if (srcRef.current !== currentSrc) return
     setLoaded(true)
     setErrored(false)
-  }, [src])
+  }, [currentSrc])
 
   const handleError = useCallback(() => {
-    if (srcRef.current !== src) return
-    setErrored(true)
-    setLoaded(false)
-  }, [src])
+    if (srcRef.current !== currentSrc) return
+    triggerFallback()
+  }, [currentSrc, triggerFallback])
 
   return (
     <div style={{ position: 'relative', overflow: 'hidden', ...style }}>
@@ -196,7 +274,7 @@ function ArticleImage({
       {!errored && (
         <img
           ref={imgRef}
-          src={src}
+          src={currentSrc}
           alt={alt}
           loading={loading}
           decoding="async"
@@ -248,7 +326,10 @@ export default function CommandPalette({
   /* ── State ── */
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
-  const [filterCat, setFilterCat] = useState<string | null>(null)
+  /** Now holds a SECTION id (e.g. 'chefs', 'techniques'), not a category id. */
+  const [filterSection, setFilterSection] = useState<string | null>(null)
+  /** Per-section expand state — sections start collapsed at PER_SECTION_INITIAL. */
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => new Set())
   const [wideEnough, setWideEnough] = useState(
     () => typeof window !== 'undefined' && window.innerWidth >= 768,
   )
@@ -259,11 +340,8 @@ export default function CommandPalette({
   const containerRef = useRef<HTMLDivElement>(null)
   const shouldReduce = useReducedMotion()
 
-  // Hover debounce timer
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // Scroll throttle via requestAnimationFrame
   const scrollRafRef = useRef<number | null>(null)
-  // Focus restoration target
   const prevFocusRef = useRef<HTMLElement | null>(null)
 
   /* ── Responsive ── */
@@ -278,21 +356,18 @@ export default function CommandPalette({
   useEffect(() => {
     if (!open) return
 
-    // Cleanup scheduled hovers
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
 
     setQuery(initialQuery)
     setActiveIndex(0)
-    setFilterCat(null)
+    setFilterSection(null)
+    setExpandedSections(new Set())
 
-    // Save current focus for restoration on close
     prevFocusRef.current = document.activeElement as HTMLElement | null
-
-    // Async focus (avoids blocking paint of palette entrance animation)
     requestAnimationFrame(() => inputRef.current?.focus())
   }, [open, initialQuery])
 
-  // Restore focus on close (including unmount)
+  // Restore focus on close
   useEffect(() => {
     if (!open) {
       prevFocusRef.current?.focus()
@@ -330,86 +405,131 @@ export default function CommandPalette({
         }))
         .filter(x => x.ts > 0 || x.pct > 0)
         .sort((a, b) => b.ts - a.ts)
-        .slice(0, 5),
+        .slice(0, 8),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [articles, open],
   )
 
-  /* ── Quick actions ── */
+  /* ── Quick actions: only top-level sections (no individual chef names) ── */
   const quickActions: QuickAction[] = useMemo(() => {
     if (!onSelectCategory) return []
-    const chefCats = categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id))
-    return [
-      {
-        id: 'nav-techniques',
-        label: 'Техники',
-        sublabel: 'Все техники кондитерского искусства',
-        icon: 'TK',
-        action: () => { onSelectCategory('techniques'); onClose() },
+    return SECTIONS.map(s => ({
+      id: `nav-${s.id}`,
+      label: s.label,
+      sublabel:
+        s.id === 'chefs'
+          ? 'Биографии и почерк 14 шефов и мастеров'
+          : categoryById.get(s.id)?.description ?? '',
+      icon: s.icon,
+      action: () => {
+        onSelectCategory(s.id === 'chefs' ? 'chefs' : s.id)
+        onClose()
       },
-      {
-        id: 'nav-recipes',
-        label: 'Рецепты',
-        sublabel: 'Практические карты сборки',
-        icon: 'RC',
-        action: () => { onSelectCategory('recipes'); onClose() },
-      },
-      ...chefCats.map(c => ({
-        id: `nav-${c.id}`,
-        label: c.name,
-        sublabel: c.description,
-        icon: c.icon,
-        action: () => { onSelectCategory(c.id); onClose() },
-      })),
-    ]
+    }))
   }, [onSelectCategory, onClose])
 
-  /* ── Search results (single fuse pass) ── */
+  /* ── Search results (single fuse pass) ──
+       Limits expanded so groups have enough items per section. ── */
   const baseResults = useMemo<ArticleResult[]>(() => {
     const trimmed = query.trim()
     if (!trimmed) {
-      return recentArticles.length > 0
-        ? recentArticles.map(r => ({ item: r.article, pct: r.pct }))
-        : articles.slice(0, 10).map(a => ({ item: a }))
+      // No query: show recent first; otherwise interleave by section so user
+      // sees representation from every group on first paint.
+      if (recentArticles.length > 0) {
+        return recentArticles.map(r => ({ item: r.article, pct: r.pct }))
+      }
+      const seenSection = new Set<string>()
+      const head: ArticleResult[] = []
+      const tail: ArticleResult[] = []
+      for (const a of articles) {
+        const sid = sectionIdFor(a)
+        if (!seenSection.has(sid)) { seenSection.add(sid); head.push({ item: a }) }
+        else tail.push({ item: a })
+      }
+      return [...head, ...tail].slice(0, 30)
     }
-    return fuse.search(trimmed, { limit: 12 }).map(r => ({
+    return fuse.search(trimmed, { limit: 60 }).map(r => ({
       item: r.item,
       matches: r.matches as ReadonlyArray<FuseResultMatch> | undefined,
     }))
   }, [articles, fuse, query, recentArticles])
 
-  const articleResults = useMemo<ArticleResult[]>(
-    () => filterCat ? baseResults.filter(r => r.item.category === filterCat) : baseResults,
-    [baseResults, filterCat],
-  )
-
-  /* ── Chips (unfiltered categories present in results) ── */
-  const chipCategories = useMemo(() => {
-    const seen = new Set<string>()
-    const out: typeof categories = []
+  /* ── Section counts (always over baseResults, never filtered) ── */
+  const sectionCounts = useMemo(() => {
+    const counts = new Map<string, number>()
     for (const r of baseResults) {
-      if (!seen.has(r.item.category)) {
-        seen.add(r.item.category)
-        const cat = categoryById.get(r.item.category)
-        if (cat) out.push(cat)
-      }
-      if (out.length >= 7) break
+      const sid = sectionIdFor(r.item)
+      counts.set(sid, (counts.get(sid) ?? 0) + 1)
     }
-    return out
+    return counts
   }, [baseResults])
 
+  /* ── Apply filter chip (by SECTION) ── */
+  const filteredResults = useMemo<ArticleResult[]>(
+    () =>
+      filterSection
+        ? baseResults.filter(r => sectionIdFor(r.item) === filterSection)
+        : baseResults,
+    [baseResults, filterSection],
+  )
+
+  /* ── Build the actually visible list (grouped or flat) ──
+       - When filterSection set: one block, fully expanded.
+       - When no filter: for each section that has hits, include up to
+         PER_SECTION_INITIAL items unless user expanded that section. */
+  type GroupBlock = { sectionId: string; results: ArticleResult[]; total: number; collapsed: boolean }
+
+  const groupedBlocks = useMemo<GroupBlock[]>(() => {
+    if (filterSection) {
+      const section = SECTION_BY_ID.get(filterSection)
+      if (!section) return []
+      return [{
+        sectionId: filterSection,
+        results: filteredResults,
+        total: filteredResults.length,
+        collapsed: false,
+      }]
+    }
+    const buckets = new Map<string, ArticleResult[]>()
+    for (const r of baseResults) {
+      const sid = sectionIdFor(r.item)
+      const arr = buckets.get(sid) ?? []
+      arr.push(r)
+      buckets.set(sid, arr)
+    }
+    const blocks: GroupBlock[] = []
+    for (const s of SECTIONS) {
+      const arr = buckets.get(s.id)
+      if (!arr || arr.length === 0) continue
+      const expanded = expandedSections.has(s.id)
+      const slice = expanded ? arr : arr.slice(0, PER_SECTION_INITIAL)
+      blocks.push({
+        sectionId: s.id,
+        results: slice,
+        total: arr.length,
+        collapsed: !expanded && arr.length > PER_SECTION_INITIAL,
+      })
+    }
+    return blocks
+  }, [baseResults, filteredResults, filterSection, expandedSections])
+
+  /** Flat list of currently visible items — used for ↑/↓ and ↵. */
+  const flatVisible = useMemo<ArticleResult[]>(
+    () => groupedBlocks.flatMap(b => b.results),
+    [groupedBlocks],
+  )
+
   /* ── Derived flags ── */
-  const showChips = chipCategories.length >= 1
-  const showQuickActions = !query.trim() && !filterCat && quickActions.length > 0
-  const totalItems = (showQuickActions ? quickActions.length : 0) + articleResults.length
+  const showChips = baseResults.length > 0
+  const showQuickActions = !query.trim() && !filterSection && quickActions.length > 0
+  const totalItems = (showQuickActions ? quickActions.length : 0) + flatVisible.length
 
   /* ── Reset active index on result count change ── */
   useEffect(() => {
     setActiveIndex(i => Math.min(i, totalItems === 0 ? 0 : totalItems - 1))
-  }, [totalItems, articleResults.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [totalItems])
 
-  /* ── Smooth-but-instant scroll into view ──
-      Uses RAF to coalesce; only scrolls if element is outside visible area. ── */
+  /* ── Smooth scroll into view ── */
   useEffect(() => {
     if (!open) return
     const container = listRef.current
@@ -417,7 +537,6 @@ export default function CommandPalette({
 
     cancelAnimationFrame(scrollRafRef.current!)
     scrollRafRef.current = requestAnimationFrame(() => {
-      // Use stable ID instead of querySelectorAll (which forces DOM walk)
       const el = document.getElementById(`cp-item-${activeIndex}`)
       if (!el) return
 
@@ -441,8 +560,8 @@ export default function CommandPalette({
   const activeResult: ArticleResult | null = useMemo(() => {
     if (showQuickActions && activeIndex < quickActions.length) return null
     const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
-    return articleResults[idx] ?? null
-  }, [activeIndex, showQuickActions, quickActions.length, articleResults])
+    return flatVisible[idx] ?? null
+  }, [activeIndex, showQuickActions, quickActions.length, flatVisible])
 
   const activeQuickAction: QuickAction | null = useMemo(() => {
     if (!showQuickActions || activeIndex >= quickActions.length) return null
@@ -455,37 +574,41 @@ export default function CommandPalette({
     const curId = activeResult.item.id
     const curSrc = activeResult.item.image!
 
-    // Gather candidates: current, next, prev
-    const idx = articleResults.findIndex(r => r.item.id === curId)
+    const idx = flatVisible.findIndex(r => r.item.id === curId)
     const pool = [curSrc]
     if (idx >= 0) {
-      const nxt = articleResults[idx + 1]?.item?.image
-      const prv = articleResults[idx - 1]?.item?.image
+      const nxt = flatVisible[idx + 1]?.item?.image
+      const prv = flatVisible[idx - 1]?.item?.image
       if (prv) pool.push(prv)
       if (nxt) pool.push(nxt)
     }
-
-    // Spawn Image objects (triggers early TCP connection & decode start)
     pool.forEach(s => { const i = new Image(); i.src = s })
-  }, [activeResult?.item.id, wideEnough, articleResults])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeResult?.item.id, wideEnough, flatVisible])
 
-  /* ── Hover schedule (debounce) ── */
+  /* ── Hover debounce ── */
   const scheduleHover = useCallback((idx: number) => {
-    // Clear pending
     if (hoverTimerRef.current != null) clearTimeout(hoverTimerRef.current)
-    // Schedule
     hoverTimerRef.current = setTimeout(() => setActiveIndex(idx), 45)
   }, [])
 
-  // Cleanup timers on unmount
   useEffect(() => () => {
     if (hoverTimerRef.current != null) clearTimeout(hoverTimerRef.current)
+  }, [])
+
+  /* ── Toggle a section's expand state ── */
+  const toggleExpand = useCallback((sectionId: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev)
+      if (next.has(sectionId)) next.delete(sectionId)
+      else next.add(sectionId)
+      return next
+    })
   }, [])
 
   /* ── Keyboard handling ── */
   const handleKeyDown = useCallback(
     (e: ReactKeyboardEvent) => {
-      // Tab trap
       if (e.key === 'Tab') {
         const ctr = containerRef.current
         if (!ctr) return
@@ -502,13 +625,11 @@ export default function CommandPalette({
         return
       }
 
-      // Escape (double-press: first clears query)
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
-        // @ts-ignore – stopImmediatePropagation
         e.nativeEvent.stopImmediatePropagation?.()
-        if (query.trim()) { setQuery(''); setFilterCat(null); return }
+        if (query.trim()) { setQuery(''); setFilterSection(null); return }
         onClose()
         return
       }
@@ -522,12 +643,12 @@ export default function CommandPalette({
           quickActions[activeIndex].action()
         } else {
           const idx = showQuickActions ? activeIndex - quickActions.length : activeIndex
-          const res = articleResults[idx]
+          const res = flatVisible[idx]
           if (res) { onClose(); onOpenArticle(res.item) }
         }
       }
     },
-    [totalItems, showQuickActions, quickActions, articleResults, activeIndex, onClose, onOpenArticle, query],
+    [totalItems, showQuickActions, quickActions, flatVisible, activeIndex, onClose, onOpenArticle, query],
   )
 
   /* ── Animation configs ── */
@@ -608,7 +729,6 @@ export default function CommandPalette({
                 style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
               />
 
-              {/* Result count badge */}
               <AnimatePresence>
                 {query && (
                   <motion.span
@@ -620,12 +740,11 @@ export default function CommandPalette({
                     style={{ color: 'var(--text-accent)', opacity: 0.6 }}
                     aria-live="polite" aria-atomic="true"
                   >
-                    {articleResults.length}&nbsp;{pluralRu(articleResults.length, RESULT)}
+                    {filteredResults.length}&nbsp;{pluralRu(filteredResults.length, RESULT)}
                   </motion.span>
                 )}
               </AnimatePresence>
 
-              {/* Clear button */}
               <AnimatePresence>
                 {query && (
                   <motion.button
@@ -635,7 +754,7 @@ export default function CommandPalette({
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                     exit={{ opacity: 0, scale: 0.6, rotate: 45 }}
                     transition={{ type: 'spring', stiffness: 520, damping: 30 }}
-                    onClick={() => { setQuery(''); setFilterCat(null); inputRef.current?.focus() }}
+                    onClick={() => { setQuery(''); setFilterSection(null); inputRef.current?.focus() }}
                     className="flex h-5 w-5 shrink-0 items-center justify-center"
                     style={{
                       background: 'var(--cp-clear-bg)',
@@ -650,7 +769,6 @@ export default function CommandPalette({
                 )}
               </AnimatePresence>
 
-              {/* Close trigger */}
               <button
                 type="button"
                 onClick={onClose}
@@ -665,7 +783,7 @@ export default function CommandPalette({
 
             <div style={{ height: 1, background: 'var(--cp-divider)', flexShrink: 0 }} />
 
-            {/* ═══ Category chips ═══ */}
+            {/* ═══ Section chips (FIXED top-level sections) ═══ */}
             <AnimatePresence>
               {showChips && (
                 <motion.div
@@ -681,41 +799,53 @@ export default function CommandPalette({
                   >
                     <button
                       type="button"
-                      onClick={() => setFilterCat(null)}
+                      onClick={() => setFilterSection(null)}
                       className="cp-chip shrink-0 font-mono text-[9px] uppercase tracking-[0.2em] transition-all"
                       style={{
                         padding: '4px 10px',
                         borderRadius: 2,
-                        background: !filterCat ? 'var(--text-accent)' : 'var(--cp-chip)',
-                        color: !filterCat ? 'var(--bg-main)' : 'var(--text-muted)',
+                        background: !filterSection ? 'var(--text-accent)' : 'var(--cp-chip)',
+                        color: !filterSection ? 'var(--bg-main)' : 'var(--text-muted)',
                         border: '1px solid',
-                        borderColor: !filterCat ? 'transparent' : 'var(--cp-chip-border)',
+                        borderColor: !filterSection ? 'transparent' : 'var(--cp-chip-border)',
                       }}
                     >
-                      Все
+                      Все ·&nbsp;{baseResults.length}
                     </button>
 
-                    {chipCategories.map(cat => (
-                      <motion.button
-                        key={cat.id}
-                        type="button"
-                        layout
-                        onClick={() => setFilterCat(prev => prev === cat.id ? null : cat.id)}
-                        className="cp-chip shrink-0 font-mono text-[9px] uppercase tracking-[0.15em] transition-all"
-                        style={{
-                          padding: '4px 10px',
-                          borderRadius: 2,
-                          whiteSpace: 'nowrap',
-                          background: filterCat === cat.id ? 'var(--text-accent)' : 'var(--cp-chip)',
-                          color: filterCat === cat.id ? 'var(--bg-main)' : 'var(--text-muted)',
-                          border: '1px solid',
-                          borderColor: filterCat === cat.id ? 'transparent' : 'var(--cp-chip-border)',
-                        }}
-                      >
-                        <span style={{ marginRight: 4, opacity: 0.65 }}>{cat.icon}</span>
-                        {cat.name}
-                      </motion.button>
-                    ))}
+                    {SECTIONS.map(section => {
+                      const count = sectionCounts.get(section.id) ?? 0
+                      const isActive = filterSection === section.id
+                      const isDimmed = count === 0
+                      return (
+                        <motion.button
+                          key={section.id}
+                          type="button"
+                          layout
+                          disabled={isDimmed}
+                          onClick={() =>
+                            setFilterSection(prev => (prev === section.id ? null : section.id))
+                          }
+                          className="cp-chip shrink-0 font-mono text-[9px] uppercase tracking-[0.15em] transition-all"
+                          style={{
+                            padding: '4px 10px',
+                            borderRadius: 2,
+                            whiteSpace: 'nowrap',
+                            background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)',
+                            color: isActive ? 'var(--bg-main)' : 'var(--text-muted)',
+                            border: '1px solid',
+                            borderColor: isActive ? 'transparent' : 'var(--cp-chip-border)',
+                            opacity: isDimmed ? 0.35 : 1,
+                            cursor: isDimmed ? 'default' : 'pointer',
+                          }}
+                          title={isDimmed ? `${section.label} — нет результатов` : section.label}
+                        >
+                          <span style={{ marginRight: 4, opacity: 0.65 }}>{section.icon}</span>
+                          {section.label}
+                          <span style={{ marginLeft: 6, opacity: 0.55 }}>{count}</span>
+                        </motion.button>
+                      )
+                    })}
                   </div>
                 </motion.div>
               )}
@@ -738,7 +868,7 @@ export default function CommandPalette({
                 {/* Quick Actions section */}
                 {showQuickActions && (
                   <>
-                    <SectionLabel>Перейти</SectionLabel>
+                    <SectionLabel>Перейти в раздел</SectionLabel>
                     <div className="pb-1">
                       {quickActions.map((action, idx) => {
                         const isActive = idx === activeIndex
@@ -787,229 +917,230 @@ export default function CommandPalette({
                   </>
                 )}
 
-                {/* Results header */}
-                {articleResults.length > 0 && (
-                  <div className="flex items-center justify-between px-5 pb-1 pt-3">
-                    <SectionLabel inline>
-                      {query.trim()
-                        ? `${articleResults.length} ${pluralRu(articleResults.length, RESULT)}`
-                        : recentArticles.length > 0
-                          ? 'Недавно читали'
-                          : 'Материалы'}
-                    </SectionLabel>
-                    {filterCat && (
-                      <button
-                        type="button"
-                        onClick={() => setFilterCat(null)}
-                        className="font-mono text-[7.5px] uppercase tracking-[0.18em] transition-opacity"
-                        style={{ color: 'var(--text-accent)', opacity: 0.65 }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.65' }}
-                      >
-                        × сбросить
-                      </button>
-                    )}
+                {/* ─── Grouped article results ─── */}
+                {groupedBlocks.length > 0 && (
+                  <div className="pb-2">
+                    {(() => {
+                      let runningIdx = showQuickActions ? quickActions.length : 0
+                      return groupedBlocks.map((block, blockI) => {
+                        const section = SECTION_BY_ID.get(block.sectionId)
+                        if (!section) return null
+
+                        const blockStart = runningIdx
+                        runningIdx += block.results.length
+
+                        return (
+                          <div key={`block-${block.sectionId}`}>
+                            {/* Section header */}
+                            <div className="flex items-center justify-between px-5 pb-1 pt-3">
+                              <SectionLabel inline>
+                                <span style={{ opacity: 0.7, marginRight: 6 }}>{section.icon}</span>
+                                {section.label}
+                                <span style={{ marginLeft: 8, opacity: 0.55 }}>· {block.total}</span>
+                              </SectionLabel>
+                              {!filterSection && block.total > PER_SECTION_INITIAL && (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleExpand(block.sectionId)}
+                                  className="font-mono text-[8.5px] uppercase tracking-[0.18em] transition-opacity"
+                                  style={{ color: 'var(--text-accent)', opacity: 0.75 }}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+                                >
+                                  {expandedSections.has(block.sectionId)
+                                    ? '↑ свернуть'
+                                    : `↓ ещё ${block.total - PER_SECTION_INITIAL}`}
+                                </button>
+                              )}
+                              {filterSection && block.sectionId === filterSection && (
+                                <button
+                                  type="button"
+                                  onClick={() => setFilterSection(null)}
+                                  className="font-mono text-[7.5px] uppercase tracking-[0.18em] transition-opacity"
+                                  style={{ color: 'var(--text-accent)', opacity: 0.65 }}
+                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
+                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.65' }}
+                                >
+                                  × сбросить
+                                </button>
+                              )}
+                            </div>
+
+                            <AnimatePresence initial={false} mode="popLayout">
+                              {block.results.map((result, idxInBlock) => {
+                                const art = result.item
+                                const cat = categoryById.get(art.category)
+                                const gIdx = blockStart + idxInBlock
+                                const isActive = gIdx === activeIndex
+                                const byAuthor = !!result.matches?.find(m => m.key === 'author')?.indices?.length
+                                const fallback = fallbackImageFor(art.category)
+
+                                return (
+                                  <motion.button
+                                    key={art.id}
+                                    type="button"
+                                    data-item
+                                    id={`cp-item-${gIdx}`}
+                                    layout
+                                    initial={shouldReduce ? false : { opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={shouldReduce ? {} : { opacity: 0, scale: 0.97, transition: { duration: 0.1 } }}
+                                    transition={shouldReduce ? { duration: 0 } : { duration: 0.15 }}
+                                    onClick={() => { onClose(); onOpenArticle(art) }}
+                                    onMouseEnter={() => scheduleHover(gIdx)}
+                                    className="flex w-full items-start gap-3 px-5 py-3.5 text-left"
+                                    style={{
+                                      background: isActive ? 'var(--cp-surface)' : 'transparent',
+                                      borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
+                                      transition: 'background 0.1s ease, border-color 0.08s ease',
+                                    }}
+                                  >
+                                    <div style={{ position: 'relative', marginTop: 2, flexShrink: 0 }}>
+                                      <ArticleImage
+                                        src={art.image || fallback}
+                                        fallbackSrc={fallback}
+                                        alt=""
+                                        style={{ width: 72, height: 72, borderRadius: 4 }}
+                                        fadeInDuration={180}
+                                        loading="lazy"
+                                      />
+
+                                      {(result.pct ?? 0) > 0 && (
+                                        <div style={{
+                                          position: 'absolute', bottom: 0, left: 0,
+                                          height: 2, width: `${result.pct}%`,
+                                          background: 'var(--text-accent)',
+                                          borderRadius: '0 0 0 2px',
+                                        }} />
+                                      )}
+
+                                      {isActive && (
+                                        <motion.div
+                                          layoutId="cp-active-ring"
+                                          style={{
+                                            position: 'absolute', inset: -1,
+                                            border: '1.5px solid var(--text-accent)',
+                                            borderRadius: 5,
+                                            opacity: 0.5,
+                                            pointerEvents: 'none',
+                                          }}
+                                          transition={{ type: 'spring', stiffness: 600, damping: 38 }}
+                                        />
+                                      )}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                      <p
+                                        className="text-[14px] font-normal leading-[1.35]"
+                                        style={{
+                                          color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                                          transition: 'color 0.1s ease',
+                                        }}
+                                      >
+                                        <H text={art.title} matches={result.matches} field="title" />
+                                      </p>
+
+                                      <p className="mt-0.5 truncate font-mono text-[10px]" style={{ color: 'var(--cp-text-mid)' }}>
+                                        <span style={{ opacity: 0.7 }}>{cat?.icon ?? '·'}</span>{' '}
+                                        {cat?.name ?? art.category}{' · '}{art.readTime} мин
+                                        {art.author && (
+                                          <>
+                                            {' · '}
+                                            <span style={byAuthor ? { color: 'var(--text-accent)', opacity: 0.8 } : undefined}>
+                                              <H text={art.author} matches={result.matches} field="author" />
+                                            </span>
+                                          </>
+                                        )}
+                                      </p>
+
+                                      <AnimatePresence>
+                                        {isActive && (art.tags ?? []).length > 0 && (
+                                          <motion.div
+                                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                            animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
+                                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                            transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                                            className="flex flex-wrap gap-1 overflow-hidden"
+                                          >
+                                            {(art.tags ?? []).slice(0, 4).map(tag => (
+                                              <span
+                                                key={tag}
+                                                className="font-mono text-[7.5px] uppercase tracking-[0.12em]"
+                                                style={{
+                                                  padding: '2px 6px',
+                                                  border: '1px solid var(--cp-chip-border)',
+                                                  color: 'var(--cp-text-mid)',
+                                                  borderRadius: 2,
+                                                }}
+                                              >
+                                                #{tag}
+                                              </span>
+                                            ))}
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
+                                    </div>
+                                  </motion.button>
+                                )
+                              })}
+                            </AnimatePresence>
+
+                            {blockI < groupedBlocks.length - 1 && <Divider />}
+                          </div>
+                        )
+                      })
+                    })()}
                   </div>
                 )}
 
-                {/* Article rows */}
-                <div className="pb-2">
-                  <AnimatePresence initial={false} mode="popLayout">
-                    {articleResults.map((result, idx) => {
-                      const art = result.item
-                      const cat = categoryById.get(art.category)
-                      const gIdx = showQuickActions ? quickActions.length + idx : idx
-                      const isActive = gIdx === activeIndex
-                      const byAuthor = !!result.matches?.find(m => m.key === 'author')?.indices?.length
-
-                      return (
-                        <motion.button
-                          key={art.id}
-                          type="button"
-                          data-item
-                          id={`cp-item-${gIdx}`}
-                          layout
-                          initial={shouldReduce ? false : { opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={
-                            shouldReduce
-                              ? {}
-                              : { opacity: 0, scale: 0.97, transition: { duration: 0.1 } }
-                          }
-                          transition={shouldReduce ? { duration: 0 } : { duration: 0.15 }}
-                          onClick={() => { onClose(); onOpenArticle(art) }}
-                          onMouseEnter={() => scheduleHover(gIdx)}
-                          className="flex w-full items-start gap-3 px-5 py-3.5 text-left"
-                          style={{
-                            background: isActive ? 'var(--cp-surface)' : 'transparent',
-                            borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
-                            transition: 'background 0.1s ease, border-color 0.08s ease',
-                          }}
-                        >
-                          {/* Thumbnail zone */}
-                          <div style={{ position: 'relative', marginTop: 2, flexShrink: 0 }}>
-                            {art.image ? (
-                              <ArticleImage
-                                src={art.image}
-                                alt=""
-                                style={{ width: 72, height: 72, borderRadius: 4 }}
-                                fadeInDuration={180}
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div style={{
-                                width: 72, height: 72, borderRadius: 4,
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                background: isActive ? 'var(--text-accent)' : 'var(--cp-chip)',
-                                color: isActive ? 'var(--bg-main)' : 'var(--text-muted)',
-                                fontFamily: 'monospace',
-                                fontSize: 11,
-                                fontWeight: 700,
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.05em',
-                                transition: 'all 0.1s ease',
-                              }}>
-                                {cat?.icon ?? '·'}
-                              </div>
-                            )}
-
-                            {/* Progress bar */}
-                            {(result.pct ?? 0) > 0 && (
-                              <div style={{
-                                position: 'absolute', bottom: 0, left: 0,
-                                height: 2, width: `${result.pct}%`,
-                                background: 'var(--text-accent)',
-                                borderRadius: '0 0 0 2px',
-                              }} />
-                            )}
-
-                            {/* Active ring */}
-                            {isActive && art.image && (
-                              <motion.div
-                                layoutId="cp-active-ring"
-                                style={{
-                                  position: 'absolute', inset: -1,
-                                  border: '1.5px solid var(--text-accent)',
-                                  borderRadius: 5,
-                                  opacity: 0.5,
-                                  pointerEvents: 'none',
-                                }}
-                                transition={{ type: 'spring', stiffness: 600, damping: 42 }}
-                              />
-                            )}
-                          </div>
-
-                          {/* Text content */}
-                          <div style={{ minWidth: 0, flex: 1 }}>
-                            <p
-                              className="truncate text-[15px] font-normal leading-snug"
-                              style={{
-                                color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                                transition: 'color 0.1s ease',
-                              }}
-                            >
-                              <H text={art.title} matches={result.matches} field="title" />
-                            </p>
-
-                            <p className="mt-0.5 truncate font-mono text-[10px]" style={{ color: 'var(--cp-text-mid)' }}>
-                              <span style={{ opacity: 0.7 }}>{cat?.icon ?? '·'}</span>{' '}
-                              {cat?.name ?? art.category}{' · '}{art.readTime} мин
-                              {art.author && (
-                                <>
-                                  {' · '}
-                                  <span style={byAuthor ? { color: 'var(--text-accent)', opacity: 0.8 } : undefined}>
-                                    <H text={art.author} matches={result.matches} field="author" />
-                                  </span>
-                                </>
-                              )}
-                            </p>
-
-                            {/* Expandable tags on active row */}
-                            <AnimatePresence>
-                              {isActive && (art.tags ?? []).length > 0 && (
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                                  animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
-                                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                                  transition={{ type: 'spring', stiffness: 500, damping: 38 }}
-                                  className="flex flex-wrap gap-1 overflow-hidden"
-                                >
-                                  {(art.tags ?? []).slice(0, 4).map(tag => (
-                                    <span
-                                      key={tag}
-                                      className="font-mono text-[7.5px] uppercase tracking-[0.12em]"
-                                      style={{
-                                        padding: '2px 6px',
-                                        border: '1px solid var(--cp-chip-border)',
-                                        color: 'var(--cp-text-mid)',
-                                        borderRadius: 2,
-                                      }}
-                                    >
-                                      #{tag}
-                                    </span>
-                                  ))}
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        </motion.button>
-                      )
-                    })}
-                  </AnimatePresence>
-
-                  {/* Empty states */}
-                  {articleResults.length === 0 && (query.trim() || filterCat) && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.1 }}
-                      className="px-5 py-12 text-center"
+                {/* Empty states */}
+                {flatVisible.length === 0 && (query.trim() || filterSection) && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="px-5 py-12 text-center"
+                  >
+                    <div
+                      className="mx-auto mb-4 flex h-10 w-10 items-center justify-center font-mono text-base"
+                      style={{ background: 'var(--cp-chip)', borderRadius: 4, color: 'var(--cp-text-mid)' }}
                     >
-                      <div
-                        className="mx-auto mb-4 flex h-10 w-10 items-center justify-center font-mono text-base"
-                        style={{ background: 'var(--cp-chip)', borderRadius: 4, color: 'var(--cp-text-mid)' }}
-                      >
-                        ∅
-                      </div>
-                      <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
-                        Ничего не найдено
-                      </p>
-                      {query.trim() && (
-                        <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>
-                          «{query}»
-                        </p>
-                      )}
-                      {filterCat && (
-                        <button
-                          type="button"
-                          onClick={() => setFilterCat(null)}
-                          className="mt-3 font-mono text-[9px] uppercase tracking-[0.18em] transition-opacity"
-                          style={{ color: 'var(--text-accent)' }}
-                        >
-                          × сбросить фильтр
-                        </button>
-                      )}
-                      <p className="mt-3 font-mono text-[8.5px]" style={{ color: 'var(--cp-text-lo)' }}>
-                        Попробуйте: шоколад · ваниль · крем · техники
-                      </p>
-                    </motion.div>
-                  )}
-
-                  {articleResults.length === 0 && !query.trim() && !filterCat && (
-                    <div className="px-5 py-10 text-center">
-                      <p className="font-mono text-[9px] uppercase tracking-[0.28em]" style={{ color: 'var(--cp-text-mid)' }}>
-                        Начните вводить для поиска
-                      </p>
+                      ∅
                     </div>
-                  )}
-                </div>
+                    <p className="font-mono text-[10px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>
+                      Ничего не найдено
+                    </p>
+                    {query.trim() && (
+                      <p className="mt-1.5 text-[11px]" style={{ color: 'var(--cp-text-mid)' }}>
+                        «{query}»
+                      </p>
+                    )}
+                    {filterSection && (
+                      <button
+                        type="button"
+                        onClick={() => setFilterSection(null)}
+                        className="mt-3 font-mono text-[9px] uppercase tracking-[0.18em] transition-opacity"
+                        style={{ color: 'var(--text-accent)' }}
+                      >
+                        × сбросить фильтр
+                      </button>
+                    )}
+                    <p className="mt-3 font-mono text-[8.5px]" style={{ color: 'var(--cp-text-lo)' }}>
+                      Попробуйте: шоколад · ваниль · крем · техники
+                    </p>
+                  </motion.div>
+                )}
+
+                {flatVisible.length === 0 && !query.trim() && !filterSection && (
+                  <div className="px-5 py-10 text-center">
+                    <p className="font-mono text-[9px] uppercase tracking-[0.28em]" style={{ color: 'var(--cp-text-mid)' }}>
+                      Начните вводить для поиска
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* ─── Right column: preview (md+) ───
-                  Fixed-width static parent (320px) guarantees geometry stability.
-                  Children are absolutely-positioned and managed by AnimatePresence(mode='wait')
-                  so only ONE preview renders at a time, eliminating double-content artifacts.
-               ─── */}
+              {/* ─── Right column: preview (md+) ─── */}
               {wideEnough && (activeQuickAction || activeResult) && (
                 <div
                   style={{
@@ -1023,7 +1154,6 @@ export default function CommandPalette({
                   }}
                 >
                   <AnimatePresence mode="wait" initial={false}>
-                    {/* Quick Action preview */}
                     {activeQuickAction ? (
                       <motion.div
                         key={`qa-${activeQuickAction.id}`}
@@ -1093,7 +1223,6 @@ export default function CommandPalette({
                         </div>
                       </motion.div>
                     ) : activeResult ? (
-                      /* Article preview */
                       <motion.div
                         key={`ar-${activeResult.item.id}`}
                         initial={shouldReduce ? false : { opacity: 0 }}
@@ -1110,33 +1239,21 @@ export default function CommandPalette({
                       >
                         {/* Hero image area */}
                         <div style={{ position: 'relative', height: 260, flexShrink: 0 }}>
-                          {activeResult.item.image ? (
-                            <ArticleImage
-                              src={activeResult.item.image}
-                              alt={activeResult.item.title}
-                              style={{ width: '100%', height: '100%' }}
-                              fadeInDuration={350}
-                              loading="eager"
-                            />
-                          ) : (
-                            <div style={{
-                              width: '100%', height: '100%',
-                              background: 'var(--cp-chip)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              fontSize: 28, opacity: 0.15, color: 'var(--text-primary)',
-                            }}>
-                              {categoryById.get(activeResult.item.category)?.icon ?? '✦'}
-                            </div>
-                          )}
+                          <ArticleImage
+                            src={activeResult.item.image || fallbackImageFor(activeResult.item.category)}
+                            fallbackSrc={fallbackImageFor(activeResult.item.category)}
+                            alt={activeResult.item.title}
+                            style={{ width: '100%', height: '100%' }}
+                            fadeInDuration={350}
+                            loading="eager"
+                          />
 
-                          {/* Gradient overlay */}
                           <div style={{
                             position: 'absolute', inset: 0,
                             background: 'linear-gradient(to bottom, rgba(0,0,0,0.04) 30%, var(--bg-command) 100%)',
                             pointerEvents: 'none',
                           }} />
 
-                          {/* Category badge */}
                           <div style={{
                             position: 'absolute', top: 10, left: 10,
                             padding: '3px 8px',
@@ -1151,7 +1268,6 @@ export default function CommandPalette({
                             </span>
                           </div>
 
-                          {/* Progress bar */}
                           {(activeResult.pct ?? 0) > 0 && (
                             <div style={{
                               position: 'absolute', bottom: 0, left: 0, right: 0,
@@ -1166,7 +1282,6 @@ export default function CommandPalette({
                           )}
                         </div>
 
-                        {/* Meta content */}
                         <div style={{
                           padding: '16px 18px 14px',
                           flex: 1,
