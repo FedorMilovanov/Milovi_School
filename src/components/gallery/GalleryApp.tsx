@@ -59,7 +59,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
 
             <div className="grid grid-cols-1 gap-[2px] bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ border: '1px solid var(--border)' }}>
               {articles.map((article) => {
-                const imgUrl = article.image || fallbackImageFor(article.category, article.id)
+                const imgUrl = article.image || fallbackImageFor(article.category)
                 return (
                   <button
                     key={article.id}
