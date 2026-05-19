@@ -20,7 +20,7 @@ import { createElement, type ReactNode } from 'react'
 
 interface LuxuryTextProps {
   children: string
-  tone?: 'title' | 'platinum' | 'section' | 'gold' | 'about-white'
+  tone?: 'title' | 'platinum' | 'section' | 'gold' | 'about-white' | 'hero-title' | 'hero-plat'
   /** HTML-тег обёртки. По умолчанию — span. Для италика: 'em'. */
   as?: 'span' | 'em' | 'strong' | 'h1' | 'h2'
   className?: string

@@ -730,8 +730,9 @@ a:hover .logo-name-patisserie {
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) {
   .cat-img-card-lux:hover .cat-card-img-lux {
+    will-change: transform;
     transform: scale(1.04);
-    /* No blur or opacity fade, just standard brightness like original */
+    filter: brightness(0.88);
   }
 }
 @media (hover: none) and (pointer: coarse) {

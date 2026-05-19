@@ -105,8 +105,8 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             {/* Hero h1 — две строки. Курсор покрасит каждую букву по палитре
                 (см. Cursor.tsx). "Французская" — ваниль→золото (tone=title).
                 "Pâtisserie" — синий→ярко-синий (tone=platinum, как в drop). */}
-            <LuxuryText tone="title"    as="span" className="hero-line-1">Французская</LuxuryText>
-            <LuxuryText tone="platinum" as="em"   className="hero-line-2">Pâtisserie</LuxuryText>
+            <LuxuryText tone="hero-title" as="span" className="hero-line-1">Французская</LuxuryText>
+            <LuxuryText tone="hero-plat" as="em" className="hero-line-2">Pâtisserie</LuxuryText>
           </motion.h1>
 
           <motion.div
