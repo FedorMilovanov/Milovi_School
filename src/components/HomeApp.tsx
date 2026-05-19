@@ -2,14 +2,15 @@
  * HomeApp — React client island for the home page.
  */
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import Fuse, { type FuseResultMatch } from 'fuse.js'
 import { safeSetItem } from '../utils/storage'
 import Header from './Header'
 import Hero from './Hero'
-import ShowcaseSlider from './ShowcaseSlider'
 import StatsBar from './StatsBar'
 import DashboardBento from './DashboardBento'
 import MainCategories from './MainCategories'
 import Categories from './Categories'
+import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
 import CommandPalette from './CommandPalette'
@@ -23,6 +24,7 @@ import Cursor from './Cursor'
 import { useChromeVisible } from '../hooks/useScrollDirection'
 import { type ArticleClientMeta } from '../data/types'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
+import { ARTICLE_FUSE_OPTIONS } from '../utils/search'
 import { navigateTo } from '../utils/navigation'
 
 const CHEF_IDS = new Set(
@@ -40,6 +42,12 @@ interface HomeAppProps {
 
 export default function HomeApp({ articles }: HomeAppProps) {
   
+
+  
+  const nonEmptyCategories = useMemo(() => {
+    const articleCategoryIds = new Set(articles.map(a => a.category))
+    return categories.filter(c => articleCategoryIds.has(c.id))
+  }, [articles])
 
   const statsArticleCount = articles.length
   const statsAuthorCount = useMemo(() => {
@@ -129,6 +137,32 @@ export default function HomeApp({ articles }: HomeAppProps) {
   
 
   
+  
+  const fuse = useMemo(() => new Fuse(articles, ARTICLE_FUSE_OPTIONS), [articles])
+
+  const { filteredArticles, matchMap } = useMemo(() => {
+    const byCategory = selectedCategory
+      ? selectedCategory === 'chefs'
+        ? articles.filter(a => CHEF_IDS.has(a.category))
+        : articles.filter(a => a.category === selectedCategory)
+      : articles
+
+    if (!searchQuery.trim()) {
+      return { filteredArticles: byCategory, matchMap: new Map() }
+    }
+
+    const results = fuse.search(searchQuery.trim())
+    const map = new Map(results.map(r => [r.item.id, r.matches ?? []]))
+
+    const filtered = selectedCategory
+      ? selectedCategory === 'chefs'
+        ? results.filter(r => CHEF_IDS.has(r.item.category)).map(r => r.item)
+        : results.filter(r => r.item.category === selectedCategory).map(r => r.item)
+      : results.map(r => r.item)
+
+    return { filteredArticles: filtered, matchMap: map }
+  }, [articles, selectedCategory, searchQuery, fuse])
+
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query)
     syncUrlQuery(query)
@@ -201,7 +235,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
             totalArticles={articles.length}
             onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('categories') }}
           />
-          <ShowcaseSlider onItemClick={(cat) => { handleSelectCategory(cat); scrollToSection('categories') }} />
           <StatsBar
             articleCount={statsArticleCount}
             authorCount={statsAuthorCount}
@@ -221,6 +254,20 @@ export default function HomeApp({ articles }: HomeAppProps) {
             onSearchChange={handleSearchChange}
             allArticles={articles}
           />
+          
+          {(searchQuery.trim() !== '' || selectedCategory !== null) && (
+            <ArticlesGrid
+              articles={filteredArticles}
+              allArticles={articles}
+              categories={nonEmptyCategories}
+              onArticleClick={openArticle}
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleSelectCategory}
+              searchQuery={searchQuery}
+              matchMap={matchMap as Map<string, ReadonlyArray<FuseResultMatch>>}
+            />
+          )}
+
           <DashboardBento articles={articles} onArticleClick={openArticle} />
           
         </main>
