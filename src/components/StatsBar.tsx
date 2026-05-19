@@ -59,11 +59,14 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
       viewport={{ once: true }}
       transition={shouldReduce ? { duration: 0 } : { duration: 0.5 }}
     >
-      <span
+            <span
         ref={ref}
-        className="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl"
+        className="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl luxury-color-text section-title-lux"
+        data-tone="section"
       >
-        {prefix}{count}{suffix}
+        {(`${prefix}${count}${suffix}`).split('').map((char, i) => (
+          <span className="luxury-letter" key={`${char}-${i}`} aria-hidden="true">{char}</span>
+        ))}
       </span>
       <span className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
         {label}

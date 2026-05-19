@@ -163,8 +163,8 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
-                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white">
-                      {cat.name}
+                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white section-title-lux">
+                      <LuxuryText tone="about-white" as="span">{cat.name}</LuxuryText>
                     </span>
                     <p className="mt-2.5 max-w-xs font-serif text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">
                       {cat.desc}

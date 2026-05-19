@@ -741,8 +741,8 @@ a:hover .logo-name-patisserie {
   width: 120%; height: 124%;
   z-index: 0;
   background: var(--cat-bg, none) center / cover no-repeat;
-  filter: blur(40px) brightness(0.15) contrast(1.2) saturate(1.2);
-  -webkit-filter: blur(40px) brightness(0.15) contrast(1.2) saturate(1.2);
+  filter: blur(40px) brightness(0.4) contrast(1.1) saturate(1.1);
+  -webkit-filter: blur(40px) brightness(0.4) contrast(1.1) saturate(1.1);
   opacity: 0;
   transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
@@ -768,4 +768,26 @@ a:hover .logo-name-patisserie {
   color: #ffffff;
   -webkit-text-fill-color: #ffffff;
   text-shadow: none;
+}
+
+/* ── Custom Animated Underlines for Nav Links ─────────────────── */
+.nav-link-underline {
+  position: relative;
+  text-decoration: none;
+}
+.nav-link-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }

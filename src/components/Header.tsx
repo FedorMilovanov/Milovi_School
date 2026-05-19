@@ -97,10 +97,10 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
-            <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Главная</a>
-            <a href="/#archive" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoCategories() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Архив</a>
-            <a href="/#articles" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoArticles() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Материалы</a>
-            <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
+            <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Главная</a>
+            <a href="/#categories" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoCategories() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Архив</a>
+            <a href="/materials/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoArticles() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Материалы</a>
+            <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
           </nav>
 
           <div className="flex items-center gap-2">
