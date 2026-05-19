@@ -40,9 +40,9 @@ const STATIC_CATS = [
   },
   {
     id: 'chiffres-gourmands',
-    badge: 'Статистика · Рейтинги · Аналитика',
-    name: 'Цифры Гурмана',
-    desc: 'Рейтинги пекарен, обороты кондитерских домов, мировое потребление шоколада и другая аналитика индустрии.',
+    badge: 'Аналитика · Рейтинги · Статистика',
+    name: 'Сладкие цифры Франции',
+    desc: 'Chiffres Gourmands: рейтинги пекарен, обороты кондитерских домов, мировое шоколадное потребление и экономика индустрии.',
     unit: 'материалов',
     img: '/images/cat-chiffres.webp',
     imgAlt: 'Chiffres Gourmands — аналитика',
@@ -127,9 +127,8 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                 onClick={() => onSelectCategory(cat.id)}
                 className={`cat-img-card cat-img-card-lux reveal group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors ${i > 0 ? `reveal-delay-${Math.min(i, 3)}` : ''}`}
               >
-                {/* Image. cat-card-img-wrap-lux подключает CodyHouse-blur
-                    эффект: на hover изображение растворяется и за ним
-                    проявляется размытая копия (см. global.css → cat-bg URL). */}
+                {/* Image. Hover follows the reference premium archive effect:
+                    source image fades into a dark blurred copy; overlay/text stay above it. */}
                 <div
                   className="cat-card-img-wrap-lux relative aspect-[16/10] overflow-hidden"
                   style={{ ['--cat-bg' as string]: `url(${cat.img})` }}
@@ -149,7 +148,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     }}
                   />
                   {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(10,8,7,0.05)_20%,rgba(10,8,7,0.9)_100%)]" />
+                  <div className="absolute inset-0 z-[2] bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.85)_45%,rgba(0,0,0,0.98)_100%)]" />
 
                   {/* "NEW" badge */}
                   {cat.isNew && (
@@ -159,7 +158,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                   )}
 
                   {/* Body overlay */}
-                  <div className="absolute inset-x-0 bottom-0 p-9">
+                  <div className="absolute inset-x-0 bottom-0 z-[5] p-9">
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>

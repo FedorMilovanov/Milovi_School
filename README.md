@@ -148,7 +148,7 @@ pluralRu(21, MATERIAL) // → 'материал'
 | # | Fix | File |
 |---|---|---|
 | S1 | `overscroll-x-contain` на горизонтальном скроллере категорий — на iOS/Android свайп по категориям вызывал навигацию браузера назад/вперёд или захватывал вертикальный скролл страницы | `src/components/Categories.tsx` |
-| S2 | `overscroll-x-contain` на ShowcaseSlider (drag-scroll слайдер с шефами) — та же проблема: горизонтальный свайп мог случайно скролить страницу вертикально | `src/components/ShowcaseSlider.tsx` |
+| S2 | Устаревший ShowcaseSlider удалён: блок «Иконы современной pâtisserie» больше не рендерится на главной и не тянет лишний drag-scroll код | `src/components/ShowcaseSlider.tsx` (removed) |
 | S3 | `overscroll-behavior: contain` на вертикальном списке CommandPalette (`cp-list`) — при доскролле до конца списка скролл «прорывался» на body-контент за оверлеем | `src/components/CommandPalette.tsx` |
 | S4 | `overscroll-behavior-x: contain` на горизонтальных чипах категорий в CommandPalette (`cp-chips`) — аналогичная горизонтальная утечка скролла | `src/components/CommandPalette.tsx` |
 

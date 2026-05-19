@@ -73,7 +73,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     if (initial) {
       setSearchQuery(initial)
       window.setTimeout(() => {
-        document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        document.getElementById('archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }, 0)
     }
     if (params.get('command') === '1') {
@@ -127,7 +127,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     setSearchQuery('')
     syncUrlQuery('')
     window.setTimeout(() => {
-      document.getElementById('categories')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      document.getElementById('archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 0)
   }, [syncUrlQuery])
 
@@ -194,7 +194,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     setSelectedCategory(id)
     setSearchQuery('')
     syncUrlQuery('')
-    requestAnimationFrame(() => requestAnimationFrame(() => scrollToSection('categories')))
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollToSection('archive')))
   }, [scrollToSection, syncUrlQuery])
 
   useEffect(() => {
@@ -233,17 +233,17 @@ export default function HomeApp({ articles }: HomeAppProps) {
         <main id="main-content">
           <Hero
             totalArticles={articles.length}
-            onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('categories') }}
+            onSelectCategory={handleSelectCategory}
           />
           <StatsBar
             articleCount={statsArticleCount}
             authorCount={statsAuthorCount}
             categoryCount={statsCategoryCount}
-            onGoToArticles={() => scrollToSection('articles')}
+            onGoToArticles={() => { navigateTo('/materials/') }}
           />
           <MainCategories
             articles={articles}
-            onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('categories') }}
+            onSelectCategory={handleSelectCategory}
           />
           <ContinueReading articles={articles} onArticleClick={openArticle} />
           <Categories

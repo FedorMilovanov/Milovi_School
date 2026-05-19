@@ -46,7 +46,7 @@ export default function StaticPageShell({ children }: StaticPageShellProps) {
   }, [])
 
   const goArticles = useCallback(() => {
-    void navigateTo('/#articles')
+    void navigateTo('/materials/')
   }, [])
 
   const goAbout = useCallback(() => {

@@ -111,6 +111,7 @@ export default function Cursor({ theme }: CursorProps) {
       }
       mouse.x = e.clientX
       mouse.y = e.clientY
+      if (isVisible && rafId === 0) rafId = requestAnimationFrame(draw)
     }
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
 
@@ -158,6 +159,8 @@ export default function Cursor({ theme }: CursorProps) {
       '#categories .section-title-lux',
       '#archive .section-title-lux',
       '#materials .section-title-lux',
+      '#stats .section-title-lux',
+      '.stats-number-lux',
       '.about-h2',
       '.about-h2 em',
     ]
@@ -226,7 +229,7 @@ export default function Cursor({ theme }: CursorProps) {
       'hero-title': { base: '#f5efe5',                        active: '#d4a96a',                          glow: '212,169,106' },
       gold:         { base: isDark ? '#d4a96a' : '#9a6b3a', active: isDark ? '#e2a85f' : '#c7843f',     highlight: isDark ? '#f0c27a' : '#d79a52', glow: isDark ? '226,168,95' : '199,132,63' },
       platinum:     { base: isDark ? '#d4b890' : '#4a7eb8', active: isDark ? '#1a7aef' : '#003ecf',     glow: isDark ? '26, 122, 239' : '0, 62, 207' },
-      'hero-plat':  { base: '#6da8e2',                        active: '#1a7aef',                          glow: '109,168,226' },
+      'hero-plat':  { base: isDark ? '#6da8e2' : '#4a7eb8', active: isDark ? '#1a7aef' : '#003ecf', glow: isDark ? '109,168,226' : '0,62,207' },
       section:      { base: isDark ? '#d1d1d1' : '#0c0a09', active: isDark ? '#e8c98a' : '#b08050',     glow: isDark ? '232,201,138' : '176,128,80' },
       'about-white':{ base: '#ffffff',                        active: '#e8c98a',                          glow: '232,201,138' },
     }
@@ -235,6 +238,8 @@ export default function Cursor({ theme }: CursorProps) {
       gold:         isDark ? '226 168 95'  : '199 132 63',
       platinum:     isDark ? '155 197 255' : '59 130 246',
       section:      isDark ? '232 201 138' : '176 128 80',
+      'hero-title':  '212 169 106',
+      'hero-plat':   isDark ? '109 168 226' : '0 62 207',
       'about-white':'232 201 138',
     }
 
@@ -305,8 +310,11 @@ export default function Cursor({ theme }: CursorProps) {
       const dyMouse = mouse.y - cursor.y
       const isSettled = Math.abs(dxMouse) < 0.1 && Math.abs(dyMouse) < 0.1
       if (isSettled && sparks.length === 0) {
-        // Just keep checking in the next frame
-        rafId = requestAnimationFrame(draw)
+        cursor.x = mouse.x
+        cursor.y = mouse.y
+        aim.style.left = cursor.x + 'px'
+        aim.style.top = cursor.y + 'px'
+        rafId = 0
         return
       }
 

@@ -699,7 +699,7 @@ export default function CommandPalette({
         }
       }
     },
-    [totalItems, showQuickActions, quickActions, flatVisible, activeIndex, onClose, onOpenArticle, query],
+    [totalItems, showQuickActions, quickActions, flatVisible, activeIndex, onClose, onOpenArticle, query, filterSection],
   )
 
   /* ── Animation configs ── */

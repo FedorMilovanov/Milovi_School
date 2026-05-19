@@ -2,8 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GalleryApp from '../components/gallery/GalleryApp'
 import { libraryClientMeta } from '../data/library'
-
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 ---
 
 <BaseLayout

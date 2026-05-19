@@ -8,6 +8,7 @@ import type { ArticleClientMeta } from '../../data/types'
 import { fallbackImageFor } from '../../assets/images'
 import LuxuryText from '../LuxuryText'
 import { navigateTo } from '../../utils/navigation'
+import { safeSetItem } from '../../utils/storage'
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
@@ -22,6 +23,9 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
       const nt = t === 'dark' ? 'light' : 'dark'
       document.documentElement.style.colorScheme = nt
       document.documentElement.classList.toggle('dark', nt === 'dark')
+      safeSetItem('theme', nt)
+      const meta = document.getElementById('theme-color-meta')
+      if (meta) meta.setAttribute('content', nt === 'dark' ? '#10100f' : '#f5efe5')
       return nt
     })
   }, [])
@@ -46,7 +50,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           onGoAbout={() => { navigateTo('/#about') }}
           onOpenCommand={() => setCommandOpen(true)}
         />
-        <main className="py-24 transition-colors bg-[var(--bg-deep)]">
+        <main id="materials" className="bg-[var(--bg-deep)] py-24 transition-colors">
           <div className="mx-auto max-w-[1600px] px-6 lg:px-10">
             <div className="mb-16 flex flex-col items-start gap-6 border-b border-[var(--border)] pb-12">
               <h1 className="section-title-lux font-serif text-[clamp(2.8rem,5.5vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[var(--ink)]">
@@ -61,9 +65,14 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
               {articles.map((article) => {
                 const imgUrl = article.image || fallbackImageFor(article.category)
                 return (
-                  <button
+                  <a
                     key={article.id}
-                    onClick={() => openArticle(article)}
+                    href={`/articles/${article.id}/`}
+                    onClick={(e) => {
+                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+                      e.preventDefault()
+                      openArticle(article)
+                    }}
                     className="cat-img-card cat-img-card-lux group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors"
                   >
                     <div
@@ -74,11 +83,13 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         src={imgUrl}
                         alt={article.title}
                         loading="lazy"
+                        decoding="async"
+                        sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="cat-img cat-card-img-lux h-full w-full object-cover"
                       />
-                      <div className="absolute inset-0 bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(10,8,7,0.05)_20%,rgba(10,8,7,0.9)_100%)]" />
+                      <div className="absolute inset-0 z-[2] bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.85)_45%,rgba(0,0,0,0.98)_100%)]" />
 
-                      <div className="absolute inset-x-0 bottom-0 p-6">
+                      <div className="absolute inset-x-0 bottom-0 z-[5] p-6">
                         <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                           {article.category}
                         </span>
@@ -97,7 +108,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </a>
                 )
               })}
             </div>

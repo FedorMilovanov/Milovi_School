@@ -65,7 +65,7 @@
 │   │   ├── CommandPalette.tsx      ← Ctrl+K поиск (Fuse.js)
 │   │   ├── Categories.tsx, MainCategories.tsx, ArticlesGrid.tsx
 │   │   ├── DashboardBento.tsx, StatsBar.tsx, ContinueReading.tsx
-│   │   ├── ShowcaseSlider.tsx, ImageWithFade.tsx
+│   │   ├── ImageWithFade.tsx
 │   │   ├── ScrollProgress.tsx, ScrollReveal.tsx, ScrollToTop.tsx
 │   │   ├── MobileBottomBar.tsx, UpdateNotification.tsx
 │   │   ├── ErrorBoundary.tsx, Toast.tsx, ReadingTime.tsx

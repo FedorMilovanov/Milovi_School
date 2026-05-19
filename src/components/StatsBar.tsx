@@ -59,10 +59,11 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
       viewport={{ once: true }}
       transition={shouldReduce ? { duration: 0 } : { duration: 0.5 }}
     >
-            <span
+      <span
         ref={ref}
-        className="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl luxury-color-text section-title-lux"
+        className="stat-num stats-number-lux section-title-lux luxury-color-text font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl"
         data-tone="section"
+        aria-label={`${prefix}${count}${suffix}`}
       >
         {(`${prefix}${count}${suffix}`).split('').map((char, i) => (
           <span className="luxury-letter" key={`${char}-${i}`} aria-hidden="true">{char}</span>
@@ -84,7 +85,7 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
       <button
         type="button"
         onClick={onClick}
-        className="group block w-full transition-colors hover:bg-amber-50/40 dark:hover:bg-amber-900/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500 cursor-pointer"
+        className="stat-item stats-card group block w-full cursor-pointer transition-colors hover:bg-amber-50/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500 dark:hover:bg-amber-900/10"
         title={`Перейти к списку: ${label}`}
       >
         {inner}
@@ -107,8 +108,45 @@ interface StatsBarProps {
 }
 
 export default function StatsBar({ articleCount, authorCount, categoryCount, onGoToArticles }: StatsBarProps) {
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+
+    const items = Array.from(document.querySelectorAll<HTMLElement>('#stats .stat-item'))
+    const cleanups = items.map((item) => {
+      const num = item.querySelector<HTMLElement>('.stat-num')
+      if (!num) return () => undefined
+
+      const onMove = (event: MouseEvent) => {
+        const rect = item.getBoundingClientRect()
+        const cx = rect.left + rect.width / 2
+        const cy = rect.top + rect.height / 2
+        const dx = event.clientX - cx
+        const dy = event.clientY - cy
+        const tx = Math.max(-9, Math.min(9, dx * 0.06))
+        const ty = Math.max(-7, Math.min(7, dy * 0.05))
+        const ry = Math.max(-4, Math.min(4, dx * 0.025))
+        const rx = Math.max(-4, Math.min(4, -dy * 0.02))
+        num.style.transform = `translate3d(${tx}px, ${ty}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.045)`
+      }
+
+      const onLeave = () => {
+        num.style.transform = 'translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1)'
+      }
+
+      item.addEventListener('mousemove', onMove, { passive: true })
+      item.addEventListener('mouseleave', onLeave)
+      return () => {
+        item.removeEventListener('mousemove', onMove)
+        item.removeEventListener('mouseleave', onLeave)
+      }
+    })
+
+    return () => cleanups.forEach(cleanup => cleanup())
+  }, [])
+
   return (
-    <section className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
+    <section id="stats" className="border-y border-[var(--border-subtle)] bg-[var(--bg-deep)]">
       {/* Лишний подзаголовок "Сладкие цифры Франции" удалён по запросу клиента —
           в этом отделе оставляем только хлебную крошку "Архив · Статистика
           библиотеки". Сам термин "Сладкие цифры Франции" живёт в категории
