@@ -172,8 +172,9 @@ export default function HomeApp({ articles }: HomeAppProps) {
   const goToChefs = useCallback(() => {
     setSelectedCategory(null)
     setSearchQuery('')
+    syncUrlQuery('')
     scrollToSection('archive')
-  }, [scrollToSection])
+  }, [scrollToSection, syncUrlQuery])
 
   const openArticle = useCallback((article: ArticleClientMeta) => {
     void navigateTo(`/articles/${article.id}/`)
@@ -267,7 +268,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           articles={articles}
           onClose={closeCommand}
           onOpenArticle={openArticle}
-          onSelectCategory={handleCommandSelectCategory}
+          initialQuery={searchQuery} onSelectCategory={handleCommandSelectCategory}
         />
         <MobileBottomBar
           onGoHome={goHome}

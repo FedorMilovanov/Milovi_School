@@ -569,7 +569,12 @@ export default function CommandPalette({
   const showQuickActions = !query.trim() && !filterSection && quickActions.length > 0
   const totalItems = (showQuickActions ? quickActions.length : 0) + flatVisible.length
 
-  /* ── Reset active index on result count change ── */
+  /* ── Reset active index on query or filterSection change ── */
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [query, filterSection])
+
+  /* ── Clamp active index on result count change ── */
   useEffect(() => {
     setActiveIndex(i => Math.min(i, totalItems === 0 ? 0 : totalItems - 1))
   }, [totalItems])
@@ -674,7 +679,8 @@ export default function CommandPalette({
         e.preventDefault()
         e.stopPropagation()
         e.nativeEvent.stopImmediatePropagation?.()
-        if (query.trim()) { setQuery(''); setFilterSection(null); return }
+        if (query.trim()) { setQuery(''); return }
+        if (filterSection) { setFilterSection(null); return }
         onClose()
         return
       }

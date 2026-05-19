@@ -92,7 +92,10 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     }
   }, [])
 
-  const closeCommand = useCallback(() => setCommandOpen(false), [])
+  const closeCommand = useCallback(() => {
+    setCommandOpen(false)
+    setCommandInitialQuery('')
+  }, [])
   const openArticleByUrl = useCallback((a: ArticleClientMeta) => {
     void navigateTo(`/articles/${a.id}/`)
   }, [])

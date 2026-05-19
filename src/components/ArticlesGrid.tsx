@@ -21,7 +21,7 @@ function HL({
   query: string
 }) {
   const matches = matchMap?.get(articleId)
-  if (matches) return <>{highlightWithMatches(text, matches, field)}</>
+  if (matches && matches.length > 0) return <>{highlightWithMatches(text, matches, field)}</>
   return <>{highlightMatch(text, query)}</>
 }
 

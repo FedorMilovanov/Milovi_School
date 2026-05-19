@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { ArticleMeta } from '../data/types'
 import type { Category } from '../data/categories'
+import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 
 interface CategoriesProps {
   categories: Category[]
@@ -22,6 +23,11 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
     }
     return (id: string) => map.get(id) ?? 0
   }, [allArticles])
+
+  const chefCount = useMemo(
+    () => allArticles.filter(a => !NON_CHEF_CATEGORY_IDS.has(a.category)).length,
+    [allArticles],
+  )
 
   // ── Debounced search ────────────────────────────────────────────────────────
   // localSearch drives the visible input value immediately (responsive feel).
@@ -99,6 +105,20 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
               <motion.span layoutId="category-underline" className="absolute inset-x-0 bottom-0 h-px bg-stone-950 dark:bg-stone-100" />
             )}
           </motion.button>
+
+          <motion.button
+            type="button"
+            onClick={() => onSelectCategory('chefs')}
+            aria-pressed={selectedCategory === 'chefs'}
+            className={`relative pb-2 font-mono text-xs uppercase tracking-[0.24em] transition ${selectedCategory === 'chefs' ? 'text-stone-950 dark:text-stone-100' : 'text-stone-500 hover:text-stone-950 dark:hover:text-stone-100'}`}
+            whileHover={{ x: 4 }}
+          >
+            ✦ / Шефы & Мастера <span className="text-stone-400">({chefCount})</span>
+            {selectedCategory === 'chefs' && (
+              <motion.span layoutId="category-underline" className="absolute inset-x-0 bottom-0 h-px bg-stone-950 dark:bg-stone-100" />
+            )}
+          </motion.button>
+
           {categories.map((category) => (
             <motion.button
               key={category.id}
