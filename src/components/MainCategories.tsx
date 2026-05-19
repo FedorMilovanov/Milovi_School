@@ -158,14 +158,14 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                   )}
 
                   {/* Body overlay */}
-                  <div className="absolute inset-x-0 bottom-0 z-[5] p-9">
+                  <div className="cat-card-body-lux absolute inset-x-0 bottom-0 z-[5] p-9">
                     <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                       {cat.badge}
                     </span>
-                    <span className="block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white section-title-lux">
+                    <span className="cat-card-name-lux block font-serif text-[1.9rem] font-semibold leading-none tracking-[-0.05em] text-white section-title-lux">
                       <LuxuryText tone="about-white" as="span">{cat.name}</LuxuryText>
                     </span>
-                    <p className="mt-2.5 max-w-xs font-serif text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">
+                    <p className="cat-card-desc-lux mt-2.5 max-w-xs font-serif text-[0.85rem] italic leading-[1.65] text-[rgba(232,220,200,0.72)]">
                       {cat.desc}
                     </p>
                     <div className="mt-5 flex items-center justify-between border-t border-[rgba(255,255,255,0.1)] pt-4">

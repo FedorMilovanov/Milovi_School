@@ -89,11 +89,11 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                       />
                       <div className="absolute inset-0 z-[2] bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.85)_45%,rgba(0,0,0,0.98)_100%)]" />
 
-                      <div className="absolute inset-x-0 bottom-0 z-[5] p-6">
+                      <div className="cat-card-body-lux absolute inset-x-0 bottom-0 z-[5] p-6">
                         <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
                           {article.category}
                         </span>
-                        <span className="block font-serif text-[1.4rem] font-semibold leading-tight tracking-[-0.03em] text-white section-title-lux">
+                        <span className="cat-card-name-lux block font-serif text-[1.4rem] font-semibold leading-tight tracking-[-0.03em] text-white section-title-lux">
                           <LuxuryText tone="about-white" as="span">{article.title}</LuxuryText>
                         </span>
                         <div className="mt-4 flex items-center justify-between border-t border-[rgba(255,255,255,0.1)] pt-3">

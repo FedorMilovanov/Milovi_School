@@ -708,6 +708,18 @@ a:hover .logo-name-patisserie {
 .cat-img-card-lux {
   content-visibility: auto;
   contain-intrinsic-size: 1px 340px;
+  border: 1px solid transparent;
+  transition: border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cat-img-card-lux:hover {
+  z-index: 3;
+  border-color: var(--gold);
+  box-shadow: 0 18px 50px -12px rgba(0,0,0,0.35);
+}
+.dark .cat-img-card-lux:hover {
+  box-shadow: 0 18px 50px -12px rgba(0,0,0,0.65), 0 0 0 1px rgba(197,168,128,0.15);
 }
 .cat-img-card-lux .cat-card-img-wrap-lux {
   position: relative;
@@ -746,6 +758,35 @@ a:hover .logo-name-patisserie {
 }
 @media (hover: none) and (pointer: coarse) {
   .cat-img-card-lux:active { transform: scale(0.98); }
+}
+.cat-card-body-lux {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cat-card-name-lux {
+  transform-origin: left bottom;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              letter-spacing 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              text-shadow 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cat-card-desc-lux {
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+  transition: transform 0.6s ease, color 0.6s ease, opacity 0.6s ease;
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+  .cat-img-card-lux:hover .cat-card-body-lux { transform: translateY(-12px); }
+  .cat-img-card-lux:hover .cat-card-name-lux {
+    transform: scale(1.02) translateY(-6px);
+    letter-spacing: 0.01em;
+    color: #ffffff;
+    text-shadow: 0 4px 25px rgba(0,0,0,0.9);
+  }
+  .cat-img-card-lux:hover .cat-card-desc-lux {
+    transform: translateY(-2px);
+    color: rgba(255,255,255,1);
+    opacity: 1;
+  }
 }
 #stats .stat-item {
   perspective: 900px;
