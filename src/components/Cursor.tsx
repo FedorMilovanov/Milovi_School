@@ -224,7 +224,7 @@ export default function Cursor({ theme }: CursorProps) {
     const palettes: Record<string, Palette> = {
       title:        { base: isDark ? '#f5efe5' : '#1a1510', active: '#d4a96a',                          glow: isDark ? '212,169,106' : '176,128,80' },
       gold:         { base: isDark ? '#d4a96a' : '#9a6b3a', active: isDark ? '#e2a85f' : '#c7843f',     highlight: isDark ? '#f0c27a' : '#d79a52', glow: isDark ? '226,168,95' : '199,132,63' },
-      platinum:     { base: isDark ? '#d4b890' : '#9a6b3a', active: isDark ? '#1a7aef' : '#003ecf',     glow: isDark ? '26, 122, 239' : '0, 62, 207' },
+      platinum:     { base: isDark ? '#d4b890' : '#4a7eb8', active: isDark ? '#1a7aef' : '#003ecf',     glow: isDark ? '26, 122, 239' : '0, 62, 207' },
       section:      { base: isDark ? '#d1d1d1' : '#0c0a09', active: isDark ? '#e8c98a' : '#b08050',     glow: isDark ? '232,201,138' : '176,128,80' },
       'about-white':{ base: '#ffffff',                        active: '#e8c98a',                          glow: '232,201,138' },
     }

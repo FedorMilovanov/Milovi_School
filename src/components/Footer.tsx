@@ -25,7 +25,7 @@ export default function Footer() {
               {/* about-h2 — взаимодействует с курсором (см. Cursor.tsx).
                   pâtisserie выделено в <em> чтобы получить синий glow,
                   как в ARENA AI drop. */}
-              Французская <em className="italic">pâtisserie</em> на русском языке
+                            Французская <em className="italic">pâtisserie</em><br />на русском языке
             </h2>
           </div>
           <div className="space-y-6 text-stone-300">

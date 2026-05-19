@@ -9,6 +9,7 @@ import ShowcaseSlider from './ShowcaseSlider'
 import StatsBar from './StatsBar'
 import DashboardBento from './DashboardBento'
 import MainCategories from './MainCategories'
+import Categories from './Categories'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
 import CommandPalette from './CommandPalette'
@@ -127,6 +128,12 @@ export default function HomeApp({ articles }: HomeAppProps) {
 
   
 
+  
+  const handleSearchChange = useCallback((query: string) => {
+    setSearchQuery(query)
+    syncUrlQuery(query)
+  }, [syncUrlQuery])
+
   const goHome = useCallback(() => {
     setSelectedCategory(null)
     setSearchQuery('')
@@ -206,6 +213,14 @@ export default function HomeApp({ articles }: HomeAppProps) {
             onSelectCategory={(id) => { handleSelectCategory(id); scrollToSection('categories') }}
           />
           <ContinueReading articles={articles} onArticleClick={openArticle} />
+          <Categories
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={handleSelectCategory}
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+            allArticles={articles}
+          />
           <DashboardBento articles={articles} onArticleClick={openArticle} />
           
         </main>

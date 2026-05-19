@@ -730,7 +730,7 @@ a:hover .logo-name-patisserie {
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) {
   .cat-img-card-lux:hover .cat-card-img-lux {
-    opacity: 0;
+    opacity: 0.2; /* Don't hide completely */
     transform: scale(1.04);
   }
 }
@@ -741,8 +741,8 @@ a:hover .logo-name-patisserie {
   width: 120%; height: 124%;
   z-index: 0;
   background: var(--cat-bg, none) center / cover no-repeat;
-  filter: blur(40px) brightness(0.4) contrast(1.1) saturate(1.1);
-  -webkit-filter: blur(40px) brightness(0.4) contrast(1.1) saturate(1.1);
+  filter: blur(40px) brightness(0.7) contrast(1.2) saturate(1.2);
+  -webkit-filter: blur(40px) brightness(0.7) contrast(1.2) saturate(1.2);
   opacity: 0;
   transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;

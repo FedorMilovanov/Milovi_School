@@ -67,7 +67,40 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
       <div className="grid gap-10 border-y border-[var(--border-subtle)] py-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <div>
           <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-200">Навигация по архиву</p>
-          <h2 className="font-serif text-5xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 md:text-7xl">Шефы, техники, кухня, статистика</h2>
+          <h2 className="font-serif text-5xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 md:text-7xl section-title-lux luxury-color-text" data-tone="section">
+            <span className="luxury-letter" aria-hidden="true">Ш</span>
+            <span className="luxury-letter" aria-hidden="true">е</span>
+            <span className="luxury-letter" aria-hidden="true">ф</span>
+            <span className="luxury-letter" aria-hidden="true">ы</span>
+            <span className="luxury-letter" aria-hidden="true">,</span>
+            <span className="luxury-letter" aria-hidden="true">&nbsp;</span>
+            <span className="luxury-letter" aria-hidden="true">т</span>
+            <span className="luxury-letter" aria-hidden="true">е</span>
+            <span className="luxury-letter" aria-hidden="true">х</span>
+            <span className="luxury-letter" aria-hidden="true">н</span>
+            <span className="luxury-letter" aria-hidden="true">и</span>
+            <span className="luxury-letter" aria-hidden="true">к</span>
+            <span className="luxury-letter" aria-hidden="true">и</span>
+            <span className="luxury-letter" aria-hidden="true">,</span>
+            <span className="luxury-letter" aria-hidden="true">&nbsp;</span>
+            <span className="luxury-letter" aria-hidden="true">к</span>
+            <span className="luxury-letter" aria-hidden="true">у</span>
+            <span className="luxury-letter" aria-hidden="true">х</span>
+            <span className="luxury-letter" aria-hidden="true">н</span>
+            <span className="luxury-letter" aria-hidden="true">я</span>
+            <span className="luxury-letter" aria-hidden="true">,</span>
+            <span className="luxury-letter" aria-hidden="true">&nbsp;</span>
+            <span className="luxury-letter" aria-hidden="true">с</span>
+            <span className="luxury-letter" aria-hidden="true">т</span>
+            <span className="luxury-letter" aria-hidden="true">а</span>
+            <span className="luxury-letter" aria-hidden="true">т</span>
+            <span className="luxury-letter" aria-hidden="true">и</span>
+            <span className="luxury-letter" aria-hidden="true">с</span>
+            <span className="luxury-letter" aria-hidden="true">т</span>
+            <span className="luxury-letter" aria-hidden="true">и</span>
+            <span className="luxury-letter" aria-hidden="true">к</span>
+            <span className="luxury-letter" aria-hidden="true">а</span>
+          </h2>
         </div>
         <div className="relative">
           <input
