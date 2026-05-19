@@ -67,7 +67,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
       <div className="grid gap-10 border-y border-[var(--border-subtle)] py-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <div>
           <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-800 dark:text-amber-200">Навигация по архиву</p>
-          <h2 className="font-serif text-5xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 md:text-7xl">Шефы, техники, кухня</h2>
+          <h2 className="font-serif text-5xl font-semibold tracking-[-0.06em] text-stone-950 dark:text-stone-100 md:text-7xl">Шефы, техники, кухня, статистика</h2>
         </div>
         <div className="relative">
           <input
@@ -76,7 +76,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
             placeholder="Найти: пралине, choux, Испахан, ДКА, соусы..."
             value={localSearch}
             onChange={(e) => handleSearch(e.target.value)}
-            className="search-input-premium w-full border-0 border-b border-stone-900 bg-transparent py-5 pr-12 font-serif text-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:shadow-none dark:border-stone-700 dark:text-stone-100 md:text-2xl"
+            className="input-focus-premium w-full border-0 border-b border-stone-900 bg-transparent py-5 pr-12 pl-1 font-serif text-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-0 dark:border-stone-700 dark:text-stone-100 md:text-2xl"
           />
           {localSearch && (
             <button

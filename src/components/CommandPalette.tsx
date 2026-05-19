@@ -776,7 +776,7 @@ export default function CommandPalette({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Поиск материалов, шефов, техник..."
                 aria-label="Поиск материалов, шефов и техник"
-                className="cp-input flex-1 bg-transparent text-[17px] font-light tracking-wide outline-none focus-visible:outline-none"
+                className="input-focus-premium flex-1 bg-transparent pl-1.5 text-[17px] font-light tracking-wide outline-none"
                 style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
               />
 

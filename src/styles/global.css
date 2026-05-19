@@ -429,33 +429,22 @@ a {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-gold) 18%, transparent);
 }
 
-/* Inputs & textareas: ONE crisp premium ring — no double-border artefact.
-   outline=none + single box-shadow keeps it clean, luxurious, and uncluttered. */
-:where(input, textarea):focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 1.5px color-mix(in srgb, var(--accent-gold) 85%, transparent),
-    0 0 12px   color-mix(in srgb, var(--accent-gold) 12%, transparent);
-}
-
-
-/* ── Premium search-input bottom-border glow (Categories bar) ─── */
-.search-input-premium {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.search-input-premium:focus-visible {
+/* Premium single-ring focus for search inputs — very subtle, elegant.
+   Applied explicitly via class so Tailwind utilities never fight it. */
+.input-focus-premium:focus,
+.input-focus-premium:focus-visible {
   outline: none !important;
-  box-shadow: none !important;
-  border-color: var(--accent-gold) !important;
-  box-shadow: 0 2px 0 0 var(--accent-gold),
-              0 6px 20px -4px color-mix(in srgb, var(--accent-gold) 18%, transparent) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-gold) 50%, transparent),
+    0 0 6px color-mix(in srgb, var(--accent-gold) 8%, transparent) !important;
+  transition: box-shadow 0.2s ease;
 }
 
-/* CommandPalette search bar: subtle container glow on focus ───── */
+/* CommandPalette search bar: ultra-subtle container glow on focus ─ */
 .cp-search-bar:focus-within {
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--text-accent) 35%, transparent),
-    0 0 20px color-mix(in srgb, var(--text-accent) 10%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--text-accent) 20%, transparent),
+    0 0 10px color-mix(in srgb, var(--text-accent) 6%, transparent);
 }
 
 @media (prefers-reduced-transparency: reduce) {
