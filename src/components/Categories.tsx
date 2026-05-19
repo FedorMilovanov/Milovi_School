@@ -76,7 +76,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
             placeholder="Найти: пралине, choux, Испахан, ДКА, соусы..."
             value={localSearch}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full border-0 border-b border-stone-900 bg-transparent py-5 pr-12 font-serif text-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-0 dark:border-stone-700 dark:text-stone-100 md:text-2xl"
+            className="search-input-premium w-full border-0 border-b border-stone-900 bg-transparent py-5 pr-12 font-serif text-xl text-stone-950 placeholder:text-stone-400 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:shadow-none dark:border-stone-700 dark:text-stone-100 md:text-2xl"
           />
           {localSearch && (
             <button

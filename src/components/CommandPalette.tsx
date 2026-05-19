@@ -757,7 +757,7 @@ export default function CommandPalette({
             onKeyDown={handleKeyDown}
           >
             {/* ═══ Search bar ═══ */}
-            <div className="flex items-center gap-3 px-5 shrink-0" style={{ height: 62 }}>
+            <div className="cp-search-bar flex items-center gap-3 px-5 shrink-0" style={{ height: 62 }}>
               <motion.svg
                 className="h-[18px] w-[18px] shrink-0"
                 animate={{
@@ -776,7 +776,7 @@ export default function CommandPalette({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Поиск материалов, шефов, техник..."
                 aria-label="Поиск материалов, шефов и техник"
-                className="flex-1 bg-transparent text-[17px] font-light tracking-wide outline-none"
+                className="cp-input flex-1 bg-transparent text-[17px] font-light tracking-wide outline-none focus-visible:outline-none"
                 style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
               />
 
@@ -934,8 +934,9 @@ export default function CommandPalette({
                             className="flex w-full items-center gap-3 px-5 py-2.5 text-left"
                             style={{
                               background: isActive ? 'var(--cp-surface)' : 'transparent',
-                              borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
-                              transition: 'all 0.09s ease',
+                              borderLeft: isActive ? '3px solid var(--text-accent)' : '3px solid transparent',
+                              boxShadow: isActive ? '0 0 14px var(--border-lux)' : 'none',
+                              transition: 'all 0.12s ease',
                             }}
                           >
                             <span
@@ -1042,8 +1043,9 @@ export default function CommandPalette({
                                     className="flex w-full items-start gap-3 px-5 py-3.5 text-left"
                                     style={{
                                       background: isActive ? 'var(--cp-surface)' : 'transparent',
-                                      borderLeft: isActive ? '2px solid var(--text-accent)' : '2px solid transparent',
-                                      transition: 'background 0.1s ease, border-color 0.08s ease',
+                                      borderLeft: isActive ? '3px solid var(--text-accent)' : '3px solid transparent',
+                                      boxShadow: isActive ? '0 0 14px var(--border-lux)' : 'none',
+                                      transition: 'background 0.15s ease, box-shadow 0.15s ease',
                                     }}
                                   >
                                     <div style={{ position: 'relative', marginTop: 2, flexShrink: 0 }}>
@@ -1065,19 +1067,6 @@ export default function CommandPalette({
                                         }} />
                                       )}
 
-                                      {isActive && (
-                                        <motion.div
-                                          layoutId="cp-active-ring"
-                                          style={{
-                                            position: 'absolute', inset: -1,
-                                            border: '1.5px solid var(--text-accent)',
-                                            borderRadius: 5,
-                                            opacity: 0.5,
-                                            pointerEvents: 'none',
-                                          }}
-                                          transition={{ type: 'spring', stiffness: 600, damping: 38 }}
-                                        />
-                                      )}
                                     </div>
 
                                     <div className="min-w-0 flex-1">
