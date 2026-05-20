@@ -158,6 +158,21 @@ pluralRu(21, MATERIAL) // → 'материал'
 
 
 
+
+## Changelog — audit hardening pass (2026-05-20)
+
+| # | Fix | File |
+|---|---|---|
+| A1 | Сверены P0/P1-находки внешнего аудита: ассеты `placeholder.svg`, `logo*.png`, `og-preview.webp` реально существуют; `materials.astro` уже имеет SEO meta | `public/images/*`, `src/pages/materials.astro` |
+| A2 | React runtime/types выровнены: проект остаётся на React 18, `@types/react`/`@types/react-dom` откатаны на 18.x | `package.json`, `package-lock.json` |
+| A3 | 404-страница получила настоящий HTTP 404 и `robots="noindex, follow"` | `src/pages/404.astro`, `src/layouts/BaseLayout.astro` |
+| A4 | Query-дубли поиска закрыты от crawl через robots | `public/robots.txt` |
+| A5 | CommandPalette вынесена в lazy chunk и не грузится до открытия поиска | `HomeApp.tsx`, `ArticlePageShell.tsx`, `GalleryApp.tsx` |
+| A6 | SW install стал устойчивым к будущему отсутствию precache-ассета; SW hash теперь content-based, не random UUID | `public/sw.js`, `astro.config.mjs` |
+| A7 | Добавлены Vite alias `@/*`, отдельный `react` chunk, NaN guard в DashboardBento, reduced-motion для skeleton shimmer, JS-safe custom cursor fallback | `astro.config.mjs`, `DashboardBento.tsx`, `global.css`, `Cursor.tsx` |
+
+---
+
 ## Changelog — index/materials reference superfix (2026-05-20)
 
 | # | Fix | File |

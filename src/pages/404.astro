@@ -1,10 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+
+Astro.response.status = 404
 ---
 
 <BaseLayout
   title="Страница не найдена — Patisserie Russe"
   description="Эта страница не существует или была перемещена."
+  canonicalUrl="https://french.milovicake.ru/"
+  robots="noindex, follow"
 >
   <main id="main-content" class="flex min-h-screen flex-col items-center justify-center px-6 text-center">
     <p class="font-mono text-[11px] uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">404</p>

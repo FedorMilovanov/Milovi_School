@@ -6,6 +6,8 @@ interface Props {
   description?: string
   image?: string
   canonicalUrl?: string
+  /** Robots meta. 404 and other utility pages can pass 'noindex, follow'. */
+  robots?: string
   /** 'website' for home, 'article' for article pages */
   ogType?: 'website' | 'article'
   /** Explicit OG image dimensions — only pass when the exact size is known */
@@ -24,6 +26,7 @@ const {
   description = 'Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, разборы, рецепты.',
   image = '/images/premium-hero.jpg',
   canonicalUrl = 'https://french.milovicake.ru/',
+  robots = 'index, follow',
   ogType = 'website',
   ogImageWidth,
   ogImageHeight,
@@ -109,7 +112,7 @@ const metaDescription =
     <meta name="twitter:image:alt" content={title} />
 
     <!-- Robots -->
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={robots} />
 
     <!--
       Theme colour — single dynamic <meta>. Static media-query variants

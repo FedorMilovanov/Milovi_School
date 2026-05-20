@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect } from 'react'
 import Header from '../Header'
 import Footer from '../Footer'
-import CommandPalette from '../CommandPalette'
 import ErrorBoundary from '../ErrorBoundary'
 import Cursor from '../Cursor'
 import type { ArticleClientMeta } from '../../data/types'
@@ -9,6 +8,8 @@ import { fallbackImageFor } from '../../assets/images'
 import LuxuryText from '../LuxuryText'
 import { navigateTo } from '../../utils/navigation'
 import { safeSetItem } from '../../utils/storage'
+
+const CommandPalette = lazy(() => import('../CommandPalette'))
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
@@ -115,7 +116,11 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           </div>
         </main>
         <Footer />
-        <CommandPalette open={commandOpen} articles={articles} onClose={() => setCommandOpen(false)} onOpenArticle={openArticle} />
+        {commandOpen && (
+          <Suspense fallback={null}>
+            <CommandPalette open={commandOpen} articles={articles} onClose={() => setCommandOpen(false)} onOpenArticle={openArticle} />
+          </Suspense>
+        )}
         <Cursor theme={theme} />
       </ErrorBoundary>
     </div>

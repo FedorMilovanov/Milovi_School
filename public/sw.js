@@ -52,7 +52,11 @@ async function cacheAndTrim(request, response) {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(PRECACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
+    caches.open(PRECACHE_NAME).then(async (cache) => {
+      const results = await Promise.allSettled(PRECACHE_ASSETS.map((asset) => cache.add(asset)))
+      const failed = results.filter((result) => result.status === 'rejected')
+      if (failed.length > 0) console.warn('[service-worker] precache skipped failed assets', failed.length)
+    })
   )
 })
 

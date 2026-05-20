@@ -1,7 +1,7 @@
 /**
  * HomeApp — React client island for the home page.
  */
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Fuse, { type FuseResultMatch } from 'fuse.js'
 import { safeSetItem } from '../utils/storage'
 import Header from './Header'
@@ -13,7 +13,6 @@ import Categories from './Categories'
 import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
-import CommandPalette from './CommandPalette'
 import ContinueReading from './ContinueReading'
 import MobileBottomBar from './MobileBottomBar'
 import UpdateNotification from './UpdateNotification'
@@ -31,7 +30,7 @@ const CHEF_IDS = new Set(
   categories.filter(c => !NON_CHEF_CATEGORY_IDS.has(c.id)).map(c => c.id),
 )
 
-const NON_CHEF_NON_TECH_IDS = ['chiffres-gourmands', 'french-cuisine', 'histoire-culinaire', 'techniques', 'recipes']
+const CommandPalette = lazy(() => import('./CommandPalette'))
 
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
@@ -210,9 +209,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
-  const activeSection: 'home' | 'archive' | 'articles' = !selectedCategory
-    ? 'home'
-    : (CHEF_IDS.has(selectedCategory) || NON_CHEF_NON_TECH_IDS.includes(selectedCategory) ? 'archive' : 'articles')
+  const activeSection: 'home' | 'archive' | 'articles' = selectedCategory ? 'archive' : 'home'
 
   return (
     <div className="min-h-screen bg-[var(--bg-main)] transition-colors dark:bg-stone-950">
@@ -272,13 +269,18 @@ export default function HomeApp({ articles }: HomeAppProps) {
           
         </main>
         <Footer />
-        <CommandPalette
-          open={commandOpen}
-          articles={articles}
-          onClose={closeCommand}
-          onOpenArticle={openArticle}
-          initialQuery={searchQuery} onSelectCategory={handleCommandSelectCategory}
-        />
+        {commandOpen && (
+          <Suspense fallback={null}>
+            <CommandPalette
+              open={commandOpen}
+              articles={articles}
+              onClose={closeCommand}
+              onOpenArticle={openArticle}
+              initialQuery={searchQuery}
+              onSelectCategory={handleCommandSelectCategory}
+            />
+          </Suspense>
+        )}
         <MobileBottomBar
           onGoHome={goHome}
           onGoCategories={() => scrollToSection('categories')}

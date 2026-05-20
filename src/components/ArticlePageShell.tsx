@@ -1,13 +1,12 @@
 /**
  * ArticlePageShell — React client island rendered on each /articles/<id>/ page.
  */
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { safeSetItem } from '../utils/storage'
 import Header from './Header'
 import ArticleView from './ArticleView'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
-import CommandPalette from './CommandPalette'
 import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
@@ -19,6 +18,8 @@ interface ArticlePageShellProps {
   article: Article
   allMeta: ArticleClientMeta[]
 }
+
+const CommandPalette = lazy(() => import('./CommandPalette'))
 
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
@@ -146,13 +147,17 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           />
         </main>
         <Footer />
-        <CommandPalette
-          open={commandOpen}
-          articles={allMeta}
-          onClose={closeCommand}
-          onOpenArticle={openArticleByUrl}
-          initialQuery={commandInitialQuery}
-        />
+        {commandOpen && (
+          <Suspense fallback={null}>
+            <CommandPalette
+              open={commandOpen}
+              articles={allMeta}
+              onClose={closeCommand}
+              onOpenArticle={openArticleByUrl}
+              initialQuery={commandInitialQuery}
+            />
+          </Suspense>
+        )}
         <UpdateNotification />
         <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
         <ScrollToTop />

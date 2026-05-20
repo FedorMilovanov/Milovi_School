@@ -6,7 +6,7 @@
 
 **Владелец:** Виктория Милованова (бренд Milovi)
 **Производственный сайт:** https://french.milovicake.ru
-**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r4
+**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r5
 
 ---
 
@@ -278,6 +278,15 @@ void navigateTo('/articles/example/')
 - НЕ возвращать список 115 статей подряд на главную. Главная: hero → stats → archive cards → search/categories → compact blocks → footer/about.
 - `/materials/` — единственное место для общей визуальной галереи всех материалов.
 
+
+### 3.10 Runtime/type alignment and SEO hardening
+
+- Runtime React is 18.x; `@types/react` and `@types/react-dom` must stay on matching 18.x unless the project explicitly migrates to React 19.
+- `/404.html` must keep HTTP status 404 and `robots="noindex, follow"`.
+- Search query duplicates (`?q=` / `&q=`) are blocked in `robots.txt`; do not remove without adding another canonical/noindex strategy.
+- Custom cursor hiding must stay behind the JS-added `html.cursor-effects-enabled` class. Never set global `cursor:none` without JS fallback.
+- CommandPalette should stay lazy-loaded; do not reintroduce a static import into `HomeApp`, `ArticlePageShell` or `GalleryApp`.
+
 ---
 
 ## 4. STYLING — Tailwind 4
@@ -423,6 +432,7 @@ npm run validate
 
 | Версия | Дата | Что |
 |---|---|---|
+| AGENTS-r5 | 2026-05-20 | Зафиксированы правила audit-hardening: React 18 types, 404 noindex/status, robots для `?q=`, lazy CommandPalette, JS-safe cursor fallback. |
 | AGENTS-r4 | 2026-05-20 | Зафиксированы правила после index/materials superfix: `/materials/`, запрет ClientRouter, запрет портянки 115 статей на главной, reference-hover карточек/цифр/hero, репо-гигиена `.config`/`reference.html`. |
 | AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§11) с описанием багов и архитектуры поиска |
 | AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + нативная MPA-навигация для внутренних переходов, curated audit Markdown можно коммитить. |

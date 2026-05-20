@@ -67,6 +67,7 @@ export default function Cursor({ theme }: CursorProps) {
     const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true })
     if (!ctx) return
 
+    document.documentElement.classList.add('cursor-effects-enabled')
     aim.classList.toggle('light-theme', !isDark)
 
     let ww = window.innerWidth
@@ -100,6 +101,7 @@ export default function Cursor({ theme }: CursorProps) {
     let sparks: Spark[] = []
     const MAX_SPARKS = 85
     let isSelectingText = false
+    let selectionEndTimer: number | undefined
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!hasPointer) {
@@ -119,7 +121,8 @@ export default function Cursor({ theme }: CursorProps) {
       isSelectingText = Boolean(document.getSelection()?.toString())
     }
     const handleSelectionEnd = () => {
-      window.setTimeout(() => {
+      window.clearTimeout(selectionEndTimer)
+      selectionEndTimer = window.setTimeout(() => {
         isSelectingText = Boolean(document.getSelection()?.toString())
       }, 0)
     }
@@ -363,6 +366,8 @@ export default function Cursor({ theme }: CursorProps) {
     return () => {
       cancelAnimationFrame(rafId)
       window.clearTimeout(initTimer)
+      window.clearTimeout(selectionEndTimer)
+      document.documentElement.classList.remove('cursor-effects-enabled')
       resizeObserver.disconnect()
       window.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('selectionchange', handleSelectionChange)

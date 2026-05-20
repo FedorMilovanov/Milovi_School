@@ -198,6 +198,9 @@ img, svg {
   background: linear-gradient(90deg, transparent, var(--cp-shine), transparent);
   animation: cp-shimmer 1.5s infinite;
 }
+@media (prefers-reduced-motion: reduce) {
+  .cp-skeleton::after { animation: none; }
+}
 .cp-list { overscroll-behavior: contain; }
 .cp-list::-webkit-scrollbar { width: 3px; }
 .cp-list::-webkit-scrollbar-track { background: transparent; }
@@ -534,7 +537,9 @@ a {
 
 /* ── 1. PREMIUM CUSTOM CURSOR — gold spark trail ─────────────────────────── */
 @media (hover: hover) and (pointer: fine) {
-  html, body, * { cursor: none !important; }
+  html.cursor-effects-enabled,
+  html.cursor-effects-enabled body,
+  html.cursor-effects-enabled * { cursor: none !important; }
 }
 #cursorCanvas {
   position: fixed;

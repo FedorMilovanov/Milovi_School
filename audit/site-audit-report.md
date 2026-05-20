@@ -12,5 +12,5 @@
 - Sitemap checked: 119 URLs, 115 image entries
 - Article ids checked: 115, unique=115
 - UI static checks passed: explicit button types, href anchors, duplicate ids, accessible buttons
-- Client JS bundles checked: 12 files
+- Client JS bundles checked: 16 files
 - Client component imports checked for heavy article-content modules

@@ -118,14 +118,16 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
     let lastActiveTs = 0 // F-06: track by timestamp, not maxPct
 
     articles.forEach((a) => {
-      const pct = Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0)
+      const rawPct = Number(safeGetItem(`article-progress-pct:${a.id}`) ?? 0)
+      const pct = Number.isFinite(rawPct) ? Math.max(0, Math.min(100, rawPct)) : 0
       if (pct >= 95) completed++
       if (safeGetItem(`article-saved:${a.id}`) === 'true') saved++
       if (pct > 0) {
         minutes += (pct / 100) * a.readTime
         // F-06: use last-read timestamp; fall back to pct rank for articles read before this fix
         // BUG #20 FIX: only suggest "continue reading" for incomplete articles (pct < 95)
-        const ts = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
+        const rawTs = Number(safeGetItem(`article-last-read:${a.id}`) ?? 0)
+        const ts = Number.isFinite(rawTs) && rawTs > 0 ? rawTs : 0
         if (pct < 95) {
           if (ts > lastActiveTs) {
             lastActiveTs = ts

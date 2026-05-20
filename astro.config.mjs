@@ -4,7 +4,10 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { randomUUID } from 'node:crypto'
+import { createHash } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url))
 
 // https://french.milovicake.ru
 //
@@ -19,7 +22,24 @@ function bumpServiceWorkerVersion() {
         const swPath = path.join(dir.pathname, 'sw.js')
         try {
           const original = await fs.readFile(swPath, 'utf8')
-          const stamp = `${new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 17)}-${randomUUID().slice(0, 8)}`
+          const hash = createHash('sha256')
+          const walk = async (dirPath) => {
+            const entries = await fs.readdir(dirPath, { withFileTypes: true })
+            entries.sort((a, b) => a.name.localeCompare(b.name))
+            for (const entry of entries) {
+              const full = path.join(dirPath, entry.name)
+              if (full === swPath) continue
+              if (entry.isDirectory()) {
+                await walk(full)
+              } else if (entry.isFile()) {
+                const rel = path.relative(dir.pathname, full).replaceAll(path.sep, '/')
+                hash.update(rel)
+                hash.update(await fs.readFile(full))
+              }
+            }
+          }
+          await walk(dir.pathname)
+          const stamp = hash.digest('hex').slice(0, 16)
           const updated = original.replaceAll('__BUILD_HASH__', `v${stamp}`)
           if (updated !== original) {
             await fs.writeFile(swPath, updated, 'utf8')
@@ -120,11 +140,19 @@ export default defineConfig({
     bumpServiceWorkerVersion(),
   ],
   vite: {
+    resolve: {
+      alias: {
+        '@': path.resolve(rootDir, './src'),
+      },
+    },
     plugins: [tailwindcss()],
     build: {
       rollupOptions: {
         output: {
           manualChunks: (id) => {
+            if (id.includes('react-dom') || id.includes('react')) {
+              return 'react'
+            }
             if (id.includes('framer-motion')) {
               return 'framer-motion'
             }
