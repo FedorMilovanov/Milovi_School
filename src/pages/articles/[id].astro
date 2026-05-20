@@ -44,7 +44,14 @@ function buildOgImage(input: string | undefined, width?: number, height?: number
 const ogImg = buildOgImage(article.image, article.imageWidth, article.imageHeight)
 
 // ── Structured data ──────────────────────────────────────────────────────────
-const wordCount = (article.content ?? '').replace(/\s+/g, ' ').split(' ').filter(Boolean).length
+const articleBodyPlain = (article.content ?? '')
+  .replace(/```[\s\S]*?```/g, ' ')
+  .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+  .replace(/\[[^\]]+\]\([^)]*\)/g, (match) => match.replace(/^\[|\]\([^)]*\)$/g, ''))
+  .replace(/[#>*_`~=-]/g, ' ')
+  .replace(/\s+/g, ' ')
+  .trim()
+const wordCount = articleBodyPlain.split(' ').filter(Boolean).length
 
 // In article data, `author` is an editorial source/source-list. The real author of
 // this educational adaptation is the project library; original sources are exposed
@@ -72,6 +79,7 @@ const jsonLdArticle = {
   '@type': 'Article',
   headline: article.title,
   description: article.excerpt,
+  articleBody: articleBodyPlain.slice(0, 1500),
   image: jsonLdImage,
   inLanguage: 'ru',
   wordCount,

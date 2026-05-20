@@ -2,6 +2,52 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GalleryApp from '../components/gallery/GalleryApp'
 import { libraryClientMeta } from '../data/library'
+
+const siteUrl = 'https://french.milovicake.ru'
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
+
+const jsonLdCollection = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Галерея материалов — Patisserie Russe',
+  description: 'Визуальная галерея всех материалов о французской кондитерской школе: статьи, рецепты и переводы с фотографиями.',
+  url: `${siteUrl}/materials/`,
+  inLanguage: 'ru',
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'Patisserie Russe',
+    url: `${siteUrl}/`,
+  },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: libraryClientMeta.length,
+    itemListElement: libraryClientMeta.map((article, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: `${siteUrl}/articles/${article.id}/`,
+      name: article.title,
+    })),
+  },
+}
+
+const jsonLdBreadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Главная',
+      item: `${siteUrl}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Галерея материалов',
+      item: `${siteUrl}/materials/`,
+    },
+  ],
+}
 ---
 
 <BaseLayout
@@ -9,5 +55,7 @@ import { libraryClientMeta } from '../data/library'
   description="Визуальная галерея всех материалов о французской кондитерской школе: статьи, рецепты и переводы с фотографиями."
   canonicalUrl="https://french.milovicake.ru/materials/"
 >
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />
   <GalleryApp articles={libraryClientMeta} client:load />
 </BaseLayout>

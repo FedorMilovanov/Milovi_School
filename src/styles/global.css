@@ -815,6 +815,110 @@ a:hover .logo-name-patisserie {
     opacity: 1;
   }
 }
+
+
+/* ── Premium gallery expanded preview ─────────────────────────────── */
+.gallery-preview-shell {
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.gallery-preview-shell::before {
+  content: '';
+  position: fixed;
+  inset: auto 0 0 0;
+  height: min(58vh, 520px);
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 100%, rgba(212,169,106,0.16), transparent 55%),
+    linear-gradient(180deg, transparent, rgba(0,0,0,0.42));
+  opacity: 0.95;
+}
+.gallery-preview-aura {
+  position: absolute;
+  inset: -24px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 22% 22%, rgba(232,201,138,0.25), transparent 28%),
+    radial-gradient(circle at 86% 75%, rgba(74,126,184,0.18), transparent 34%),
+    linear-gradient(120deg, rgba(212,169,106,0.14), transparent 42%, rgba(109,168,226,0.10));
+  filter: blur(22px) saturate(1.22);
+  opacity: 0.9;
+}
+.gallery-preview-card {
+  pointer-events: auto;
+  position: relative;
+  isolation: isolate;
+  animation: galleryPreviewIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.gallery-preview-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border: 1px solid rgba(255, 236, 200, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.gallery-preview-image-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset -28px 0 70px rgba(0,0,0,0.44), inset 0 -40px 90px rgba(0,0,0,0.55);
+}
+.gallery-preview-image {
+  transform-origin: center;
+  animation: galleryPreviewImageIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  filter: saturate(1.07) contrast(1.04);
+}
+.gallery-preview-nav,
+.gallery-preview-read {
+  border: 1px solid rgba(255, 236, 200, 0.18);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+.gallery-preview-nav {
+  padding: 0.75rem 0.9rem;
+  color: rgba(255, 236, 200, 0.68);
+  background: rgba(255,255,255,0.02);
+}
+.gallery-preview-nav:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,236,200,0.55);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+.gallery-preview-read {
+  padding: 0.9rem 1.15rem;
+  color: #1a1510;
+  background: linear-gradient(135deg, #f3dfb8, #d4a96a 48%, #b08050);
+  border-color: rgba(255,236,200,0.46);
+  box-shadow: 0 14px 35px rgba(212,169,106,0.18);
+}
+.gallery-preview-read:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #fff4d8, #e8c98a 48%, #c8873e);
+  box-shadow: 0 18px 46px rgba(212,169,106,0.28);
+}
+@keyframes galleryPreviewIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.985); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+@keyframes galleryPreviewImageIn {
+  from { transform: scale(1.035); filter: saturate(0.95) contrast(0.98) blur(2px); }
+  to { transform: scale(1); filter: saturate(1.07) contrast(1.04) blur(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery-preview-card,
+  .gallery-preview-image { animation: none; }
+  .gallery-preview-nav,
+  .gallery-preview-read { transition: none; }
+}
+
 #stats .stat-item {
   perspective: 900px;
   overflow: visible;

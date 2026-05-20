@@ -6,7 +6,7 @@
 
 **Владелец:** Виктория Милованова (бренд Milovi)
 **Производственный сайт:** https://french.milovicake.ru
-**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r5
+**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r7
 
 ---
 
@@ -287,6 +287,25 @@ void navigateTo('/articles/example/')
 - Custom cursor hiding must stay behind the JS-added `html.cursor-effects-enabled` class. Never set global `cursor:none` without JS fallback.
 - CommandPalette should stay lazy-loaded; do not reintroduce a static import into `HomeApp`, `ArticlePageShell` or `GalleryApp`.
 
+
+### 3.11 Gallery premium preview
+
+`/materials/` содержит premium expanded preview на hover/focus карточек. Это намеренная luxury-фича, не заменять на обычный tooltip/popover. Обязательные свойства:
+
+- маленькая карточка остаётся обычной ссылкой на статью;
+- hover/focus только обновляет preview window;
+- preview содержит крупное изображение, категорию, readTime, excerpt, tags, Prev/Next, «Читать материал», «Свернуть»;
+- reference-hover карточек (`cat-img-card-lux`) не менять;
+- preview CSS живёт в `global.css` как `.gallery-preview-*`;
+- reduced-motion должен отключать entrance animations.
+
+
+### 3.12 Content quality invariants
+
+- `articles.ts` must not generate fallback boilerplate content. Missing `deepContents[id]` should fail the build.
+- `scripts/audit_content.py` must keep confirming 115 unique deep content entries.
+- Article JSON-LD should keep `articleBody` as cleaned plain text, capped to a safe length; do not dump full markdown into structured data.
+
 ---
 
 ## 4. STYLING — Tailwind 4
@@ -432,6 +451,8 @@ npm run validate
 
 | Версия | Дата | Что |
 |---|---|---|
+| AGENTS-r7 | 2026-05-20 | Зафиксированы content-quality правила: без fallback boilerplate, missing deepContents валит сборку, Article JSON-LD содержит безопасный `articleBody`. |
+| AGENTS-r6 | 2026-05-20 | Зафиксирована luxury-фича `/materials/`: expanded preview на hover/focus, без поломки маленьких карточек и reference-hover. |
 | AGENTS-r5 | 2026-05-20 | Зафиксированы правила audit-hardening: React 18 types, 404 noindex/status, robots для `?q=`, lazy CommandPalette, JS-safe cursor fallback. |
 | AGENTS-r4 | 2026-05-20 | Зафиксированы правила после index/materials superfix: `/materials/`, запрет ClientRouter, запрет портянки 115 статей на главной, reference-hover карточек/цифр/hero, репо-гигиена `.config`/`reference.html`. |
 | AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§11) с описанием багов и архитектуры поиска |

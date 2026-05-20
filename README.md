@@ -159,6 +159,27 @@ pluralRu(21, MATERIAL) // → 'материал'
 
 
 
+
+
+## Changelog — SEO/data quality hardening (2026-05-20)
+
+| # | Fix | File |
+|---|---|---|
+| D1 | Article JSON-LD получил `articleBody` из очищенного markdown-текста, ограниченный 1500 символами | `src/pages/articles/[id].astro` |
+| D2 | Fallback thin content в `articles.ts` запрещён: при отсутствии `deepContents` сборка падает вместо выпуска шаблонной страницы | `src/data/articles.ts` |
+
+---
+
+## Changelog — premium gallery preview (2026-05-20)
+
+| # | Fix | File |
+|---|---|---|
+| G1 | В `/materials/` добавлен luxury expanded preview при наведении/focus: большое изображение, описание, категория, теги, время чтения, навигация Пред./След., кнопки «Читать материал» и «Свернуть» | `src/components/gallery/GalleryApp.tsx`, `src/styles/global.css` |
+| G2 | Preview не ломает мелкие карточки: клик по карточке по-прежнему открывает статью; hover/focus только обновляет premium-окно | `src/components/gallery/GalleryApp.tsx` |
+| G3 | `/materials/` усилена SEO-разметкой `CollectionPage` + `BreadcrumbList` | `src/pages/materials.astro` |
+
+---
+
 ## Changelog — audit hardening pass (2026-05-20)
 
 | # | Fix | File |

@@ -9,12 +9,12 @@
     "preview": "astro preview",
     "check": "astro check",
     "audit:security": "npm audit --audit-level=moderate",
-    "audit:site": "python3 scripts/audit_site.py",
+    "audit:site": "node scripts/run-python-script.mjs scripts/audit_site.py",
     "validate": "npm run check && npm run lint && npm run audit:content && npm run audit:security && npm run build && npm run audit:site",
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "python3 scripts/audit_content.py"
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
