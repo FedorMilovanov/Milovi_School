@@ -6,7 +6,7 @@
 
 **Владелец:** Виктория Милованова (бренд Milovi)
 **Производственный сайт:** https://french.milovicake.ru
-**Дата документа:** 2026-05-17 | **Версия:** AGENTS-r2
+**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r4
 
 ---
 
@@ -20,8 +20,11 @@
 6. ❌ Менять Tailwind utility-классы на inline `style=` или CSS-модули.
 7. ❌ Удалять Service Worker (`public/sw.js`) или менять `__BUILD_HASH__` placeholder.
 8. ❌ **Менять дефолт тёмной темы — ЗАПРЕЩЕНО.** Тёмная тема — фирменный стиль бренда. `HomeApp` начинает с `'dark'`, pre-paint скрипт применяет `dark` по умолчанию. Это intentional design. (→ §3.4)
-9. ✅ После любой правки — `npm run check && npm run lint && npm run build`.
-10. ✅ Перед коммитом — `npm run validate` (полный пакет проверок).
+9. ❌ Возвращать Astro `ClientRouter` / `astro:transitions` запрещено: он уже вызывал зависания при переходах на статьи.
+10. ❌ Возвращать портянку 115 статей на главную запрещено: `/materials/` — отдельная галерея, а на главной остаётся поиск.
+11. ❌ Менять reference-hover карточек/цифр/hero без сверки с Drive-референсом запрещено.
+12. ✅ После любой правки — `npm run check && npm run lint && npm run build`.
+13. ✅ Перед коммитом — `npm run validate` (полный пакет проверок).
 
 ---
 
@@ -48,7 +51,8 @@
 │
 ├── src/
 │   ├── pages/                      ← Astro-страницы (= URL)
-│   │   ├── index.astro             ← главная (libraryMeta, без content)
+│   │   ├── index.astro             ← главная (libraryClientMeta, без content)
+│   │   ├── materials.astro         ← отдельная visual gallery 115 материалов
 │   │   ├── about.astro
 │   │   ├── methodology.astro
 │   │   ├── 404.astro
@@ -65,6 +69,8 @@
 │   │   ├── CommandPalette.tsx      ← Ctrl+K поиск (Fuse.js)
 │   │   ├── Categories.tsx, MainCategories.tsx, ArticlesGrid.tsx
 │   │   ├── DashboardBento.tsx, StatsBar.tsx, ContinueReading.tsx
+│   │   ├── Cursor.tsx, LuxuryText.tsx
+│   │   ├── gallery/GalleryApp.tsx   ← `/materials/`, same card-hover as archive
 │   │   ├── ImageWithFade.tsx
 │   │   ├── ScrollProgress.tsx, ScrollReveal.tsx, ScrollToTop.tsx
 │   │   ├── MobileBottomBar.tsx, UpdateNotification.tsx
@@ -77,7 +83,7 @@
 │   ├── data/                       ← ⭐ ЗДЕСЬ ВСЯ ДАННОСТЬ
 │   │   ├── types.ts                ← Article, ArticleMeta, ArticleClientMeta
 │   │   ├── articles.ts             ← сборка + helpers
-│   │   ├── library.ts              ← полный набор статей (с content!)
+│   │   ├── library.ts              ← libraryArticles build-time + libraryClientMeta browser-safe
 │   │   ├── deepContents.ts         ← ⚠️ ~1.1 MB! ТОЛЬКО build-time!
 │   │   ├── categories.ts           ← список категорий
 │   │   ├── french-terms.ts         ← словарь терминов
@@ -122,7 +128,7 @@
 - дубликаты в корне имеют неправильные относительные импорты (`../data`, `../utils`, `./Toast`) и дают десятки ошибок в `astro check`;
 - если в корне оказался «большой файл с кодом», это почти всегда копия/мусор после upload. Нужные изменения надо переносить в canonical-файл внутри `src/`, а корневой дубль удалять.
 
-Разрешены в корне: `README.md`, `AGENTS.md`, `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore`, `.nvmrc`, workflow/config-файлы.
+Разрешены в корне: `README.md`, `AGENTS.md`, `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore`, `.nvmrc`, workflow/config-файлы. Запрещены в корне: `reference.html`, временные `.py`, `.patch`, `.zip`, локальная `.config/astro/`.
 
 ---
 
@@ -241,9 +247,36 @@ import { navigateTo } from '../utils/navigation'
 void navigateTo('/articles/example/')
 ```
 
-Не использовать `window.location.href = ...` для внутренних переходов, если нет специальной причины. `navigateTo()` использует Astro client router и имеет fallback на native navigation.
+Не использовать `window.location.href = ...` напрямую для внутренних переходов, если нет специальной причины. `navigateTo()` делает **нативную MPA-навигацию** (`window.location.assign/replace`) и специально НЕ использует Astro client router.
 
 Клик по тегу внутри статьи не должен уводить пользователя reload-ом на `/?q=`: правильный паттерн — открыть `CommandPalette` с `initialQuery`.
+
+
+### 3.9 Protected reference effects: главная, статистика, галерея
+
+Эти коэффициенты перенесены из Drive/Arena-референса и считаются зафиксированными. Нельзя «улучшать» их на глаз.
+
+**Hero:**
+- `Французская` и `Pâtisserie` — две строки.
+- `Pâtisserie` всегда синий italic: dark `#6da8e2 → #1a7aef`, light `#4a7eb8 → #003ecf`.
+
+**Stats `#stats`:**
+- motion: `dx * 0.06`, `dy * 0.05`, `dx * 0.025`, `-dy * 0.02`, `scale(1.045)`.
+- CSS: `perspective: 900px`, `transform-style: preserve-3d`.
+- hover colors: light `#c8873e`, dark `#e8b86a`.
+
+**Archive/gallery cards:**
+- один эффект для `MainCategories` и `/materials/`;
+- source image fades to `opacity:0`;
+- blur-copy: `blur(40px) brightness(0.15) contrast(1.2) saturate(1.2)`;
+- overlay hover: `rgba(0,0,0,0.6) 0%`, `rgba(0,0,0,0.85) 45%`, `rgba(0,0,0,0.98) 100%`;
+- luxury card must override old generic `.cat-img-card:hover .cat-img` scale/brightness via `.cat-img-card-lux:hover .cat-card-img-lux { opacity:0; transform:none; filter:none; }`;
+- body: `translateY(-12px)`, title: `scale(1.02) translateY(-6px)`.
+
+**Главная:**
+- НЕ возвращать `ShowcaseSlider.tsx` / «Знаковые творения» / «Иконы современной pâtisserie».
+- НЕ возвращать список 115 статей подряд на главную. Главная: hero → stats → archive cards → search/categories → compact blocks → footer/about.
+- `/materials/` — единственное место для общей визуальной галереи всех материалов.
 
 ---
 
@@ -251,7 +284,7 @@ void navigateTo('/articles/example/')
 
 ### 4.1 Один CSS-файл
 
-Весь глобальный CSS — в **`src/styles/global.css`** (514 строк). Не создавать новых `.css` модулей.
+Весь глобальный CSS — в **`src/styles/global.css`**. Не создавать новых `.css` модулей.
 
 ### 4.2 Используй Tailwind утилиты
 
@@ -377,6 +410,9 @@ npm run validate
 | «Уберу trimCache() — не нужен» | См. §3.3. Кеш будет расти бесконечно. |
 | «Обновлю Astro с 6 до 7 — последняя версия» | НЕТ. Major-обновления = большие миграции, спроси. |
 | «Заменю Fuse.js на современный поиск» | См. §3.6. Fuse настроен, не переделывай. |
+| «Верну ClientRouter/ViewTransitions ради красивых переходов» | НЕТ. Уже давал зависания при переходе на статьи. §3.8 |
+| «Верну список 115 статей на главную» | НЕТ. Для этого есть `/materials/`; на главной остаётся поиск. §3.9 |
+| «Упрощу hover карточек: scale/brightness вместо blur-copy» | НЕТ. Reference-hover защищён. §3.9 |
 | «Поправлю isList regex — нечитабельный» | См. §3.5. Уже сломали раз, не трогать. |
 | «Сделаю prettier --write src/` — для красоты» | НЕТ. Diff = нечитаем. |
 | «Поменяю Tailwind 4 синтаксис на CSS modules» | НЕТ. Архитектурный выбор. |
@@ -387,7 +423,8 @@ npm run validate
 
 | Версия | Дата | Что |
 |---|---|---|
-| AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§3.9) с описанием багов и архитектуры поиска |
+| AGENTS-r4 | 2026-05-20 | Зафиксированы правила после index/materials superfix: `/materials/`, запрет ClientRouter, запрет портянки 115 статей на главной, reference-hover карточек/цифр/hero, репо-гигиена `.config`/`reference.html`. |
+| AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§11) с описанием багов и архитектуры поиска |
 | AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + нативная MPA-навигация для внутренних переходов, curated audit Markdown можно коммитить. |
 | AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 6 + React 18 + TS strict + Tailwind 4) |
 

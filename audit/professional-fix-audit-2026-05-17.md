@@ -1,5 +1,7 @@
 # Milovi School — Professional Fix Audit
 
+> **Статус:** архивный отчёт от 2026-05-17. Он оставлен для истории. Актуальное состояние после superfix 2026-05-20: 120 pages built, `/materials/` добавлена, Astro `ClientRouter` удалён/запрещён из-за зависаний при переходах на статьи. См. README.md и AGENTS.md.
+
 **Дата:** 2026-05-17  
 **База:** `b79b114`  
 **Цель:** закрыть V2-баги профессионально, не ломая сборку, и вывести автоматический аудит в 0.
@@ -9,7 +11,7 @@
 - `astro check`: ✅ 0 errors / 0 warnings / 0 hints
 - `eslint .`: ✅ 0 errors
 - `npm audit --audit-level=moderate`: ✅ 0 vulnerabilities
-- `astro build`: ✅ 119 static pages built
+- `astro build`: ✅ 119 static pages built на момент отчёта; актуально после 2026-05-20: 120 pages built
 - `scripts/audit_content.py`: ✅ 115 articles have unique deep content entries
 - `scripts/audit_site.py`: ✅ 0 errors / 0 warnings
 
@@ -31,7 +33,7 @@ Article ids checked: 115, unique=115
 ### Навигация / переходы / CommandPalette
 
 1. **#11 — `openArticle` делал полную перезагрузку**  
-   Подключён Astro `ClientRouter`, добавлен `src/utils/navigation.ts`. Основные программные переходы теперь идут через `navigate()` с fallback на native navigation.
+   Исторически подключался Astro `ClientRouter`, но после superfix 2026-05-20 он удалён. Сейчас `src/utils/navigation.ts` выполняет native MPA-навигацию, чтобы не зависали переходы на статьи.
 
 2. **#12 — клик по тегу уводил на `/?q=` через reload**  
    В `ArticleView` добавлен `onTagSearch`; на странице статьи тег открывает `CommandPalette` с готовым запросом без ухода со статьи.

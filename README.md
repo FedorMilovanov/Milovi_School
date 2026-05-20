@@ -4,6 +4,28 @@
 
 ---
 
+## Superfix главной и reference-интерактивности (2026-05-20)
+
+Эта серия правок защищает визуал главной страницы после переноса premium-эффектов из Drive/Arena-референса. Важно для будущих ИИ-агентов: эти решения считаются **зафиксированными**, их нельзя «упрощать» без прямого запроса владельца.
+
+**Что изменено по главной (`index`):**
+- блок «Знаковые творения / Иконы современной pâtisserie» удалён полностью;
+- hero-заголовок закреплён в две строки: `Французская` / `Pâtisserie`, где `Pâtisserie` остаётся синим в dark/light;
+- статистика `115 / 19 / 14 / 100%` получила reference 3D-hover (`translate3d`, `rotateX/Y`, `scale(1.045)`) и luxury-letter подсветку;
+- карточки «Архив по темам» и `/materials/` используют один и тот же reference-hover: исходное фото растворяется, тёмная blur-копия проявляется, overlay остаётся читаемым;
+- длинная портянка 115 материалов убрана с главной: поиск сохранён, результаты появляются только при поиске/выборе категории;
+- отдельная визуальная галерея материалов доступна по `/materials/`, из шапки, футера, статистики и CTA «Открыть галерею →»;
+- Astro `ClientRouter` / View Transitions отключены: переходы на статьи нативные, чтобы не зависали при уходе с тяжёлой главной;
+- курсор оставлен визуально как в референсе, но не запускается на touch/iOS и ставит `requestAnimationFrame` на паузу в простое;
+- `ShowcaseSlider.tsx`, временные patch-скрипты, `reference.html` и локальная `.config/astro` удалены/запрещены к коммиту.
+
+**Reference-коэффициенты, которые нельзя менять без сверки:**
+- stats: `dx*0.06`, `dy*0.05`, `dx*0.025`, `-dy*0.02`, `scale(1.045)`;
+- card blur: `blur(40px) brightness(0.15) contrast(1.2) saturate(1.2)`;
+- card overlay hover: `rgba(0,0,0,0.6) 0%`, `rgba(0,0,0,0.85) 45%`, `rgba(0,0,0,0.98) 100%`;
+- hero `Pâtisserie`: dark `#6da8e2 → #1a7aef`, light `#4a7eb8 → #003ecf`.
+
+---
 
 ## Аудит и обновления (Май 2026)
 
@@ -26,6 +48,7 @@
 
 ```
 french.milovicake.ru/                              → index.html (главная)
+french.milovicake.ru/materials/                     → index.html (визуальная галерея 115 материалов)
 french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 ... × 115 статей
 ```
@@ -35,7 +58,7 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 | `deepContents.ts` (~1.1 MB) в браузере | Только при сборке (build time) — в браузер не попадает |
 | Яндекс не индексировал SPA | Каждая статья — готовый HTML с SEO meta, OG, JSON-LD |
 | `window is not defined` при SSR | Все `localStorage` обёрнуты в `typeof window !== 'undefined'` |
-| Навигация между статьями | URL-based: `window.location.href = /articles/${id}/` |
+| Навигация между статьями | Native MPA через `src/utils/navigation.ts`; Astro `ClientRouter` запрещён из-за зависаний |
 
 ### Потоки данных
 
@@ -45,9 +68,10 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
     └─▶ articles.ts → [id].astro → HTML-страницы
 
 Браузер (runtime):
-  HomeApp          ← libraryMeta  (без content, лёгкий)
+  HomeApp          ← libraryClientMeta (без content, лёгкий)
+  GalleryApp       ← libraryClientMeta (115 карточек без content)
   ArticlePageShell ← один article (~10 KB content)
-  CommandPalette   ← libraryMeta  (поиск без content)
+  CommandPalette   ← libraryClientMeta (поиск без content)
 ```
 
 ---
@@ -60,7 +84,7 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 npm install
 npm run dev      # http://localhost:4321
 npm run build    # → dist/
-npm run validate  # type-check + npm audit + build + статический аудит dist/
+npm run validate  # check + lint + content/security audit + build + site audit
 npm run preview  # предпросмотр dist/
 ```
 
@@ -90,12 +114,14 @@ src/
 ├── layouts/BaseLayout.astro     # HTML shell, SEO, OG, JSON-LD
 ├── pages/
 │   ├── index.astro              # Главная → <HomeApp client:load />
+│   ├── materials.astro          # Галерея материалов → <GalleryApp client:load />
 │   └── articles/[id].astro      # 115 статичных страниц
 ├── components/                  # React-компоненты
+│   ├── gallery/GalleryApp.tsx    # Визуальная галерея /materials/
 ├── data/
 │   ├── articles.ts              # ArticleMeta + Article types
 │   ├── deepContents.ts          # Контент статей (только build time)
-│   └── library.ts               # libraryMeta (без content, для браузера)
+│   └── library.ts               # libraryArticles (build-time) + libraryClientMeta (browser-safe)
 ├── utils/
 │   ├── plural.ts                # Русское склонение: pluralRu(n, форма)
 │   ├── storage.ts               # localStorage с SSR-guard
@@ -130,6 +156,22 @@ pluralRu(21, MATERIAL) // → 'материал'
 2. Добавьте контент в `src/data/deepContents.ts`
 3. `npm run build` — Astro сгенерирует HTML автоматически
 
+
+
+## Changelog — index/materials reference superfix (2026-05-20)
+
+| # | Fix | File |
+|---|---|---|
+| R1 | Удалён устаревший showcase-блок «Знаковые творения / Иконы современной pâtisserie» | `src/components/ShowcaseSlider.tsx` (removed) |
+| R2 | Главная больше не показывает портянку 115 статей: поиск и категории сохранены, результаты появляются только после запроса/выбора | `src/components/HomeApp.tsx`, `src/components/Categories.tsx` |
+| R3 | Добавлена отдельная визуальная галерея `/materials/`, ссылки из шапки, футера, статистики и CTA | `src/pages/materials.astro`, `src/components/gallery/GalleryApp.tsx`, `Header/Footer/Categories/StatsBar` |
+| R4 | Reference-hover карточек закреплён: blur-копия + чёрный overlay + движение текста, без наследования старого `scale(1.04)` | `src/styles/global.css`, `MainCategories.tsx`, `GalleryApp.tsx` |
+| R5 | Stats `115/19/14/100%` получили reference 3D-hover и luxury-letter подсветку | `src/components/StatsBar.tsx`, `src/components/Cursor.tsx`, `src/styles/global.css` |
+| R6 | `ClientRouter` отключён: переходы на статьи нативные, чтобы не зависали после тяжёлой главной | `src/layouts/BaseLayout.astro`, `src/utils/navigation.ts` |
+| R7 | Курсор оптимизирован: touch/iOS early-return, rAF pause в простое, без потери visual reference | `src/components/Cursor.tsx` |
+| R8 | CI и репо-гигиена: Node 22.13.0 в workflow, lint/content audit в CI, `.config/` и `reference.html` запрещены к коммиту | `.github/workflows/deploy.yml`, `.gitignore`, `AGENTS.md`, `README.md` |
+
+---
 
 ## Changelog — final QA hardening (2026-05-16)
 

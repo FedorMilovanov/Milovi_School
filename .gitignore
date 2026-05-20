@@ -29,3 +29,14 @@ npm-debug.log*
 
 # Generated audit reports
 audit/
+
+# Local/tooling noise — do not commit
+.config/
+.arena/
+
+# Patch/archive handoff files
+*.patch
+*.zip
+
+# Arena preview/reference wrapper, not app source
+reference.html
