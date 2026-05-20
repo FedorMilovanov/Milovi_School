@@ -148,7 +148,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     }}
                   />
                   {/* Gradient overlay */}
-                  <div className="absolute inset-0 z-[2] bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.85)_45%,rgba(0,0,0,0.98)_100%)]" />
+                  <div className="cat-overlay-lux absolute inset-0 z-[2]" />
 
                   {/* "NEW" badge */}
                   {cat.isNew && (

@@ -87,7 +87,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="cat-img cat-card-img-lux h-full w-full object-cover"
                       />
-                      <div className="absolute inset-0 z-[2] bg-[linear-gradient(175deg,rgba(10,8,7,0)_30%,rgba(10,8,7,0.82)_100%)] transition-all duration-500 group-hover:bg-[linear-gradient(175deg,rgba(0,0,0,0.6)_0%,rgba(0,0,0,0.85)_45%,rgba(0,0,0,0.98)_100%)]" />
+                      <div className="cat-overlay-lux absolute inset-0 z-[2]" />
 
                       <div className="cat-card-body-lux absolute inset-x-0 bottom-0 z-[5] p-6">
                         <span className="mb-3.5 inline-block border border-[rgba(212,169,106,0.25)] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] text-[rgba(212,169,106,0.75)]">
