@@ -140,11 +140,19 @@
 /* ── Base ─────────────────────────────────────────────────────── */
 html, body {
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
   background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+}
+
+
+/* FIX: overscroll-behavior-y scoped to modal-like containers only.
+   Previously applied globally to html,body, disabling iOS rubber-band scroll
+   and pull-to-refresh — perceived as a bug by iPhone users. */
+.cp-list,
+.modal-overlay,
+.cat-img-card-lux {
+  overscroll-behavior: contain;
 }
 
 /* iOS: убираем серую вспышку при тапе на интерактивных элементах */
@@ -397,11 +405,13 @@ blockquote.lux-quote::before {
   letter-spacing: 0.01em;
 }
 
-/* BUG FIX: .drop-cap referenced in ArticleView but never styled */
+/* FIX: .drop-cap with responsive clamp() for narrow mobile screens.
+   On 320px viewport 4.2rem ≈ 67px = 21% width — float letter would overlap
+   the next paragraph if the first paragraph is short. */
 .drop-cap > p:first-of-type::first-letter {
   float: left;
   font-family: 'Playfair Display', 'Cormorant Garamond', serif;
-  font-size: 4.2rem;
+  font-size: clamp(2.6rem, 9vw, 4.2rem);
   font-weight: 600;
   line-height: 0.82;
   margin-right: 0.08em;
@@ -516,7 +526,7 @@ a {
 /* BUG FIX: back-btn class was applied in ArticleView but never defined.
    Provides a consistent touch-target size for the back navigation control. */
 .back-btn {
-  min-height: 2.25rem;   /* 36px — meets WCAG 2.5.5 target-size guideline */
+  min-height: 2.75rem;   /* 44px — WCAG 2.5.5 Level AA minimum target size */
   touch-action: manipulation;
 }
 
@@ -707,6 +717,16 @@ a:hover .logo-name-patisserie {
     0 0 32px rgba(109,168,226,0.10);
 }
 
+/* FIX: .logo-name-russe used in Header.tsx and Footer.tsx but never defined.
+   Inherits the color scheme of the header. */
+.logo-name-russe {
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--logo-text-lux, var(--text-primary));
+  transition: color 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+
 /* ── 5. Premium archive/gallery card hover: reference dark blur ───── */
 /* 1-в-1 логика reference: исходное фото растворяется, под ним проявляется
    тёмная размытая копия через --cat-bg; текст/градиент остаются выше. */
@@ -824,7 +844,10 @@ a:hover .logo-name-patisserie {
 }
 .gallery-preview-shell::before {
   content: '';
-  position: fixed;
+  /* FIX: position: fixed inside a transformed ancestor (translateZ(0))
+     loses viewport-anchoring per CSS spec. Use absolute within the
+     already-positioned .gallery-preview-shell container instead. */
+  position: absolute;
   inset: auto 0 0 0;
   height: min(58vh, 520px);
   pointer-events: none;
@@ -979,4 +1002,13 @@ a:hover .logo-name-patisserie {
 .nav-link-underline:hover::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+/* FIX: category filter buttons have whileHover={{ x: 4 }} — on iOS Safari
+   touchstart briefly triggers hover state, causing visual flicker on tap.
+   Only allow the shift animation when a fine pointer is available. */
+@media (hover: hover) {
+  .cat-chip-hover:hover {
+    transform: translateX(4px);
+  }
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Article } from '../data/types'
+import { articleImageDimensions } from '../data/articleImageDimensions'
 import type { ArticleClientMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { fallbackImageFor } from '../assets/images'
@@ -397,7 +398,21 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   const textSize = largeText ? 'text-xl md:text-2xl' : 'text-lg md:text-xl'
 
   // NEW-IMP-A: memoize — full content parse is expensive
-  const renderedContent = useMemo(() => {
+  
+// Helper: compute CSS aspect-ratio string from an image src URL.
+// Falls back to '16/9' when dimensions are unknown. Keeps portrait images
+// from being cropped in the article body.
+function imgAspectRatio(src: string): string {
+  if (!src) return '16/9'
+  const filename = src.split('/').pop() ?? ''
+  const dims = articleImageDimensions[filename]
+  if (dims && dims.width > 0 && dims.height > 0) {
+    return `${dims.width}/${dims.height}`
+  }
+  return '16/9'
+}
+
+const renderedContent = useMemo(() => {
     return blocks.map((p, idx) => {
         
       if (!p) return null
@@ -408,7 +423,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
         return (
           // FIX CLS: aspect-ratio reserves the exact space before the image loads so
           // surrounding text doesn't shift. max-h-[600px] still caps very tall images.
-          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: '16/9' }}>
+          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
             <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
             {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
           </figure>
@@ -675,8 +690,10 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                    className="overflow-hidden border-t border-stone-100 dark:border-stone-800 max-h-[70vh] overflow-y-auto"
+                    className="border-t border-stone-100 dark:border-stone-800 overflow-hidden"
+                    style={{ maxHeight: '70vh' }}
                   >
+                    <div className="max-h-[70vh] overflow-y-auto">
                     {headings.map((h, i) => (
                       <li key={h.id}>
                         <button
@@ -694,6 +711,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
                         </button>
                       </li>
                     ))}
+                    </div>
                   </motion.ol>
                 )}
               </AnimatePresence>
@@ -817,7 +835,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map(r => (
                   <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">
-                    <div className="mb-4 aspect-[16/9] overflow-hidden bg-stone-200 dark:bg-stone-800">
+                    <div className="mb-4 overflow-hidden bg-stone-200 dark:bg-stone-800" style={{ aspectRatio: imgAspectRatio(r.image) }}>
                       <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
                     <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>

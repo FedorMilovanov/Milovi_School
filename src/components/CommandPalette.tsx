@@ -21,10 +21,9 @@
 
 import {
   useCallback,
-  useEffect,
+  useEffect, useState,
   useMemo,
   useRef,
-  useState,
   type CSSProperties,
   type ReactNode,
   type KeyboardEvent as ReactKeyboardEvent,
@@ -379,6 +378,24 @@ export default function CommandPalette({
     requestAnimationFrame(() => inputRef.current?.focus())
   }, [open, initialQuery])
 
+  /* FIX: iOS keyboard handling — when the virtual keyboard opens on iOS Safari,
+     the visual viewport height shrinks but CSS fixed positioning still references
+     the full layout viewport. Listen to visualViewport API (iOS 13.4+) and
+     add extra padding-bottom to keep the palette visible above the keyboard. */
+  const [kbOffset, setKbOffset] = useState(0)
+  useEffect(() => {
+    if (typeof visualViewport === 'undefined') return
+    const handler = () => {
+      const vh = visualViewport!.height
+      const innerH = window.innerHeight
+      const offset = innerH > vh ? innerH - vh : 0
+      setKbOffset(offset)
+    }
+    visualViewport!.addEventListener('resize', handler, { passive: true })
+    handler()
+    return () => visualViewport!.removeEventListener('resize', handler)
+  }, [])
+
   // Restore focus on close
   useEffect(() => {
     if (!open) {
@@ -723,7 +740,7 @@ export default function CommandPalette({
             background: 'rgba(5,4,3,0.88)',
             backdropFilter: 'blur(22px) saturate(130%)',
             paddingTop: 'max(4svh, env(safe-area-inset-top, 16px))',
-            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${kbOffset}px)`,
             alignItems: 'flex-start',
           }}
           initial={shouldReduce ? false : { opacity: 0 }}

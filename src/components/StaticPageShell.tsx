@@ -6,13 +6,18 @@
 import { useCallback, useEffect, useState } from 'react'
 import Footer from './Footer'
 import Header from './Header'
+import Cursor from './Cursor'
+import ScrollProgress from './ScrollProgress'
+import ScrollToTop from './ScrollToTop'
 import { safeSetItem } from '../utils/storage'
 import { navigateTo } from '../utils/navigation'
 
 type Theme = 'light' | 'dark'
 
 const THEME_DARK = '#10100f'
-const THEME_LIGHT = '#fafaf9'
+// FIX: unify THEME_LIGHT with HomeApp/ArticlePageShell to prevent Android Chrome
+// system bar flashing between two different beige shades during page transitions.
+const THEME_LIGHT = '#f5efe5'
 
 interface StaticPageShellProps {
   children: React.ReactNode
@@ -53,8 +58,6 @@ export default function StaticPageShell({ children }: StaticPageShellProps) {
     void navigateTo('/about/')
   }, [])
 
-  // Command palette is a HomeApp feature; on static pages the safest action is
-  // to return to the SPA and let users search from there.
   const openCommand = useCallback(() => {
     void navigateTo('/?command=1')
   }, [])
@@ -76,6 +79,9 @@ export default function StaticPageShell({ children }: StaticPageShellProps) {
       />
       <main id="main-content">{children}</main>
       <Footer />
+      <ScrollToTop />
+      <ScrollProgress />
+      <Cursor theme={theme} />
     </div>
   )
 }

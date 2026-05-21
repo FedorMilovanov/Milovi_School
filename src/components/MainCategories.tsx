@@ -93,7 +93,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
 
   return (
     <section id="categories" className="py-24 transition-colors bg-[var(--bg-deep)]" style={{ borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }} ref={sectionRef}>
-      <div className="mx-auto max-w-[1380px] px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section header */}
         <div className="reveal mb-16 flex flex-col items-start justify-between gap-6 border-b border-[var(--border)] pb-12 sm:flex-row sm:items-end">
           <div>

@@ -196,9 +196,9 @@ function IndexRow({ article, index, categories, onArticleClick, searchQuery = ''
       <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-300 dark:text-stone-700">{String(index + 1).padStart(2, '0')}</span>
       <span>
         <span className="mb-0.5 block font-mono text-[9px] uppercase tracking-[0.22em] text-stone-500">{cat?.name} · {article.readTime} мин</span>
-        <span className="block font-serif text-[17px] font-semibold leading-tight tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
+        <h3 className="block font-serif text-[17px] font-semibold leading-tight tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 dark:text-stone-100 dark:group-hover:text-amber-200">
           <HL text={article.title} field="title" matchMap={matchMap} articleId={article.id} query={searchQuery} />
-        </span>
+        </h3>
       </span>
       <svg className="hidden h-4 w-4 text-stone-300 transition group-hover:text-amber-700 dark:text-stone-700 dark:group-hover:text-amber-300 sm:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -264,7 +264,7 @@ function CategorySection({ categoryId, articles, allCount, category, categories,
       {articles.length === 1 ? (
         <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
       ) : (
-        <div className="grid gap-8 sm:grid-cols-[1fr_320px]">
+        <div className="grid gap-8 md:grid-cols-[1fr_280px] lg:grid-cols-[1fr_320px]">
           {/* Featured */}
           <FeaturedCard article={featured} categories={categories} onArticleClick={onArticleClick} searchQuery={searchQuery} matchMap={matchMap} />
 
@@ -358,7 +358,7 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
             />
             <div className="space-y-3 py-2">
               <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-[0.26em] text-stone-500">
-                <span className="flex h-4 w-4 items-center justify-center bg-stone-950 text-[6px] font-bold text-amber-100 dark:bg-amber-100 dark:text-stone-950">{cat?.icon ?? '·'}</span>
+                <span className="flex h-6 w-6 items-center justify-center bg-stone-950 text-[9px] font-bold text-amber-100 dark:bg-amber-100 dark:text-stone-950">{cat?.icon ?? '·'}</span>
                 <span>{cat?.name}</span>
                 <span>·</span>
                 <span>{article.readTime} мин</span>

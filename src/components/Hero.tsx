@@ -77,7 +77,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[var(--bg-main)] to-transparent" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[88vh] max-w-7xl items-end px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
+      <div className="relative mx-auto flex min-h-[88svh] max-w-7xl items-end px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div className="max-w-4xl hero-text text-white">
           <motion.p
             className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/85 sm:text-xs"
@@ -157,7 +157,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
                 animation the second copy lands where the first started.
                 Previously had four copies (~48 DOM nodes for nothing). */}
             {Array.from({ length: 2 }).map((_, i) => (
-              <span key={i} className="mx-8 inline-flex items-center gap-0 font-mono text-[10px] uppercase tracking-[0.4em]">
+              <span key={i} className="mx-8 inline-flex items-center gap-0 font-mono text-[10px] uppercase tracking-[0.4em]" aria-hidden={i === 1 ? "true" : undefined}>
                 {MARQUEE_CHEFS.map((chef, j) => (
                   <span key={chef.id}>
                     {onSelectCategory ? (

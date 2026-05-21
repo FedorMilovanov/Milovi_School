@@ -22,9 +22,6 @@ const tabs = [
 ] as const
 
 function Icon({ id, active }: { id: string; active: boolean }) {
-  // aria-hidden — accompanying <span> already provides the accessible label,
-  // so the icon must be invisible to screen readers (otherwise VoiceOver
-  // double-announces "icon, Архив").
   const cls = `h-4 w-4 transition ${active ? 'text-stone-950 dark:text-amber-100' : 'text-stone-600 dark:text-stone-400'}`
   const common = { className: cls, fill: 'none' as const, viewBox: '0 0 24 24', stroke: 'currentColor', strokeWidth: 1.5, 'aria-hidden': true, focusable: false as const }
   if (id === 'home') {
@@ -55,7 +52,7 @@ export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles
     <AnimatePresence>
       {visible && (
         <motion.nav
-          aria-label="Основная навигация" role="tablist"
+          aria-label="Основная навигация"
           className="fixed inset-x-4 bottom-5 z-40 md:hidden"
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -73,16 +70,14 @@ export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles
                   <button
                     key={tab.id}
                     type="button"
-                    role="tab"
                     onClick={() => actionById[tab.id]()}
                     className="relative flex w-full flex-col items-center gap-1 py-1 text-center transition active:scale-95"
                     aria-current={active ? 'page' : undefined}
-                    aria-selected={active}
                     aria-label={ariaLabel}
                   >
                     {active && <motion.span layoutId="mobile-active-pill" className="absolute inset-x-2 inset-y-0 rounded-[12px] bg-stone-950/5 dark:bg-amber-100/10" aria-hidden="true" />}
                     <span className="relative"><Icon id={tab.id} active={active} /></span>
-                    <span className={`relative font-mono text-[9px] uppercase tracking-[0.16em] transition ${active ? 'text-stone-950 dark:text-amber-100' : 'text-stone-500 dark:text-stone-400'}`}>{tab.label}</span>
+                    <span className={`relative font-mono text-[11px] uppercase tracking-[0.16em] transition ${active ? 'text-stone-950 dark:text-amber-100' : 'text-stone-500 dark:text-stone-400'}`}>{tab.label}</span>
                   </button>
                 )
               })}

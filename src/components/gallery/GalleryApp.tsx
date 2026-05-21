@@ -15,9 +15,18 @@ const CommandPalette = lazy(() => import('../CommandPalette'))
 const clampIndex = (value: number, length: number) => (value + length) % length
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  // FIX: initialize theme from DOM class set by BaseLayout pre-paint script.
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+      ? 'dark'
+      : 'light'
+  )
   const [commandOpen, setCommandOpen] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+  // FIX: touch-guard — only open preview on fine-pointer (mouse) devices.
+  // On touch devices (iOS/Android tablets at md+), touchstart emulates mouseenter
+  // which would make preview open chaotically while scrolling.
+  const [hasFinePointer, setHasFinePointer] = useState(false)
 
   const categoryNameById = useMemo(() => {
     const map = new Map<string, string>()
@@ -31,6 +40,11 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
 
   useEffect(() => {
     setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    setHasFinePointer(window.matchMedia('(pointer: fine)').matches)
+    const mq = window.matchMedia('(pointer: fine)')
+    const handler = (e: MediaQueryListEvent) => setHasFinePointer(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
   }, [])
 
   useEffect(() => {
@@ -46,7 +60,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [articles.length, previewArticle])
+  }, [articles.length, previewIndex])
 
   const toggleTheme = useCallback(() => {
     setTheme(t => {
@@ -69,8 +83,9 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   }, [])
 
   const openPreview = useCallback((index: number) => {
+    if (!hasFinePointer) return
     setPreviewIndex(index)
-  }, [])
+  }, [hasFinePointer])
 
   const goPreview = useCallback((direction: -1 | 1) => {
     setPreviewIndex((current) => current === null ? current : clampIndex(current + direction, articles.length))
@@ -108,7 +123,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     key={article.id}
                     href={`/articles/${article.id}/`}
                     onMouseEnter={() => openPreview(index)}
-                    onFocus={() => openPreview(index)}
+                    onFocus={() => { if (hasFinePointer) openPreview(index) }}
                     onClick={(e) => {
                       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
                       e.preventDefault()
@@ -157,7 +172,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           </div>
         </main>
 
-        {previewArticle && (
+        {previewArticle && hasFinePointer && (
           <aside
             className="gallery-preview-shell fixed inset-x-4 bottom-5 z-50 mx-auto hidden max-w-6xl md:block"
             aria-live="polite"
@@ -171,6 +186,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     src={previewImage}
                     alt={previewArticle.imageAlt ?? previewArticle.title}
                     className="gallery-preview-image h-[360px] w-full object-cover lg:h-[430px]"
+                      loading="eager"
                     decoding="async"
                     sizes="(min-width: 1024px) 56rem, 90vw"
                   />

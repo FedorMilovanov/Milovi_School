@@ -144,7 +144,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
               onClick={() => onSelectCategory(category.id)}
               aria-pressed={selectedCategory === category.id}
               className={`relative pb-2 font-mono text-xs uppercase tracking-[0.24em] transition ${selectedCategory === category.id ? 'text-stone-950 dark:text-stone-100' : 'text-stone-500 hover:text-stone-950 dark:hover:text-stone-100'}`}
-              whileHover={{ x: 4 }}
+            whileHover={{ x: 4 }}
             >
               {category.icon} / {category.name} <span className="text-stone-400">({countByCategory(category.id)})</span>
               {selectedCategory === category.id && (
@@ -157,3 +157,4 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
     </section>
   )
 }
+

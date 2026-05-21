@@ -10,6 +10,8 @@ import ErrorBoundary from './ErrorBoundary'
 import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
 import ScrollToTop from './ScrollToTop'
+import ScrollProgress from './ScrollProgress'
+import Cursor from './Cursor'
 import { type Article } from '../data/types'
 import type { ArticleClientMeta } from '../data/types'
 import { navigateTo } from '../utils/navigation'
@@ -30,10 +32,6 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
-  // Hydration-safe theme state: SSR and the first client render both use
-  // "dark" to match the static HTML. The pre-paint script in BaseLayout has
-  // already applied the real visual theme to <html>, so this only synchronises
-  // React controls after mount without causing hydration mismatches.
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [themeReady, setThemeReady] = useState(false)
 
@@ -48,8 +46,6 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     const root = document.documentElement
     root.style.colorScheme = theme
     root.classList.toggle('dark', theme === 'dark')
-    // Keep the single <meta name="theme-color"> in sync so Android Chrome
-    // updates its system bar immediately when the user toggles theme.
     const meta = document.getElementById('theme-color-meta')
     if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
   }, [theme, themeReady])
@@ -63,14 +59,6 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     void navigateTo(`/articles/${a.id}/`)
   }, [])
 
-  /**
-   * Safe back navigation.
-   *
-   * The previous version marked the current history entry as "internal" on
-   * mount and then blindly called history.back(). On a direct visit from Google,
-   * Telegram, etc. that sent users away from the site. Only go back when the
-   * browser referrer is same-origin; otherwise return to the library home.
-   */
   const canUseBrowserBackRef = useRef(false)
   useEffect(() => {
     try {
@@ -131,11 +119,6 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onGoAbout={() => goToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
-        {/* 
-          id="main-content" is the target of the global skip-to-content link
-          rendered in BaseLayout.astro. Lets keyboard / screen-reader users
-          jump past the sticky header straight to the article body.
-        */}
         <main id="main-content">
           <ArticleView
             article={article}
@@ -161,6 +144,8 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         <UpdateNotification />
         <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />
         <ScrollToTop />
+        <ScrollProgress />
+        <Cursor theme={theme} />
       </ErrorBoundary>
     </div>
   )

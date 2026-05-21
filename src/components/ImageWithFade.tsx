@@ -75,7 +75,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
   return (
     <div ref={containerRef} className={`relative overflow-hidden bg-stone-100 dark:bg-[#0a0a0a] ${className}`}>
       {!loaded && !error && (
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0f0f0f] animate-pulse z-10" />
+        <div className={`absolute inset-0 bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 dark:from-[#0f0f0f] dark:via-[#1a1a1a] dark:to-[#0f0f0f] z-10 ${shouldReduce ? "" : "animate-pulse"}`} />
       )}
 
       {isIntersected && !error && (
