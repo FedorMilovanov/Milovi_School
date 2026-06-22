@@ -116,7 +116,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <span className="hidden sm:inline">Поиск</span>
-              <kbd className="hidden border border-stone-200 px-1 py-0.5 font-mono text-[9px] text-stone-400 dark:border-stone-700 lg:inline">⌘K</kbd>
+              <kbd className="hidden border border-stone-200 px-1 py-0.5 font-mono text-[9px] text-stone-400 dark:border-stone-700 lg:inline" title="Поиск (Ctrl+K / ⌘K)">⌘K</kbd>
             </motion.button>
             <button
               type="button"

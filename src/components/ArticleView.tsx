@@ -787,6 +787,20 @@ const renderedContent = useMemo(() => {
               </div>
             </section>
           )}
+          {/* CTA to Milovi Cake */}
+          <div className="mt-10 border-t border-amber-700/10 pt-6 dark:border-amber-500/10">
+            <p className="text-sm leading-6 text-stone-500 dark:text-stone-400">
+              Авторские торты и десерты ручной работы в СПб —' '
+              <a
+                href="https://milovicake.ru"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+              >
+                Milovi Cake
+              </a>
+            </p>
+          </div>
             </div>
 
             {/* Spacer for right column */}
