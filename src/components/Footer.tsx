@@ -48,6 +48,42 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Secondary navigation — added so visitors can reach methodology, gallery and articles from anywhere */}
+        <nav aria-label="Разделы библиотеки" className="mx-auto mt-16 grid max-w-7xl gap-8 border-t border-amber-100/10 pt-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/70">Материалы</p>
+            <ul className="space-y-2 text-sm leading-6 text-stone-300">
+              <li><a href="/materials/" className="transition hover:text-amber-200">Галерея всех материалов</a></li>
+              <li><a href="/#categories" className="transition hover:text-amber-200">Архив по темам</a></li>
+              <li><a href="/methodology/" className="transition hover:text-amber-200">Методология и источники</a></li>
+            </ul>
+          </div>
+          <div>
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/70">Темы</p>
+            <ul className="space-y-2 text-sm leading-6 text-stone-300">
+              <li><a href="/#categories" className="transition hover:text-amber-200">Все категории</a></li>
+              <li><a href="/#archive" className="transition hover:text-amber-200">Архив статей</a></li>
+              <li><a href="/materials/" className="transition hover:text-amber-200">Рецепты с FAQ</a></li>
+              <li><a href="/methodology/" className="transition hover:text-amber-200">Аналитика и методология</a></li>
+            </ul>
+          </div>
+          <div>
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/70">Milovi Cake</p>
+            <ul className="space-y-2 text-sm leading-6 text-stone-300">
+              <li><a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="transition hover:text-amber-200">Коммерческий сайт →</a></li>
+              <li><a href="/about/" className="transition hover:text-amber-200">Связь проектов</a></li>
+            </ul>
+          </div>
+          <div>
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/70">Читать</p>
+            <ul className="space-y-2 text-sm leading-6 text-stone-300">
+              <li><a href="/materials/" className="transition hover:text-amber-200">Новые материалы</a></li>
+              <li><a href="/methodology/" className="transition hover:text-amber-200">Как мы пишем</a></li>
+              <li><a href="/about/" className="transition hover:text-amber-200">Редакционный принцип</a></li>
+            </ul>
+          </div>
+        </nav>
       </div>
 
       {/* Bottom bar */}

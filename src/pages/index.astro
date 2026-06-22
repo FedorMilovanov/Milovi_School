@@ -12,10 +12,12 @@ import { libraryClientMeta } from '../data/library'
 
 const siteUrl = 'https://french.milovicake.ru'
 
-// JSON-LD: Organization — sameAs links help Google build the Knowledge Graph entity
+// JSON-LD: Organization — proper parent/child linkage via @id so Google can
+// join the two entities in the Knowledge Graph instead of guessing from sameAs.
 const jsonLdOrg = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': `${siteUrl}#org`,
   name: 'Patisserie Russe / Milovi School',
   url: siteUrl,
   logo: {
@@ -25,7 +27,18 @@ const jsonLdOrg = {
   description:
     'Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, разборы, рецепты.',
   inLanguage: 'ru',
-  sameAs: ['https://milovicake.ru'],
+  parentOrganization: {
+    '@type': 'Organization',
+    '@id': 'https://milovicake.ru/#org',
+    name: 'Milovi Cake',
+    url: 'https://milovicake.ru',
+  },
+  sponsor: {
+    '@type': 'Organization',
+    '@id': 'https://milovicake.ru/#org',
+    name: 'Milovi Cake',
+    url: 'https://milovicake.ru',
+  },
 }
 
 // JSON-LD: WebSite with SearchAction for Google Sitelinks Searchbox
