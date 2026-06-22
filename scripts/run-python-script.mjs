@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Simple wrapper to run Python scripts from npm scripts.
  * Usage: node run-python-script.mjs <script.py> [args...]
