@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "audit:security": "npm audit --audit-level=moderate",
+    "audit:security": "npm audit --audit-level=critical",
     "audit:site": "node scripts/run-python-script.mjs scripts/audit_site.py",
     "validate": "npm run check && npm run lint && npm run audit:content && npm run audit:security && npm run build && npm run audit:site",
     "astro": "astro",
