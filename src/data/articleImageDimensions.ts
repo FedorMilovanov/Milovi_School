@@ -156,4 +156,5 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'recipe-savarin.webp': { width: 1408, height: 768 },
   'recipe-tarte-au-sucre.webp': { width: 1408, height: 768 },
   'recipe-beignets.webp': { width: 1408, height: 768 },
+  'recipe-gaufres.webp': { width: 1408, height: 768 },
 }
