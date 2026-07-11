@@ -431,6 +431,52 @@ const renderedContent = useMemo(() => {
       }
 
 
+      // Markdown tables — render a pipe-table (block whose lines all start with
+      // "|" and include a |---| separator row) as a real <table> inside a
+      // horizontally scrollable wrapper, instead of shipping raw "| a | b |"
+      // pipe-text. Used heavily by the Chiffres (statistics) articles and recipe
+      // formula cards. The wrapper's overflow-x-auto keeps wide tables from
+      // pushing the page sideways on mobile.
+      {
+        const tRows = p.split('\n').map((l) => l.trim()).filter(Boolean)
+        const tSepIdx = tRows.findIndex((l) => /^\|[\s:|-]+\|$/.test(l))
+        if (tRows.length >= 2 && tSepIdx >= 0 && tRows.every((l) => l.startsWith('|'))) {
+          const cells = (l: string) => l.replace(/^\||\|$/g, '').split('|').map((c) => c.trim())
+          const aligns = cells(tRows[tSepIdx]).map((c) => {
+            const lead = c.startsWith(':'), trail = c.endsWith(':')
+            return lead && trail ? 'text-center' : trail ? 'text-right' : 'text-left'
+          })
+          const headRows = tRows.slice(0, tSepIdx)
+          const bodyRows = tRows.slice(tSepIdx + 1)
+          return (
+            <div key={idx} className="my-8 overflow-x-auto">
+              <table className="w-full border-collapse text-sm md:text-base">
+                {headRows.length > 0 && (
+                  <thead>
+                    {headRows.map((row, ri) => (
+                      <tr key={ri} className="border-b border-stone-300 dark:border-stone-700">
+                        {cells(row).map((cell, ci) => (
+                          <th key={ci} className={`py-2.5 px-3 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-800 dark:text-amber-500 ${aligns[ci] ?? 'text-left'}`}><InlineText text={cell} /></th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+                )}
+                <tbody>
+                  {bodyRows.map((row, ri) => (
+                    <tr key={ri} className="border-b border-stone-200/70 dark:border-stone-800/70">
+                      {cells(row).map((cell, ci) => (
+                        <td key={ci} className={`py-2.5 px-3 align-top leading-6 text-stone-700 dark:text-stone-300 ${aligns[ci] ?? 'text-left'}`}><InlineText text={cell} /></td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        }
+      }
+
       if (/^={10,}$/.test(p)) return <hr key={idx} className="my-10 border-none h-px bg-gradient-to-r from-transparent via-stone-300 to-transparent dark:via-stone-700" />
 
       const separatorTitle = p.replace(/={8,}/g, '\n').split('\n').map(line => line.trim()).filter(Boolean).join(' ')
