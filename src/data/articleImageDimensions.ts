@@ -139,4 +139,12 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'recipe-tuiles-amandes.webp': { width: 1408, height: 768 },
   'recipe-crepes-suzette.webp': { width: 1408, height: 768 },
   'recipe-financiers.webp': { width: 1408, height: 768 },
+  'recipe-buche-noel.webp': { width: 1408, height: 768 },
+  'recipe-chausson-aux-pommes.webp': { width: 1408, height: 768 },
+  'recipe-pain-au-chocolat.webp': { width: 1408, height: 768 },
+  'recipe-nougat-montelimar.webp': { width: 1408, height: 768 },
+  'recipe-calisson.webp': { width: 1408, height: 768 },
+  'recipe-tarte-normande.webp': { width: 1408, height: 768 },
+  'recipe-blanc-manger.webp': { width: 1408, height: 768 },
+  'recipe-marrons-glaces.webp': { width: 1408, height: 768 },
 }

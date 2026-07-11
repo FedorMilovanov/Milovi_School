@@ -5,12 +5,12 @@
 
 ## Passed checks
 - Source/public text files scanned for broken UTF-8
-- Images verified: 163 files
-- Article image dimensions map checked: 137 records
-- HTML routes checked: 144, local refs checked: 2958, JSON-LD blocks: 335
-- Built article pages: 137
-- Sitemap checked: 141 URLs, 137 image entries
-- Article ids checked: 137, unique=137
+- Images verified: 171 files
+- Article image dimensions map checked: 145 records
+- HTML routes checked: 152, local refs checked: 3126, JSON-LD blocks: 367
+- Built article pages: 145
+- Sitemap checked: 149 URLs, 145 image entries
+- Article ids checked: 145, unique=145
 - UI static checks passed: explicit button types, href anchors, duplicate ids, accessible buttons
 - Client JS bundles checked: 17 files
 - Client component imports checked for heavy article-content modules
