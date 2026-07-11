@@ -27,9 +27,15 @@ interface LuxuryTextProps {
 }
 
 export default function LuxuryText({ children, tone = 'title', as = 'span', className }: LuxuryTextProps) {
+  // Inter-word spaces stay real (breaking) spaces so multi-word section titles
+  // wrap on narrow viewports. A non-breaking space here forced titles like
+  // \u00AB\u0428\u0435\u0444\u044B, \u0442\u0435\u0445\u043D\u0438\u043A\u0438, \u043A\u0443\u0445\u043D\u044F, \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0430\u00BB onto one line \u2192 min-content overflow on
+  // mobile (grid track widened past the viewport). Letters remain individual
+  // spans, so the per-letter cursor effect is unaffected; words stay intact
+  // (only spaces are wrap opportunities, never mid-word).
   const letters: ReactNode[] = children.split('').map((char, i) => (
     <span className="luxury-letter" key={`${char}-${i}`} aria-hidden="true">
-      {char === ' ' ? '\u00A0' : char}
+      {char}
     </span>
   ))
   return createElement(

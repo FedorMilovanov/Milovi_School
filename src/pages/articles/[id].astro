@@ -204,7 +204,7 @@ if (article.faq && article.faq.length > 0) {
     })),
   }
 }
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout

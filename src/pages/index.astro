@@ -49,7 +49,7 @@ const jsonLdWebSite = {
     'query-input': 'required name=search_term_string',
   },
 }
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout

@@ -15,12 +15,13 @@ const CommandPalette = lazy(() => import('../CommandPalette'))
 const clampIndex = (value: number, length: number) => (value + length) % length
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
-  // FIX: initialize theme from DOM class set by BaseLayout pre-paint script.
-  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
-    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light'
-  )
+  // Start from the brand-default dark theme so the first client render matches
+  // the SSR HTML. GalleryApp is server-rendered (client:load), where `document`
+  // is undefined at build time; reading the DOM in the initializer returned
+  // 'light' on the server but 'dark' on the client (pre-paint sets html.dark),
+  // causing a hydration mismatch on /materials/. The effect below syncs to the
+  // real DOM class after mount — matching HomeApp/ArticlePageShell/StaticPageShell.
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [commandOpen, setCommandOpen] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   // FIX: touch-guard — only open preview on fine-pointer (mouse) devices.
@@ -48,7 +49,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   }, [])
 
   useEffect(() => {
-    if (previewArticle === null) return
+    if (previewIndex === null) return
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setPreviewIndex(null)

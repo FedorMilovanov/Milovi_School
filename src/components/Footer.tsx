@@ -53,10 +53,10 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-amber-100/10 px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row sm:items-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-600">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-400">
             <span className="logo-name-patisserie">Pâtisserie</span> Russe · French Pastry Archive · {year}
           </p>
-          <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-600">
+          <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-400">
             <a href="/materials/" className="transition hover:text-amber-200">Галерея</a>
             <a href="/about/" className="transition hover:text-amber-200">О проекте</a>
             <a href="/methodology/" className="transition hover:text-amber-200">Методология</a>

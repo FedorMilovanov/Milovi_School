@@ -396,12 +396,10 @@ export default function CommandPalette({
     return () => visualViewport!.removeEventListener('resize', handler)
   }, [])
 
-  // Restore focus on close
-  useEffect(() => {
-    if (!open) {
-      prevFocusRef.current?.focus()
-    }
-  }, [open])
+  // Restore focus to the trigger on unmount. The palette is conditionally
+  // mounted by its parents (`open` is always true while mounted), so a `!open`
+  // guard would never fire — restore on cleanup instead (WCAG 2.4.3).
+  useEffect(() => () => { prevFocusRef.current?.focus() }, [])
 
   /* ── Scroll lock ── */
   useEffect(() => {

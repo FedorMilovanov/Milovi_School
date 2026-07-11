@@ -109,7 +109,7 @@ export default function Categories({ categories, selectedCategory, onSelectCateg
         </a>
       </div>
 
-      <div className="-mx-6 mt-8 overflow-x-auto overscroll-x-contain px-6 pb-2 md:mx-0 md:overflow-visible md:overscroll-auto md:px-0">
+      <div className="-mx-4 mt-8 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:overflow-visible md:overscroll-auto md:px-0">
         <div className="flex min-w-max gap-x-8 gap-y-4 md:min-w-0 md:flex-wrap">
           <motion.button
             type="button"

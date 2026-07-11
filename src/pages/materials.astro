@@ -54,6 +54,9 @@ const jsonLdBreadcrumbs = {
   title="Галерея материалов — Patisserie Russe"
   description="Визуальная галерея всех материалов о французской кондитерской школе: статьи, рецепты и переводы с фотографиями."
   canonicalUrl="https://french.milovicake.ru/materials/"
+  image="/images/og-preview.webp"
+  ogImageWidth={1200}
+  ogImageHeight={630}
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />

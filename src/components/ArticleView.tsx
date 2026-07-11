@@ -759,8 +759,13 @@ const renderedContent = useMemo(() => {
               </div>
             </aside>
 
-            {/* Article body */}
-            <div className="space-y-7 min-w-0 article-body">
+            {/* Article body — clip horizontal overflow below lg so an inline
+                term tooltip (absolute, centered, up to viewport-wide) sitting on a
+                right-edge word can't push the page into horizontal scroll on
+                mobile/tablet. overflow-x:clip keeps vertical overflow visible, so
+                tooltips still render above their term; desktop (lg+) has ample
+                column margin and is left untouched. */}
+            <div className="space-y-7 min-w-0 article-body overflow-x-clip lg:overflow-x-visible">
               <div className="drop-cap relative">{renderedContent}</div>
 
           {/* ================= FAQ UI ================= */}
@@ -790,7 +795,7 @@ const renderedContent = useMemo(() => {
           {/* CTA to Milovi Cake */}
           <div className="mt-10 border-t border-amber-700/10 pt-6 dark:border-amber-500/10">
             <p className="text-sm leading-6 text-stone-500 dark:text-stone-400">
-              Авторские торты и десерты ручной работы в СПб —' '
+              Авторские торты и десерты ручной работы в СПб —{' '}
               <a
                 href="https://milovicake.ru"
                 target="_blank"
@@ -848,11 +853,11 @@ const renderedContent = useMemo(() => {
               <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.2em] text-stone-500">Читайте также — {category?.name}</p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map(r => (
-                  <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate?.(r) }} className="group block text-left">
+                  <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; if (!onNavigate) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate(r) }} className="group block text-left">
                     <div className="mb-4 overflow-hidden bg-stone-200 dark:bg-stone-800" style={{ aspectRatio: imgAspectRatio(r.image) }}>
                       <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
-                    <h4 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h4>
+                    <h3 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h3>
                     <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>
                     <span className="mt-2 block font-mono text-[10px] uppercase tracking-[0.22em] text-amber-800 dark:text-amber-400">Читать →</span>
                   </a>

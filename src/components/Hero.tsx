@@ -164,6 +164,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
                       <button
                         type="button"
                         onClick={() => onSelectCategory(chef.id)}
+                        tabIndex={i === 1 ? -1 : undefined}
                         className="text-stone-500 transition-colors hover:text-amber-400 cursor-pointer"
                         title={`Перейти к материалам — ${chef.name}`}
                       >

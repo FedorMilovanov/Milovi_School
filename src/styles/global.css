@@ -138,11 +138,21 @@
 }
 
 /* ── Base ─────────────────────────────────────────────────────── */
+html {
+  /* Keep in-page anchor targets clear of the 84px sticky header so section
+     eyebrows/headings are not hidden after category jumps / #hash deep-links. */
+  scroll-padding-top: var(--header-height);
+}
 html, body {
   scroll-behavior: smooth;
   background-color: var(--bg-main);
   color: var(--text-primary);
   font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+}
+/* Respect reduced-motion for the global smooth-scroll (JS smooth scrolls are
+   still smooth; this covers native anchor/hash navigation). */
+@media (prefers-reduced-motion: reduce) {
+  html, body { scroll-behavior: auto; }
 }
 
 
