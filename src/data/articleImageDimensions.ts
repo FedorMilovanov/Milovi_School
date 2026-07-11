@@ -147,4 +147,6 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'recipe-tarte-normande.webp': { width: 1408, height: 768 },
   'recipe-blanc-manger.webp': { width: 1408, height: 768 },
   'recipe-marrons-glaces.webp': { width: 1408, height: 768 },
+  'recipe-tarte-au-chocolat.webp': { width: 1408, height: 768 },
+  'recipe-creme-caramel.webp': { width: 1408, height: 768 },
 }
