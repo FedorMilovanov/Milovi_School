@@ -152,7 +152,7 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'recipe-mousse-au-chocolat.webp': { width: 1693, height: 929 },
   'recipe-fondant-chocolat.webp': { width: 1696, height: 927 },
   'recipe-pain-perdu.webp': { width: 1695, height: 928 },
-  'recipe-chou-chantilly.webp': { width: 2816, height: 1584 },
+  'recipe-chou-chantilly.webp': { width: 1698, height: 926 },
   'recipe-savarin.webp': { width: 1695, height: 928 },
   'recipe-tarte-au-sucre.webp': { width: 2816, height: 1584 },
   'recipe-beignets.webp': { width: 2816, height: 1584 },
