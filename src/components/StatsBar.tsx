@@ -10,7 +10,10 @@ interface AnimatedCounterProps {
 }
 
 function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: AnimatedCounterProps) {
-  const [count, setCount] = useState(0)
+  // The server and the first hydrated render must expose the truthful value.
+  // Animation starts only after the counter enters the viewport; no-JS clients,
+  // crawlers and assistive technology never receive a fake zero statistic.
+  const [count, setCount] = useState(target)
   const ref = useRef<HTMLSpanElement>(null)
   const started = useRef(false)
   const frameRef = useRef<number | null>(null)
@@ -18,11 +21,9 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
 
   useEffect(() => {
     started.current = false
-    setCount(0)
-    if (shouldReduce) {
-      setCount(target)
-      return
-    }
+    setCount(target)
+    if (shouldReduce) return
+
     const el = ref.current
     if (!el) return
 
@@ -30,6 +31,7 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
       ([entry]) => {
         if (!entry.isIntersecting || started.current) return
         started.current = true
+        setCount(0)
         const duration = 1400
         const startTime = performance.now()
         const step = (now: number) => {
@@ -63,7 +65,9 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
         ref={ref}
         className="stat-num stats-number-lux section-title-lux luxury-color-text font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-5xl lg:text-6xl"
         data-tone="section"
-        aria-label={`${prefix}${count}${suffix}`}
+        data-stat-label={label}
+        data-stat-target={target}
+        aria-label={`${prefix}${target}${suffix}`}
       >
         {(`${prefix}${count}${suffix}`).split('').map((char, i) => (
           <span className="luxury-letter" key={`stat-${i}`} aria-hidden="true">{char}</span>
