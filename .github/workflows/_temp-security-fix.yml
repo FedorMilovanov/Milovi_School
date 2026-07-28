@@ -26,22 +26,84 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Upgrade patched Astro line and repair transitive advisories
+      - name: Attempt patched dependency graph
+        id: security
+        shell: bash
         run: |
-          npm install --save-dev --save-exact astro@6.4.8
-          npm audit fix || true
-          npm audit --audit-level=high
-          npm run check
-          npm run lint
-          git diff --check
+          set +e
+          npm install --save-dev --save-exact astro@6.4.8 > /tmp/install.log 2>&1
+          install_code=$?
+          npm audit fix > /tmp/fix.log 2>&1
+          fix_code=$?
+          npm audit --json > SECURITY_POSTFIX_AUDIT.json 2>/tmp/audit-stderr.log
+          audit_json_code=$?
+          npm audit --audit-level=high > /tmp/high.log 2>&1
+          high_code=$?
+          npm run check > /tmp/check.log 2>&1
+          check_code=$?
+          npm run lint > /tmp/lint.log 2>&1
+          lint_code=$?
+          git diff --check > /tmp/diff.log 2>&1
+          diff_code=$?
+          set -e
+          {
+            echo "install_code=$install_code"
+            echo "audit_fix_code=$fix_code"
+            echo "audit_json_code=$audit_json_code"
+            echo "high_code=$high_code"
+            echo "check_code=$check_code"
+            echo "lint_code=$lint_code"
+            echo "diff_code=$diff_code"
+            echo
+            echo '## install'
+            cat /tmp/install.log
+            echo
+            echo '## audit fix'
+            cat /tmp/fix.log
+            echo
+            echo '## high threshold'
+            cat /tmp/high.log
+            echo
+            echo '## check'
+            cat /tmp/check.log
+            echo
+            echo '## lint'
+            cat /tmp/lint.log
+            echo
+            echo '## diff'
+            cat /tmp/diff.log
+          } > SECURITY_POSTFIX_DIAGNOSTIC.txt
+          cat SECURITY_POSTFIX_DIAGNOSTIC.txt
+          if [ "$install_code" -eq 0 ] && [ "$high_code" -eq 0 ] && [ "$check_code" -eq 0 ] && [ "$lint_code" -eq 0 ] && [ "$diff_code" -eq 0 ]; then
+            echo 'success=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'success=false' >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Commit audited lockfile and remove diagnostics
+      - name: Commit audited lockfile
+        if: steps.security.outputs.success == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/_temp-security-fix.yml
-          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt
+          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt SECURITY_POSTFIX_AUDIT.json SECURITY_POSTFIX_DIAGNOSTIC.txt
           git add package.json package-lock.json
           git add -u
           git commit -m "fix(security): upgrade Astro and patched transitive graph"
+          git push origin HEAD:feat/trust-consent-release-marathon
+
+      - name: Preserve failed security evidence
+        if: steps.security.outputs.success != 'true'
+        run: |
+          git reset --hard HEAD
+          cp /tmp/install.log SECURITY_INSTALL_DIAGNOSTIC.txt
+          cp /tmp/fix.log SECURITY_FIX_DIAGNOSTIC.txt
+          cp /tmp/high.log SECURITY_HIGH_DIAGNOSTIC.txt
+          # Re-run only the read-only audit against the original lockfile so evidence is self-consistent.
+          npm ci >/dev/null 2>&1
+          npm audit --json > SECURITY_POSTFIX_AUDIT.json || true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add SECURITY_INSTALL_DIAGNOSTIC.txt SECURITY_FIX_DIAGNOSTIC.txt SECURITY_HIGH_DIAGNOSTIC.txt SECURITY_POSTFIX_AUDIT.json
+          git commit -m "chore(security): preserve dependency-fix diagnostic"
           git push origin HEAD:feat/trust-consent-release-marathon
