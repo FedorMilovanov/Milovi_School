@@ -1,0 +1,10 @@
+# Default ownership for all repository changes.
+* @FedorMilovanov
+
+# High-risk release and supply-chain surfaces.
+/.github/ @FedorMilovanov
+/package.json @FedorMilovanov
+/package-lock.json @FedorMilovanov
+/astro.config.mjs @FedorMilovanov
+/scripts/ @FedorMilovanov
+/src/layouts/ @FedorMilovanov
