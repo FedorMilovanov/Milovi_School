@@ -43,7 +43,7 @@ const jsonLdWebSite = {
   publisher: { '@id': `${siteUrl}/#organization` },
 }
 
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 ---
 
 <BaseLayout
@@ -54,6 +54,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   image="/images/og-preview.webp"
   ogImageWidth={1200}
   ogImageHeight={630}
+  hidePolicyFooter={true}
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdOrg)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdWebSite)} slot="head" />
