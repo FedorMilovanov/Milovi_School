@@ -73,6 +73,11 @@ if (fs.existsSync(path.join(root, '404.html'))) {
   }
 }
 
+const gaId = (process.env.PUBLIC_GA_ID ?? '').trim()
+const rawYandexId = (process.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
+const yandexId = /^\d+$/.test(rawYandexId) ? rawYandexId : ''
+const analyticsEnabled = Boolean(gaId || yandexId)
+
 if (fs.existsSync(path.join(root, 'index.html'))) {
   const home = read('index.html')
   if (home.includes('SearchAction') || home.includes('search_term_string')) {
@@ -81,11 +86,21 @@ if (fs.existsSync(path.join(root, 'index.html'))) {
   for (const href of ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/']) {
     if (!home.includes(`href="${href}"`)) fail(`homepage footer missing policy link: ${href}`)
   }
+
+  const footerCount = (home.match(/<footer\b/gi) ?? []).length
+  if (footerCount !== 1) fail(`homepage must render exactly one footer landmark, found ${footerCount}`)
+
+  const statTags = [...home.matchAll(/<span\b[^>]*data-stat-label=["']([^"']+)["'][^>]*data-stat-target=["']?(\d+)["']?[^>]*>/gi)]
+  if (statTags.length !== 4) {
+    fail(`homepage must expose four server-rendered statistic targets, found ${statTags.length}`)
+  } else {
+    for (const [, label, rawTarget] of statTags) {
+      const target = Number(rawTarget)
+      if (!Number.isFinite(target) || target <= 0) fail(`homepage statistic is not truthful: ${label}=${rawTarget}`)
+    }
+  }
 }
 
-const gaId = (process.env.PUBLIC_GA_ID ?? '').trim()
-const yandexId = (process.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
-const analyticsEnabled = Boolean(gaId || yandexId)
 for (const file of htmlFiles) {
   const relative = path.relative(root, file)
   if (isOwnershipProofHtml(relative)) continue
@@ -93,6 +108,13 @@ for (const file of htmlFiles) {
   const hasLocalLoader = text.includes('/analytics-consent.js')
   if (analyticsEnabled && !hasLocalLoader) fail(`${relative}: configured analytics lacks local consent loader`)
   if (!analyticsEnabled && hasLocalLoader) fail(`${relative}: consent loader rendered without configured analytics`)
+}
+
+if (fs.existsSync(path.join(root, 'privacy/index.html'))) {
+  const privacy = read('privacy/index.html')
+  const hasSettingsButton = privacy.includes('Открыть настройки аналитики')
+  if (analyticsEnabled && !hasSettingsButton) fail('configured analytics lacks a usable settings button on /privacy/')
+  if (!analyticsEnabled && hasSettingsButton) fail('/privacy/ renders a no-op analytics settings button while analytics is disabled')
 }
 
 const verification = [
