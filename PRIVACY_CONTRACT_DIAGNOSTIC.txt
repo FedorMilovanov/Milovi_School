@@ -1,0 +1,9 @@
+
+> milovi-school@2.1.0 audit:privacy
+> node scripts/privacy_contract.mjs
+
+Privacy/trust contract FAILED
+- google7e02f9855e02b89a.html: configured analytics lacks local consent loader
+- yandex_9bde19424208d6ce.html: configured analytics lacks local consent loader
+
+exit_code=1
