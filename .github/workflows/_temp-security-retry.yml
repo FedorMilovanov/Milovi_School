@@ -1,0 +1,60 @@
+name: One-shot security retry
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_temp-security-retry.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.head_ref == 'feat/trust-consent-release-marathon'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/trust-consent-release-marathon
+          fetch-depth: 0
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Resolve and verify patched production toolchain
+        run: |
+          npm pkg delete overrides.brace-expansion
+          npm uninstall eslint-plugin-jsx-a11y
+          npm install --save-dev --save-exact \
+            astro@7.1.4 \
+            @astrojs/react@6.0.1 \
+            @astrojs/check@0.9.9 \
+            @astrojs/sitemap@3.7.3 \
+            eslint@latest \
+            @eslint/js@latest \
+            typescript-eslint@latest \
+            eslint-plugin-react-hooks@latest
+          npm audit fix
+          npm audit --audit-level=high
+          npm run check
+          npm run lint
+          npm run build
+          git diff --check
+
+      - name: Commit exact lockfile and remove temporary evidence
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-security-retry.yml
+          git rm .github/workflows/_temp-security-fix.yml
+          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt NPM_METADATA.txt SECURITY_*.txt SECURITY_POSTFIX_AUDIT.json
+          git add package.json package-lock.json
+          git add -u
+          git commit -m "fix(security): adopt patched Astro and lint dependency graph"
+          git push origin HEAD:feat/trust-consent-release-marathon
