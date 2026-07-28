@@ -1,0 +1,74 @@
+name: Patch School deep audit crawler
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/_patch-school-deep-audit.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: ${{ github.event.pull_request.head.ref == 'fix/deep-polish-round2' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact fix branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Patch only the custom crawler
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/deep-polish-audit.yml')
+          text = path.read_text('utf-8')
+          old_imports = """          import json
+          import re
+          import xml.etree.ElementTree as ET
+"""
+          new_imports = """          import json
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+"""
+          if old_imports not in text:
+              raise SystemExit('crawler import block not found')
+          text = text.replace(old_imports, new_imports, 1)
+
+          old_urls = """              root = ET.fromstring(sitemap.read_text('utf-8'))
+              urls.extend(node.text.strip() for node in root.findall('.//{*}loc') if node.text)
+"""
+          new_urls = """              root = ET.fromstring(sitemap.read_text('utf-8'))
+              for url_node in root.findall('.//{*}url'):
+                  loc = url_node.find('{*}loc')
+                  if loc is not None and loc.text:
+                      urls.append(loc.text.strip())
+"""
+          if old_urls not in text:
+              raise SystemExit('child sitemap URL block not found')
+          text = text.replace(old_urls, new_urls, 1)
+
+          old_sha = """          if release.get('sha') != Path('/proc/self/environ').read_bytes().split(b'SOURCE_SHA=', 1)[1].split(b'\\0', 1)[0].decode():
+"""
+          new_sha = """          if release.get('sha') != os.environ['SOURCE_SHA']:
+"""
+          if old_sha not in text:
+              raise SystemExit('release SHA block not found')
+          text = text.replace(old_sha, new_sha, 1)
+          path.write_text(text, 'utf-8')
+          PY
+
+      - name: Commit exact audit fix and remove patch workflow
+        shell: bash
+        run: |
+          rm .github/workflows/_patch-school-deep-audit.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/deep-polish-audit.yml .github/workflows/_patch-school-deep-audit.yml
+          git diff --cached --check
+          git commit -m 'ci(audit): crawl only School URL sitemap entries'
+          git push origin HEAD:fix/deep-polish-round2
