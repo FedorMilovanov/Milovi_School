@@ -100,7 +100,11 @@ for html in html_files:
     desc=soup.find('meta', attrs={'name':'description'})
     if not desc or not desc.get('content','').strip(): err(f'Missing meta description in {rel}')
     canon=soup.find('link', rel='canonical')
-    if not canon or not canon.get('href','').startswith(SITE): err(f'Missing/invalid canonical in {rel}')
+    is_error_page = rel in {'/404.html', '/404/'}
+    if is_error_page:
+        if canon: err(f'404 must not emit canonical in {rel}')
+    elif not canon or not canon.get('href','').startswith(SITE):
+        err(f'Missing/invalid canonical in {rel}')
     og=soup.find('meta', attrs={'property':'og:image'})
     tw=soup.find('meta', attrs={'name':'twitter:image'})
     if not og or not og.get('content'): err(f'Missing og:image in {rel}')
