@@ -2,3 +2,19 @@
 > milovi-school@2.1.0 lint
 > eslint .
 
+
+Oops! Something went wrong! :(
+
+ESLint: 9.39.4
+
+TypeError: expand is not a function
+    at Minimatch.braceExpand (/home/runner/work/Milovi_School/Milovi_School/node_modules/minimatch/minimatch.js:271:10)
+    at Minimatch.make (/home/runner/work/Milovi_School/Milovi_School/node_modules/minimatch/minimatch.js:180:33)
+    at new Minimatch (/home/runner/work/Milovi_School/Milovi_School/node_modules/minimatch/minimatch.js:156:8)
+    at doMatch (/home/runner/work/Milovi_School/Milovi_School/node_modules/@eslint/config-array/dist/cjs/index.cjs:422:13)
+    at match (/home/runner/work/Milovi_School/Milovi_School/node_modules/@eslint/config-array/dist/cjs/index.cjs:756:11)
+    at /home/runner/work/Milovi_School/Milovi_School/node_modules/@eslint/config-array/dist/cjs/index.cjs:772:10
+    at Array.some (<anonymous>)
+    at pathMatches (/home/runner/work/Milovi_School/Milovi_School/node_modules/@eslint/config-array/dist/cjs/index.cjs:767:44)
+    at /home/runner/work/Milovi_School/Milovi_School/node_modules/@eslint/config-array/dist/cjs/index.cjs:1368:8
+    at FlatConfigArray.forEach (<anonymous>)
