@@ -25,7 +25,7 @@ export default function Footer() {
               {/* about-h2 — взаимодействует с курсором (см. Cursor.tsx).
                   pâtisserie выделено в <em> чтобы получить синий glow,
                   как в ARENA AI drop. */}
-                            Французская <em className="italic">pâtisserie</em><br />на русском языке
+              Французская <em className="italic">pâtisserie</em><br />на русском языке
             </h2>
           </div>
           <div className="space-y-6 text-stone-300">
@@ -50,19 +50,25 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar: one semantic footer with both project and trust navigation. */}
       <div className="border-t border-amber-100/10 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 lg:flex-row lg:items-center">
           <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-stone-400">
             <span className="logo-name-patisserie">Pâtisserie</span> Russe · French Pastry Archive · {year}
           </p>
-          <div className="flex flex-wrap gap-6 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-400">
+          <nav aria-label="Навигация по проекту" className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-400">
             <a href="/materials/" className="transition hover:text-amber-200">Галерея</a>
             <a href="/about/" className="transition hover:text-amber-200">О проекте</a>
             <a href="/methodology/" className="transition hover:text-amber-200">Методология</a>
             <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="transition hover:text-amber-200">Milovi Cake ↗</a>
-          </div>
+          </nav>
         </div>
+        <nav aria-label="Редакционные и правовые документы" className="mx-auto mt-5 flex max-w-7xl flex-wrap gap-x-6 gap-y-3 border-t border-amber-100/10 pt-5 font-mono text-[10px] uppercase tracking-[0.18em] text-stone-500">
+          <a href="/editorial-policy/" className="transition hover:text-amber-200">Редакционная политика</a>
+          <a href="/sources/" className="transition hover:text-amber-200">Источники</a>
+          <a href="/corrections/" className="transition hover:text-amber-200">Исправления</a>
+          <a href="/privacy/" className="transition hover:text-amber-200">Конфиденциальность</a>
+        </nav>
       </div>
     </footer>
   )
