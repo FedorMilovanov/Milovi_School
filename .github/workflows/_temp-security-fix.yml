@@ -39,8 +39,8 @@ jobs:
             @astrojs/react@6.0.1 \
             @astrojs/check@0.9.9 \
             @astrojs/sitemap@3.7.3 \
-            eslint@10.8.0 \
-            @eslint/js@10.8.0 \
+            eslint@latest \
+            @eslint/js@latest \
             typescript-eslint@latest \
             eslint-plugin-react-hooks@latest \
             > /tmp/install.log 2>&1
@@ -87,7 +87,7 @@ jobs:
             echo 'success=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit audited Astro 7 and ESLint 10 migration
+      - name: Commit audited Astro and lint migration
         if: steps.security.outputs.success == 'true'
         run: |
           git config user.name "github-actions[bot]"
@@ -96,7 +96,7 @@ jobs:
           rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt NPM_METADATA.txt SECURITY_*.txt SECURITY_POSTFIX_AUDIT.json
           git add package.json package-lock.json
           git add -u
-          git commit -m "fix(security): migrate to patched Astro 7 and ESLint 10"
+          git commit -m "fix(security): migrate to patched Astro and lint toolchain"
           git push origin HEAD:feat/trust-consent-release-marathon
 
       - name: Preserve failed toolchain migration evidence
