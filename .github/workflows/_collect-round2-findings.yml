@@ -1,0 +1,90 @@
+name: Collect complete School round-two findings
+
+on:
+  push:
+    branches: [fix/deep-polish-round2]
+    paths: ['.github/workflows/_collect-round2-findings.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout diagnostic branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: fix/deep-polish-round2
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Collect exact findings
+        shell: bash
+        run: |
+          set -uo pipefail
+          : > ROUND2_FINDINGS.txt
+          echo '=== BASELINE AND NPM AUDIT ===' >> ROUND2_FINDINGS.txt
+          npm ci >> ROUND2_FINDINGS.txt 2>&1
+          npm run check >> ROUND2_FINDINGS.txt 2>&1 || true
+          npm run lint >> ROUND2_FINDINGS.txt 2>&1 || true
+          npm audit --audit-level=high >> ROUND2_FINDINGS.txt 2>&1 || true
+          echo >> ROUND2_FINDINGS.txt
+          echo '=== SOURCE FINDINGS ===' >> ROUND2_FINDINGS.txt
+          python3 - <<'PY' >> ROUND2_FINDINGS.txt
+          from pathlib import Path
+          import re
+          root=Path('.')
+          checks={
+            'zero counter SSR': ('src/components/StatsBar.tsx', re.compile(r'useState\(0\)')),
+            'primary footer rendering': ('src/components/HomeApp.tsx', re.compile(r'<Footer\s*/>')),
+            'global policy footer rendering': ('src/layouts/BaseLayout.astro', re.compile(r'<PolicyFooter\s*/>')),
+            'unconditional privacy settings button': ('src/pages/privacy.astro', re.compile(r'Открыть настройки аналитики')),
+          }
+          for label,(filename,pattern) in checks.items():
+            path=root/filename
+            for no,line in enumerate(path.read_text('utf-8').splitlines(),1):
+              if pattern.search(line): print(f'{filename}:{no}: {label}: {line.strip()}')
+          footer=(root/'src/components/Footer.tsx').read_text('utf-8')
+          for href in ('/privacy/','/editorial-policy/','/sources/','/corrections/'):
+            if href not in footer: print(f'src/components/Footer.tsx: missing trust link {href}')
+          print('\n=== UNPINNED ACTIONS ===')
+          sha=re.compile(r'^[0-9a-f]{40}$',re.I)
+          for path in sorted((root/'.github/workflows').glob('*.yml')):
+            for no,line in enumerate(path.read_text('utf-8').splitlines(),1):
+              stripped=line.strip()
+              if not stripped.startswith('uses:'): continue
+              target=stripped.split('uses:',1)[1].strip().split()[0]
+              if target.startswith('./'): continue
+              ref=target.rsplit('@',1)[-1] if '@' in target else ''
+              if not sha.fullmatch(ref): print(f'{path}:{no}: {target}')
+          PY
+          echo >> ROUND2_FINDINGS.txt
+          echo '=== CONFIGURED BUILD SSR SNAPSHOT ===' >> ROUND2_FINDINGS.txt
+          PUBLIC_RELEASE_SHA=diagnostic PUBLIC_GOOGLE_SITE_VERIFICATION=diag-google PUBLIC_YANDEX_SITE_VERIFICATION=diag-yandex PUBLIC_BING_SITE_VERIFICATION=diag-bing PUBLIC_GA_ID=G-DIAGNOSTIC PUBLIC_YANDEX_METRIKA_ID=12345678 npm run build >> ROUND2_FINDINGS.txt 2>&1 || true
+          python3 - <<'PY' >> ROUND2_FINDINGS.txt
+          from pathlib import Path
+          import re
+          html=Path('dist/index.html').read_text('utf-8',errors='replace')
+          print('footer_count=',len(re.findall(r'<footer\b',html,re.I)))
+          print('stats_labels=',re.findall(r'aria-label="([^"]+)"',html)[:20])
+          for href in ('/privacy/','/editorial-policy/','/sources/','/corrections/'):
+            print(href,'=',f'href="{href}"' in html)
+          p=Path('dist/privacy/index.html').read_text('utf-8',errors='replace')
+          print('privacy_button=', 'Открыть настройки аналитики' in p)
+          PY
+
+      - name: Commit report and remove collector
+        shell: bash
+        run: |
+          rm .github/workflows/_collect-round2-findings.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ROUND2_FINDINGS.txt .github/workflows/_collect-round2-findings.yml
+          git commit -m 'chore(diag): preserve complete School round-two findings'
+          git push origin HEAD:fix/deep-polish-round2
