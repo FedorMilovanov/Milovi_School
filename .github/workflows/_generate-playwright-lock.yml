@@ -1,0 +1,40 @@
+name: Temporary Playwright lock generator
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_generate-playwright-lock.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+      - name: Generate exact lockfile
+        run: |
+          npm install --package-lock-only --save-dev --save-exact playwright@1.60.0
+          node -e "const p=require('./package.json'); if(p.devDependencies.playwright!=='1.60.0') process.exit(1)"
+          npm ci --ignore-scripts
+          node -e "require('playwright'); console.log('Playwright module resolves from lockfile')"
+      - name: Upload generated manifests
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: school-playwright-lock-${{ github.run_id }}
+          path: |
+            package.json
+            package-lock.json
+          retention-days: 1
