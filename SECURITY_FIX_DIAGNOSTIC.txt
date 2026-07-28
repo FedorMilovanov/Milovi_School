@@ -1,7 +1,5 @@
-
-added 4 packages, changed 30 packages, and audited 572 packages in 3s
-
-201 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
+npm error code ETARGET
+npm error notarget No matching version found for @eslint/js@10.8.0.
+npm error notarget In most cases you or one of your dependencies are requesting
+npm error notarget a package version that doesn't exist.
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-07-28T02_14_15_711Z-debug-0.log

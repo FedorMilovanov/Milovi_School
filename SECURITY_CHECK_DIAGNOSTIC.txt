@@ -2,8 +2,8 @@
 > milovi-school@2.1.0 check
 > astro check
 
-[2m02:13:14[22m [34m[types][39m Generated [2m145ms[22m
-[2m02:13:14[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/Milovi_School/Milovi_School...
+[2m02:14:20[22m [34m[types][39m Generated [2m146ms[22m
+[2m02:14:20[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/Milovi_School/Milovi_School...
 [96msrc/components/AnalyticsConsent.astro[0m:[93m13[0m:[93m13[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
 
 See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
