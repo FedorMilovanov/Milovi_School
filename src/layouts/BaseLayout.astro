@@ -12,6 +12,8 @@ interface Props {
   noCanonical?: boolean
   /** Robots meta. 404 and other utility pages can pass 'noindex, follow'. */
   robots?: string
+  /** Pages with their own complete footer can suppress the shared policy footer. */
+  hidePolicyFooter?: boolean
   /** 'website' for home, 'article' for article pages */
   ogType?: 'website' | 'article'
   /** Explicit OG image dimensions — only pass when the exact size is known */
@@ -33,6 +35,7 @@ const {
   canonicalUrl = new URL(Astro.url.pathname, siteUrl).href,
   noCanonical = false,
   robots = 'index, follow',
+  hidePolicyFooter = false,
   ogType = 'website',
   ogImageWidth,
   ogImageHeight,
@@ -190,7 +193,7 @@ const metaDescription =
     <a href="#main-content" class="skip-to-content">Перейти к содержимому</a>
 
     <slot />
-    <PolicyFooter />
+    {!hidePolicyFooter && <PolicyFooter />}
     <AnalyticsConsent />
 
     <!-- Service worker is skipped in local development. -->
