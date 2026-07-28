@@ -1,0 +1,56 @@
+name: Temporary arena branch inspection
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_inspect-arena-branch.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout audit head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Compare arena branch with main
+        run: |
+          git fetch --no-tags origin refs/heads/arena-improvements-2026-06:refs/remotes/origin/arena-improvements-2026-06
+          git diff --stat main...origin/arena-improvements-2026-06 > arena-stat.txt
+          git diff --unified=5 main...origin/arena-improvements-2026-06 -- src/components/Footer.tsx src/pages/index.astro > arena-ui.patch
+          python3 - <<'PY'
+          import re, subprocess
+          from pathlib import Path
+          def show(ref,path):
+              return subprocess.check_output(['git','show',f'{ref}:{path}'],text=True)
+          main=show('main','src/data/articles.ts')
+          arena=show('origin/arena-improvements-2026-06','src/data/articles.ts')
+          patterns=[r"\bslug\s*:\s*['\"]([^'\"]+)",r"\bid\s*:\s*['\"]([^'\"]+)"]
+          def ids(text):
+              out=set()
+              for pat in patterns: out.update(re.findall(pat,text))
+              return out
+          m,a=ids(main),ids(arena)
+          branch_only=sorted(a-m)
+          main_only=sorted(m-a)
+          lines=[f'main_identifiers={len(m)}',f'arena_identifiers={len(a)}',f'branch_only={len(branch_only)}',*branch_only,f'main_only={len(main_only)}']
+          Path('arena-identifiers.txt').write_text('\n'.join(lines)+'\n','utf-8')
+          print(Path('arena-identifiers.txt').read_text())
+          print(Path('arena-stat.txt').read_text())
+          PY
+      - name: Upload comparison
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: arena-branch-comparison-${{ github.event.pull_request.head.sha }}
+          path: |
+            arena-stat.txt
+            arena-ui.patch
+            arena-identifiers.txt
+          retention-days: 1
