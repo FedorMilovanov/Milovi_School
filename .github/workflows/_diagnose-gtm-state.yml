@@ -1,0 +1,66 @@
+name: Temporary GTM state diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_diagnose-gtm-state.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+      PUBLIC_GA_ID: G-DIAGNOSTIC
+      PUBLIC_YANDEX_METRIKA_ID: '12345678'
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+      - name: Build and serve configured candidate
+        run: |
+          npm ci --silent
+          npx playwright install --with-deps chromium >/dev/null
+          npm run build >/dev/null
+          nohup python3 -m http.server 4174 --directory dist >/tmp/gtm-state-server.log 2>&1 &
+          echo $! >/tmp/gtm-state-server.pid
+          for attempt in $(seq 1 20); do curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0; sleep 1; done
+          exit 1
+      - name: GTM S1 — persisted choice must be empty
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async()=>{const b=await chromium.launch({headless:true});const c=await b.newContext({serviceWorkers:'block'});const p=await c.newPage();await p.goto('http://127.0.0.1:4174/?s=choice',{waitUntil:'domcontentloaded'});await p.waitForTimeout(300);const s=await p.evaluate(()=>({stored:localStorage.getItem('milovi_school_analytics_consent_v1'),api:window.MiloviSchoolConsent?.getChoice?.()??null}));console.log(s);if(s.stored!==null||s.api!==null)throw Error(JSON.stringify(s));await b.close()})().catch(e=>{console.error(e);process.exit(1)})
+          JS
+      - name: GTM S2 — loader must not append a GTM script
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async()=>{const b=await chromium.launch({headless:true});const c=await b.newContext({serviceWorkers:'block'});const p=await c.newPage();await p.goto('http://127.0.0.1:4174/?s=script',{waitUntil:'domcontentloaded'});await p.waitForTimeout(700);const s=await p.evaluate(()=>[...document.scripts].filter(x=>x.src.includes('googletagmanager.com')).map(x=>({src:x.src,ga:x.dataset.prsGa||null,outer:x.outerHTML})));console.log(s);if(s.length)throw Error(JSON.stringify(s));await b.close()})().catch(e=>{console.error(e);process.exit(1)})
+          JS
+      - name: GTM S3 — no preload, prefetch or preconnect targets GTM
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async()=>{const b=await chromium.launch({headless:true});const c=await b.newContext({serviceWorkers:'block'});const p=await c.newPage();await p.goto('http://127.0.0.1:4174/?s=link',{waitUntil:'domcontentloaded'});const s=await p.evaluate(()=>[...document.querySelectorAll('link[href]')].filter(x=>x.href.includes('googletagmanager.com')).map(x=>x.outerHTML));console.log(s);if(s.length)throw Error(JSON.stringify(s));await b.close()})().catch(e=>{console.error(e);process.exit(1)})
+          JS
+      - name: GTM S4 — network must remain silent
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async()=>{const b=await chromium.launch({headless:true});const c=await b.newContext({serviceWorkers:'block'});const p=await c.newPage();const a=[];p.on('request',r=>/googletagmanager\.com/i.test(r.url())&&a.push(r.url()));await p.goto('http://127.0.0.1:4174/?s=network',{waitUntil:'domcontentloaded'});await p.waitForTimeout(700);console.log(a);if(a.length)throw Error(a.join('\n'));await b.close()})().catch(e=>{console.error(e);process.exit(1)})
+          JS
+      - name: Stop diagnostic server
+        if: always()
+        run: kill "$(cat /tmp/gtm-state-server.pid)" 2>/dev/null || true
