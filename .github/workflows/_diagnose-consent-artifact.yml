@@ -46,15 +46,15 @@ jobs:
             const requests = []
             page.on('request', request => {
               if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(request.url())) {
-                requests.push({ url: request.url(), resourceType: request.resourceType(), initiator: request.frame()?.url() || null })
+                requests.push({
+                  url: request.url(),
+                  method: request.method(),
+                  resourceType: request.resourceType(),
+                  frameUrl: request.frame()?.url() || null,
+                })
               }
             })
-            const beforeNavigation = await page.evaluate(() => ({
-              href: location.href,
-              localStorageLength: localStorage.length,
-              stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
-            }))
-            await page.goto('http://127.0.0.1:4174/?artifact=1', { waitUntil: 'domcontentloaded' })
+            await page.goto('http://127.0.0.1:4174/?artifact=2', { waitUntil: 'domcontentloaded' })
             const immediately = await page.evaluate(() => ({
               href: location.href,
               localStorageLength: localStorage.length,
@@ -62,9 +62,11 @@ jobs:
               stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
               apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
               config: window.__MILOVI_SCHOOL_ANALYTICS__ ?? null,
-              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null, outerHTML: script.outerHTML })),
+              links: [...document.querySelectorAll('link[href]')].map(link => ({ rel: link.rel, href: link.href })).filter(item => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(item.href)),
               panelCount: document.querySelectorAll('.prs-consent').length,
               panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
+              dataLayer: Array.isArray(window.dataLayer) ? window.dataLayer : null,
             }))
             await page.waitForTimeout(1000)
             const afterDelay = await page.evaluate(() => ({
@@ -72,11 +74,14 @@ jobs:
               keys: Object.keys(localStorage),
               stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
               apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
-              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null, outerHTML: script.outerHTML })),
+              links: [...document.querySelectorAll('link[href]')].map(link => ({ rel: link.rel, href: link.href })).filter(item => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(item.href)),
               panelCount: document.querySelectorAll('.prs-consent').length,
               panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
+              dataLayer: Array.isArray(window.dataLayer) ? window.dataLayer : null,
+              resources: performance.getEntriesByType('resource').map(entry => entry.name).filter(name => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(name)),
             }))
-            fs.writeFileSync('consent-diagnostic.json', JSON.stringify({ beforeNavigation, immediately, afterDelay, requests }, null, 2))
+            fs.writeFileSync('consent-diagnostic.json', JSON.stringify({ immediately, afterDelay, requests }, null, 2))
             await browser.close()
           })().catch(error => {
             fs.writeFileSync('consent-diagnostic-error.txt', String(error && error.stack || error))
