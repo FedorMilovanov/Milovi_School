@@ -1,0 +1,47 @@
+name: One-shot lint diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_temp-lint-diagnostic.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'feat/trust-consent-release-marathon'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/trust-consent-release-marathon
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Capture lint output
+        run: |
+          npm ci
+          set +e
+          npm run lint > /tmp/lint.log 2>&1
+          code=$?
+          set -e
+          printf 'exit_code=%s\n\n' "$code" > LINT_DIAGNOSTIC.txt
+          cat /tmp/lint.log >> LINT_DIAGNOSTIC.txt
+          cat LINT_DIAGNOSTIC.txt
+
+      - name: Commit diagnostic and remove workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-lint-diagnostic.yml
+          git add LINT_DIAGNOSTIC.txt
+          git commit -m "chore(ci): preserve exact lint diagnostic"
+          git push origin HEAD:feat/trust-consent-release-marathon
