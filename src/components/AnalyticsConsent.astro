@@ -1,0 +1,15 @@
+---
+const gaId = (import.meta.env.PUBLIC_GA_ID ?? '').trim()
+const rawYandexId = (import.meta.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
+const yandexId = /^\d+$/.test(rawYandexId) ? Number(rawYandexId) : null
+const enabled = Boolean(gaId || yandexId)
+---
+
+{enabled && (
+  <>
+    <script is:inline define:vars={{ gaId, yandexId }}>
+      window.__MILOVI_SCHOOL_ANALYTICS__ = { gaId, yandexId }
+    </script>
+    <script src="/analytics-consent.js" defer></script>
+  </>
+)}
