@@ -50,11 +50,10 @@ jobs:
                   url: request.url(),
                   method: request.method(),
                   resourceType: request.resourceType(),
-                  frameUrl: request.frame()?.url() || null,
                 })
               }
             })
-            await page.goto('http://127.0.0.1:4174/?artifact=2', { waitUntil: 'domcontentloaded' })
+            await page.goto('http://127.0.0.1:4174/?artifact=3', { waitUntil: 'domcontentloaded' })
             const immediately = await page.evaluate(() => ({
               href: location.href,
               localStorageLength: localStorage.length,
