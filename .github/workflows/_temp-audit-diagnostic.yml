@@ -1,0 +1,46 @@
+name: One-shot npm audit diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_temp-audit-diagnostic.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'feat/trust-consent-release-marathon'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/trust-consent-release-marathon
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Capture audit graph
+        run: |
+          npm ci
+          set +e
+          npm audit --json > NPM_AUDIT_DIAGNOSTIC.json
+          code=$?
+          set -e
+          printf '%s\n' "$code" > NPM_AUDIT_EXIT_CODE.txt
+          cat NPM_AUDIT_EXIT_CODE.txt
+
+      - name: Commit diagnostic and remove workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-audit-diagnostic.yml
+          git add NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt
+          git commit -m "chore(security): preserve exact npm audit diagnostic"
+          git push origin HEAD:feat/trust-consent-release-marathon
