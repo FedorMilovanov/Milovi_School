@@ -1,0 +1,317 @@
+name: Deep polish round-two audit
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: school-deep-polish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci
+          python3 -m pip install --user pillow beautifulsoup4
+          npx playwright install --with-deps chromium
+
+      - name: Run focused source guards
+        shell: bash
+        run: |
+          npm run check
+          npm run lint
+          npm run audit:content
+          npm run audit:security
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          findings = []
+          stats = Path('src/components/StatsBar.tsx').read_text('utf-8')
+          if 'useState(0)' in stats:
+              findings.append('StatsBar SSR starts at zero')
+          for marker in ('data-stat-label', 'data-stat-target'):
+              if marker not in stats:
+                  findings.append(f'StatsBar lacks {marker}')
+
+          home = Path('src/pages/index.astro').read_text('utf-8')
+          if 'hidePolicyFooter={true}' not in home:
+              findings.append('homepage does not suppress duplicate policy footer')
+
+          footer = Path('src/components/Footer.tsx').read_text('utf-8')
+          for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
+              if href not in footer:
+                  findings.append(f'primary footer lacks {href}')
+
+          privacy = Path('src/pages/privacy.astro').read_text('utf-8')
+          if 'analyticsEnabled' not in privacy:
+              findings.append('privacy settings control is unconditional')
+
+          exact_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
+          for workflow in sorted(Path('.github/workflows').glob('*.yml')):
+              for number, line in enumerate(workflow.read_text('utf-8').splitlines(), 1):
+                  stripped = line.strip()
+                  if not stripped.startswith('uses:'):
+                      continue
+                  target = stripped.split('uses:', 1)[1].strip().split()[0]
+                  if target.startswith('./'):
+                      continue
+                  ref = target.rsplit('@', 1)[-1] if '@' in target else ''
+                  if not exact_sha.fullmatch(ref):
+                      findings.append(f'{workflow.as_posix()}:{number}: unpinned action {target}')
+
+          if findings:
+              raise SystemExit('\n'.join(findings))
+          print('School source guards passed')
+          PY
+
+      - name: Build analytics-disabled candidate
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+        run: npm run build
+
+      - name: Audit disabled candidate and trust contract
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+        run: |
+          npm run audit:site
+          npm run audit:privacy
+
+      - name: Prove disabled candidate SSR and no-op state
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          findings = []
+          home = Path('dist/index.html').read_text('utf-8', errors='replace')
+          privacy = Path('dist/privacy/index.html').read_text('utf-8', errors='replace')
+          footer_count = len(re.findall(r'<footer\b', home, re.I))
+          if footer_count != 1:
+              findings.append(f'disabled homepage has {footer_count} footer landmarks')
+          stats = list(re.finditer(r'<span\b[^>]*data-stat-label=["\']([^"\']+)["\'][^>]*data-stat-target=["\']?(\d+)["\']?[^>]*>', home, re.I))
+          if len(stats) != 4:
+              findings.append(f'disabled homepage exposes {len(stats)} statistic targets')
+          for match in stats:
+              if int(match.group(2)) <= 0:
+                  findings.append(f'false SSR statistic: {match.group(1)}={match.group(2)}')
+          for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
+              if f'href="{href}"' not in home:
+                  findings.append(f'disabled homepage lacks {href}')
+          if '/analytics-consent.js' in home:
+              findings.append('disabled homepage loads consent runtime')
+          if 'Открыть настройки аналитики' in privacy:
+              findings.append('disabled privacy page exposes no-op settings button')
+          if 'Аналитические счётчики сейчас не подключены' not in privacy:
+              findings.append('disabled privacy page lacks analytics-off explanation')
+          if findings:
+              raise SystemExit('\n'.join(findings))
+          print('Disabled candidate SSR and privacy state passed')
+          PY
+
+      - name: Build configured candidate
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: round2-google
+          PUBLIC_YANDEX_SITE_VERIFICATION: round2-yandex
+          PUBLIC_BING_SITE_VERIFICATION: round2-bing
+          PUBLIC_GA_ID: G-ROUND2TEST
+          PUBLIC_YANDEX_METRIKA_ID: '12345678'
+        run: |
+          rm -rf dist
+          npm run build
+
+      - name: Audit configured candidate and trust contract
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: round2-google
+          PUBLIC_YANDEX_SITE_VERIFICATION: round2-yandex
+          PUBLIC_BING_SITE_VERIFICATION: round2-bing
+          PUBLIC_GA_ID: G-ROUND2TEST
+          PUBLIC_YANDEX_METRIKA_ID: '12345678'
+        run: |
+          npm run audit:site
+          npm run audit:privacy
+
+      - name: Crawl configured candidate URL entries
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import json
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+
+          dist = Path('dist')
+          findings = []
+          sitemap_files = []
+          sitemap_index = dist / 'sitemap-index.xml'
+          if sitemap_index.exists():
+              root = ET.fromstring(sitemap_index.read_text('utf-8'))
+              for sitemap_node in root.findall('.//{*}sitemap'):
+                  loc = sitemap_node.find('{*}loc')
+                  if loc is not None and loc.text:
+                      sitemap_files.append(dist / Path(urlparse(loc.text.strip()).path).name)
+          else:
+              sitemap_files = sorted(dist.glob('sitemap-*.xml'))
+          if not sitemap_files:
+              findings.append('configured candidate has no sitemap')
+
+          urls = []
+          for sitemap in sitemap_files:
+              if not sitemap.exists():
+                  findings.append(f'missing child sitemap: {sitemap.name}')
+                  continue
+              root = ET.fromstring(sitemap.read_text('utf-8'))
+              for url_node in root.findall('.//{*}url'):
+                  loc = url_node.find('{*}loc')
+                  if loc is not None and loc.text:
+                      urls.append(loc.text.strip())
+
+          canonical_re = re.compile(r'<link\b[^>]*rel=["\']canonical["\'][^>]*href=["\']([^"\']+)', re.I)
+          for url in urls:
+              route = urlparse(url).path
+              if route == '/':
+                  file = dist / 'index.html'
+              elif route.endswith('/'):
+                  file = dist / route.lstrip('/') / 'index.html'
+              else:
+                  file = dist / route.lstrip('/')
+              if not file.exists():
+                  findings.append(f'{url}: missing {file.as_posix()}')
+                  continue
+              html = file.read_text('utf-8', errors='replace')
+              match = canonical_re.search(html)
+              if not match:
+                  findings.append(f'{url}: missing canonical')
+              elif match.group(1).rstrip('/') != url.rstrip('/'):
+                  findings.append(f'{url}: canonical mismatch {match.group(1)}')
+              if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', html, re.I):
+                  findings.append(f'{url}: sitemap URL is noindex')
+              if 'googletagmanager.com/gtag/js' in html or 'mc.yandex.ru/metrika/tag.js' in html:
+                  findings.append(f'{url}: direct analytics URL embedded in HTML')
+              if '/analytics-consent.js' not in html:
+                  findings.append(f'{url}: configured page lacks consent loader')
+
+          not_found = (dist / '404.html').read_text('utf-8', errors='replace')
+          if not re.search(r'<meta\b[^>]*(?:name=["\']robots["\'][^>]*content=["\']noindex,\s*follow["\']|content=["\']noindex,\s*follow["\'][^>]*name=["\']robots["\'])', not_found, re.I):
+              findings.append('404.html lacks noindex, follow')
+          if canonical_re.search(not_found):
+              findings.append('404.html emits canonical')
+
+          release = json.loads((dist / 'release.json').read_text('utf-8'))
+          if release.get('repository') != 'FedorMilovanov/Milovi_School':
+              findings.append('release.json repository drift')
+          if release.get('sha') != os.environ['SOURCE_SHA']:
+              findings.append('release.json SHA drift')
+
+          if findings:
+              raise SystemExit('\n'.join(findings))
+          print(f'Configured candidate URL crawl passed: {len(urls)} routes')
+          PY
+
+      - name: Serve configured candidate
+        shell: bash
+        run: |
+          python3 -m http.server 4174 --directory dist >/tmp/school-candidate-server.log 2>&1 &
+          echo $! >/tmp/school-candidate-server.pid
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/school-candidate-server.log
+          exit 1
+
+      - name: Exercise configured consent in Chromium
+        shell: bash
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const findings = []
+            const browser = await chromium.launch({ headless: true })
+            try {
+              const denyContext = await browser.newContext({ serviceWorkers: 'block' })
+              const denyPage = await denyContext.newPage()
+              const analyticsRequests = []
+              denyPage.on('request', request => {
+                const url = request.url()
+                if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(url)) analyticsRequests.push(url)
+              })
+              await denyPage.goto(`http://127.0.0.1:4174/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
+              await denyPage.waitForTimeout(700)
+              const state = await denyPage.evaluate(() => ({
+                footerCount: document.querySelectorAll('footer').length,
+                links: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
+                stats: [...document.querySelectorAll('#stats .stat-num')].map(node => ({ target: Number(node.dataset.statTarget), aria: node.getAttribute('aria-label') })),
+                panels: document.querySelectorAll('.prs-consent').length,
+                directScripts: [...document.scripts].filter(script => /googletagmanager\.com|mc\.yandex\.ru/i.test(script.src)).length,
+              }))
+              if (analyticsRequests.length) findings.push('analytics requested before consent')
+              if (state.footerCount !== 1) findings.push(`homepage has ${state.footerCount} footers`)
+              if (!state.links.every(Boolean)) findings.push(`trust links incomplete: ${state.links.join(',')}`)
+              if (state.stats.length !== 4 || state.stats.some(item => item.target <= 0 || Number(item.aria?.replace('%', '')) <= 0)) findings.push(`stats not truthful: ${JSON.stringify(state.stats)}`)
+              if (state.panels !== 1) findings.push(`expected one consent panel, found ${state.panels}`)
+              if (state.directScripts) findings.push('direct analytics script exists before consent')
+              await denyPage.locator('.prs-consent__deny').click()
+              await denyPage.waitForTimeout(200)
+              if (analyticsRequests.length) findings.push('analytics requested after denial')
+              await denyContext.close()
+
+              const allowContext = await browser.newContext({ serviceWorkers: 'block' })
+              const allowPage = await allowContext.newPage()
+              await allowPage.goto(`http://127.0.0.1:4174/?deep-polish-allow=${Date.now()}`, { waitUntil: 'domcontentloaded' })
+              await allowPage.locator('.prs-consent__allow').click()
+              await allowPage.waitForTimeout(200)
+              const after = await allowPage.evaluate(() => ({
+                ga: Boolean(document.querySelector('script[data-prs-ga]')),
+                ym: Boolean(document.querySelector('script[data-prs-ym]')),
+                settings: Boolean(document.querySelector('.prs-consent-settings')),
+              }))
+              if (!after.ga || !after.ym) findings.push('analytics scripts not attached after consent')
+              if (!after.settings) findings.push('privacy settings control missing after choice')
+
+              await allowPage.goto(`http://127.0.0.1:4174/privacy/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
+              const control = allowPage.getByRole('button', { name: 'Открыть настройки аналитики' })
+              if (await control.count() !== 1) {
+                findings.push('privacy page lacks settings control')
+              } else {
+                await control.click()
+                if (!await allowPage.locator('.prs-consent').isVisible()) findings.push('privacy settings control does not reopen dialog')
+              }
+              await allowContext.close()
+            } finally {
+              await browser.close()
+            }
+            if (findings.length) throw new Error(findings.join('\n'))
+            console.log('School configured candidate consent audit passed')
+          })().catch(error => { console.error(error); process.exit(1) })
+          JS
+
+      - name: Stop candidate server
+        if: always()
+        run: kill "$(cat /tmp/school-candidate-server.pid)" 2>/dev/null || true
