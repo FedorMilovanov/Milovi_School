@@ -22,15 +22,15 @@ jobs:
           persist-credentials: false
       - name: Compare arena branch with main
         run: |
-          git fetch --no-tags origin refs/heads/arena-improvements-2026-06:refs/remotes/origin/arena-improvements-2026-06
-          git diff --stat main...origin/arena-improvements-2026-06 > arena-stat.txt
-          git diff --unified=5 main...origin/arena-improvements-2026-06 -- src/components/Footer.tsx src/pages/index.astro > arena-ui.patch
+          git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main refs/heads/arena-improvements-2026-06:refs/remotes/origin/arena-improvements-2026-06
+          git diff --stat origin/main...origin/arena-improvements-2026-06 > arena-stat.txt
+          git diff --unified=5 origin/main...origin/arena-improvements-2026-06 -- src/components/Footer.tsx src/pages/index.astro > arena-ui.patch
           python3 - <<'PY'
           import re, subprocess
           from pathlib import Path
           def show(ref,path):
               return subprocess.check_output(['git','show',f'{ref}:{path}'],text=True)
-          main=show('main','src/data/articles.ts')
+          main=show('origin/main','src/data/articles.ts')
           arena=show('origin/arena-improvements-2026-06','src/data/articles.ts')
           patterns=[r"\bslug\s*:\s*['\"]([^'\"]+)",r"\bid\s*:\s*['\"]([^'\"]+)"]
           def ids(text):
