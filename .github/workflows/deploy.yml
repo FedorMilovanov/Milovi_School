@@ -1,13 +1,5 @@
 name: Deploy to GitHub Pages
 
-# Builds the Astro static site and publishes dist/ to GitHub Pages.
-# Triggered on every push to main, and can be run manually from the Actions tab.
-#
-# Requirements (one-time setup):
-#   1. GitHub repo → Settings → Pages → Source = "GitHub Actions"
-#   2. public/CNAME already contains french.milovicake.ru
-#   3. DNS: CNAME `french` → <username>.github.io
-
 on:
   push:
     branches: [main]
@@ -18,24 +10,26 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one in-progress deploy at a time, but let queued runs finish
-# (no cancel-in-progress — half-published sites are worse than slightly stale ones).
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
+    name: Validate and build exact source
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout exact source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '22.13.0'
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -49,32 +43,99 @@ jobs:
       - name: Audit article content
         run: npm run audit:content
 
-      - name: Security audit
+      - name: Security audit at high severity
         run: npm run audit:security
 
-      - name: Build site
+      - name: Build immutable site candidate
         run: npm run build
         env:
           NODE_ENV: production
+          PUBLIC_RELEASE_SHA: ${{ github.sha }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
 
-      - name: Install audit Python dependencies
+      - name: Install generated-site audit dependencies
         run: python3 -m pip install --user pillow beautifulsoup4
 
       - name: Audit generated site
         run: npm run audit:site
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Verify privacy, ownership and release contracts
+        run: npm run audit:privacy
+        env:
+          PUBLIC_RELEASE_SHA: ${{ github.sha }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Upload exact Pages candidate
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: ./dist
 
   deploy:
+    name: Deploy exact candidate
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+
+  live-proof:
+    name: Prove live domain serves this commit
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+    env:
+      EXPECTED_SHA: ${{ github.sha }}
+      LIVE_BASE: https://french.milovicake.ru
+    steps:
+      - name: Wait for CDN and verify immutable release witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 24); do
+            body="$(curl -fsS --connect-timeout 10 --max-time 20 "$LIVE_BASE/release.json?attempt=$attempt" || true)"
+            if BODY="$body" python3 - <<'PY'
+          import json, os, sys
+          try:
+              payload = json.loads(os.environ['BODY'])
+          except Exception:
+              sys.exit(1)
+          expected = os.environ['EXPECTED_SHA']
+          if payload.get('repository') != 'FedorMilovanov/Milovi_School':
+              sys.exit(1)
+          if payload.get('sha') != expected:
+              sys.exit(1)
+          PY
+            then
+              break
+            fi
+            if [ "$attempt" -eq 24 ]; then
+              echo "Live release witness did not reach $EXPECTED_SHA" >&2
+              exit 1
+            fi
+            sleep 10
+          done
+
+      - name: Smoke policy and error surfaces
+        run: |
+          set -euo pipefail
+          for path in / /privacy/ /editorial-policy/ /sources/ /corrections/; do
+            curl -fsS --connect-timeout 10 --max-time 20 "$LIVE_BASE$path" >/dev/null
+          done
+          status="$(curl -sS -o /tmp/not-found.html -w '%{http_code}' "$LIVE_BASE/__release-proof-missing-page__")"
+          test "$status" = "404"
+          grep -qi 'noindex, follow' /tmp/not-found.html
