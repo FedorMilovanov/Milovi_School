@@ -16,6 +16,14 @@ const hasMeta = (html, attribute, name, content) => {
   }
   return false
 }
+const isOwnershipProofHtml = (relative) => {
+  const filename = path.basename(relative).toLowerCase()
+  return (
+    /^google[a-z0-9_-]*\.html$/.test(filename) ||
+    /^yandex_[a-z0-9_-]*\.html$/.test(filename) ||
+    filename.includes('verification')
+  )
+}
 
 if (!fs.existsSync(root)) fail('dist is missing; run npm run build first')
 
@@ -80,6 +88,7 @@ const yandexId = (process.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
 const analyticsEnabled = Boolean(gaId || yandexId)
 for (const file of htmlFiles) {
   const relative = path.relative(root, file)
+  if (isOwnershipProofHtml(relative)) continue
   const text = fs.readFileSync(file, 'utf8')
   const hasLocalLoader = text.includes('/analytics-consent.js')
   if (analyticsEnabled && !hasLocalLoader) fail(`${relative}: configured analytics lacks local consent loader`)
