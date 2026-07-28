@@ -17,13 +17,17 @@
     try {
       var value = localStorage.getItem(STORAGE_KEY);
       return value === 'granted' || value === 'denied' ? value : null;
-    } catch (_) {
+    } catch {
       return null;
     }
   }
 
   function saveChoice(value) {
-    try { localStorage.setItem(STORAGE_KEY, value); } catch (_) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, value);
+    } catch {
+      // Storage can be unavailable in strict private browsing; the in-page choice still applies.
+    }
     choice = value;
   }
 
