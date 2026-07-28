@@ -108,19 +108,8 @@ jobs:
           set -euo pipefail
           for attempt in $(seq 1 24); do
             body="$(curl -fsS --connect-timeout 10 --max-time 20 "$LIVE_BASE/release.json?attempt=$attempt" || true)"
-            if BODY="$body" python3 - <<'PY'
-          import json, os, sys
-          try:
-              payload = json.loads(os.environ['BODY'])
-          except Exception:
-              sys.exit(1)
-          expected = os.environ['EXPECTED_SHA']
-          if payload.get('repository') != 'FedorMilovanov/Milovi_School':
-              sys.exit(1)
-          if payload.get('sha') != expected:
-              sys.exit(1)
-          PY
-            then
+            if BODY="$body" python3 -c 'import json,os,sys; p=json.loads(os.environ["BODY"]); sys.exit(0 if p.get("repository")=="FedorMilovanov/Milovi_School" and p.get("sha")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
+              echo "Live release witness matches $EXPECTED_SHA"
               break
             fi
             if [ "$attempt" -eq 24 ]; then
