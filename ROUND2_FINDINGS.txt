@@ -1,0 +1,234 @@
+=== BASELINE AND NPM AUDIT ===
+
+added 455 packages, and audited 456 packages in 5s
+
+123 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+> milovi-school@2.1.0 check
+> astro check
+
+[2m11:38:53[22m [34m[types][39m Generated [2m152ms[22m
+[2m11:38:53[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/Milovi_School/Milovi_School...
+Result (66 files): 
+- 0 errors
+- 0 warnings
+- 0 hints
+
+
+> milovi-school@2.1.0 lint
+> eslint .
+
+found 0 vulnerabilities
+
+=== SOURCE FINDINGS ===
+src/components/StatsBar.tsx:13: zero counter SSR: const [count, setCount] = useState(0)
+src/components/HomeApp.tsx:271: primary footer rendering: <Footer />
+src/layouts/BaseLayout.astro:193: global policy footer rendering: <PolicyFooter />
+src/pages/privacy.astro:31: unconditional privacy settings button: <button type="button" class="mt-4 rounded-full border border-amber-700 px-5 py-3 font-semibold text-amber-800 hover:bg-amber-50 dark:border-amber-400 dark:text-amber-300 dark:hover:bg-stone-900" onclick="window.MiloviSchoolConsent&&window.MiloviSchoolConsent.open()">Открыть настройки аналитики</button>
+src/components/Footer.tsx: missing trust link /privacy/
+src/components/Footer.tsx: missing trust link /editorial-policy/
+src/components/Footer.tsx: missing trust link /sources/
+src/components/Footer.tsx: missing trust link /corrections/
+
+=== UNPINNED ACTIONS ===
+
+=== CONFIGURED BUILD SSR SNAPSHOT ===
+
+> milovi-school@2.1.0 build
+> astro build
+
+[2m11:39:09[22m [34m[types][39m Generated [2m38ms[22m
+[2m11:39:09[22m [34m[build][39m output: [34m"static"[39m
+[2m11:39:09[22m [34m[build][39m mode: [34m"static"[39m
+[2m11:39:09[22m [34m[build][39m directory: [34m/home/runner/work/Milovi_School/Milovi_School/dist/[39m
+[2m11:39:09[22m [34m[build][39m Collecting build info...
+[2m11:39:09[22m [34m[build][39m [32m✓ Completed in 99ms.[39m
+[2m11:39:09[22m [34m[build][39m Building static entrypoints...
+[2m11:39:09[22m [34m[vite][39m [32m✓ built in 567ms[39m
+[2m11:39:10[22m [34m[vite][39m [32m✓ built in 205ms[39m
+[2m11:39:10[22m [34m[build][39m Rearranging server assets...
+
+[42m[30m generating static routes [39m[49m
+[2m11:39:10[22m   [34m├─[39m [2m/404.html[22m [2m(+16ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/about/index.html[22m [2m(+16ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-kouglof/index.html[22m [2m(+27ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tuiles-amandes/index.html[22m [2m(+12ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-marrons-glaces/index.html[22m [2m(+14ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tarte-tropezienne/index.html[22m [2m(+16ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-gaufres/index.html[22m [2m(+18ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-gateau-basque/index.html[22m [2m(+13ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-blanc-manger/index.html[22m [2m(+16ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-gougeres/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-beignets/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tarte-bourdaloue/index.html[22m [2m(+12ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tarte-normande/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-quatre-quarts/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tarte-au-sucre/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-charlotte-fraises/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-calisson/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-merveilleux/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-savarin/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-dacquoise/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-nougat-montelimar/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-sables-diamant/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-chou-chantilly/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-ile-flottante/index.html[22m [2m(+16ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-pain-au-chocolat/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-tarte-aux-pommes/index.html[22m [2m(+9ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-pain-perdu/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-mont-blanc/index.html[22m [2m(+12ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-chausson-aux-pommes/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-brioche/index.html[22m [2m(+9ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-fondant-chocolat/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-profiteroles/index.html[22m [2m(+11ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-buche-noel/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-mousse-au-chocolat/index.html[22m [2m(+9ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-palmiers/index.html[22m [2m(+10ms)[22m 
+[2m11:39:10[22m   [34m├─[39m [2m/articles/recipe-creme-caramel/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-croquembouche/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-financiers/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-flan-parisien/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-tarte-au-chocolat/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-saint-honore/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-crepes-suzette/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-millefeuille-inverser/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-baba-rhum-alain-ducasse/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-tarte-citron-grolet/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-opera-dalloyau/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-eclairs-adam/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-croissant-poilane/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-macarons-herme/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/chiffres-education-mof/index.html[22m [2m(+16ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/chiffres-luxury-desserts/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/chiffres-anatomie-gateau/index.html[22m [2m(+15ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-tarte-tatin/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-creme-brulee/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-clafoutis-cerises/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-souffle-chocolat/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-madeleines/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/chiffres-marche-15mlrd/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/chiffres-macarons-laduree-herme/index.html[22m [2m(+12ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/paciello-flan-parisien/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/felder-biscuit-joconde/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/felder-fraisier/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/heitzler-floral-palette/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/heitzler-less-sugar/index.html[22m [2m(+14ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/lignac-kouign-amann/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/lignac-far-breton/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/genin-ganache-craft/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/genin-caramel-philosophy/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/mercotte-entremets-system/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/mercotte-tarte-citron/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/financier-histoire/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/canele-bordeaux-histoire/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/carnaval-culinaire-histoire/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/histoire-tartes-francaises/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/buche-noel-histoire/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/opera-gateau-histoire/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/millefeuille-histoire/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/ansel-cronut-origin/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/paciello-cinqsens/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/felder-alsace/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/lignac-patisserie-shop/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/heitzler-seasonality/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/couvreur-millefeuille/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/michalak-religieuse/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/cuisine-brigade/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-creme-pat/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-feuilletage/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-paris-brest-classique/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/ansel-time/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/paciello-childhood/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/cuisine-sauces/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-tarte-citron-meringuee/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-mirror-glaze/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/mercotte-macarons/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/perret-madeleine-18h/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/mercotte-anglaise/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/lignac-equinoxe/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-choux/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/ansel-dka/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/grolet-raspberry-rose/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-glossary-cap/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/metayer-salt-fruit/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/metayer-secrets/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/crookie-conticini/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/conticini-praline/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/michalak-chocolate-salt/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/grolet-fruits-full/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/couvreur-biography/index.html[22m [2m(+25ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/herme-biography/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-canele/index.html[22m [2m(+13ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/felder-fundamentals/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/conticini-paris-brest/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/couvreur-full-course/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/metayer-biography/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/heitzler-ethical-pastry/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/perret-madeleine/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/perret-softness-volume/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/ansel-cronut/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/herme-ispahan-deep/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/michalak-biography/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/grolet-lemon-yuzu/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/paciello-praline-art/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-tempering-chocolate/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/adam-eclair/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-macaronage/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/recipe-pecan-chocolate-creme-brulee/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/cuisine-sauces-history/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/cuisine-galette/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-madeleine/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/michalak-fantastik/index.html[22m [2m(+9ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/perret-ritz-notebook/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/couvreur-canal-biography/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/conticini-paris-brest-iconic/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/eclair-histoire-complete/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/herme-architecture-taste/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/genin-millefeuille/index.html[22m [2m(+10ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/genin-autodidact/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-mousse-stability/index.html[22m [2m(+8ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/tech-sugar-work/index.html[22m [2m(+11ms)[22m 
+[2m11:39:11[22m   [34m├─[39m [2m/articles/metayer-world-best-2023/index.html[22m [2m(+9ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/cuisine-fond-brun/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/conticini-texture-first/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/tech-entremets-assembly/index.html[22m [2m(+9ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/kayser-sourdough-pastry/index.html[22m [2m(+10ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/tech-ganache-types/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/grolet-walnut/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/herme-fetish-flavors/index.html[22m [2m(+9ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/careme-first-celebrity-chef/index.html[22m [2m(+9ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/laduree-1862/index.html[22m [2m(+9ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/stohrer-1730/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/french-classics-origins/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/patissiers-guild-medieval/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/creme-brulee-dispute/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/paris-brest-race-dessert/index.html[22m [2m(+10ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/brillat-savarin/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/escoffier-biography/index.html[22m [2m(+8ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/articles/croissant-history/index.html[22m [2m(+10ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/corrections/index.html[22m [2m(+4ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/editorial-policy/index.html[22m [2m(+2ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/materials/index.html[22m [2m(+21ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/methodology/index.html[22m [2m(+4ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/privacy/index.html[22m [2m(+2ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/release.json[22m [2m(+2ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/sources/index.html[22m [2m(+2ms)[22m 
+[2m11:39:12[22m   [34m├─[39m [2m/index.html[22m [2m(+26ms)[22m 
+[2m11:39:12[22m [32m✓ Completed in 2.09s.
+[39m
+[2m11:39:12[22m [34m[build][39m [32m✓ Completed in 2.92s.[39m
+[2m11:39:12[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[milovi-image-sitemap] Added image metadata for 155 article URLs
+[milovi-sw-version] Cache bumped → vbeb45b22ecfc0d53
+[2m11:39:12[22m [34m[build][39m 164 page(s) built in [1m3.42s[22m
+[2m11:39:12[22m [34m[build][39m [1mComplete![22m
+footer_count= 2
+stats_labels= ['Открыть поиск', 'Переключить на светлую тему', 'Открыть меню', 'Французская', 'Pâtisserie', '0', '0', '0', '0%', 'Архив по темам', 'Шефы &amp; Мастера', 'Техники', 'Рецепты', 'Сладкие цифры Франции', 'Шефы, техники, кухня, статистика', 'Поиск по архиву материалов', 'Основная навигация', 'Домой', 'Архив', 'Статьи']
+/privacy/ = True
+/editorial-policy/ = True
+/sources/ = True
+/corrections/ = True
+privacy_button= True
