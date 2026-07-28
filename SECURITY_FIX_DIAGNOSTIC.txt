@@ -1,5 +1,7 @@
-npm error code ETARGET
-npm error notarget No matching version found for @eslint/js@10.8.0.
-npm error notarget In most cases you or one of your dependencies are requesting
-npm error notarget a package version that doesn't exist.
-npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-07-28T02_14_15_711Z-debug-0.log
+
+added 4 packages, changed 29 packages, and audited 454 packages in 2s
+
+121 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities

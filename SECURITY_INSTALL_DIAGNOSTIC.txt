@@ -1,10 +1,10 @@
 
-added 20 packages, removed 89 packages, changed 53 packages, and audited 451 packages in 11s
+added 20 packages, removed 88 packages, changed 55 packages, and audited 452 packages in 9s
 
-121 packages are looking for funding
+123 packages are looking for funding
   run `npm fund` for details
 
-5 vulnerabilities (1 low, 4 high)
+4 vulnerabilities (1 low, 3 high)
 
 To address all issues, run:
   npm audit fix
