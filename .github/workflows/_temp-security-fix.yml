@@ -1,0 +1,47 @@
+name: One-shot security dependency fix
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_temp-security-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.head_ref == 'feat/trust-consent-release-marathon'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: feat/trust-consent-release-marathon
+          fetch-depth: 0
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Upgrade patched Astro line and repair transitive advisories
+        run: |
+          npm install --save-dev --save-exact astro@6.4.8
+          npm audit fix
+          npm audit --audit-level=high
+          npm run check
+          npm run lint
+          git diff --check
+
+      - name: Commit audited lockfile and remove diagnostics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/_temp-security-fix.yml
+          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt
+          git add package.json package-lock.json
+          git add -u
+          git commit -m "fix(security): upgrade Astro and patched transitive graph"
+          git push origin HEAD:feat/trust-consent-release-marathon
