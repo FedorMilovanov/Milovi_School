@@ -1,0 +1,53 @@
+name: Temporary School live release probe
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_temp-live-release-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      LIVE_BASE: https://french.milovicake.ru
+      EXPECTED_SHA: 0f7b844b026735beb9cb6f2d86bfa04e5a4a5564
+    steps:
+      - name: Prove exact release witness
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            body="$(curl -fsS --connect-timeout 10 --max-time 20 "$LIVE_BASE/release.json?probe=$attempt" || true)"
+            echo "attempt=$attempt body=$body"
+            if BODY="$body" python3 -c 'import json,os,sys; p=json.loads(os.environ["BODY"]); sys.exit(0 if p.get("repository")=="FedorMilovanov/Milovi_School" and p.get("sha")==os.environ["EXPECTED_SHA"] else 1)' 2>/dev/null; then
+              echo "Exact live release proven: $EXPECTED_SHA"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Live release witness did not reach $EXPECTED_SHA" >&2
+          exit 1
+
+      - name: Smoke policy surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in / /privacy/ /editorial-policy/ /sources/ /corrections/; do
+            status="$(curl -sS -o /tmp/page.html -w '%{http_code}' --connect-timeout 10 --max-time 20 "$LIVE_BASE$path")"
+            echo "$path -> $status"
+            test "$status" = "200"
+          done
+
+      - name: Prove true 404 contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl -sS -o /tmp/not-found.html -w '%{http_code}' --connect-timeout 10 --max-time 20 "$LIVE_BASE/__release-proof-missing-page__?probe=${GITHUB_RUN_ID}")"
+          echo "missing page -> $status"
+          test "$status" = "404"
+          grep -Eqi '<meta[^>]+name=["'"']robots["'"'][^>]+content=["'"']noindex, follow["'"']|<meta[^>]+content=["'"']noindex, follow["'"'][^>]+name=["'"']robots["'"']' /tmp/not-found.html
