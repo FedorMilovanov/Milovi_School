@@ -5,6 +5,17 @@ const root = path.resolve('dist')
 const failures = []
 const fail = (message) => failures.push(message)
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8')
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const hasMeta = (html, attribute, name, content) => {
+  const tagPattern = /<meta\b[^>]*>/gi
+  for (const match of html.matchAll(tagPattern)) {
+    const tag = match[0]
+    const namePattern = new RegExp(`\\b${escapeRegExp(attribute)}=["']${escapeRegExp(name)}["']`, 'i')
+    const contentPattern = new RegExp(`\\bcontent=["']${escapeRegExp(content)}["']`, 'i')
+    if (namePattern.test(tag) && contentPattern.test(tag)) return true
+  }
+  return false
+}
 
 if (!fs.existsSync(root)) fail('dist is missing; run npm run build first')
 
@@ -49,7 +60,7 @@ if (fs.existsSync(path.join(root, '404.html'))) {
   const notFound = read('404.html')
   if (/<link\s+rel=["']canonical["']/i.test(notFound)) fail('404.html must not emit canonical')
   if (/<meta\s+property=["']og:url["']/i.test(notFound)) fail('404.html must not emit og:url')
-  if (!/<meta\s+name=["']robots["']\s+content=["']noindex, follow["']/i.test(notFound)) {
+  if (!hasMeta(notFound, 'name', 'robots', 'noindex, follow')) {
     fail('404.html must remain noindex, follow')
   }
 }
@@ -84,7 +95,7 @@ if (fs.existsSync(path.join(root, 'index.html'))) {
   const home = read('index.html')
   for (const [envName, metaName] of verification) {
     const value = (process.env[envName] ?? '').trim()
-    if (value && !home.includes(`name="${metaName}" content="${value}"`)) {
+    if (value && !hasMeta(home, 'name', metaName, value)) {
       fail(`configured verification token was not rendered: ${envName}`)
     }
   }
