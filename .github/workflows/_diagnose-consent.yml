@@ -1,0 +1,154 @@
+name: Temporary consent diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_diagnose-consent.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+      PUBLIC_GOOGLE_SITE_VERIFICATION: diagnostic-google
+      PUBLIC_YANDEX_SITE_VERIFICATION: diagnostic-yandex
+      PUBLIC_BING_SITE_VERIFICATION: diagnostic-bing
+      PUBLIC_GA_ID: G-DIAGNOSTIC
+      PUBLIC_YANDEX_METRIKA_ID: '12345678'
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Build configured candidate
+        run: |
+          npm ci --silent
+          npx playwright install --with-deps chromium >/dev/null
+          npm run build >/dev/null
+          nohup python3 -m http.server 4174 --directory dist >/tmp/school-diagnostic-server.log 2>&1 &
+          echo $! >/tmp/school-diagnostic-server.pid
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/school-diagnostic-server.log
+          exit 1
+
+      - name: Contract A — nothing before consent
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ serviceWorkers: 'block' })
+            const page = await context.newPage()
+            const requests = []
+            page.on('request', r => { if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(r.url())) requests.push(r.url()) })
+            await page.goto('http://127.0.0.1:4174/?diagnostic=before', { waitUntil: 'domcontentloaded' })
+            await page.waitForTimeout(700)
+            const state = await page.evaluate(() => ({
+              panels: document.querySelectorAll('.prs-consent').length,
+              directScripts: [...document.scripts].filter(s => /googletagmanager\.com|mc\.yandex\.ru/i.test(s.src)).length,
+              footerCount: document.querySelectorAll('footer').length,
+              links: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
+              stats: [...document.querySelectorAll('#stats .stat-num')].map(node => ({ target: Number(node.dataset.statTarget), aria: node.getAttribute('aria-label') })),
+            }))
+            console.log(JSON.stringify({ requests, state }, null, 2))
+            if (requests.length) throw new Error('analytics requested before consent')
+            if (state.panels !== 1) throw new Error(`expected one panel, got ${state.panels}`)
+            if (state.directScripts) throw new Error('direct analytics scripts exist before consent')
+            if (state.footerCount !== 1) throw new Error(`expected one footer, got ${state.footerCount}`)
+            if (!state.links.every(Boolean)) throw new Error(`trust links incomplete: ${state.links}`)
+            if (state.stats.length !== 4 || state.stats.some(s => s.target <= 0 || Number((s.aria || '').replace('%', '')) <= 0)) throw new Error(`stats invalid: ${JSON.stringify(state.stats)}`)
+            await browser.close()
+          })().catch(error => { console.error(error); process.exit(1) })
+          JS
+
+      - name: Contract B — denial remains silent
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ serviceWorkers: 'block' })
+            const page = await context.newPage()
+            const requests = []
+            page.on('request', r => { if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(r.url())) requests.push(r.url()) })
+            await page.goto('http://127.0.0.1:4174/?diagnostic=deny', { waitUntil: 'domcontentloaded' })
+            await page.locator('.prs-consent__deny').click()
+            await page.waitForTimeout(400)
+            const state = await page.evaluate(() => ({
+              choice: localStorage.getItem('milovi_school_analytics_consent_v1'),
+              settings: Boolean(document.querySelector('.prs-consent-settings')),
+              panelHidden: Boolean(document.querySelector('.prs-consent')?.hidden),
+            }))
+            console.log(JSON.stringify({ requests, state }, null, 2))
+            if (requests.length) throw new Error('analytics requested after denial')
+            if (state.choice !== 'denied') throw new Error(`denial not persisted: ${state.choice}`)
+            if (!state.settings || !state.panelHidden) throw new Error(`denial UI invalid: ${JSON.stringify(state)}`)
+            await browser.close()
+          })().catch(error => { console.error(error); process.exit(1) })
+          JS
+
+      - name: Contract C — allow attaches both counters
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ serviceWorkers: 'block' })
+            const page = await context.newPage()
+            await page.goto('http://127.0.0.1:4174/?diagnostic=allow', { waitUntil: 'domcontentloaded' })
+            await page.locator('.prs-consent__allow').click()
+            await page.waitForTimeout(400)
+            const state = await page.evaluate(() => ({
+              choice: localStorage.getItem('milovi_school_analytics_consent_v1'),
+              ga: Boolean(document.querySelector('script[data-prs-ga]')),
+              ym: Boolean(document.querySelector('script[data-prs-ym]')),
+              settings: Boolean(document.querySelector('.prs-consent-settings')),
+              panelHidden: Boolean(document.querySelector('.prs-consent')?.hidden),
+            }))
+            console.log(JSON.stringify(state, null, 2))
+            if (state.choice !== 'granted') throw new Error(`grant not persisted: ${state.choice}`)
+            if (!state.ga || !state.ym || !state.settings || !state.panelHidden) throw new Error(`grant UI/runtime invalid: ${JSON.stringify(state)}`)
+            await browser.close()
+          })().catch(error => { console.error(error); process.exit(1) })
+          JS
+
+      - name: Contract D — privacy page reopens settings
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ serviceWorkers: 'block' })
+            await context.addInitScript(() => localStorage.setItem('milovi_school_analytics_consent_v1', 'denied'))
+            const page = await context.newPage()
+            await page.goto('http://127.0.0.1:4174/privacy/?diagnostic=reopen', { waitUntil: 'domcontentloaded' })
+            const control = page.getByRole('button', { name: 'Открыть настройки аналитики' })
+            const before = await page.evaluate(() => ({ api: typeof window.MiloviSchoolConsent?.open === 'function', panels: document.querySelectorAll('.prs-consent').length }))
+            console.log(JSON.stringify({ before, controlCount: await control.count() }, null, 2))
+            if (await control.count() !== 1) throw new Error('privacy page settings control missing')
+            if (!before.api || before.panels !== 1) throw new Error(`consent API unavailable: ${JSON.stringify(before)}`)
+            await control.click()
+            if (!await page.locator('.prs-consent').isVisible()) throw new Error('privacy control did not reopen panel')
+            await browser.close()
+          })().catch(error => { console.error(error); process.exit(1) })
+          JS
+
+      - name: Stop diagnostic server
+        if: always()
+        run: kill "$(cat /tmp/school-diagnostic-server.pid)" 2>/dev/null || true
