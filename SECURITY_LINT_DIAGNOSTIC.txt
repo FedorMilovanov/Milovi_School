@@ -1,0 +1,4 @@
+
+> milovi-school@2.1.0 lint
+> eslint .
+

@@ -1,21 +1,10 @@
 
-changed 29 packages, and audited 626 packages in 8s
+added 4 packages, changed 32 packages, and audited 575 packages in 5s
 
-266 packages are looking for funding
+201 packages are looking for funding
   run `npm fund` for details
 
 # npm audit report
-
-astro  <=7.0.9
-Severity: high
-Astro: Reflected XSS via unescaped View Transition animation properties - https://github.com/advisories/GHSA-4g3v-8h47-v7g6
-Astro: XSS via unescaped spread attribute names in renderHTMLElement (incomplete fix for CVE-2026-54298) - https://github.com/advisories/GHSA-f48w-9m4c-m7f5
-Astro: Cross-site scripting via unescaped transition:* directive values on hydrated islands - https://github.com/advisories/GHSA-7pw4-f3q4-r2p2
-Depends on vulnerable versions of esbuild
-Depends on vulnerable versions of sharp
-fix available via `npm audit fix --force`
-Will install astro@7.1.4, which is a breaking change
-node_modules/astro
 
 brace-expansion  <=5.0.7
 Severity: high
@@ -41,20 +30,7 @@ node_modules/brace-expansion
     Depends on vulnerable versions of minimatch
     node_modules/eslint-plugin-jsx-a11y
 
-esbuild  0.27.3 - 0.28.0
-esbuild allows arbitrary file read when running the development server on Windows - https://github.com/advisories/GHSA-g7r4-m6w7-qqqr
-fix available via `npm audit fix --force`
-Will install astro@7.1.4, which is a breaking change
-node_modules/esbuild
-
-sharp  <0.35.0
-Severity: high
-sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591 - https://github.com/advisories/GHSA-f88m-g3jw-g9cj
-fix available via `npm audit fix --force`
-Will install astro@7.1.4, which is a breaking change
-node_modules/sharp
-
-9 vulnerabilities (1 low, 8 high)
+6 high severity vulnerabilities
 
 To address all issues (including breaking changes), run:
   npm audit fix --force
