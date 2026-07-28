@@ -39,52 +39,59 @@ jobs:
           node <<'JS'
           const fs = require('fs')
           const { chromium } = require('playwright')
+          const output = { phase: 'start', requests: [], errors: [] }
+          const flush = () => fs.writeFileSync('consent-diagnostic.json', JSON.stringify(output, null, 2))
+          process.on('uncaughtException', error => { output.errors.push(`uncaughtException: ${error.stack || error}`); flush(); process.exit(0) })
+          process.on('unhandledRejection', error => { output.errors.push(`unhandledRejection: ${error && error.stack || error}`); flush(); process.exit(0) })
+          flush()
           ;(async () => {
             const browser = await chromium.launch({ headless: true })
             const context = await browser.newContext({ serviceWorkers: 'block' })
             const page = await context.newPage()
-            const requests = []
             page.on('request', request => {
-              if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(request.url())) {
-                requests.push({
-                  url: request.url(),
-                  method: request.method(),
-                  resourceType: request.resourceType(),
-                })
+              try {
+                const url = request.url()
+                if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(url)) {
+                  output.requests.push(url)
+                  flush()
+                }
+              } catch (error) {
+                output.errors.push(`request-listener: ${error && error.stack || error}`)
+                flush()
               }
             })
-            await page.goto('http://127.0.0.1:4174/?artifact=3', { waitUntil: 'domcontentloaded' })
-            const immediately = await page.evaluate(() => ({
+            output.phase = 'before-navigation'
+            flush()
+            await page.goto('http://127.0.0.1:4174/?artifact=4', { waitUntil: 'domcontentloaded' })
+            output.phase = 'after-navigation'
+            output.immediately = await page.evaluate(() => ({
               href: location.href,
-              localStorageLength: localStorage.length,
-              keys: Object.keys(localStorage),
               stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
               apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
               config: window.__MILOVI_SCHOOL_ANALYTICS__ ?? null,
-              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null, outerHTML: script.outerHTML })),
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
               links: [...document.querySelectorAll('link[href]')].map(link => ({ rel: link.rel, href: link.href })).filter(item => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(item.href)),
               panelCount: document.querySelectorAll('.prs-consent').length,
               panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
               dataLayer: Array.isArray(window.dataLayer) ? window.dataLayer : null,
             }))
+            flush()
             await page.waitForTimeout(1000)
-            const afterDelay = await page.evaluate(() => ({
-              localStorageLength: localStorage.length,
-              keys: Object.keys(localStorage),
+            output.phase = 'after-delay'
+            output.afterDelay = await page.evaluate(() => ({
               stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
               apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
-              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null, outerHTML: script.outerHTML })),
-              links: [...document.querySelectorAll('link[href]')].map(link => ({ rel: link.rel, href: link.href })).filter(item => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(item.href)),
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
               panelCount: document.querySelectorAll('.prs-consent').length,
               panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
               dataLayer: Array.isArray(window.dataLayer) ? window.dataLayer : null,
               resources: performance.getEntriesByType('resource').map(entry => entry.name).filter(name => /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(name)),
             }))
-            fs.writeFileSync('consent-diagnostic.json', JSON.stringify({ immediately, afterDelay, requests }, null, 2))
+            flush()
             await browser.close()
           })().catch(error => {
-            fs.writeFileSync('consent-diagnostic-error.txt', String(error && error.stack || error))
-            process.exit(1)
+            output.errors.push(`caught: ${error && error.stack || error}`)
+            flush()
           })
           JS
       - name: Upload diagnostic
@@ -94,7 +101,6 @@ jobs:
           name: consent-diagnostic-${{ github.run_id }}
           path: |
             consent-diagnostic.json
-            consent-diagnostic-error.txt
             /tmp/consent-artifact-server.log
           if-no-files-found: warn
           retention-days: 1
