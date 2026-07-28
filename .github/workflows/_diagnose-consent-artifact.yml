@@ -1,0 +1,99 @@
+name: Temporary consent state artifact
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_diagnose-consent-artifact.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+      PUBLIC_GA_ID: G-DIAGNOSTIC
+      PUBLIC_YANDEX_METRIKA_ID: '12345678'
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+      - name: Build and capture
+        run: |
+          npm ci --silent
+          npx playwright install --with-deps chromium >/dev/null
+          npm run build >/dev/null
+          nohup python3 -m http.server 4174 --directory dist >/tmp/consent-artifact-server.log 2>&1 &
+          echo $! >/tmp/consent-artifact-server.pid
+          for attempt in $(seq 1 20); do curl -fsS http://127.0.0.1:4174/ >/dev/null && break; sleep 1; done
+          node <<'JS'
+          const fs = require('fs')
+          const { chromium } = require('playwright')
+          ;(async () => {
+            const browser = await chromium.launch({ headless: true })
+            const context = await browser.newContext({ serviceWorkers: 'block' })
+            const page = await context.newPage()
+            const requests = []
+            page.on('request', request => {
+              if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(request.url())) {
+                requests.push({ url: request.url(), resourceType: request.resourceType(), initiator: request.frame()?.url() || null })
+              }
+            })
+            const beforeNavigation = await page.evaluate(() => ({
+              href: location.href,
+              localStorageLength: localStorage.length,
+              stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
+            }))
+            await page.goto('http://127.0.0.1:4174/?artifact=1', { waitUntil: 'domcontentloaded' })
+            const immediately = await page.evaluate(() => ({
+              href: location.href,
+              localStorageLength: localStorage.length,
+              keys: Object.keys(localStorage),
+              stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
+              apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
+              config: window.__MILOVI_SCHOOL_ANALYTICS__ ?? null,
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
+              panelCount: document.querySelectorAll('.prs-consent').length,
+              panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
+            }))
+            await page.waitForTimeout(1000)
+            const afterDelay = await page.evaluate(() => ({
+              localStorageLength: localStorage.length,
+              keys: Object.keys(localStorage),
+              stored: localStorage.getItem('milovi_school_analytics_consent_v1'),
+              apiChoice: window.MiloviSchoolConsent?.getChoice?.() ?? null,
+              scripts: [...document.scripts].map(script => ({ src: script.src, prsGa: script.dataset.prsGa || null, prsYm: script.dataset.prsYm || null })),
+              panelCount: document.querySelectorAll('.prs-consent').length,
+              panelVisible: Boolean(document.querySelector('.prs-consent') && !document.querySelector('.prs-consent').hidden),
+            }))
+            fs.writeFileSync('consent-diagnostic.json', JSON.stringify({ beforeNavigation, immediately, afterDelay, requests }, null, 2))
+            await browser.close()
+          })().catch(error => {
+            fs.writeFileSync('consent-diagnostic-error.txt', String(error && error.stack || error))
+            process.exit(1)
+          })
+          JS
+      - name: Upload diagnostic
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: consent-diagnostic-${{ github.run_id }}
+          path: |
+            consent-diagnostic.json
+            consent-diagnostic-error.txt
+            /tmp/consent-artifact-server.log
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Stop server
+        if: always()
+        run: kill "$(cat /tmp/consent-artifact-server.pid)" 2>/dev/null || true
