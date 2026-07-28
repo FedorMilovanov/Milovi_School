@@ -18,10 +18,13 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - name: Checkout exact source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
       - name: Setup pinned Node
@@ -36,19 +39,50 @@ jobs:
       - name: Install generated-site audit dependencies
         run: python3 -m pip install --user pillow beautifulsoup4
 
-      - name: Validate analytics-disabled build
-        run: npm run validate
-        env:
-          PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Type-check
+        run: npm run check
 
-      - name: Validate configured verification and consent build
+      - name: Lint
+        run: npm run lint
+
+      - name: Audit content
+        run: npm run audit:content
+
+      - name: Audit dependencies at high severity
+        run: npm run audit:security
+
+      - name: Build analytics-disabled candidate
+        run: npm run build
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+
+      - name: Audit analytics-disabled generated site
+        run: npm run audit:site
+
+      - name: Verify analytics-disabled trust contract
+        run: npm run audit:privacy
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+
+      - name: Build configured verification and consent candidate
         run: |
           rm -rf dist
           npm run build
-          npm run audit:site
-          npm run audit:privacy
         env:
-          PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ci-google-token
+          PUBLIC_YANDEX_SITE_VERIFICATION: ci-yandex-token
+          PUBLIC_BING_SITE_VERIFICATION: ci-bing-token
+          PUBLIC_GA_ID: G-CONSENTTEST
+          PUBLIC_YANDEX_METRIKA_ID: '12345678'
+
+      - name: Audit configured generated site
+        run: npm run audit:site
+
+      - name: Verify configured ownership and consent contract
+        run: npm run audit:privacy
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
           PUBLIC_GOOGLE_SITE_VERIFICATION: ci-google-token
           PUBLIC_YANDEX_SITE_VERIFICATION: ci-yandex-token
           PUBLIC_BING_SITE_VERIFICATION: ci-bing-token
