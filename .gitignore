@@ -27,8 +27,14 @@ npm-debug.log*
 # Type checking
 *.tsbuildinfo
 
-# Generated audit reports
+# Python tooling
+__pycache__/
+*.py[cod]
+
+# Generated audit reports and temporary diagnostics
 audit/
+*_DIAGNOSTIC.txt
+*_DIAGNOSTIC.json
 
 # Local/tooling noise — do not commit
 .config/

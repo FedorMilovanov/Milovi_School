@@ -1,6 +1,5 @@
 import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
-import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
 import { defineConfig } from 'eslint/config'
 
@@ -10,12 +9,18 @@ const browserGlobals = {
   navigator: 'readonly',
   localStorage: 'readonly',
   sessionStorage: 'readonly',
+  location: 'readonly',
   crypto: 'readonly',
   URL: 'readonly',
   Response: 'readonly',
   fetch: 'readonly',
   requestAnimationFrame: 'readonly',
   cancelAnimationFrame: 'readonly',
+  setTimeout: 'readonly',
+  clearTimeout: 'readonly',
+  encodeURIComponent: 'readonly',
+  Date: 'readonly',
+  Number: 'readonly',
   performance: 'readonly',
   IntersectionObserver: 'readonly',
   HTMLElement: 'readonly',
@@ -56,11 +61,9 @@ export default defineConfig([
     files: ['src/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
-      'jsx-a11y': jsxA11y,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      ...jsxA11y.configs.recommended.rules,
       'react-hooks/set-state-in-effect': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
@@ -72,6 +75,16 @@ export default defineConfig([
         ...browserGlobals,
         self: 'readonly',
         caches: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['public/analytics-consent.js'],
+    languageOptions: {
+      globals: browserGlobals,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script',
       },
     },
   },

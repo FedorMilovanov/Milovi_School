@@ -1,11 +1,15 @@
 ---
 import '../styles/global.css'
+import PolicyFooter from '../components/PolicyFooter.astro'
+import AnalyticsConsent from '../components/AnalyticsConsent.astro'
 
 interface Props {
   title?: string
   description?: string
   image?: string
   canonicalUrl?: string
+  /** 404 and other error documents must not claim a canonical URL. */
+  noCanonical?: boolean
   /** Robots meta. 404 and other utility pages can pass 'noindex, follow'. */
   robots?: string
   /** 'website' for home, 'article' for article pages */
@@ -21,11 +25,13 @@ interface Props {
   articleTags?: string[]
 }
 
+const siteUrl = 'https://french.milovicake.ru'
 const {
   title = 'Patisserie Russe — Французская кондитерская школа',
   description = 'Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, разборы, рецепты.',
   image = '/images/premium-hero.jpg',
-  canonicalUrl = 'https://french.milovicake.ru/',
+  canonicalUrl = new URL(Astro.url.pathname, siteUrl).href,
+  noCanonical = false,
   robots = 'index, follow',
   ogType = 'website',
   ogImageWidth,
@@ -37,7 +43,9 @@ const {
   articleTags,
 } = Astro.props
 
-const siteUrl = 'https://french.milovicake.ru'
+const googleVerification = (import.meta.env.PUBLIC_GOOGLE_SITE_VERIFICATION ?? '').trim()
+const yandexVerification = (import.meta.env.PUBLIC_YANDEX_SITE_VERIFICATION ?? '').trim()
+const bingVerification = (import.meta.env.PUBLIC_BING_SITE_VERIFICATION ?? '').trim()
 
 // Normalise image: plain string, Vite-resolved path string, or Astro ImageMetadata
 const rawImage: string =
@@ -67,12 +75,17 @@ const metaDescription =
     <!-- Primary SEO -->
     <title>{title}</title>
     <meta name="description" content={metaDescription} />
-    <link rel="canonical" href={canonicalUrl} />
+    {!noCanonical && <link rel="canonical" href={canonicalUrl} />}
     {articleAuthor && <meta name="author" content={articleAuthor} />}
 
-    <!-- Language targeting (hreflang) -->
-    <link rel="alternate" hreflang="ru" href={canonicalUrl} />
-    <link rel="alternate" hreflang="x-default" href={canonicalUrl} />
+    <!-- Search-engine ownership. Values are optional repository variables at build time. -->
+    {googleVerification && <meta name="google-site-verification" content={googleVerification} />}
+    {yandexVerification && <meta name="yandex-verification" content={yandexVerification} />}
+    {bingVerification && <meta name="msvalidate.01" content={bingVerification} />}
+
+    <!-- Language targeting -->
+    {!noCanonical && <link rel="alternate" hreflang="ru" href={canonicalUrl} />}
+    {!noCanonical && <link rel="alternate" hreflang="x-default" href={canonicalUrl} />}
 
     <!-- Open Graph -->
     <meta property="og:type" content={ogType} />
@@ -82,7 +95,7 @@ const metaDescription =
     <meta property="og:image:alt" content={title} />
     {ogImageWidth && <meta property="og:image:width" content={String(ogImageWidth)} />}
     {ogImageHeight && <meta property="og:image:height" content={String(ogImageHeight)} />}
-    <meta property="og:url" content={canonicalUrl} />
+    {!noCanonical && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:site_name" content="Patisserie Russe" />
     <meta property="og:locale" content="ru_RU" />
     {ogType === 'article' && articlePublishedTime && (
@@ -114,40 +127,16 @@ const metaDescription =
     <!-- Robots -->
     <meta name="robots" content={robots} />
 
-    <!--
-      Theme colour — single dynamic <meta>. Static media-query variants
-      were ignored by Chrome on Android when the user manually toggled
-      the theme via JS. We expose ONE meta and update it from the
-      pre-paint inline script below + on every theme change in React.
-    -->
     <meta id="theme-color-meta" name="theme-color" content="#10100f" />
 
-    <!-- Favicon — relative paths only (absolute URLs break on localhost) -->
+    <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-
-    <!--
-      Native MPA navigation only.
-      Astro ClientRouter/View Transitions were removed because transitions from
-      the interactive home page to article pages could keep the heavy home
-      island/cursor alive during fetch+hydrate and cause visible freezes.
-    -->
-
-    <!-- PWA manifest -->
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Google Search Console verification slot -->
-    <slot name="google-verification" />
-
-    <!--
-      Font loading strategy:
-      1. preconnect — open the TLS handshake early
-      2. preload the critical CSS file so the parser doesn't wait for the
-         <link rel="stylesheet"> further down to discover it
-      3. actual stylesheet still loads non-blocking via the regular link
-    -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -160,17 +149,7 @@ const metaDescription =
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
     />
 
-    <!--
-      Theme — apply BEFORE first paint to prevent flash of unstyled content (FOUC).
-      Sets <html class="dark"> and updates the single theme-color <meta> in one
-      pass so Android Chrome shows the right system bar even on first paint.
-
-      ⚠ CSP note: if you ever add a Content-Security-Policy header with
-        `script-src 'self'`, this inline script will be blocked. Fix by either:
-          a) whitelisting it with its SHA-256 hash:
-             `script-src 'self' 'sha256-<hash>'`
-          b) replacing it with a `<script src="/theme-init.js">` from /public
-    -->
+    <!-- Apply theme before first paint. -->
     <script is:inline>
       (function () {
         var THEME_LIGHT = '#f5efe5'
@@ -208,21 +187,13 @@ const metaDescription =
     <slot name="head" />
   </head>
   <body>
-    <!--
-      Skip-to-content link — keyboard / screen-reader users can jump past
-      the sticky header straight to the article body. Only visible on
-      :focus, has a generous gold focus ring matching the brand.
-    -->
     <a href="#main-content" class="skip-to-content">Перейти к содержимому</a>
 
     <slot />
+    <PolicyFooter />
+    <AnalyticsConsent />
 
-    <!--
-      Service-worker registration.
-      • Skipped in dev (no real build hash → cache key is the literal
-        "__BUILD_HASH__" placeholder, which would never invalidate).
-      • Production: register on load, ignore failures (e.g. private mode).
-    -->
+    <!-- Service worker is skipped in local development. -->
     <script>
       if ('serviceWorker' in navigator) {
         var host = location.hostname

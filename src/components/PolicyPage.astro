@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+
+interface Props {
+  title: string
+  description: string
+  updatedAt: string
+}
+
+const { title, description, updatedAt } = Astro.props
+---
+
+<BaseLayout title={`${title} — Patisserie Russe`} description={description}>
+  <main id="main-content" class="mx-auto min-h-[70vh] max-w-4xl px-6 py-14 sm:py-20">
+    <a href="/" class="font-mono text-xs uppercase tracking-[0.18em] text-amber-700 underline decoration-amber-300 underline-offset-4 hover:text-stone-950 dark:text-amber-400 dark:decoration-amber-900 dark:hover:text-stone-100">← На главную</a>
+    <header class="mt-8 border-b border-stone-200 pb-8 dark:border-stone-800">
+      <h1 class="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-6xl">{title}</h1>
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-stone-600 dark:text-stone-400">{description}</p>
+      <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-stone-500">Обновлено: {updatedAt}</p>
+    </header>
+    <article class="policy-copy mt-10 space-y-8 text-base leading-8 text-stone-700 dark:text-stone-300">
+      <slot />
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .policy-copy :global(h2){margin-top:2.5rem;font-family:Georgia,serif;font-size:1.75rem;line-height:1.2;font-weight:600;letter-spacing:-.02em;color:rgb(28 25 23)}
+  .policy-copy :global(h3){margin-top:2rem;font-size:1.15rem;font-weight:700;color:rgb(28 25 23)}
+  .policy-copy :global(p){margin-top:.75rem}
+  .policy-copy :global(ul),.policy-copy :global(ol){margin-top:.75rem;padding-left:1.4rem}
+  .policy-copy :global(li){margin-top:.4rem}
+  .policy-copy :global(a){color:rgb(180 83 9);text-decoration:underline;text-underline-offset:4px}
+  @media (prefers-color-scheme:dark){.policy-copy :global(h2),.policy-copy :global(h3){color:rgb(245 245 244)}}
+</style>

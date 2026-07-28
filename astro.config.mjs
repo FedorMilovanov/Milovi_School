@@ -86,12 +86,8 @@ function enhanceImageSitemap() {
 
         const imageByLoc = new Map()
         const articlesDir = path.join(dist, 'articles')
-        let articleIds = []
-        try {
-          articleIds = await fs.readdir(articlesDir)
-        } catch (_) {
-          return
-        }
+        const articleIds = await fs.readdir(articlesDir).catch(() => null)
+        if (!articleIds) return
 
         for (const id of articleIds) {
           const html = await readText(path.join(articlesDir, id, 'index.html'))

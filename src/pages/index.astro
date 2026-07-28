@@ -4,7 +4,7 @@
  *
  * Renders HomeApp as a React client island.
  * Passes only article METADATA (no content) to the browser.
- * deepContents.ts (951 KB) is used only at build time and never shipped.
+ * deepContents.ts is used only at build time and never shipped.
  */
 import BaseLayout from '../layouts/BaseLayout.astro'
 import HomeApp from '../components/HomeApp'
@@ -12,10 +12,10 @@ import { libraryClientMeta } from '../data/library'
 
 const siteUrl = 'https://french.milovicake.ru'
 
-// JSON-LD: Organization — sameAs links help Google build the Knowledge Graph entity
 const jsonLdOrg = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': `${siteUrl}/#organization`,
   name: 'Patisserie Russe / Milovi School',
   url: siteUrl,
   logo: {
@@ -33,22 +33,16 @@ const jsonLdOrg = {
   sameAs: ['https://milovicake.ru'],
 }
 
-// JSON-LD: WebSite with SearchAction for Google Sitelinks Searchbox
 const jsonLdWebSite = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${siteUrl}/#website`,
   name: 'Patisserie Russe',
   url: siteUrl,
   inLanguage: 'ru',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: `${siteUrl}/?q={search_term_string}`,
-    },
-    'query-input': 'required name=search_term_string',
-  },
+  publisher: { '@id': `${siteUrl}/#organization` },
 }
+
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
@@ -61,15 +55,8 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <!-- JSON-LD: Organization -->
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdOrg)} slot="head" />
-  <!-- JSON-LD: WebSite + SearchAction -->
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdWebSite)} slot="head" />
 
-  <!--
-    client:load — гидратируется сразу при загрузке страницы.
-    articles содержит только метаданные: id, title, excerpt, category, author,
-    readTime, image, tags. Контент статей НЕ передаётся на главную страницу.
-  -->
   <HomeApp articles={libraryClientMeta} client:load />
 </BaseLayout>
