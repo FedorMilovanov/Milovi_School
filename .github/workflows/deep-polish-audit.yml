@@ -36,44 +36,40 @@ jobs:
           python3 -m pip install --user pillow beautifulsoup4
           npx playwright install --with-deps chromium
 
-      - name: Run baseline source validation
+      - name: Run focused source guards
+        shell: bash
         run: |
           npm run check
           npm run lint
           npm run audit:content
           npm run audit:security
-
-      - name: Audit source details missed by the first release pass
-        shell: bash
-        run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
 
-          root = Path('.')
           findings = []
-          stats = (root / 'src/components/StatsBar.tsx').read_text('utf-8')
+          stats = Path('src/components/StatsBar.tsx').read_text('utf-8')
           if 'useState(0)' in stats:
-              findings.append('StatsBar SSR starts counters at zero')
+              findings.append('StatsBar SSR starts at zero')
           for marker in ('data-stat-label', 'data-stat-target'):
               if marker not in stats:
-                  findings.append(f'StatsBar lacks truthful SSR marker: {marker}')
+                  findings.append(f'StatsBar lacks {marker}')
 
-          homepage = (root / 'src/pages/index.astro').read_text('utf-8')
-          if 'hidePolicyFooter={true}' not in homepage:
-              findings.append('homepage does not suppress the duplicate shared policy footer')
+          home = Path('src/pages/index.astro').read_text('utf-8')
+          if 'hidePolicyFooter={true}' not in home:
+              findings.append('homepage does not suppress duplicate policy footer')
 
-          footer = (root / 'src/components/Footer.tsx').read_text('utf-8')
+          footer = Path('src/components/Footer.tsx').read_text('utf-8')
           for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
               if href not in footer:
-                  findings.append(f'primary homepage footer lacks trust link {href}')
+                  findings.append(f'primary footer lacks {href}')
 
-          privacy = (root / 'src/pages/privacy.astro').read_text('utf-8')
+          privacy = Path('src/pages/privacy.astro').read_text('utf-8')
           if 'analyticsEnabled' not in privacy:
-              findings.append('privacy settings control is not conditioned on analytics configuration')
+              findings.append('privacy settings control is unconditional')
 
-          sha_re = re.compile(r'^[0-9a-f]{40}$', re.I)
-          for workflow in sorted((root / '.github/workflows').glob('*.yml')):
+          exact_sha = re.compile(r'^[0-9a-f]{40}$', re.I)
+          for workflow in sorted(Path('.github/workflows').glob('*.yml')):
               for number, line in enumerate(workflow.read_text('utf-8').splitlines(), 1):
                   stripped = line.strip()
                   if not stripped.startswith('uses:'):
@@ -82,12 +78,12 @@ jobs:
                   if target.startswith('./'):
                       continue
                   ref = target.rsplit('@', 1)[-1] if '@' in target else ''
-                  if not sha_re.fullmatch(ref):
-                      findings.append(f'{workflow.as_posix()}:{number}: action not pinned to exact SHA: {target}')
+                  if not exact_sha.fullmatch(ref):
+                      findings.append(f'{workflow.as_posix()}:{number}: unpinned action {target}')
 
           if findings:
               raise SystemExit('\n'.join(findings))
-          print('School source round-two audit found no defects')
+          print('School source guards passed')
           PY
 
       - name: Build analytics-disabled candidate
@@ -95,15 +91,14 @@ jobs:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
         run: npm run build
 
-      - name: Audit analytics-disabled generated site
-        run: npm run audit:site
-
-      - name: Verify analytics-disabled trust contract
+      - name: Audit disabled candidate and trust contract
         env:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
-        run: npm run audit:privacy
+        run: |
+          npm run audit:site
+          npm run audit:privacy
 
-      - name: Prove disabled candidate has truthful SSR and no no-op controls
+      - name: Prove disabled candidate SSR and no-op state
         shell: bash
         run: |
           python3 - <<'PY'
@@ -116,27 +111,27 @@ jobs:
           footer_count = len(re.findall(r'<footer\b', home, re.I))
           if footer_count != 1:
               findings.append(f'disabled homepage has {footer_count} footer landmarks')
-          stat_tags = list(re.finditer(r'<span\b[^>]*data-stat-label=["\']([^"\']+)["\'][^>]*data-stat-target=["\']?(\d+)["\']?[^>]*>', home, re.I))
-          if len(stat_tags) != 4:
-              findings.append(f'disabled homepage exposes {len(stat_tags)} statistic targets instead of 4')
-          for match in stat_tags:
+          stats = list(re.finditer(r'<span\b[^>]*data-stat-label=["\']([^"\']+)["\'][^>]*data-stat-target=["\']?(\d+)["\']?[^>]*>', home, re.I))
+          if len(stats) != 4:
+              findings.append(f'disabled homepage exposes {len(stats)} statistic targets')
+          for match in stats:
               if int(match.group(2)) <= 0:
                   findings.append(f'false SSR statistic: {match.group(1)}={match.group(2)}')
           for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
               if f'href="{href}"' not in home:
-                  findings.append(f'disabled homepage lacks trust link {href}')
+                  findings.append(f'disabled homepage lacks {href}')
           if '/analytics-consent.js' in home:
-              findings.append('disabled homepage unexpectedly loads the consent runtime')
+              findings.append('disabled homepage loads consent runtime')
           if 'Открыть настройки аналитики' in privacy:
-              findings.append('disabled privacy page exposes a no-op settings button')
+              findings.append('disabled privacy page exposes no-op settings button')
           if 'Аналитические счётчики сейчас не подключены' not in privacy:
-              findings.append('disabled privacy page does not explain that analytics is off')
+              findings.append('disabled privacy page lacks analytics-off explanation')
           if findings:
               raise SystemExit('\n'.join(findings))
-          print('Analytics-disabled candidate is truthful and contains no no-op controls')
+          print('Disabled candidate SSR and privacy state passed')
           PY
 
-      - name: Build configured verification and consent candidate
+      - name: Build configured candidate
         env:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
           PUBLIC_GOOGLE_SITE_VERIFICATION: round2-google
@@ -148,10 +143,7 @@ jobs:
           rm -rf dist
           npm run build
 
-      - name: Audit configured generated site
-        run: npm run audit:site
-
-      - name: Verify configured ownership and consent contract
+      - name: Audit configured candidate and trust contract
         env:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
           PUBLIC_GOOGLE_SITE_VERIFICATION: round2-google
@@ -159,27 +151,31 @@ jobs:
           PUBLIC_BING_SITE_VERIFICATION: round2-bing
           PUBLIC_GA_ID: G-ROUND2TEST
           PUBLIC_YANDEX_METRIKA_ID: '12345678'
-        run: npm run audit:privacy
+        run: |
+          npm run audit:site
+          npm run audit:privacy
 
-      - name: Crawl configured candidate sitemap, canonical and error metadata
+      - name: Crawl configured candidate URL entries
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           from urllib.parse import urlparse
           import json
+          import os
           import re
           import xml.etree.ElementTree as ET
 
           dist = Path('dist')
           findings = []
           sitemap_files = []
-          index = dist / 'sitemap-index.xml'
-          if index.exists():
-              root = ET.fromstring(index.read_text('utf-8'))
-              for node in root.findall('.//{*}loc'):
-                  if node.text:
-                      sitemap_files.append(dist / Path(urlparse(node.text.strip()).path).name)
+          sitemap_index = dist / 'sitemap-index.xml'
+          if sitemap_index.exists():
+              root = ET.fromstring(sitemap_index.read_text('utf-8'))
+              for sitemap_node in root.findall('.//{*}sitemap'):
+                  loc = sitemap_node.find('{*}loc')
+                  if loc is not None and loc.text:
+                      sitemap_files.append(dist / Path(urlparse(loc.text.strip()).path).name)
           else:
               sitemap_files = sorted(dist.glob('sitemap-*.xml'))
           if not sitemap_files:
@@ -191,14 +187,22 @@ jobs:
                   findings.append(f'missing child sitemap: {sitemap.name}')
                   continue
               root = ET.fromstring(sitemap.read_text('utf-8'))
-              urls.extend(node.text.strip() for node in root.findall('.//{*}loc') if node.text)
+              for url_node in root.findall('.//{*}url'):
+                  loc = url_node.find('{*}loc')
+                  if loc is not None and loc.text:
+                      urls.append(loc.text.strip())
 
           canonical_re = re.compile(r'<link\b[^>]*rel=["\']canonical["\'][^>]*href=["\']([^"\']+)', re.I)
           for url in urls:
               route = urlparse(url).path
-              file = dist / ('index.html' if route == '/' else route.lstrip('/') + ('index.html' if route.endswith('/') else ''))
+              if route == '/':
+                  file = dist / 'index.html'
+              elif route.endswith('/'):
+                  file = dist / route.lstrip('/') / 'index.html'
+              else:
+                  file = dist / route.lstrip('/')
               if not file.exists():
-                  findings.append(f'{url}: missing artifact file {file.as_posix()}')
+                  findings.append(f'{url}: missing {file.as_posix()}')
                   continue
               html = file.read_text('utf-8', errors='replace')
               match = canonical_re.search(html)
@@ -209,28 +213,28 @@ jobs:
               if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', html, re.I):
                   findings.append(f'{url}: sitemap URL is noindex')
               if 'googletagmanager.com/gtag/js' in html or 'mc.yandex.ru/metrika/tag.js' in html:
-                  findings.append(f'{url}: direct analytics URL is embedded in HTML')
+                  findings.append(f'{url}: direct analytics URL embedded in HTML')
               if '/analytics-consent.js' not in html:
-                  findings.append(f'{url}: configured page lacks local consent loader')
+                  findings.append(f'{url}: configured page lacks consent loader')
 
           not_found = (dist / '404.html').read_text('utf-8', errors='replace')
           if not re.search(r'<meta\b[^>]*(?:name=["\']robots["\'][^>]*content=["\']noindex,\s*follow["\']|content=["\']noindex,\s*follow["\'][^>]*name=["\']robots["\'])', not_found, re.I):
-              findings.append('configured 404 lacks noindex, follow')
+              findings.append('404.html lacks noindex, follow')
           if canonical_re.search(not_found):
-              findings.append('configured 404 emits canonical')
+              findings.append('404.html emits canonical')
 
           release = json.loads((dist / 'release.json').read_text('utf-8'))
           if release.get('repository') != 'FedorMilovanov/Milovi_School':
-              findings.append('configured release witness repository drift')
-          if release.get('sha') != Path('/proc/self/environ').read_bytes().split(b'SOURCE_SHA=', 1)[1].split(b'\0', 1)[0].decode():
-              findings.append('configured release witness SHA drift')
+              findings.append('release.json repository drift')
+          if release.get('sha') != os.environ['SOURCE_SHA']:
+              findings.append('release.json SHA drift')
 
           if findings:
               raise SystemExit('\n'.join(findings))
-          print(f'Configured candidate crawl passed: {len(urls)} sitemap URLs')
+          print(f'Configured candidate URL crawl passed: {len(urls)} routes')
           PY
 
-      - name: Serve exact configured candidate
+      - name: Serve configured candidate
         shell: bash
         run: |
           python3 -m http.server 4174 --directory dist >/tmp/school-candidate-server.log 2>&1 &
@@ -242,12 +246,11 @@ jobs:
           cat /tmp/school-candidate-server.log
           exit 1
 
-      - name: Exercise configured SSR and consent behavior in Chromium
+      - name: Exercise configured consent in Chromium
         shell: bash
         run: |
           node <<'JS'
           const { chromium } = require('playwright')
-
           ;(async () => {
             const findings = []
             const browser = await chromium.launch({ headless: true })
@@ -260,22 +263,22 @@ jobs:
                 if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(url)) analyticsRequests.push(url)
               })
               await denyPage.goto(`http://127.0.0.1:4174/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
-              await denyPage.waitForTimeout(800)
+              await denyPage.waitForTimeout(700)
               const state = await denyPage.evaluate(() => ({
                 footerCount: document.querySelectorAll('footer').length,
-                policyLinks: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
-                stats: [...document.querySelectorAll('#stats .stat-num')].map(node => ({ label: node.dataset.statLabel, target: Number(node.dataset.statTarget), aria: node.getAttribute('aria-label') })),
-                consentPanels: document.querySelectorAll('.prs-consent').length,
-                directAnalyticsScripts: [...document.scripts].filter(script => /googletagmanager\.com|mc\.yandex\.ru/i.test(script.src)).length,
+                links: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
+                stats: [...document.querySelectorAll('#stats .stat-num')].map(node => ({ target: Number(node.dataset.statTarget), aria: node.getAttribute('aria-label') })),
+                panels: document.querySelectorAll('.prs-consent').length,
+                directScripts: [...document.scripts].filter(script => /googletagmanager\.com|mc\.yandex\.ru/i.test(script.src)).length,
               }))
-              if (analyticsRequests.length) findings.push(`analytics requested before consent: ${analyticsRequests.join(', ')}`)
-              if (state.footerCount !== 1) findings.push(`configured homepage has ${state.footerCount} footer landmarks`)
-              if (!state.policyLinks.every(Boolean)) findings.push(`configured homepage trust links: ${state.policyLinks.join(',')}`)
-              if (state.stats.length !== 4 || state.stats.some(item => item.target <= 0 || Number(item.aria?.replace('%', '')) <= 0)) findings.push(`configured statistics are not truthful: ${JSON.stringify(state.stats)}`)
-              if (state.consentPanels !== 1) findings.push(`configured homepage has ${state.consentPanels} consent panels`)
-              if (state.directAnalyticsScripts) findings.push('direct analytics script exists before consent')
+              if (analyticsRequests.length) findings.push('analytics requested before consent')
+              if (state.footerCount !== 1) findings.push(`homepage has ${state.footerCount} footers`)
+              if (!state.links.every(Boolean)) findings.push(`trust links incomplete: ${state.links.join(',')}`)
+              if (state.stats.length !== 4 || state.stats.some(item => item.target <= 0 || Number(item.aria?.replace('%', '')) <= 0)) findings.push(`stats not truthful: ${JSON.stringify(state.stats)}`)
+              if (state.panels !== 1) findings.push(`expected one consent panel, found ${state.panels}`)
+              if (state.directScripts) findings.push('direct analytics script exists before consent')
               await denyPage.locator('.prs-consent__deny').click()
-              await denyPage.waitForTimeout(250)
+              await denyPage.waitForTimeout(200)
               if (analyticsRequests.length) findings.push('analytics requested after denial')
               await denyContext.close()
 
@@ -283,34 +286,30 @@ jobs:
               const allowPage = await allowContext.newPage()
               await allowPage.goto(`http://127.0.0.1:4174/?deep-polish-allow=${Date.now()}`, { waitUntil: 'domcontentloaded' })
               await allowPage.locator('.prs-consent__allow').click()
-              await allowPage.waitForTimeout(250)
-              const afterAllow = await allowPage.evaluate(() => ({
+              await allowPage.waitForTimeout(200)
+              const after = await allowPage.evaluate(() => ({
                 ga: Boolean(document.querySelector('script[data-prs-ga]')),
                 ym: Boolean(document.querySelector('script[data-prs-ym]')),
                 settings: Boolean(document.querySelector('.prs-consent-settings')),
               }))
-              if (!afterAllow.ga || !afterAllow.ym) findings.push('analytics scripts were not attached after explicit consent')
-              if (!afterAllow.settings) findings.push('privacy settings button missing after choice')
+              if (!after.ga || !after.ym) findings.push('analytics scripts not attached after consent')
+              if (!after.settings) findings.push('privacy settings control missing after choice')
 
               await allowPage.goto(`http://127.0.0.1:4174/privacy/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
-              const settingsControl = allowPage.getByRole('button', { name: 'Открыть настройки аналитики' })
-              if (await settingsControl.count() !== 1) {
-                findings.push('configured privacy page lacks its settings control')
+              const control = allowPage.getByRole('button', { name: 'Открыть настройки аналитики' })
+              if (await control.count() !== 1) {
+                findings.push('privacy page lacks settings control')
               } else {
-                await settingsControl.click()
-                if (!await allowPage.locator('.prs-consent').isVisible()) findings.push('privacy settings control does not reopen consent dialog')
+                await control.click()
+                if (!await allowPage.locator('.prs-consent').isVisible()) findings.push('privacy settings control does not reopen dialog')
               }
               await allowContext.close()
             } finally {
               await browser.close()
             }
-
             if (findings.length) throw new Error(findings.join('\n'))
-            console.log('Configured candidate browser audit found no defects')
-          })().catch(error => {
-            console.error(error)
-            process.exit(1)
-          })
+            console.log('School configured candidate consent audit passed')
+          })().catch(error => { console.error(error); process.exit(1) })
           JS
 
       - name: Stop candidate server
