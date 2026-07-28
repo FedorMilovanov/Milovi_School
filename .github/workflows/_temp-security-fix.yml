@@ -26,12 +26,12 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Attempt patched dependency graph
+      - name: Upgrade Astro and official React integration together
         id: security
         shell: bash
         run: |
           set +e
-          npm install --save-dev --save-exact astro@6.4.8 > /tmp/install.log 2>&1
+          npm install --save-dev --save-exact astro@7.1.4 @astrojs/react@6.0.1 @astrojs/check@0.9.9 @astrojs/sitemap@3.7.3 > /tmp/install.log 2>&1
           install_code=$?
           npm audit fix > /tmp/fix.log 2>&1
           fix_code=$?
@@ -43,6 +43,8 @@ jobs:
           check_code=$?
           npm run lint > /tmp/lint.log 2>&1
           lint_code=$?
+          npm run build > /tmp/build.log 2>&1
+          build_code=$?
           git diff --check > /tmp/diff.log 2>&1
           diff_code=$?
           set -e
@@ -53,57 +55,48 @@ jobs:
             echo "high_code=$high_code"
             echo "check_code=$check_code"
             echo "lint_code=$lint_code"
+            echo "build_code=$build_code"
             echo "diff_code=$diff_code"
             echo
-            echo '## install'
-            cat /tmp/install.log
-            echo
-            echo '## audit fix'
-            cat /tmp/fix.log
-            echo
-            echo '## high threshold'
-            cat /tmp/high.log
-            echo
-            echo '## check'
-            cat /tmp/check.log
-            echo
-            echo '## lint'
-            cat /tmp/lint.log
-            echo
-            echo '## diff'
-            cat /tmp/diff.log
+            echo '## install'; cat /tmp/install.log
+            echo; echo '## audit fix'; cat /tmp/fix.log
+            echo; echo '## high threshold'; cat /tmp/high.log
+            echo; echo '## check'; cat /tmp/check.log
+            echo; echo '## lint'; cat /tmp/lint.log
+            echo; echo '## build'; cat /tmp/build.log
+            echo; echo '## diff'; cat /tmp/diff.log
           } > SECURITY_POSTFIX_DIAGNOSTIC.txt
-          cat SECURITY_POSTFIX_DIAGNOSTIC.txt
-          if [ "$install_code" -eq 0 ] && [ "$high_code" -eq 0 ] && [ "$check_code" -eq 0 ] && [ "$lint_code" -eq 0 ] && [ "$diff_code" -eq 0 ]; then
+          tail -n 260 SECURITY_POSTFIX_DIAGNOSTIC.txt
+          if [ "$install_code" -eq 0 ] && [ "$high_code" -eq 0 ] && [ "$check_code" -eq 0 ] && [ "$lint_code" -eq 0 ] && [ "$build_code" -eq 0 ] && [ "$diff_code" -eq 0 ]; then
             echo 'success=true' >> "$GITHUB_OUTPUT"
           else
             echo 'success=false' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit audited lockfile
+      - name: Commit audited Astro 7 migration
         if: steps.security.outputs.success == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm .github/workflows/_temp-security-fix.yml
-          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt SECURITY_POSTFIX_AUDIT.json SECURITY_POSTFIX_DIAGNOSTIC.txt
+          rm -f NPM_AUDIT_DIAGNOSTIC.json NPM_AUDIT_EXIT_CODE.txt SECURITY_*.txt SECURITY_POSTFIX_AUDIT.json
           git add package.json package-lock.json
           git add -u
-          git commit -m "fix(security): upgrade Astro and patched transitive graph"
+          git commit -m "fix(security): migrate Milovi School to patched Astro 7"
           git push origin HEAD:feat/trust-consent-release-marathon
 
-      - name: Preserve failed security evidence
+      - name: Preserve failed Astro 7 migration evidence
         if: steps.security.outputs.success != 'true'
         run: |
           git reset --hard HEAD
           cp /tmp/install.log SECURITY_INSTALL_DIAGNOSTIC.txt
           cp /tmp/fix.log SECURITY_FIX_DIAGNOSTIC.txt
           cp /tmp/high.log SECURITY_HIGH_DIAGNOSTIC.txt
-          # Re-run only the read-only audit against the original lockfile so evidence is self-consistent.
-          npm ci >/dev/null 2>&1
-          npm audit --json > SECURITY_POSTFIX_AUDIT.json || true
+          cp /tmp/check.log SECURITY_CHECK_DIAGNOSTIC.txt
+          cp /tmp/lint.log SECURITY_LINT_DIAGNOSTIC.txt
+          cp /tmp/build.log SECURITY_BUILD_DIAGNOSTIC.txt
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add SECURITY_INSTALL_DIAGNOSTIC.txt SECURITY_FIX_DIAGNOSTIC.txt SECURITY_HIGH_DIAGNOSTIC.txt SECURITY_POSTFIX_AUDIT.json
-          git commit -m "chore(security): preserve dependency-fix diagnostic"
+          git add SECURITY_*_DIAGNOSTIC.txt
+          git commit -m "chore(security): preserve Astro 7 migration diagnostic"
           git push origin HEAD:feat/trust-consent-release-marathon
