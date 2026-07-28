@@ -1,4 +1,5 @@
 name: Patch School deep audit crawler
+# Registration retry: execute against the already-open round-two PR.
 
 on:
   pull_request:
