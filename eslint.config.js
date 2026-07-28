@@ -10,6 +10,7 @@ const browserGlobals = {
   navigator: 'readonly',
   localStorage: 'readonly',
   sessionStorage: 'readonly',
+  location: 'readonly',
   crypto: 'readonly',
   URL: 'readonly',
   Response: 'readonly',
@@ -72,6 +73,16 @@ export default defineConfig([
         ...browserGlobals,
         self: 'readonly',
         caches: 'readonly',
+      },
+    },
+  },
+  {
+    files: ['public/analytics-consent.js'],
+    languageOptions: {
+      globals: browserGlobals,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'script',
       },
     },
   },
