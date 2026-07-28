@@ -29,7 +29,7 @@ jobs:
       - name: Upgrade patched Astro line and repair transitive advisories
         run: |
           npm install --save-dev --save-exact astro@6.4.8
-          npm audit fix
+          npm audit fix || true
           npm audit --audit-level=high
           npm run check
           npm run lint
