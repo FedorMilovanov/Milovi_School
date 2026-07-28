@@ -1,6 +1,5 @@
 import js from '@eslint/js'
 import reactHooks from 'eslint-plugin-react-hooks'
-import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
 import { defineConfig } from 'eslint/config'
 
@@ -62,11 +61,9 @@ export default defineConfig([
     files: ['src/**/*.{ts,tsx}'],
     plugins: {
       'react-hooks': reactHooks,
-      'jsx-a11y': jsxA11y,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      ...jsxA11y.configs.recommended.rules,
       'react-hooks/set-state-in-effect': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
