@@ -1,5 +1,9 @@
 ---
 import PolicyPage from '../components/PolicyPage.astro'
+
+const gaId = (import.meta.env.PUBLIC_GA_ID ?? '').trim()
+const rawYandexId = (import.meta.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
+const analyticsEnabled = Boolean(gaId || /^\d+$/.test(rawYandexId))
 ---
 
 <PolicyPage
@@ -27,8 +31,14 @@ import PolicyPage from '../components/PolicyPage.astro'
   </section>
   <section>
     <h2>Как изменить решение</h2>
-    <p>После выбора на сайте появляется кнопка «Конфиденциальность». Она повторно открывает панель управления согласием. При отзыве согласия страница может перезагрузиться, чтобы прекратить дальнейшую отправку событий.</p>
-    <button type="button" class="mt-4 rounded-full border border-amber-700 px-5 py-3 font-semibold text-amber-800 hover:bg-amber-50 dark:border-amber-400 dark:text-amber-300 dark:hover:bg-stone-900" onclick="window.MiloviSchoolConsent&&window.MiloviSchoolConsent.open()">Открыть настройки аналитики</button>
+    {analyticsEnabled ? (
+      <>
+        <p>После выбора на сайте появляется кнопка «Конфиденциальность». Она повторно открывает панель управления согласием. При отзыве согласия страница может перезагрузиться, чтобы прекратить дальнейшую отправку событий.</p>
+        <button type="button" class="mt-4 rounded-full border border-amber-700 px-5 py-3 font-semibold text-amber-800 hover:bg-amber-50 dark:border-amber-400 dark:text-amber-300 dark:hover:bg-stone-900" onclick="window.MiloviSchoolConsent?.open()">Открыть настройки аналитики</button>
+      </>
+    ) : (
+      <p>Аналитические счётчики сейчас не подключены, поэтому отдельная панель согласия не показывается и изменять настройки не требуется.</p>
+    )}
   </section>
   <section>
     <h2>Внешние сервисы</h2>
