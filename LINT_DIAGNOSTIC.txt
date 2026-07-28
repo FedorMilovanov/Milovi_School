@@ -1,0 +1,14 @@
+exit_code=1
+
+
+> milovi-school@2.1.0 lint
+> eslint .
+
+
+/home/runner/work/Milovi_School/Milovi_School/public/analytics-consent.js
+  20:14  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  26:62  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  26:65  error  Empty block statement          no-empty
+
+✖ 3 problems (3 errors, 0 warnings)
+
