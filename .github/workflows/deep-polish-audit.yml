@@ -1,0 +1,271 @@
+name: Deep polish round-two audit
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: school-deep-polish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Install dependencies and Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Run baseline project validation
+        run: |
+          npm run check
+          npm run lint
+          npm run audit:content
+          npm run audit:security
+
+      - name: Build configured candidate
+        env:
+          PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: round2-google
+          PUBLIC_YANDEX_SITE_VERIFICATION: round2-yandex
+          PUBLIC_BING_SITE_VERIFICATION: round2-bing
+          PUBLIC_GA_ID: G-ROUND2TEST
+          PUBLIC_YANDEX_METRIKA_ID: '12345678'
+        run: npm run build
+
+      - name: Audit source and generated SSR contracts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          import json
+          import re
+
+          findings = []
+          root = Path('.')
+          dist = root / 'dist'
+
+          stats = (root / 'src/components/StatsBar.tsx').read_text('utf-8')
+          if 'useState(0)' in stats:
+              findings.append('StatsBar SSR starts counters at zero, so crawlers receive false zero statistics')
+
+          home_app = (root / 'src/components/HomeApp.tsx').read_text('utf-8')
+          base_layout = (root / 'src/layouts/BaseLayout.astro').read_text('utf-8')
+          footer = (root / 'src/components/Footer.tsx').read_text('utf-8')
+          if '<Footer />' in home_app and '<PolicyFooter />' in base_layout:
+              findings.append('homepage renders two separate footer landmarks')
+          for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
+              if href not in footer:
+                  findings.append(f'primary homepage footer lacks trust link {href}')
+
+          privacy = (root / 'src/pages/privacy.astro').read_text('utf-8')
+          if 'window.MiloviSchoolConsent&&window.MiloviSchoolConsent.open()' in privacy and 'analyticsEnabled' not in privacy:
+              findings.append('privacy settings button is unconditional and becomes a no-op when analytics variables are absent')
+
+          sha_re = re.compile(r'^[0-9a-f]{40}$', re.I)
+          for wf in (root / '.github/workflows').glob('*.yml'):
+              for no, line in enumerate(wf.read_text('utf-8').splitlines(), 1):
+                  stripped = line.strip()
+                  if not stripped.startswith('uses:') and ' uses:' not in line:
+                      continue
+                  target = stripped.split('uses:', 1)[1].strip()
+                  if target.startswith('./'):
+                      continue
+                  ref = target.rsplit('@', 1)[-1] if '@' in target else ''
+                  if not sha_re.fullmatch(ref):
+                      findings.append(f'{wf.as_posix()}:{no}: action not pinned to exact SHA: {target}')
+
+          html_files = sorted(dist.rglob('*.html'))
+          if not html_files:
+              findings.append('dist contains no HTML')
+          for path in html_files:
+              rel = path.relative_to(dist).as_posix()
+              html = path.read_text('utf-8', errors='replace')
+              footer_count = len(re.findall(r'<footer\b', html, re.I))
+              if rel == 'index.html' and footer_count != 1:
+                  findings.append(f'dist/index.html: expected one footer landmark, found {footer_count}')
+              if rel == 'index.html':
+                  for bad in ('>0<', 'aria-label="0"'):
+                      if bad in html and any(label in html for label in ('материалов', 'разделов', 'шеф-кондитеров')):
+                          findings.append('dist/index.html: SSR statistics still expose zero values')
+                          break
+                  for href in ('/privacy/', '/editorial-policy/', '/sources/', '/corrections/'):
+                      if f'href="{href}"' not in html:
+                          findings.append(f'dist/index.html: missing visible trust link {href}')
+              if 'googletagmanager.com/gtag/js' in html or 'mc.yandex.ru/metrika/tag.js' in html:
+                  findings.append(f'{rel}: direct third-party analytics URL embedded in HTML')
+              if rel not in {'google7e02f9855e02b89a.html', 'yandex_9bde19424208d6ce.html'}:
+                  if '/analytics-consent.js' not in html:
+                      findings.append(f'{rel}: configured build lacks local analytics consent loader')
+
+          external_font_pages = [p.relative_to(dist).as_posix() for p in html_files if 'fonts.googleapis.com' in p.read_text('utf-8', errors='replace')]
+          print(f'INFO generated pages using external Google Fonts: {len(external_font_pages)}')
+
+          if findings:
+              Path('/tmp/school-deep-polish-findings.txt').write_text('\n'.join(findings) + '\n', 'utf-8')
+          print('\n'.join(findings) if findings else 'Source and SSR audit found no defects')
+          PY
+
+      - name: Crawl production sitemap and error contracts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from urllib.error import HTTPError
+          from urllib.request import Request, urlopen
+          import re
+          import xml.etree.ElementTree as ET
+
+          findings = []
+          base = 'https://french.milovicake.ru'
+
+          def get(url):
+              req = Request(url, headers={'User-Agent': 'MiloviSchoolDeepAudit/2.0'})
+              try:
+                  with urlopen(req, timeout=25) as response:
+                      return response.status, response.geturl(), response.read().decode('utf-8', 'replace')
+              except HTTPError as error:
+                  return error.code, error.geturl(), error.read().decode('utf-8', 'replace')
+
+          status, _, sitemap = get(base + '/sitemap-index.xml')
+          if status != 200:
+              status, _, sitemap = get(base + '/sitemap-0.xml')
+          if status != 200:
+              findings.append(f'production sitemap unavailable: HTTP {status}')
+              urls = [base + '/']
+          else:
+              root = ET.fromstring(sitemap)
+              urls = [node.text.strip() for node in root.findall('.//{*}loc') if node.text]
+              if urls and all(url.endswith('.xml') for url in urls):
+                  expanded = []
+                  for child in urls:
+                      child_status, _, child_xml = get(child)
+                      if child_status != 200:
+                          findings.append(f'child sitemap {child}: HTTP {child_status}')
+                          continue
+                      child_root = ET.fromstring(child_xml)
+                      expanded.extend(node.text.strip() for node in child_root.findall('.//{*}loc') if node.text)
+                  urls = expanded
+
+          canon_re = re.compile(r'<link\b[^>]*rel=["\']canonical["\'][^>]*href=["\']([^"\']+)', re.I)
+          for url in urls:
+              status, final_url, html = get(url)
+              if status != 200:
+                  findings.append(f'{url}: HTTP {status}')
+                  continue
+              match = canon_re.search(html)
+              if not match:
+                  findings.append(f'{url}: missing canonical')
+              elif match.group(1).rstrip('/') != final_url.split('?', 1)[0].rstrip('/'):
+                  findings.append(f'{url}: canonical mismatch {match.group(1)} != {final_url}')
+              if re.search(r'<meta\b[^>]*name=["\']robots["\'][^>]*content=["\'][^"\']*noindex', html, re.I):
+                  findings.append(f'{url}: sitemap URL is noindex')
+
+          status, _, missing = get(base + '/__deep-polish-missing-page__')
+          if status != 404:
+              findings.append(f'unknown URL returns {status}, expected 404')
+          if not re.search(r'<meta\b[^>]*(?:name=["\']robots["\'][^>]*content=["\']noindex,\s*follow["\']|content=["\']noindex,\s*follow["\'][^>]*name=["\']robots["\'])', missing, re.I):
+              findings.append('production 404 lacks noindex, follow')
+          if re.search(r'<link\b[^>]*rel=["\']canonical["\']', missing, re.I):
+              findings.append('production 404 emits canonical')
+
+          path = Path('/tmp/school-deep-polish-findings.txt')
+          if findings:
+              path.write_text((path.read_text('utf-8') if path.exists() else '') + '\n'.join(findings) + '\n', 'utf-8')
+          print(f'Crawled {len(urls)} production URLs')
+          print('\n'.join(findings) if findings else 'Production crawl found no defects')
+          PY
+
+      - name: Exercise production SSR and consent behavior in Chromium
+        shell: bash
+        run: |
+          node <<'JS'
+          const fs = require('fs')
+          const { chromium } = require('playwright')
+
+          ;(async () => {
+            const findings = []
+            const browser = await chromium.launch({ headless: true })
+            try {
+              const context = await browser.newContext()
+              const page = await context.newPage()
+              const analyticsRequests = []
+              const fontRequests = []
+              page.on('request', request => {
+                const url = request.url()
+                if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(url)) analyticsRequests.push(url)
+                if (/fonts\.googleapis\.com|fonts\.gstatic\.com/i.test(url)) fontRequests.push(url)
+              })
+              await page.goto(`https://french.milovicake.ru/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
+              await page.waitForTimeout(1800)
+              const state = await page.evaluate(() => ({
+                footerCount: document.querySelectorAll('footer').length,
+                policyLinks: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
+                stats: [...document.querySelectorAll('#stats .stat-num')].map(node => node.getAttribute('aria-label') || node.textContent?.trim()),
+                analyticsConfigured: Boolean(window.__MILOVI_SCHOOL_ANALYTICS__),
+                consentPanel: document.querySelectorAll('.prs-consent').length,
+              }))
+              console.log('production home state', state)
+              console.log(`INFO external font requests before consent: ${fontRequests.length}`)
+              if (analyticsRequests.length) findings.push(`analytics requested before consent: ${analyticsRequests.join(', ')}`)
+              if (state.footerCount !== 1) findings.push(`production homepage has ${state.footerCount} footer landmarks`)
+              if (state.policyLinks.some(Boolean) === false) findings.push('production homepage has no visible trust-policy links')
+              if (state.stats.some(value => /^0(?:%|$)/.test(String(value)))) findings.push(`production animated stats remain zero after hydration: ${state.stats.join(', ')}`)
+              if (state.analyticsConfigured && state.consentPanel !== 1) findings.push('analytics is configured but consent panel is missing')
+              if (!state.analyticsConfigured && state.consentPanel !== 0) findings.push('consent panel appears without analytics configuration')
+
+              if (state.analyticsConfigured) {
+                await page.locator('.prs-consent__deny').click()
+                await page.waitForTimeout(350)
+                if (analyticsRequests.length) findings.push('analytics requested after denial')
+              }
+
+              await page.goto(`https://french.milovicake.ru/privacy/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
+              await page.waitForTimeout(400)
+              const privacyButton = await page.locator('button', { hasText: 'Открыть настройки аналитики' }).count()
+              const apiExists = await page.evaluate(() => Boolean(window.MiloviSchoolConsent))
+              if (privacyButton && !apiExists) findings.push('privacy page exposes a settings button that cannot work because analytics is not configured')
+              await context.close()
+            } finally {
+              await browser.close()
+            }
+
+            if (findings.length) {
+              fs.appendFileSync('/tmp/school-deep-polish-findings.txt', findings.join('\n') + '\n')
+              console.error(findings.join('\n'))
+            } else {
+              console.log('Production browser audit found no defects')
+            }
+          })().catch(error => {
+            fs.appendFileSync('/tmp/school-deep-polish-findings.txt', `browser audit crashed: ${error.stack || error}\n`)
+            console.error(error)
+          })
+          JS
+
+      - name: Report all round-two findings
+        shell: bash
+        run: |
+          if [ -s /tmp/school-deep-polish-findings.txt ]; then
+            echo 'Deep polish audit FAILED with the following findings:'
+            sort -u /tmp/school-deep-polish-findings.txt
+            exit 1
+          fi
+          echo 'Deep polish audit passed without findings.'
