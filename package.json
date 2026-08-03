@@ -48,7 +48,6 @@
     "npm": ">=10.9.2"
   },
   "overrides": {
-    "brace-expansion": "5.0.9",
     "yaml": "^2.8.3"
   }
 }
