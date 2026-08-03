@@ -82,7 +82,7 @@ contains "Preview live region is atomic" "aria-atomic=\"true\""
 contains "Preview close control has accessible name" "aria-label=\"Свернуть предпросмотр\""
 contains "Previous control has accessible name" "aria-label=\"Предыдущий материал\""
 contains "Next control has accessible name" "aria-label=\"Следующий материал\""
-contains "Normal article href is preserved" "href={`/articles/${article.id}/`}"
+contains "Normal article href is preserved" 'href={`/articles/${article.id}/`}'
 contains "Modified-click navigation is preserved" "e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1"
 contains "Preview is rendered only when capability is true" "previewArticle && canUsePreview"
 contains "Preview content remounts on article change" "key={previewArticle.id}"
