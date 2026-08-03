@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   apply:
-    if: ${{ hashFiles('.editorial-payload/READY') != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout working branch
@@ -22,6 +21,7 @@ jobs:
       - name: Verify and apply exact patch
         run: |
           set -euo pipefail
+          test -f .editorial-payload/READY
           cat .editorial-payload/chunk-* | base64 --decode > /tmp/editorial.patch.xz
           echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
           xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
