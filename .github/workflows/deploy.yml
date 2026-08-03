@@ -31,10 +31,7 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Resolve current security patch in lockfile
-        run: npm audit fix --package-lock-only
-
-      - name: Install exact refreshed dependencies
+      - name: Install exact dependencies
         run: npm ci
 
       - name: Type-check Astro project
@@ -46,7 +43,7 @@ jobs:
       - name: Audit article content
         run: npm run audit:content
 
-      - name: Security audit at high severity
+      - name: Audit production dependencies at high severity
         run: npm run audit:security
 
       - name: Build immutable site candidate
