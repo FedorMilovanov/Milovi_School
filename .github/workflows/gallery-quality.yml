@@ -5,9 +5,13 @@ on:
     branches: [main]
     paths:
       - 'src/components/gallery/**'
+      - 'src/components/LuxuryText.tsx'
       - 'src/styles/global.css'
+      - 'package.json'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
+      - 'scripts/audit_generated_gallery_html.mjs'
+      - 'scripts/fix_generated_html.mjs'
       - 'eslint.config.js'
       - '.github/workflows/gallery-quality.yml'
   workflow_dispatch:
@@ -21,7 +25,7 @@ concurrency:
 
 jobs:
   local-contract-and-browser:
-    name: 50+ shell checks and 40+ browser interactions
+    name: 70+ shell checks and 45 browser interactions
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -44,7 +48,7 @@ jobs:
           bash -n scripts/audit_gallery_contract.sh
           bash -n scripts/audit_gallery_live.sh
 
-      - name: Run 50+ gallery source-contract checks
+      - name: Run 70+ gallery source-contract checks
         run: bash scripts/audit_gallery_contract.sh
 
       - name: Type-check Astro and React
@@ -69,6 +73,9 @@ jobs:
           PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
           PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
           PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Audit generated gallery HTML conformance
+        run: node scripts/audit_generated_gallery_html.mjs
 
       - name: Install generated-site audit dependencies
         run: python3 -m pip install --user pillow beautifulsoup4
@@ -104,7 +111,7 @@ jobs:
           cat /tmp/milovi-preview.log >&2
           exit 1
 
-      - name: Click through 40+ gallery behavior checks
+      - name: Click through 45 gallery behavior checks
         run: node scripts/audit_gallery_preview.mjs
         env:
           BASE_URL: http://127.0.0.1:4321
@@ -121,7 +128,7 @@ jobs:
           fi
 
   external-live-audit:
-    name: 45+ live checks across CDN and external validators
+    name: 49+ live checks across CDN and external validators
     needs: local-contract-and-browser
     runs-on: ubuntu-latest
     timeout-minutes: 25
@@ -159,7 +166,7 @@ jobs:
           set -euo pipefail
           if [[ "$LOCAL_RESULT" == "success" && "$LIVE_RESULT" == "success" ]]; then
             state="success"
-            description="50+ shell, 40+ browser and 45+ live checks passed"
+            description="70+ shell, 45 browser and 49+ live checks passed"
           else
             state="failure"
             description="Gallery audit failed: local=$LOCAL_RESULT live=$LIVE_RESULT"
