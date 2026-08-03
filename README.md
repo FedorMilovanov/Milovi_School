@@ -48,9 +48,9 @@
 
 ```
 french.milovicake.ru/                              → index.html (главная)
-french.milovicake.ru/materials/                     → index.html (визуальная галерея 115 материалов)
+french.milovicake.ru/materials/                     → index.html (визуальная галерея 155 материалов)
 french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
-... × 115 статей
+... × 155 статей
 ```
 
 | Проблема | Решение |
@@ -69,7 +69,7 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 
 Браузер (runtime):
   HomeApp          ← libraryClientMeta (без content, лёгкий)
-  GalleryApp       ← libraryClientMeta (115 карточек без content)
+  GalleryApp       ← libraryClientMeta (155 карточек без content)
   ArticlePageShell ← один article (~10 KB content)
   CommandPalette   ← libraryClientMeta (поиск без content)
 ```
@@ -81,10 +81,10 @@ french.milovicake.ru/articles/grolet-lemon-yuzu/  → index.html (статья)
 Требуется Node.js **22.13.0+** (из-за актуальных требований ESLint/Astro toolchain).
 
 ```bash
-npm install
-npm run dev      # http://localhost:4321
-npm run build    # → dist/
-npm run validate  # check + lint + content/security audit + build + site audit
+npm ci
+npm run dev       # http://localhost:4321
+npm run build     # → dist/
+npm run validate  # check + lint + content/security audit + raw build audit + site/privacy audit
 npm run preview  # предпросмотр dist/
 ```
 
@@ -96,7 +96,7 @@ npm run preview  # предпросмотр dist/
 
 **Требования:**
 1. GitHub Settings → Pages → Source: **GitHub Actions**
-2. `CNAME` в корне (`french.milovicake.ru`) — уже есть
+2. `public/CNAME` (`french.milovicake.ru`) — уже есть
 3. DNS: `CNAME french → <username>.github.io`
 
 ---
@@ -115,7 +115,7 @@ src/
 ├── pages/
 │   ├── index.astro              # Главная → <HomeApp client:load />
 │   ├── materials.astro          # Галерея материалов → <GalleryApp client:load />
-│   └── articles/[id].astro      # 115 статичных страниц
+│   └── articles/[id].astro      # 155 статичных страниц
 ├── components/                  # React-компоненты
 │   ├── gallery/GalleryApp.tsx    # Визуальная галерея /materials/
 ├── data/
@@ -170,12 +170,25 @@ pluralRu(21, MATERIAL) // → 'материал'
 
 ---
 
+
+## Changelog — deterministic gallery and build hardening (2026-08-03)
+
+| # | Fix | File |
+|---|---|---|
+| P1 | Удалена post-build перезапись HTML. Причина NUL исправлена на уровне React SSR через штатный параметр интеграции `experimentalDisableStreaming`; `npm run build` снова выдаёт неизменённый Astro output | `astro.config.mjs`, `package.json`, `scripts/audit_raw_build.mjs` |
+| P2 | Hover-preview переведён на устойчивую state-machine: таймер не перезапускается от каждого движения, закрытие подавляет только текущую карточку до pointer leave, synthetic wheel без scroll не закрывает окно | `src/components/gallery/GalleryApp.tsx` |
+| P3 | Убраны ложные disclosure/live-region ARIA, focus больше не открывает hover-only UI; normal links и CTA остаются настоящими ссылками | `src/components/gallery/GalleryApp.tsx`, `scripts/audit_gallery_preview.mjs` |
+| P4 | Quality gate запускается и на PR, проверяет raw UTF-8 build и 47 browser-сценариев; live external audit остаётся только для уже развёрнутого `main` | `.github/workflows/gallery-quality.yml`, `scripts/audit_gallery_contract.sh` |
+| P5 | GitHub Actions обновлены и закреплены полными SHA: checkout 6.0.2, setup-node 6.4.0, upload-pages-artifact v5, deploy-pages v5.0.0 | `.github/workflows/*.yml` |
+
+---
+
 ## Changelog — premium gallery preview (2026-05-20)
 
 | # | Fix | File |
 |---|---|---|
-| G1 | В `/materials/` добавлен luxury expanded preview при наведении/focus: большое изображение, описание, категория, теги, время чтения, навигация Пред./След., кнопки «Читать материал» и «Свернуть» | `src/components/gallery/GalleryApp.tsx`, `src/styles/global.css` |
-| G2 | Preview не ломает мелкие карточки: клик по карточке по-прежнему открывает статью; hover/focus только обновляет premium-окно | `src/components/gallery/GalleryApp.tsx` |
+| G1 | В `/materials/` добавлен luxury expanded preview после осознанного наведения мышью: большое изображение, описание, категория, теги, время чтения, навигация Пред./След., кнопки «Читать материал» и «Свернуть» | `src/components/gallery/GalleryApp.tsx`, `src/styles/global.css` |
+| G2 | Preview не ломает мелкие карточки: клик по карточке по-прежнему открывает статью; hover только обновляет premium-окно; keyboard focus остаётся обычной ссылкой без неожиданного раскрытия | `src/components/gallery/GalleryApp.tsx` |
 | G3 | `/materials/` усилена SEO-разметкой `CollectionPage` + `BreadcrumbList` | `src/pages/materials.astro` |
 
 ---
@@ -199,7 +212,7 @@ pluralRu(21, MATERIAL) // → 'материал'
 | # | Fix | File |
 |---|---|---|
 | R1 | Удалён устаревший showcase-блок «Знаковые творения / Иконы современной pâtisserie» | `src/components/ShowcaseSlider.tsx` (removed) |
-| R2 | Главная больше не показывает портянку 115 статей: поиск и категории сохранены, результаты появляются только после запроса/выбора | `src/components/HomeApp.tsx`, `src/components/Categories.tsx` |
+| R2 | Главная больше не показывает портянку всех статей: поиск и категории сохранены, результаты появляются только после запроса/выбора | `src/components/HomeApp.tsx`, `src/components/Categories.tsx` |
 | R3 | Добавлена отдельная визуальная галерея `/materials/`, ссылки из шапки, футера, статистики и CTA | `src/pages/materials.astro`, `src/components/gallery/GalleryApp.tsx`, `Header/Footer/Categories/StatsBar` |
 | R4 | Reference-hover карточек закреплён: blur-копия + чёрный overlay + движение текста, без наследования старого `scale(1.04)` | `src/styles/global.css`, `MainCategories.tsx`, `GalleryApp.tsx` |
 | R5 | Stats `115/19/14/100%` получили reference 3D-hover и luxury-letter подсветку | `src/components/StatsBar.tsx`, `src/components/Cursor.tsx`, `src/styles/global.css` |
