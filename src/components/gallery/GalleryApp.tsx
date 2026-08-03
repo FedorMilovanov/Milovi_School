@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback, useEffect, useMemo } from 'react'
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Header from '../Header'
 import Footer from '../Footer'
 import ErrorBoundary from '../ErrorBoundary'
@@ -13,6 +13,10 @@ import { safeSetItem } from '../../utils/storage'
 const CommandPalette = lazy(() => import('../CommandPalette'))
 
 const clampIndex = (value: number, length: number) => (value + length) % length
+const INITIAL_HOVER_DELAY = 320
+const SWITCH_HOVER_DELAY = 120
+const LEAVE_CLOSE_DELAY = 260
+const SCROLL_CLOSE_DISTANCE = 36
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
   // Start from the brand-default dark theme so the first client render matches
@@ -24,10 +28,22 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [commandOpen, setCommandOpen] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-  // FIX: touch-guard — only open preview on fine-pointer (mouse) devices.
-  // On touch devices (iOS/Android tablets at md+), touchstart emulates mouseenter
-  // which would make preview open chaotically while scrolling.
+  // Touch guard: the expanded preview is a mouse/keyboard enhancement only.
+  // Touch scrolling must never emulate hover and open a blocking panel.
   const [hasFinePointer, setHasFinePointer] = useState(false)
+
+  const previewIndexRef = useRef<number | null>(null)
+  const hoverTimerRef = useRef<number | null>(null)
+  const leaveTimerRef = useRef<number | null>(null)
+  const activeCardRef = useRef<number | null>(null)
+  const dismissedCardRef = useRef<number | null>(null)
+  const previewHoveredRef = useRef(false)
+  const lastPointerMoveAtRef = useRef(0)
+  const keyboardNavigationRef = useRef(false)
+  const previewOpenedScrollYRef = useRef(0)
+  const hoverLockUntilRef = useRef(0)
+  const previewShellRef = useRef<HTMLElement | null>(null)
+  const galleryGridRef = useRef<HTMLDivElement | null>(null)
 
   const categoryNameById = useMemo(() => {
     const map = new Map<string, string>()
@@ -39,29 +55,185 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   const previewImage = previewArticle ? previewArticle.image || fallbackImageFor(previewArticle.category) : ''
   const previewCategory = previewArticle ? categoryNameById.get(previewArticle.category) ?? previewArticle.category : ''
 
+  const clearHoverTimer = useCallback(() => {
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
+  }, [])
+
+  const clearLeaveTimer = useCallback(() => {
+    if (leaveTimerRef.current !== null) {
+      window.clearTimeout(leaveTimerRef.current)
+      leaveTimerRef.current = null
+    }
+  }, [])
+
+  const clearPreviewTimers = useCallback(() => {
+    clearHoverTimer()
+    clearLeaveTimer()
+  }, [clearHoverTimer, clearLeaveTimer])
+
+  const closePreview = useCallback((suppressCurrentCard = false) => {
+    clearPreviewTimers()
+
+    if (suppressCurrentCard) {
+      const dismissedIndex = activeCardRef.current ?? previewIndexRef.current
+      dismissedCardRef.current = dismissedIndex
+      // Closing the panel can reveal a card directly under the pointer. A short
+      // lock prevents that card from instantly reopening before the user moves.
+      hoverLockUntilRef.current = performance.now() + 450
+    }
+
+    activeCardRef.current = null
+    previewHoveredRef.current = false
+    previewIndexRef.current = null
+    setPreviewIndex(null)
+  }, [clearPreviewTimers])
+
+  const commitPreview = useCallback((index: number) => {
+    clearPreviewTimers()
+    dismissedCardRef.current = null
+    previewOpenedScrollYRef.current = window.scrollY
+    previewIndexRef.current = index
+    setPreviewIndex(index)
+  }, [clearPreviewTimers])
+
+  const schedulePreview = useCallback((index: number) => {
+    if (!hasFinePointer) return
+    if (dismissedCardRef.current === index) return
+    if (performance.now() < hoverLockUntilRef.current) return
+
+    activeCardRef.current = index
+    clearHoverTimer()
+    clearLeaveTimer()
+
+    if (previewIndexRef.current === index) return
+
+    const delay = previewIndexRef.current === null ? INITIAL_HOVER_DELAY : SWITCH_HOVER_DELAY
+    hoverTimerRef.current = window.setTimeout(() => {
+      hoverTimerRef.current = null
+      if (activeCardRef.current !== index) return
+      if (dismissedCardRef.current === index) return
+      commitPreview(index)
+    }, delay)
+  }, [clearHoverTimer, clearLeaveTimer, commitPreview, hasFinePointer])
+
+  const scheduleClosePreview = useCallback(() => {
+    clearLeaveTimer()
+    leaveTimerRef.current = window.setTimeout(() => {
+      leaveTimerRef.current = null
+      if (activeCardRef.current === null && !previewHoveredRef.current) {
+        closePreview(false)
+      }
+    }, LEAVE_CLOSE_DELAY)
+  }, [clearLeaveTimer, closePreview])
+
   useEffect(() => {
     setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
-    setHasFinePointer(window.matchMedia('(pointer: fine)').matches)
+
     const mq = window.matchMedia('(pointer: fine)')
-    const handler = (e: MediaQueryListEvent) => setHasFinePointer(e.matches)
+    setHasFinePointer(mq.matches)
+
+    const handler = (event: MediaQueryListEvent) => setHasFinePointer(event.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [])
 
   useEffect(() => {
-    if (previewIndex === null) return
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setPreviewIndex(null)
-      } else if (event.key === 'ArrowRight') {
-        setPreviewIndex((current) => current === null ? current : clampIndex(current + 1, articles.length))
-      } else if (event.key === 'ArrowLeft') {
-        setPreviewIndex((current) => current === null ? current : clampIndex(current - 1, articles.length))
+    previewIndexRef.current = previewIndex
+  }, [previewIndex])
+
+  useEffect(() => {
+    const onPointerMove = (event: PointerEvent) => {
+      if (event.pointerType === 'mouse') {
+        lastPointerMoveAtRef.current = performance.now()
       }
     }
+    const onPointerDown = () => {
+      keyboardNavigationRef.current = false
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        keyboardNavigationRef.current = true
+      }
+    }
+
+    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    window.addEventListener('pointerdown', onPointerDown, { passive: true })
+    window.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (hasFinePointer) return
+    closePreview(false)
+  }, [closePreview, hasFinePointer])
+
+  useEffect(() => {
+    if (previewIndex === null) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closePreview(true)
+      } else if (event.key === 'ArrowRight') {
+        const current = previewIndexRef.current
+        if (current !== null) commitPreview(clampIndex(current + 1, articles.length))
+      } else if (event.key === 'ArrowLeft') {
+        const current = previewIndexRef.current
+        if (current !== null) commitPreview(clampIndex(current - 1, articles.length))
+      }
+    }
+
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [articles.length, previewIndex])
+  }, [articles.length, closePreview, commitPreview, previewIndex])
+
+  useEffect(() => {
+    if (previewIndex === null) return
+
+    const onWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaY) > 6) closePreview(true)
+    }
+    const onScroll = () => {
+      if (Math.abs(window.scrollY - previewOpenedScrollYRef.current) >= SCROLL_CLOSE_DISTANCE) {
+        closePreview(true)
+      }
+    }
+    const onWindowBlur = () => closePreview(true)
+
+    window.addEventListener('wheel', onWheel, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('blur', onWindowBlur)
+
+    return () => {
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('blur', onWindowBlur)
+    }
+  }, [closePreview, previewIndex])
+
+  useEffect(() => {
+    if (previewIndex === null) return
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      if (previewShellRef.current?.contains(target)) return
+      if (galleryGridRef.current?.contains(target)) return
+      closePreview(true)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [closePreview, previewIndex])
+
+  useEffect(() => () => clearPreviewTimers(), [clearPreviewTimers])
 
   const toggleTheme = useCallback(() => {
     setTheme(t => {
@@ -83,14 +255,11 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
     void navigateTo(`/articles/${article.id}/`)
   }, [])
 
-  const openPreview = useCallback((index: number) => {
-    if (!hasFinePointer) return
-    setPreviewIndex(index)
-  }, [hasFinePointer])
-
   const goPreview = useCallback((direction: -1 | 1) => {
-    setPreviewIndex((current) => current === null ? current : clampIndex(current + direction, articles.length))
-  }, [articles.length])
+    const current = previewIndexRef.current
+    if (current === null) return
+    commitPreview(clampIndex(current + direction, articles.length))
+  }, [articles.length, commitPreview])
 
   return (
     <div className="min-h-screen bg-[var(--bg-main)] transition-colors dark:bg-stone-950">
@@ -115,16 +284,53 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-[2px] bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" style={{ border: '1px solid var(--border)' }}>
+            <div
+              ref={galleryGridRef}
+              className="grid grid-cols-1 gap-[2px] bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              style={{ border: '1px solid var(--border)' }}
+            >
               {articles.map((article, index) => {
                 const imgUrl = article.image || fallbackImageFor(article.category)
                 const categoryLabel = categoryNameById.get(article.category) ?? article.category
+                const isPreviewed = previewIndex === index
+
                 return (
                   <a
                     key={article.id}
                     href={`/articles/${article.id}/`}
-                    onMouseEnter={() => openPreview(index)}
-                    onFocus={() => { if (hasFinePointer) openPreview(index) }}
+                    onPointerEnter={(event) => {
+                      if (event.pointerType !== 'mouse' || !hasFinePointer) return
+                      activeCardRef.current = index
+                      clearLeaveTimer()
+
+                      const pointerMovedRecently = performance.now() - lastPointerMoveAtRef.current < 750
+                      if (pointerMovedRecently && dismissedCardRef.current !== index) {
+                        schedulePreview(index)
+                      }
+                    }}
+                    onPointerMove={(event) => {
+                      if (event.pointerType !== 'mouse' || !hasFinePointer) return
+                      lastPointerMoveAtRef.current = performance.now()
+                      activeCardRef.current = index
+                      if (dismissedCardRef.current !== index) schedulePreview(index)
+                    }}
+                    onPointerLeave={() => {
+                      if (activeCardRef.current === index) activeCardRef.current = null
+                      if (dismissedCardRef.current === index) dismissedCardRef.current = null
+                      clearHoverTimer()
+                      scheduleClosePreview()
+                    }}
+                    onFocus={() => {
+                      if (!keyboardNavigationRef.current) return
+                      activeCardRef.current = index
+                      commitPreview(index)
+                    }}
+                    onBlur={(event) => {
+                      const nextTarget = event.relatedTarget
+                      if (nextTarget instanceof Node && previewShellRef.current?.contains(nextTarget)) return
+                      if (activeCardRef.current === index) activeCardRef.current = null
+                      scheduleClosePreview()
+                    }}
                     onClick={(e) => {
                       if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
                       e.preventDefault()
@@ -132,6 +338,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     }}
                     className="cat-img-card cat-img-card-lux group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors"
                     aria-describedby={`gallery-card-meta-${article.id}`}
+                    aria-expanded={isPreviewed}
+                    aria-controls="gallery-preview"
                   >
                     <div
                       className="cat-card-img-wrap-lux relative aspect-[4/5] overflow-hidden"
@@ -175,19 +383,30 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
 
         {previewArticle && hasFinePointer && (
           <aside
+            id="gallery-preview"
+            ref={previewShellRef}
             className="gallery-preview-shell fixed inset-x-4 bottom-5 z-50 mx-auto hidden max-w-6xl md:block"
             aria-live="polite"
+            aria-atomic="true"
             aria-label="Предпросмотр материала"
+            onPointerEnter={() => {
+              previewHoveredRef.current = true
+              clearLeaveTimer()
+            }}
+            onPointerLeave={() => {
+              previewHoveredRef.current = false
+              scheduleClosePreview()
+            }}
           >
             <div className="gallery-preview-aura" aria-hidden="true" />
             <div className="gallery-preview-card overflow-hidden border border-amber-100/20 bg-[rgba(16,14,12,0.88)] shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl dark:bg-[rgba(10,9,8,0.9)]">
-              <div className="grid min-h-[360px] lg:grid-cols-[1.15fr_0.85fr]">
+              <div key={previewArticle.id} className="grid min-h-[360px] lg:grid-cols-[1.15fr_0.85fr]">
                 <div className="gallery-preview-image-wrap relative overflow-hidden bg-stone-950">
                   <img
                     src={previewImage}
                     alt={previewArticle.imageAlt ?? previewArticle.title}
                     className="gallery-preview-image h-[360px] w-full object-cover lg:h-[430px]"
-                      loading="eager"
+                    loading="eager"
                     decoding="async"
                     sizes="(min-width: 1024px) 56rem, 90vw"
                   />
@@ -200,7 +419,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                 <div className="relative flex flex-col justify-between p-7 text-amber-50 lg:p-9">
                   <button
                     type="button"
-                    onClick={() => setPreviewIndex(null)}
+                    onClick={() => closePreview(true)}
                     className="absolute right-5 top-5 border border-amber-100/20 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.22em] text-amber-100/70 transition hover:border-amber-100/60 hover:bg-amber-100 hover:text-stone-950"
                     aria-label="Свернуть предпросмотр"
                   >
