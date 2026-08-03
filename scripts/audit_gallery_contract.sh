@@ -13,6 +13,22 @@ check() { local name="$1"; shift; if "$@"; then pass "$name"; else fail "$name";
 contains() { local pattern="$1"; shift; grep -REq -- "$pattern" "$@"; }
 not_contains() { local pattern="$1"; shift; ! grep -REn -- "$pattern" "$@" >/dev/null; }
 
+no_tracked_path() {
+  local forbidden="$1"
+  python3 - "$forbidden" <<'PYTRACK'
+from pathlib import PurePosixPath
+import subprocess
+import sys
+
+forbidden = sys.argv[1]
+tracked = subprocess.check_output(['git', 'ls-files', '-z']).decode('utf-8').split('\0')
+bad = [path for path in tracked if path and forbidden in PurePosixPath(path).parts]
+if bad:
+    print(f'Tracked {forbidden} paths:', ', '.join(bad))
+    raise SystemExit(1)
+PYTRACK
+}
+
 same_react_major() {
   node -e "const p=require('./package.json'); const m=v=>String(v).match(/(\\d+)/)?.[1]; process.exit(m(p.dependencies.react)===m(p.dependencies['react-dom'])?0:1)"
 }
@@ -134,9 +150,9 @@ check 'React SSR uses Astro non-streaming compatibility mode' contains 'experime
 check 'React and React DOM stay on the same major range' same_react_major
 check 'Project metadata matches Astro 7' node -e "const p=require('./package.json'); process.exit(String(p.devDependencies.astro).startsWith('7.')?0:1)"
 check 'No tracked source file contains NUL bytes' no_nul_sources
-check 'Generated output is not committed' test ! -d dist
-check 'Dependencies are not committed' test ! -d node_modules
-check 'Astro cache is not committed' test ! -d .astro
+check 'Generated output is not committed' no_tracked_path dist
+check 'Dependencies are not committed' no_tracked_path node_modules
+check 'Astro cache is not committed' no_tracked_path .astro
 check 'Deep article bodies stay out of client components' not_contains "deepContents|from ['\"].*/data/(articles|library)['\"]" src/components
 check 'Astro ClientRouter remains disabled' not_contains "from ['\"]astro:transitions|<ClientRouter" src
 check 'No dynamic code execution is used in shipped code' not_contains '\beval\s*\(|new Function' src public
