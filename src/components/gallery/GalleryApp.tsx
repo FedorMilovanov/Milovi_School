@@ -17,6 +17,7 @@ const INITIAL_HOVER_DELAY = 320
 const SWITCH_HOVER_DELAY = 120
 const LEAVE_CLOSE_DELAY = 260
 const SCROLL_CLOSE_DISTANCE = 36
+const PREVIEW_MEDIA_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 768px)'
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
   // Start from the brand-default dark theme so the first client render matches
@@ -28,9 +29,9 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [commandOpen, setCommandOpen] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
-  // Touch guard: the expanded preview is a mouse/keyboard enhancement only.
-  // Touch scrolling must never emulate hover and open a blocking panel.
-  const [hasFinePointer, setHasFinePointer] = useState(false)
+  // The expanded preview is a desktop mouse/keyboard enhancement only. Touch,
+  // stylus-only and narrow layouts must keep the normal card-navigation flow.
+  const [canUsePreview, setCanUsePreview] = useState(false)
 
   const previewIndexRef = useRef<number | null>(null)
   const hoverTimerRef = useRef<number | null>(null)
@@ -38,7 +39,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   const activeCardRef = useRef<number | null>(null)
   const dismissedCardRef = useRef<number | null>(null)
   const previewHoveredRef = useRef(false)
-  const lastPointerMoveAtRef = useRef(0)
+  const pointerHasMovedRef = useRef(false)
+  const lastPointerMoveAtRef = useRef(Number.NEGATIVE_INFINITY)
   const keyboardNavigationRef = useRef(false)
   const previewOpenedScrollYRef = useRef(0)
   const hoverLockUntilRef = useRef(0)
@@ -100,7 +102,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   }, [clearPreviewTimers])
 
   const schedulePreview = useCallback((index: number) => {
-    if (!hasFinePointer) return
+    if (!canUsePreview) return
     if (dismissedCardRef.current === index) return
     if (performance.now() < hoverLockUntilRef.current) return
 
@@ -117,7 +119,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
       if (dismissedCardRef.current === index) return
       commitPreview(index)
     }, delay)
-  }, [clearHoverTimer, clearLeaveTimer, commitPreview, hasFinePointer])
+  }, [canUsePreview, clearHoverTimer, clearLeaveTimer, commitPreview])
 
   const scheduleClosePreview = useCallback(() => {
     clearLeaveTimer()
@@ -132,10 +134,10 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   useEffect(() => {
     setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
 
-    const mq = window.matchMedia('(pointer: fine)')
-    setHasFinePointer(mq.matches)
+    const mq = window.matchMedia(PREVIEW_MEDIA_QUERY)
+    setCanUsePreview(mq.matches)
 
-    const handler = (event: MediaQueryListEvent) => setHasFinePointer(event.matches)
+    const handler = (event: MediaQueryListEvent) => setCanUsePreview(event.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [])
@@ -147,6 +149,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType === 'mouse') {
+        pointerHasMovedRef.current = true
         lastPointerMoveAtRef.current = performance.now()
       }
     }
@@ -171,9 +174,9 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   }, [])
 
   useEffect(() => {
-    if (hasFinePointer) return
+    if (canUsePreview) return
     closePreview(false)
-  }, [closePreview, hasFinePointer])
+  }, [canUsePreview, closePreview])
 
   useEffect(() => {
     if (previewIndex === null) return
@@ -206,15 +209,20 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
       }
     }
     const onWindowBlur = () => closePreview(true)
+    const onVisibilityChange = () => {
+      if (document.hidden) closePreview(true)
+    }
 
     window.addEventListener('wheel', onWheel, { passive: true })
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('blur', onWindowBlur)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('blur', onWindowBlur)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [closePreview, previewIndex])
 
@@ -299,17 +307,19 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     key={article.id}
                     href={`/articles/${article.id}/`}
                     onPointerEnter={(event) => {
-                      if (event.pointerType !== 'mouse' || !hasFinePointer) return
+                      if (event.pointerType !== 'mouse' || !canUsePreview) return
                       activeCardRef.current = index
                       clearLeaveTimer()
 
-                      const pointerMovedRecently = performance.now() - lastPointerMoveAtRef.current < 750
+                      const pointerMovedRecently = pointerHasMovedRef.current
+                        && performance.now() - lastPointerMoveAtRef.current < 750
                       if (pointerMovedRecently && dismissedCardRef.current !== index) {
                         schedulePreview(index)
                       }
                     }}
                     onPointerMove={(event) => {
-                      if (event.pointerType !== 'mouse' || !hasFinePointer) return
+                      if (event.pointerType !== 'mouse' || !canUsePreview) return
+                      pointerHasMovedRef.current = true
                       lastPointerMoveAtRef.current = performance.now()
                       activeCardRef.current = index
                       if (dismissedCardRef.current !== index) schedulePreview(index)
@@ -321,7 +331,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                       scheduleClosePreview()
                     }}
                     onFocus={() => {
-                      if (!keyboardNavigationRef.current) return
+                      if (!keyboardNavigationRef.current || !canUsePreview) return
                       activeCardRef.current = index
                       commitPreview(index)
                     }}
@@ -338,8 +348,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     }}
                     className="cat-img-card cat-img-card-lux group relative block cursor-pointer overflow-hidden bg-[var(--cream)] text-left transition-colors"
                     aria-describedby={`gallery-card-meta-${article.id}`}
-                    aria-expanded={isPreviewed}
-                    aria-controls="gallery-preview"
+                    aria-expanded={canUsePreview ? isPreviewed : undefined}
+                    aria-controls={canUsePreview ? 'gallery-preview' : undefined}
                   >
                     <div
                       className="cat-card-img-wrap-lux relative aspect-[4/5] overflow-hidden"
@@ -381,7 +391,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           </div>
         </main>
 
-        {previewArticle && hasFinePointer && (
+        {previewArticle && canUsePreview && (
           <aside
             id="gallery-preview"
             ref={previewShellRef}
