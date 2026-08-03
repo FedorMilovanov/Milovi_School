@@ -1,4 +1,4 @@
-name: Editorial source snapshot
+name: Editorial dependency compatibility
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   statuses: write
 
 jobs:
-  snapshot:
+  compatibility:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout exact source
@@ -25,27 +25,34 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Install exact dependencies
+      - name: Generate security-patched lockfile
+        run: |
+          npm pkg set overrides.fast-uri=4.1.1
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Install patched dependency tree
         run: npm ci
 
-      - name: Capture complete dependency audit
-        run: npm audit --json > /tmp/npm-audit-complete.json || true
+      - name: Audit complete dependency tree
+        run: npm audit --audit-level=high
 
-      - name: Pack repository source
-        run: tar -czf /tmp/editorial-source.tar.gz --exclude=.git .
+      - name: Verify compatibility
+        run: |
+          npm run check
+          npm run lint
+          npm run build
 
-      - name: Upload source and security diagnostics
+      - name: Upload patched manifests
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          name: editorial-diagnostics-${{ github.sha }}
+          name: patched-manifests-${{ github.sha }}
           path: |
-            /tmp/editorial-source.tar.gz
-            /tmp/npm-audit-complete.json
+            package.json
+            package-lock.json
           if-no-files-found: error
           retention-days: 1
-          compression-level: 0
 
-      - name: Publish diagnostic run
+      - name: Publish compatibility result
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
@@ -61,4 +68,4 @@ jobs:
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "${{ github.api_url }}/repos/${{ github.repository }}/statuses/$SHA" \
-            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Editorial and dependency diagnostics\",\"context\":\"editorial/diagnostics\"}"
+            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Patched dependency compatibility\",\"context\":\"editorial/dependency-compatibility\"}"
