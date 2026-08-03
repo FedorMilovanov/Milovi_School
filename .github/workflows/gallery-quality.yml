@@ -27,8 +27,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  publish-pending:
+    name: Publish audit run link
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Mark exhaustive gallery audit as pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+          API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          payload="$(RUN_URL="$RUN_URL" python3 - <<'PY'
+          import json, os
+          print(json.dumps({
+              'state': 'pending',
+              'description': 'Exhaustive gallery checks are running',
+              'context': 'gallery/exhaustive-audit',
+              'target_url': os.environ['RUN_URL'],
+          }))
+          PY
+          )"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "$API_URL/repos/$REPOSITORY/statuses/$SHA" \
+            -d "$payload"
+
   local-contract-and-browser:
     name: 70+ shell, 30+ HTML and 45 browser checks
+    needs: publish-pending
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
