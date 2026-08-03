@@ -4,7 +4,7 @@ import GalleryApp from '../components/gallery/GalleryApp'
 import { libraryClientMeta } from '../data/library'
 
 const siteUrl = 'https://french.milovicake.ru'
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
+const safeJson = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 
 const jsonLdCollection = {
   '@context': 'https://schema.org',
@@ -58,28 +58,30 @@ const jsonLdBreadcrumbs = {
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJson(jsonLdCollection)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJson(jsonLdBreadcrumbs)} slot="head" />
 
   <!--
     Render the complete gallery on the server, then hydrate the same React tree
-    through a normal bundled module. This preserves SSR and interaction while
-    avoiding Astro's framework-owned inline island style inside <body>, which
-    is invalid HTML according to the Nu validator.
+    through a normal bundled module. The client receives only the compact card
+    metadata embedded below, never the full article-content module.
   -->
   <div id="gallery-app-root">
     <GalleryApp articles={libraryClientMeta} />
   </div>
+  <script id="gallery-app-data" type="application/json" set:html={safeJson(libraryClientMeta)} />
 
   <script>
     import { createElement } from 'react'
     import { hydrateRoot } from 'react-dom/client'
     import GalleryApp from '../components/gallery/GalleryApp'
-    import { libraryClientMeta } from '../data/library'
 
     const root = document.getElementById('gallery-app-root')
-    if (root) {
-      hydrateRoot(root, createElement(GalleryApp, { articles: libraryClientMeta }))
+    const data = document.getElementById('gallery-app-data')?.textContent
+
+    if (root && data) {
+      const articles = JSON.parse(data)
+      hydrateRoot(root, createElement(GalleryApp, { articles }))
     }
   </script>
 </BaseLayout>
