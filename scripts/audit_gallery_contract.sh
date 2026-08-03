@@ -45,8 +45,14 @@ contains "Card-switch delay is shorter" "const SWITCH_HOVER_DELAY = 120"
 contains "Leave grace period is defined" "const LEAVE_CLOSE_DELAY = 260"
 contains "Scroll-close threshold is defined" "const SCROLL_CLOSE_DISTANCE = 36"
 contains "Preview requires hover-capable pointer" "(hover: hover) and (pointer: fine)"
-contains "Preview requires desktop width" "(min-width: 768px)"
+contains "Preview requires full desktop width" "(min-width: 1024px)"
 contains "Preview capability state is explicit" "const [canUsePreview, setCanUsePreview]"
+contains "Preview dock state is explicit" "const [previewDock, setPreviewDock]"
+contains "Cards expose stable gallery indexes" "data-gallery-index={index}"
+contains "Dock lookup targets the active card" "querySelector<HTMLElement>(`[data-gallery-index=\"${index}\"]`)"
+contains "Panel docks opposite left-side cards" "cardCenter < window.innerWidth / 2 ? 'right' : 'left'"
+contains "Preview publishes its active dock" "data-dock={previewDock}"
+contains "Preview width leaves neighbouring cards visible" "900px"
 contains "Real pointer movement is tracked" "pointerHasMovedRef"
 contains "Pointer timestamp starts inert" "Number.NEGATIVE_INFINITY"
 contains "Hover timer ref exists" "hoverTimerRef"
@@ -62,6 +68,7 @@ contains "Preview close scheduling is centralized" "const scheduleClosePreview =
 contains "Mouse-only card entry guard exists" "event.pointerType !== 'mouse' || !canUsePreview"
 contains "Stationary hydration entry is rejected" "pointerHasMovedRef.current"
 contains "Dismissed card cannot reopen immediately" "dismissedCardRef.current === index"
+contains "Real mouse movement releases dismissal" "dismissedCardRef.current = null"
 contains "Wheel closes preview" "window.addEventListener('wheel', onWheel"
 contains "Scroll closes preview" "window.addEventListener('scroll', onScroll"
 contains "Window blur closes preview" "window.addEventListener('blur', onWindowBlur)"
@@ -96,8 +103,8 @@ regex "Wheel listener is removed on cleanup" "removeEventListener\('wheel', onWh
 regex "Scroll listener is removed on cleanup" "removeEventListener\('scroll', onScroll\)"
 regex "Visibility listener is removed on cleanup" "removeEventListener\('visibilitychange', onVisibilityChange\)"
 
-if (( COUNT < 50 )); then
-  fail "Audit executed at least 50 shell assertions"
+if (( COUNT < 60 )); then
+  fail "Audit executed at least 60 shell assertions"
 fi
 
 printf '\nGallery shell contract audit passed: %d checks.\n' "$COUNT"
