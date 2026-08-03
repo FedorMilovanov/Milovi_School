@@ -56,7 +56,12 @@ check('exactly one h1 is emitted', (lower.match(/<h1\b/g) ?? []).length === 1)
 check('a semantic main element is emitted', /<main\b/i.test(html))
 check('the materials main region keeps its stable id', /<main\b[^>]*\bid=["']materials["']/i.test(html))
 check('closed preview is absent from initial server HTML', !/\bid=["']gallery-preview["']/i.test(html))
-check('server HTML does not claim any card is expanded', !/\baria-expanded=["']true["']/i.test(html))
+
+const galleryCardTags = html.match(/<a\b(?=[^>]*\bclass=["'][^"']*\bcat-img-card-lux\b[^"']*["'])[^>]*>/gi) ?? []
+check('server HTML exposes all gallery card anchors', galleryCardTags.length >= 100, `${galleryCardTags.length} cards`)
+check('no gallery card claims to be expanded initially', galleryCardTags.every((tag) => !/\baria-expanded=["']true["']/i.test(tag)))
+check('closed gallery cards do not control an absent preview', galleryCardTags.every((tag) => !/\baria-controls=["']gallery-preview["']/i.test(tag)))
+
 check('production stylesheet is linked', /<link\b[^>]*rel=["'][^"']*stylesheet[^"']*["']/i.test(html))
 check('hydration/runtime script is emitted', /<script\b/i.test(html))
 
