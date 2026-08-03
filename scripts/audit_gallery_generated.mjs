@@ -56,7 +56,7 @@ check('exactly one h1 is emitted', (lower.match(/<h1\b/g) ?? []).length === 1)
 check('a semantic main element is emitted', /<main\b/i.test(html))
 check('the materials main region keeps its stable id', /<main\b[^>]*\bid=["']materials["']/i.test(html))
 check('closed preview is absent from initial server HTML', !/\bid=["']gallery-preview["']/i.test(html))
-check('server HTML does not claim any card is expanded', !/\baria-expanded=/i.test(html))
+check('server HTML does not claim any card is expanded', !/\baria-expanded=["']true["']/i.test(html))
 check('production stylesheet is linked', /<link\b[^>]*rel=["'][^"']*stylesheet[^"']*["']/i.test(html))
 check('hydration/runtime script is emitted', /<script\b/i.test(html))
 
