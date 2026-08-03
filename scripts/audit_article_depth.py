@@ -211,8 +211,8 @@ if set(articles) != set(bodies):
         f"missing={sorted(set(articles) - set(bodies))}, "
         f"extra={sorted(set(bodies) - set(articles))}"
     )
-if len(expansions) != 75:
-    raise SystemExit(f"Depth audit expected 75 researched expansions, parsed {len(expansions)}")
+if len(expansions) != 155:
+    raise SystemExit(f"Depth audit expected 155 researched expansions, parsed {len(expansions)}")
 unknown = (set(expansions) | set(overrides)) - set(articles)
 if unknown:
     raise SystemExit(f"Depth audit found unknown enrichment ids: {sorted(unknown)}")
