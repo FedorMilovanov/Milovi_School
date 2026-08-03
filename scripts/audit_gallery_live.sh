@@ -113,6 +113,7 @@ assert isinstance(payload.get('sha'), str) and len(payload['sha']) == 40
 PY
 pass "release.json repository and SHA contract is valid"
 
+require_contains "Homepage has canonical metadata" "$TMP_DIR/home.html" "rel=\"canonical\""
 require_contains "Materials page has a non-empty title" "$TMP_DIR/materials.html" "<title>"
 require_contains "Materials page has a meta description" "$TMP_DIR/materials.html" "name=\"description\""
 require_contains "Materials page has a viewport meta" "$TMP_DIR/materials.html" "name=\"viewport\""
@@ -285,14 +286,8 @@ PY
 pass "Cloudflare DNS resolves the live host"
 
 if [[ -n "$EXPECTED_SHA" ]]; then
-  curl -fsS -H 'Accept: application/vnd.github+json' --connect-timeout 12 --max-time 35 \
-    "https://api.github.com/repos/FedorMilovanov/Milovi_School/commits/$EXPECTED_SHA" > "$TMP_DIR/github-commit.json"
-  EXPECTED_SHA="$EXPECTED_SHA" python3 - "$TMP_DIR/github-commit.json" <<'PY'
-import json, os, sys
-payload = json.load(open(sys.argv[1], encoding='utf-8'))
-assert payload.get('sha') == os.environ['EXPECTED_SHA']
-PY
-  pass "GitHub public API exposes the audited commit"
+  require_status "GitHub public commit page exposes the audited commit" \
+    "https://github.com/FedorMilovanov/Milovi_School/commit/$EXPECTED_SHA"
 fi
 
 encoded_url="$(python3 - "$LIVE_BASE/materials/" <<'PY'
