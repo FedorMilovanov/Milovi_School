@@ -4,10 +4,13 @@ on:
   push:
     branches: [main]
     paths:
-      - 'src/components/gallery/**'
-      - 'src/components/LuxuryText.tsx'
+      - 'src/components/**'
+      - 'src/layouts/**'
+      - 'src/pages/materials.astro'
       - 'src/styles/global.css'
       - 'package.json'
+      - 'package-lock.json'
+      - 'astro.config.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_generated_gallery_html.mjs'
@@ -25,7 +28,7 @@ concurrency:
 
 jobs:
   local-contract-and-browser:
-    name: 70+ shell checks and 45 browser interactions
+    name: 70+ shell, 30+ HTML and 45 browser checks
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -76,6 +79,9 @@ jobs:
 
       - name: Audit generated gallery HTML conformance
         run: node scripts/audit_generated_gallery_html.mjs
+
+      - name: Run 30+ generated gallery HTML contract checks
+        run: node scripts/audit_gallery_generated.mjs
 
       - name: Install generated-site audit dependencies
         run: python3 -m pip install --user pillow beautifulsoup4
@@ -166,7 +172,7 @@ jobs:
           set -euo pipefail
           if [[ "$LOCAL_RESULT" == "success" && "$LIVE_RESULT" == "success" ]]; then
             state="success"
-            description="70+ shell, 45 browser and 49+ live checks passed"
+            description="70+ shell, 30+ HTML, 45 browser and 49+ live checks passed"
           else
             state="failure"
             description="Gallery audit failed: local=$LOCAL_RESULT live=$LIVE_RESULT"
