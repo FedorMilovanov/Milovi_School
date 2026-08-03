@@ -21,7 +21,7 @@
 7. ❌ Удалять Service Worker (`public/sw.js`) или менять `__BUILD_HASH__` placeholder.
 8. ❌ **Менять дефолт тёмной темы — ЗАПРЕЩЕНО.** Тёмная тема — фирменный стиль бренда. `HomeApp` начинает с `'dark'`, pre-paint скрипт применяет `dark` по умолчанию. Это intentional design. (→ §3.4)
 9. ❌ Возвращать Astro `ClientRouter` / `astro:transitions` запрещено: он уже вызывал зависания при переходах на статьи.
-10. ❌ Возвращать портянку 115 статей на главную запрещено: `/materials/` — отдельная галерея, а на главной остаётся поиск.
+10. ❌ Возвращать портянку всех статей на главную запрещено: `/materials/` — отдельная галерея, а на главной остаётся поиск.
 11. ❌ Менять reference-hover карточек/цифр/hero без сверки с Drive-референсом запрещено.
 12. ✅ После любой правки — `npm run check && npm run lint && npm run build`.
 13. ✅ Перед коммитом — `npm run validate` (полный пакет проверок).
@@ -30,8 +30,8 @@
 
 ## 1. О проекте
 
-- **Что это:** библиотека статей о французской кондитерской школе (115+ статей).
-- **Стек:** **Astro 6 + React 18 + TypeScript (strict) + Tailwind 4 + Fuse.js + framer-motion**.
+- **Что это:** библиотека статей о французской кондитерской школе (155 статей на 2026-08-03).
+- **Стек:** **Astro 7 + React 18 + TypeScript (strict) + Tailwind 4 + Fuse.js + framer-motion**.
 - **Хостинг:** GitHub Pages (через GitHub Actions).
 - **Node:** требуется `>=22.13.0`, `npm >=10.9.2`.
 - **Поиск:** клиентский (`fuse.js`) — обновляется на каждой сборке.
@@ -275,7 +275,7 @@ void navigateTo('/articles/example/')
 
 **Главная:**
 - НЕ возвращать `ShowcaseSlider.tsx` / «Знаковые творения» / «Иконы современной pâtisserie».
-- НЕ возвращать список 115 статей подряд на главную. Главная: hero → stats → archive cards → search/categories → compact blocks → footer/about.
+- НЕ возвращать список всех статей подряд на главную. Главная: hero → stats → archive cards → search/categories → compact blocks → footer/about.
 - `/materials/` — единственное место для общей визуальной галереи всех материалов.
 
 
@@ -290,14 +290,16 @@ void navigateTo('/articles/example/')
 
 ### 3.11 Gallery premium preview
 
-`/materials/` содержит premium expanded preview на hover/focus карточек. Это намеренная luxury-фича, не заменять на обычный tooltip/popover. Обязательные свойства:
+`/materials/` содержит premium expanded preview для точного мышиного hover карточек. Это намеренная luxury-фича, не заменять на обычный tooltip/popover. Обязательные свойства:
 
 - маленькая карточка остаётся обычной ссылкой на статью;
-- hover/focus только обновляет preview window;
+- hover с выдержкой открывает или обновляет preview window; обычный keyboard focus ничего сам не раскрывает;
 - preview содержит крупное изображение, категорию, readTime, excerpt, tags, Prev/Next, «Читать материал», «Свернуть»;
 - reference-hover карточек (`cat-img-card-lux`) не менять;
 - preview CSS живёт в `global.css` как `.gallery-preview-*`;
-- reduced-motion должен отключать entrance animations.
+- reduced-motion должен отключать entrance animations;
+- preview закрывается только по реальному scroll, Escape, потере фокуса окна, уходу мыши или явному клику вне карточки/панели; synthetic wheel без scroll не должен закрывать его;
+- React island SSR использует `experimentalDisableStreaming: true`: это предотвращает повреждение UTF-8 на границах React 18 stream chunks; сгенерированный HTML нельзя переписывать post-build скриптами.
 
 
 ### 3.12 Content quality invariants
@@ -436,10 +438,10 @@ npm run validate
 | «Переключу dark на light по default» | **ЗАПРЕЩЕНО.** Тёмная тема — intentional brand design. §3.4 |
 | «Добавлю светлую тему как основную, а тёмную как опцию» | **ЗАПРЕЩЕНО.** Это инвертирует бренд. §3.4 |
 | «Уберу trimCache() — не нужен» | См. §3.3. Кеш будет расти бесконечно. |
-| «Обновлю Astro с 6 до 7 — последняя версия» | НЕТ. Major-обновления = большие миграции, спроси. |
+| «Обновлю Astro на следующий major без миграционного плана» | НЕТ. Major-обновления = отдельная проверяемая миграция. |
 | «Заменю Fuse.js на современный поиск» | См. §3.6. Fuse настроен, не переделывай. |
 | «Верну ClientRouter/ViewTransitions ради красивых переходов» | НЕТ. Уже давал зависания при переходе на статьи. §3.8 |
-| «Верну список 115 статей на главную» | НЕТ. Для этого есть `/materials/`; на главной остаётся поиск. §3.9 |
+| «Верну список всех статей на главную» | НЕТ. Для этого есть `/materials/`; на главной остаётся поиск. §3.9 |
 | «Упрощу hover карточек: scale/brightness вместо blur-copy» | НЕТ. Reference-hover защищён. §3.9 |
 | «Поправлю isList regex — нечитабельный» | См. §3.5. Уже сломали раз, не трогать. |
 | «Сделаю prettier --write src/` — для красоты» | НЕТ. Diff = нечитаем. |
@@ -451,13 +453,14 @@ npm run validate
 
 | Версия | Дата | Что |
 |---|---|---|
+| AGENTS-r8 | 2026-08-03 | Актуализирован стек до Astro 7; preview сделан hover-only без focus side effects; запрещена post-build мутация HTML, закреплён deterministic React SSR. |
 | AGENTS-r7 | 2026-05-20 | Зафиксированы content-quality правила: без fallback boilerplate, missing deepContents валит сборку, Article JSON-LD содержит безопасный `articleBody`. |
-| AGENTS-r6 | 2026-05-20 | Зафиксирована luxury-фича `/materials/`: expanded preview на hover/focus, без поломки маленьких карточек и reference-hover. |
+| AGENTS-r6 | 2026-05-20 | Зафиксирована luxury-фича `/materials/`: expanded preview на hover/focus (историческая формулировка; актуальный контракт — hover-only), без поломки маленьких карточек и reference-hover. |
 | AGENTS-r5 | 2026-05-20 | Зафиксированы правила audit-hardening: React 18 types, 404 noindex/status, robots для `?q=`, lazy CommandPalette, JS-safe cursor fallback. |
 | AGENTS-r4 | 2026-05-20 | Зафиксированы правила после index/materials superfix: `/materials/`, запрет ClientRouter, запрет портянки 115 статей на главной, reference-hover карточек/цифр/hero, репо-гигиена `.config`/`reference.html`. |
 | AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§11) с описанием багов и архитектуры поиска |
 | AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + нативная MPA-навигация для внутренних переходов, curated audit Markdown можно коммитить. |
-| AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 6 + React 18 + TS strict + Tailwind 4) |
+| AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 7 + React 18 + TS strict + Tailwind 4) |
 
 ---
 

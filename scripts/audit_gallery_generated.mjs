@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { TextDecoder } from 'node:util'
 
 const FILE = 'dist/materials/index.html'
 const bytes = await readFile(FILE)
-const html = bytes.toString('utf8')
+const html = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
 let count = 0
 
 const check = (name, condition, detail = '') => {
@@ -35,7 +36,6 @@ const headClose = lower.indexOf('</head>')
 const bodyOpen = lower.indexOf('<body')
 const bodyClose = lower.lastIndexOf('</body>')
 const body = bodyOpen >= 0 ? html.slice(bodyOpen, bodyClose >= 0 ? bodyClose : undefined) : ''
-const head = headOpen >= 0 && headClose >= 0 ? html.slice(headOpen, headClose) : ''
 
 check('generated materials HTML is non-empty', html.length > 10_000, `${html.length} bytes`)
 check('generated materials HTML has no NUL bytes', nulPositions.length === 0, `${nulPositions.length} NUL bytes`)
@@ -45,8 +45,9 @@ check('head element exists', headOpen >= 0 && headClose > headOpen)
 check('body element exists', bodyOpen > headClose && bodyClose > bodyOpen)
 check('only one body element is emitted', (lower.match(/<body\b/g) ?? []).length === 1)
 check('only one closing body tag is emitted', (lower.match(/<\/body>/g) ?? []).length === 1)
-check('Astro island display rule is moved into head', head.includes('astro-island,astro-slot,astro-static-slot{display:contents}'))
-check('no style element remains inside body', !/<style\b/i.test(body))
+const islandStyle = '<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>'
+check('Astro island display rule is emitted exactly once', html.split(islandStyle).length - 1 === 1)
+check('Astro hydration style is left in framework-owned output', body.includes(islandStyle))
 check('no aria-label is attached to a generic span', !/<span\b[^>]*\baria-label=/i.test(html))
 
 const imageTags = html.match(/<img\b[^>]*>/gi) ?? []

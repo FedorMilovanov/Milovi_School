@@ -926,7 +926,11 @@ a:hover .logo-name-patisserie {
   color: #fff;
 }
 .gallery-preview-read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.9rem 1.15rem;
+  text-decoration: none;
   color: #1a1510;
   background: linear-gradient(135deg, #f3dfb8, #d4a96a 48%, #b08050);
   border-color: rgba(255,236,200,0.46);
@@ -936,6 +940,11 @@ a:hover .logo-name-patisserie {
   transform: translateY(-2px);
   background: linear-gradient(135deg, #fff4d8, #e8c98a 48%, #c8873e);
   box-shadow: 0 18px 46px rgba(212,169,106,0.28);
+}
+.gallery-preview-nav:focus-visible,
+.gallery-preview-read:focus-visible {
+  outline: 2px solid #f3dfb8;
+  outline-offset: 3px;
 }
 @keyframes galleryPreviewIn {
   from { opacity: 0; transform: translateY(22px) scale(0.985); filter: blur(8px); }

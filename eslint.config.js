@@ -94,11 +94,16 @@ export default defineConfig([
       globals: {
         process: 'readonly',
         console: 'readonly',
+        TextDecoder: 'readonly',
       },
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
       },
+    },
+    rules: {
+      // The raw-output audits intentionally search for forbidden control bytes.
+      'no-control-regex': 'off',
     },
   },
   {
@@ -108,6 +113,7 @@ export default defineConfig([
         ...browserGlobals,
         process: 'readonly',
         Event: 'readonly',
+        WheelEvent: 'readonly',
         getComputedStyle: 'readonly',
       },
     },

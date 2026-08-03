@@ -154,30 +154,32 @@ await logCheck('opened preview title matches the hovered card', async () => {
   assert.equal(await previewTitle(), await cardTitle(0))
 })
 
-await logCheck('hovered card exposes aria-expanded=true', async () => {
+await logCheck('gallery links do not misuse aria-expanded disclosure state', async () => {
   await loadDesktop()
   await openViaHover(0)
-  assert.equal(await card(0).getAttribute('aria-expanded'), 'true')
+  assert.equal(await card(0).getAttribute('aria-expanded'), null)
 })
 
-await logCheck('only one card is aria-expanded at a time', async () => {
+await logCheck('gallery links do not control a transient hover-only region', async () => {
   await loadDesktop()
   await openViaHover(0)
-  assert.equal(await page.locator('.cat-img-card-lux[aria-expanded="true"]').count(), 1)
+  assert.equal(await card(0).getAttribute('aria-controls'), null)
 })
 
-await logCheck('preview is correctly connected through aria-controls', async () => {
+await logCheck('preview is a named region linked to its visible heading', async () => {
   await loadDesktop()
   await openViaHover(0)
-  assert.equal(await card(0).getAttribute('aria-controls'), 'gallery-preview')
-  assert.equal(await preview().getAttribute('id'), 'gallery-preview')
+  assert.equal(await preview().getAttribute('role'), 'region')
+  const labelledBy = await preview().getAttribute('aria-labelledby')
+  assert.ok(labelledBy)
+  assert.equal((await page.locator(`#${labelledBy}`).innerText()).trim(), await previewTitle())
 })
 
-await logCheck('preview live region uses polite atomic announcements', async () => {
+await logCheck('preview does not announce the entire panel as a live region', async () => {
   await loadDesktop()
   await openViaHover(0)
-  assert.equal(await preview().getAttribute('aria-live'), 'polite')
-  assert.equal(await preview().getAttribute('aria-atomic'), 'true')
+  assert.equal(await preview().getAttribute('aria-live'), null)
+  assert.equal(await preview().getAttribute('aria-atomic'), null)
 })
 
 await logCheck('moving to another visible card replaces content without a second panel', async () => {
@@ -191,13 +193,18 @@ await logCheck('moving to another visible card replaces content without a second
   assert.equal(await preview().count(), 1)
 })
 
-await logCheck('aria-expanded moves from the old card to the new card', async () => {
+await logCheck('continued movement inside one card does not restart hover dwell', async () => {
   await loadDesktop()
-  await openViaHover(0)
-  await moveToCard(1)
-  await page.waitForTimeout(260)
-  assert.equal(await card(0).getAttribute('aria-expanded'), 'false')
-  assert.equal(await card(1).getAttribute('aria-expanded'), 'true')
+  await card(0).scrollIntoViewIfNeeded()
+  const box = await card(0).boundingBox()
+  assert.ok(box)
+  await page.mouse.move(8, 8)
+  for (let step = 0; step < 6; step += 1) {
+    await page.mouse.move(box.x + 40 + step * 18, box.y + 80 + (step % 2) * 18)
+    await page.waitForTimeout(70)
+  }
+  await preview().waitFor({ state: 'visible', timeout: 500 })
+  assert.equal(await previewTitle(), await cardTitle(0))
 })
 
 await logCheck('close button closes preview', async () => {
@@ -232,11 +239,12 @@ await logCheck('Escape closes preview', async () => {
   await preview().waitFor({ state: 'detached' })
 })
 
-await logCheck('mouse wheel closes preview immediately', async () => {
+await logCheck('synthetic wheel input without scrolling does not close preview', async () => {
   await loadDesktop()
   await openViaHover(0)
-  await page.mouse.wheel(0, 120)
-  await preview().waitFor({ state: 'detached' })
+  await page.evaluate(() => window.dispatchEvent(new WheelEvent('wheel', { deltaY: 120 })))
+  await page.waitForTimeout(180)
+  assert.ok(await preview().isVisible())
 })
 
 await logCheck('programmatic page scroll closes preview', async () => {
@@ -257,6 +265,13 @@ await logCheck('click outside gallery and preview closes preview', async () => {
   await loadDesktop()
   await openViaHover(0)
   await page.locator('h1').click({ position: { x: 5, y: 5 } })
+  await preview().waitFor({ state: 'detached' })
+})
+
+await logCheck('clicking the gallery background gap closes preview', async () => {
+  await loadDesktop()
+  await openViaHover(0)
+  await page.locator('main .grid').first().dispatchEvent('pointerdown', { pointerType: 'mouse' })
   await preview().waitFor({ state: 'detached' })
 })
 
@@ -286,6 +301,14 @@ await logCheck('Next button changes preview material', async () => {
   assert.notEqual(await previewTitle(), before)
 })
 
+await logCheck('preview navigation keeps the chosen dock stable', async () => {
+  await loadDesktop()
+  await openViaHover(0)
+  const before = await preview().getAttribute('data-dock')
+  await preview().getByRole('button', { name: 'Следующий материал' }).click()
+  assert.equal(await preview().getAttribute('data-dock'), before)
+})
+
 await logCheck('Previous button reverses Next navigation', async () => {
   await loadDesktop()
   await openViaHover(0)
@@ -312,29 +335,27 @@ await logCheck('ArrowLeft reverses ArrowRight navigation', async () => {
   assert.equal(await previewTitle(), before)
 })
 
-await logCheck('keyboard Tab intent can open preview on focused card', async () => {
+await logCheck('keyboard focus does not open a hover-only preview', async () => {
   await loadDesktop()
-  await page.keyboard.press('Tab')
   await card(0).focus()
-  await preview().waitFor({ state: 'visible' })
-  assert.equal(await previewTitle(), await cardTitle(0))
+  await page.waitForTimeout(420)
+  assert.equal(await preview().count(), 0)
 })
 
-await logCheck('keyboard focus leaving the card closes preview', async () => {
+await logCheck('focused gallery link still navigates with Enter', async () => {
   await loadDesktop()
-  await page.keyboard.press('Tab')
+  const href = await card(0).getAttribute('href')
+  assert.ok(href)
   await card(0).focus()
-  await preview().waitFor({ state: 'visible' })
-  await page.locator('header button').first().focus()
-  await page.waitForTimeout(360)
-  assert.equal(await preview().count(), 0)
+  await page.keyboard.press('Enter')
+  await page.waitForURL((url) => url.pathname === href, { timeout: 5000 })
 })
 
 await logCheck('all preview controls have accessible button names', async () => {
   await loadDesktop()
   await openViaHover(0)
   const names = await preview().getByRole('button').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('aria-label') || button.textContent?.trim() || ''))
-  assert.ok(names.length >= 4)
+  assert.ok(names.length >= 3)
   assert.ok(names.every(Boolean))
 })
 
@@ -365,7 +386,7 @@ await logCheck('Read material button navigates to the previewed article', async 
   await openViaHover(0)
   const href = await card(0).getAttribute('href')
   assert.ok(href)
-  await preview().getByRole('button', { name: /Читать материал/ }).click()
+  await preview().getByRole('link', { name: /Читать материал/ }).click()
   await page.waitForURL((url) => url.pathname === href, { timeout: 5000 })
 })
 

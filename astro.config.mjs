@@ -130,7 +130,12 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
   integrations: [
-    react(),
+    react({
+      // React 18 streaming can split multibyte UTF-8 sequences at chunk
+      // boundaries during static generation. Astro exposes this compatibility
+      // mode specifically for deterministic, non-streaming island SSR.
+      experimentalDisableStreaming: true,
+    }),
     sitemap(),
     enhanceImageSitemap(),
     bumpServiceWorkerVersion(),
