@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/fix_generated_html.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "audit:security": "npm audit --audit-level=high",
