@@ -1,0 +1,137 @@
+name: Gallery interaction quality gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/gallery/**'
+      - 'src/styles/global.css'
+      - 'scripts/audit_gallery_*.sh'
+      - 'scripts/audit_gallery_*.mjs'
+      - '.github/workflows/gallery-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gallery-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  local-contract-and-browser:
+    name: 50+ shell checks and 40+ browser interactions
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup pinned Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Validate audit shell syntax
+        run: |
+          bash -n scripts/audit_gallery_contract.sh
+          bash -n scripts/audit_gallery_live.sh
+
+      - name: Run 50+ gallery source-contract checks
+        run: bash scripts/audit_gallery_contract.sh
+
+      - name: Type-check Astro and React
+        run: npm run check
+
+      - name: Lint complete source tree
+        run: npm run lint
+
+      - name: Audit article content
+        run: npm run audit:content
+
+      - name: Audit dependency security
+        run: npm run audit:security
+
+      - name: Build production candidate
+        run: npm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_RELEASE_SHA: ${{ github.sha }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Install generated-site audit dependencies
+        run: python3 -m pip install --user pillow beautifulsoup4
+
+      - name: Audit generated static site
+        run: npm run audit:site
+
+      - name: Audit privacy and release contracts
+        run: npm run audit:privacy
+        env:
+          PUBLIC_RELEASE_SHA: ${{ github.sha }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Install Chromium for interaction audit
+        run: npx playwright install --with-deps chromium
+
+      - name: Start immutable local preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/milovi-preview.log 2>&1 &
+          echo $! > /tmp/milovi-preview.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1:4321/materials/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/milovi-preview.log >&2
+          exit 1
+
+      - name: Click through 40+ gallery behavior checks
+        run: node scripts/audit_gallery_preview.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+
+      - name: Print preview server log
+        if: always()
+        run: cat /tmp/milovi-preview.log || true
+
+      - name: Stop preview server
+        if: always()
+        run: |
+          if [[ -f /tmp/milovi-preview.pid ]]; then
+            kill "$(cat /tmp/milovi-preview.pid)" 2>/dev/null || true
+          fi
+
+  external-live-audit:
+    name: 45+ live checks across CDN and external validators
+    needs: local-contract-and-browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Validate deployed commit with external services
+        run: bash scripts/audit_gallery_live.sh
+        env:
+          LIVE_BASE: https://french.milovicake.ru
+          EXPECTED_SHA: ${{ github.sha }}
