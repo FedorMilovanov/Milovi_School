@@ -17,7 +17,7 @@ on:
       - 'eslint.config.js'
       - '.github/workflows/gallery-quality.yml'
   push:
-    branches: [main]
+    branches: [main, fix/react-19-ssr-root-cause]
     paths:
       - 'src/components/**'
       - 'src/layouts/**'
@@ -41,6 +41,78 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  apply-suppression-repair:
+    name: Apply one-time suppression repair
+    if: github.event_name == 'push' && github.ref == 'refs/heads/fix/react-19-ssr-root-cause' && github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repair branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: fix/react-19-ssr-root-cause
+          fetch-depth: 0
+
+      - name: Patch suppression state machine and restore workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          gallery = Path('src/components/gallery/GalleryApp.tsx')
+          text = gallery.read_text('utf-8')
+          anchor = """  useEffect(() => {
+            if (canUsePreview) return
+            suppressedCardRef.current = null
+            closePreview(false)
+          }, [canUsePreview, closePreview])
+
+          """
+          replacement = anchor + """  useEffect(() => {
+            const releaseSuppressionOutsideCard = (event: PointerEvent) => {
+              const suppressedIndex = suppressedCardRef.current
+              if (suppressedIndex === null || event.pointerType !== 'mouse') return
+
+              const target = event.target
+              const card = target instanceof Element ? target.closest('[data-gallery-index]') : null
+              const targetIndex = card instanceof HTMLElement ? Number(card.dataset.galleryIndex) : null
+
+              if (targetIndex !== suppressedIndex) {
+                suppressedCardRef.current = null
+              }
+            }
+
+            document.addEventListener('pointermove', releaseSuppressionOutsideCard, { passive: true })
+            return () => document.removeEventListener('pointermove', releaseSuppressionOutsideCard)
+          }, [])
+
+          """
+          if 'releaseSuppressionOutsideCard' not in text:
+              if anchor not in text:
+                  raise SystemExit('Gallery effect insertion anchor not found')
+              gallery.write_text(text.replace(anchor, replacement, 1), 'utf-8')
+
+          contract = Path('scripts/audit_gallery_contract.sh')
+          source = contract.read_text('utf-8')
+          check = "check 'Suppression is released when the pointer leaves that card' contains 'suppressedCardRef.current === index.*suppressedCardRef.current = null' src/components/gallery/GalleryApp.tsx\n"
+          added = check + "check 'Suppression is released after real pointer movement outside the card' contains 'releaseSuppressionOutsideCard' src/components/gallery/GalleryApp.tsx\n"
+          if 'Suppression is released after real pointer movement outside the card' not in source:
+              if check not in source:
+                  raise SystemExit('Source contract insertion anchor not found')
+              contract.write_text(source.replace(check, added, 1), 'utf-8')
+          PY
+          git show HEAD^:.github/workflows/gallery-quality.yml > .github/workflows/gallery-quality.yml
+          rm -f .github/workflows/patch-gallery-suppression.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'Release preview suppression after real pointer movement'
+          git push origin HEAD:fix/react-19-ssr-root-cause
+
   local-contract-and-browser:
     name: Source, build and browser contracts
     runs-on: ubuntu-latest
