@@ -35,7 +35,6 @@ const headOpen = lower.indexOf('<head')
 const headClose = lower.indexOf('</head>')
 const bodyOpen = lower.indexOf('<body')
 const bodyClose = lower.lastIndexOf('</body>')
-const body = bodyOpen >= 0 ? html.slice(bodyOpen, bodyClose >= 0 ? bodyClose : undefined) : ''
 
 check('generated materials HTML is non-empty', html.length > 10_000, `${html.length} bytes`)
 check('generated materials HTML has no NUL bytes', nulPositions.length === 0, `${nulPositions.length} NUL bytes`)
@@ -46,8 +45,9 @@ check('body element exists', bodyOpen > headClose && bodyClose > bodyOpen)
 check('only one body element is emitted', (lower.match(/<body\b/g) ?? []).length === 1)
 check('only one closing body tag is emitted', (lower.match(/<\/body>/g) ?? []).length === 1)
 const islandStyle = '<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>'
-check('Astro island display rule is emitted exactly once', html.split(islandStyle).length - 1 === 1)
-check('Astro hydration style is left in framework-owned output', body.includes(islandStyle))
+check('standalone gallery hydration emits no Astro island body style', !html.includes(islandStyle))
+check('standalone gallery hydration emits no Astro island wrapper', !/<astro-island\b/i.test(html))
+check('server-rendered gallery has a stable hydration root', /\bid=["']gallery-app-root["']/i.test(html))
 check('no aria-label is attached to a generic span', !/<span\b[^>]*\baria-label=/i.test(html))
 
 const imageTags = html.match(/<img\b[^>]*>/gi) ?? []
@@ -80,7 +80,7 @@ check('no gallery card claims to be expanded initially', galleryCardTags.every((
 check('closed gallery cards do not control an absent preview', galleryCardTags.every((tag) => !/\baria-controls=["']gallery-preview["']/i.test(tag)))
 
 check('production stylesheet is linked', /<link\b[^>]*rel=["'][^"']*stylesheet[^"']*["']/i.test(html))
-check('hydration/runtime script is emitted', /<script\b/i.test(html))
+check('bundled gallery hydration module is emitted', /<script\b[^>]*type=["']module["'][^>]*src=["'][^"']+\.js["']/i.test(html) || /<script\b[^>]*src=["'][^"']+\.js["'][^>]*type=["']module["']/i.test(html))
 
 const ids = [...html.matchAll(/\bid=["']([^"']+)["']/gi)].map((match) => match[1])
 const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index)
