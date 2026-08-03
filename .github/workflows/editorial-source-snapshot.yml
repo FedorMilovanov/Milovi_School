@@ -4,14 +4,13 @@ on:
   push:
     branches:
       - agent/editorial-zero-defects
-    paths:
-      - .editorial-payload/READY
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: ${{ hashFiles('.editorial-payload/READY') != '' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout working branch
