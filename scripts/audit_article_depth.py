@@ -24,28 +24,28 @@ OUTPUT_DIR = ROOT / "artifacts" / "content-depth-report"
 WORD_RE = re.compile(r"[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*")
 URL_RE = re.compile(r"https?://[^\s<>'\"]+")
 TAG_RE = re.compile(r"<[^>]+>")
+ARTICLE_START_RE = re.compile(r"(?m)^\s*\{\s*id:\s*'([^']+)'")
 
 
 def decode_js(value: str) -> str:
     return value.replace("\\'", "'").replace('\\"', '"').replace("\\n", "\n")
 
 
-def js_string_field(line: str, field: str) -> str | None:
-    marker = f"{field}:"
-    start = line.find(marker)
-    if start < 0:
+def js_string_field(chunk: str, field: str) -> str | None:
+    marker_match = re.search(rf"\b{re.escape(field)}\s*:", chunk)
+    if not marker_match:
         return None
-    cursor = start + len(marker)
-    while cursor < len(line) and line[cursor].isspace():
+    cursor = marker_match.end()
+    while cursor < len(chunk) and chunk[cursor].isspace():
         cursor += 1
-    if cursor >= len(line) or line[cursor] not in {"'", '"'}:
+    if cursor >= len(chunk) or chunk[cursor] not in {"'", '"'}:
         return None
-    quote = line[cursor]
+    quote = chunk[cursor]
     cursor += 1
     output: list[str] = []
     escaped = False
-    while cursor < len(line):
-        char = line[cursor]
+    while cursor < len(chunk):
+        char = chunk[cursor]
         if escaped:
             output.append("\\" + char)
             escaped = False
@@ -60,18 +60,21 @@ def js_string_field(line: str, field: str) -> str | None:
 
 
 def parse_articles(text: str) -> dict[str, dict[str, object]]:
+    """Parse both compact one-line and expanded multiline article objects."""
     records: dict[str, dict[str, object]] = {}
-    for line in text.splitlines():
-        id_match = re.search(r"\bid:\s*'([^']+)'", line)
-        if not id_match:
-            continue
-        article_id = id_match.group(1)
-        read_time_match = re.search(r"\breadTime:\s*(\d+)", line)
+    starts = list(ARTICLE_START_RE.finditer(text))
+    for index, match in enumerate(starts):
+        chunk_end = starts[index + 1].start() if index + 1 < len(starts) else len(text)
+        chunk = text[match.start():chunk_end]
+        article_id = match.group(1)
+        read_time_match = re.search(r"\breadTime\s*:\s*(\d+)", chunk)
         records[article_id] = {
             "id": article_id,
-            "title": js_string_field(line, "title") or article_id,
-            "category": js_string_field(line, "category") or "unknown",
+            "title": js_string_field(chunk, "title") or article_id,
+            "category": js_string_field(chunk, "category") or "unknown",
             "declaredReadTime": int(read_time_match.group(1)) if read_time_match else 0,
+            "metadataSourceUrl": js_string_field(chunk, "sourceUrl") or "",
+            "metadataSourceLabel": js_string_field(chunk, "sourceLabel") or "",
         }
     return records
 
@@ -85,7 +88,7 @@ def parse_bodies(text: str) -> dict[str, str]:
 
 def article_kind(article_id: str, category: str, title: str) -> str:
     lowered = f"{article_id} {category} {title}".lower()
-    if article_id.startswith("recipe-") or "рецепт" in lowered:
+    if article_id.startswith("recipe-") or category == "recipes" or "рецепт" in lowered:
         return "recipe"
     if article_id.startswith("tech-") or category == "techniques" or "техника" in lowered:
         return "technique"
@@ -106,12 +109,22 @@ def target_for(kind: str) -> tuple[int, int]:
     }[kind]
 
 
-def metrics(body: str) -> dict[str, int | float]:
-    urls = URL_RE.findall(body)
+def metrics(body: str, metadata_source_url: str) -> dict[str, int | float]:
+    body_urls = set(URL_RE.findall(body))
+    all_urls = set(body_urls)
+    if metadata_source_url:
+        all_urls.add(metadata_source_url)
+
     html_headings = len(re.findall(r"<h[2-4]\b", body, flags=re.I))
     markdown_headings = len(re.findall(r"(?m)^\s*#{2,4}\s+", body))
-    bold_heading_blocks = len(re.findall(r"(?m)^\s*\*\*[^*\n]{4,100}\*\*\s*$", body))
-    sections = html_headings + markdown_headings + bold_heading_blocks
+    bold_leads = len(re.findall(r"(?m)^\s*\*\*[^*\n]{4,120}\*\*", body))
+    strong_leads = len(
+        re.findall(
+            r"(?im)^\s*(?:<p[^>]*>\s*)?<strong>[^<]{4,120}</strong>",
+            body,
+        )
+    )
+    sections = html_headings + markdown_headings + bold_leads + strong_leads
 
     html_paragraphs = len(re.findall(r"<p\b", body, flags=re.I))
     markdown_blocks = len([block for block in re.split(r"\n\s*\n", body) if len(WORD_RE.findall(block)) >= 8])
@@ -132,7 +145,8 @@ def metrics(body: str) -> dict[str, int | float]:
         "sections": sections,
         "paragraphs": paragraphs,
         "listItems": list_items,
-        "sourceLinks": len(set(urls)),
+        "bodySourceLinks": len(body_urls),
+        "sourceLinks": len(all_urls),
         "sentences": sentences,
         "estimatedReadTime": max(1, math.ceil(len(words) / 180)),
     }
@@ -182,7 +196,7 @@ for article_id, meta in articles.items():
     item = {
         **meta,
         "kind": kind,
-        **metrics(bodies[article_id]),
+        **metrics(bodies[article_id], str(meta["metadataSourceUrl"])),
         "targetWords": target_words,
         "targetSections": target_sections,
     }
@@ -206,6 +220,8 @@ summary = {
         "max": max(int(item["words"]) for item in report),
     },
     "needsExpansion": sum(item["severity"] != "ok" for item in report),
+    "missingMetadataSource": sum(not item["metadataSourceUrl"] for item in report),
+    "readTimeMismatches": sum(abs(int(item["readTimeDelta"])) >= 2 for item in report),
 }
 
 (OUTPUT_DIR / "report.json").write_text(
@@ -218,6 +234,8 @@ lines = [
     "",
     f"- Статей: {summary['articles']}",
     f"- Требуют расширения или редакторской проверки: {summary['needsExpansion']}",
+    f"- Без источника в метаданных: {summary['missingMetadataSource']}",
+    f"- Расхождение времени чтения на 2+ минуты: {summary['readTimeMismatches']}",
     f"- Слова: min {summary['wordCount']['min']}, median {summary['wordCount']['median']}, mean {summary['wordCount']['mean']}, max {summary['wordCount']['max']}",
     f"- Уровни: {summary['severity']}",
     "",
@@ -239,6 +257,8 @@ print(f"- articles: {summary['articles']}")
 print(f"- words: min={summary['wordCount']['min']}, median={summary['wordCount']['median']}, mean={summary['wordCount']['mean']}, max={summary['wordCount']['max']}")
 print(f"- severity: {summary['severity']}")
 print(f"- candidates for expansion/review: {summary['needsExpansion']}")
+print(f"- missing metadata source: {summary['missingMetadataSource']}")
+print(f"- read-time mismatches (2+ min): {summary['readTimeMismatches']}")
 print("\nTop 40 expansion candidates:")
 for index, item in enumerate([item for item in report if item["severity"] != "ok"][:40], start=1):
     print(
