@@ -1,8 +1,9 @@
 name: Apply verified editorial hardening
 
 on:
-  push:
-    branches: [main]
+  schedule:
+    - cron: '35 23 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -32,8 +33,7 @@ jobs:
       - name: Apply clean source changes
         run: |
           set -euo pipefail
-          BASE_SHA="$(git rev-parse HEAD^)"
-          git checkout "$BASE_SHA" -- .github/workflows/gallery-quality.yml
+          git checkout 0d62fde9086a4b24a4b382e4f0f74067afc7494b -- .github/workflows/gallery-quality.yml
           patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
           patch --batch --forward -p1 < /tmp/editorial.patch
           git config user.name 'Milovi Editorial Bot'
