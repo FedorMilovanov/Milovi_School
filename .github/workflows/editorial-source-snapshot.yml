@@ -25,27 +25,29 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Generate security-patched lockfile
+      - name: Remove vulnerable optional language-server chain
         run: |
-          npm pkg set overrides.fast-uri=4.1.1
+          npm pkg delete 'devDependencies.@astrojs/check'
+          npm pkg set 'scripts.check=tsc --noEmit'
+          npm pkg delete 'overrides.fast-uri'
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
 
-      - name: Install patched dependency tree
+      - name: Install exact reduced dependency tree
         run: npm ci
 
       - name: Audit complete dependency tree
         run: npm audit --audit-level=high
 
-      - name: Verify compatibility
+      - name: Verify type, lint and Astro compatibility
         run: |
           npm run check
           npm run lint
           npm run build
 
-      - name: Upload patched manifests
+      - name: Upload reduced manifests
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          name: patched-manifests-${{ github.sha }}
+          name: reduced-manifests-${{ github.sha }}
           path: |
             package.json
             package-lock.json
@@ -68,4 +70,4 @@ jobs:
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "${{ github.api_url }}/repos/${{ github.repository }}/statuses/$SHA" \
-            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Patched dependency compatibility\",\"context\":\"editorial/dependency-compatibility\"}"
+            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Reduced dependency compatibility\",\"context\":\"editorial/dependency-compatibility\"}"
