@@ -26,7 +26,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .bootstrap/part-* | base64 --decode > /tmp/professional-fix.tar.bz2
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          import hashlib
+          import re
+
+          parts = sorted(Path('.bootstrap').glob('part-*'))
+          if len(parts) != 8:
+              raise SystemExit(f'Expected 8 payload parts, found {len(parts)}')
+          encoded = ''.join(part.read_text(encoding='ascii') for part in parts)
+          clean = re.sub(r'[^A-Za-z0-9+/=]', '', encoded)
+          print(f'Payload base64: raw={len(encoded)} clean={len(clean)} parts={[part.stat().st_size for part in parts]}')
+          payload = base64.b64decode(clean, validate=True)
+          digest = hashlib.sha256(payload).hexdigest()
+          expected = '32b435efdf6a643ab7b1ba504d1f5b45df552e0c342ab50e01e495a5217efb9b'
+          if digest != expected:
+              raise SystemExit(f'Payload SHA-256 mismatch: {digest} != {expected}')
+          Path('/tmp/professional-fix.tar.bz2').write_bytes(payload)
+          print(f'Payload verified: {len(payload)} bytes, sha256={digest}')
+          PY
           tar -xjf /tmp/professional-fix.tar.bz2 -C .
           while IFS= read -r path; do
             [ -n "$path" ] && rm -f -- "$path"
