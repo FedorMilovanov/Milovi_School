@@ -13,6 +13,7 @@ on:
       - 'astro.config.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
+      - 'scripts/audit_visual_site.mjs'
       - 'scripts/audit_raw_build.mjs'
       - 'eslint.config.js'
       - '.github/workflows/gallery-quality.yml'
@@ -28,6 +29,7 @@ on:
       - 'astro.config.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
+      - 'scripts/audit_visual_site.mjs'
       - 'scripts/audit_raw_build.mjs'
       - 'eslint.config.js'
       - '.github/workflows/gallery-quality.yml'
@@ -138,6 +140,21 @@ jobs:
         run: node scripts/audit_gallery_preview.mjs
         env:
           BASE_URL: http://127.0.0.1:4321
+
+      - name: Run cross-page visual and responsive QA
+        run: node scripts/audit_visual_site.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+          VISUAL_QA_DIR: artifacts/visual-qa
+
+      - name: Upload visual QA evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.6.2
+        with:
+          name: visual-qa-${{ env.SOURCE_SHA }}
+          path: artifacts/visual-qa
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Print preview server log
         if: always()
