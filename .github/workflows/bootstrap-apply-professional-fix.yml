@@ -1,6 +1,8 @@
 name: Apply prepared professional fix
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [fix/react-19-ssr-root-cause]
   workflow_dispatch:
