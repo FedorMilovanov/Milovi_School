@@ -1,6 +1,8 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
+// This audit is intentionally read-only: it validates Astro's untouched output
+// and must never repair, normalize or rewrite generated production files.
 const DIST_DIR = path.resolve('dist')
 const ASTRO_ISLAND_STYLE = '<style>astro-island,astro-slot,astro-static-slot{display:contents}</style>'
 const decoder = new TextDecoder('utf-8', { fatal: true })
