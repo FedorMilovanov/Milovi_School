@@ -30,22 +30,48 @@ def decode_js(value: str) -> str:
     return value.replace("\\'", "'").replace('\\"', '"').replace("\\n", "\n")
 
 
+def js_string_field(line: str, field: str) -> str | None:
+    marker = f"{field}:"
+    start = line.find(marker)
+    if start < 0:
+        return None
+    cursor = start + len(marker)
+    while cursor < len(line) and line[cursor].isspace():
+        cursor += 1
+    if cursor >= len(line) or line[cursor] not in {"'", '"'}:
+        return None
+    quote = line[cursor]
+    cursor += 1
+    output: list[str] = []
+    escaped = False
+    while cursor < len(line):
+        char = line[cursor]
+        if escaped:
+            output.append("\\" + char)
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif char == quote:
+            return decode_js("".join(output))
+        else:
+            output.append(char)
+        cursor += 1
+    return None
+
+
 def parse_articles(text: str) -> dict[str, dict[str, object]]:
     records: dict[str, dict[str, object]] = {}
-    pattern = re.compile(
-        r"\{\s*id:\s*'(?P<id>[^']+)'\s*,\s*"
-        r"title:\s*'(?P<title>(?:\\'|[^'])*)'.*?"
-        r"category:\s*'(?P<category>[^']+)'.*?"
-        r"readTime:\s*(?P<read_time>\d+)",
-        flags=re.S,
-    )
-    for match in pattern.finditer(text):
-        article_id = match.group("id")
+    for line in text.splitlines():
+        id_match = re.search(r"\bid:\s*'([^']+)'", line)
+        if not id_match:
+            continue
+        article_id = id_match.group(1)
+        read_time_match = re.search(r"\breadTime:\s*(\d+)", line)
         records[article_id] = {
             "id": article_id,
-            "title": decode_js(match.group("title")),
-            "category": match.group("category"),
-            "declaredReadTime": int(match.group("read_time")),
+            "title": js_string_field(line, "title") or article_id,
+            "category": js_string_field(line, "category") or "unknown",
+            "declaredReadTime": int(read_time_match.group(1)) if read_time_match else 0,
         }
     return records
 
