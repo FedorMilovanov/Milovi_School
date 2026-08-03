@@ -168,3 +168,54 @@ jobs:
         env:
           LIVE_BASE: https://french.milovicake.ru
           EXPECTED_SHA: ${{ github.sha }}
+
+  publish-gallery-status:
+    name: Publish gallery quality status
+    if: always()
+    needs: [local-contract-and-browser, external-live-audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish exact gallery result
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LOCAL_RESULT: ${{ needs.local-contract-and-browser.result }}
+          EXTERNAL_RESULT: ${{ needs.external-live-audit.result }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref }}
+          TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          state=failure
+          description='Gallery source, build, browser or live audit failed'
+          if [[ "$LOCAL_RESULT" == success ]]; then
+            if [[ "$EVENT_NAME" == push && "$REF_NAME" == refs/heads/main ]]; then
+              if [[ "$EXTERNAL_RESULT" == success ]]; then
+                state=success
+                description='Gallery source, browser and live audits passed'
+              fi
+            else
+              state=success
+              description='Gallery source and browser audits passed'
+            fi
+          fi
+          STATE="$state" DESCRIPTION="$description" TARGET_URL="$TARGET_URL" python3 - <<'PY' > /tmp/gallery-status.json
+          import json, os
+          print(json.dumps({
+              'state': os.environ['STATE'],
+              'context': 'gallery/quality',
+              'description': os.environ['DESCRIPTION'],
+              'target_url': os.environ['TARGET_URL'],
+          }))
+          PY
+          curl -fsS -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "${{ github.api_url }}/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            --data-binary @/tmp/gallery-status.json
+          test "$state" = success
