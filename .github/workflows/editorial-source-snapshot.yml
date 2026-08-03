@@ -20,13 +20,13 @@ jobs:
           persist-credentials: false
 
       - name: Pack repository source
-        run: tar -czf editorial-source.tar.gz --exclude=.git .
+        run: tar -czf /tmp/editorial-source.tar.gz --exclude=.git .
 
       - name: Upload source snapshot
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: editorial-source-${{ github.sha }}
-          path: editorial-source.tar.gz
+          path: /tmp/editorial-source.tar.gz
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
