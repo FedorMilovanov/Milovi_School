@@ -10,8 +10,8 @@ const baseIds = new Set(articles.map((article) => article.id))
 const expansionIds = Object.keys(articleExpansions)
 const overrideIds = Object.keys(articleOverrides)
 
-if (expansionIds.length !== 75) {
-  throw new Error(`[library] Expected 75 editorial expansions, received ${expansionIds.length}`)
+if (expansionIds.length !== 155) {
+  throw new Error(`[library] Expected 155 editorial expansions, received ${expansionIds.length}`)
 }
 
 for (const id of [...expansionIds, ...overrideIds]) {
