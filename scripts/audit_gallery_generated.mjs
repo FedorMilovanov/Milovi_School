@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 
 const FILE = 'dist/materials/index.html'
-const html = await readFile(FILE, 'utf8')
+const bytes = await readFile(FILE)
+const html = bytes.toString('utf8')
 let count = 0
 
 const check = (name, condition, detail = '') => {
@@ -14,6 +15,20 @@ const check = (name, condition, detail = '') => {
   console.log(`✓ [${String(count).padStart(2, '0')}] ${name}`)
 }
 
+const nulPositions = []
+for (let index = bytes.indexOf(0); index !== -1; index = bytes.indexOf(0, index + 1)) {
+  nulPositions.push(index)
+}
+if (nulPositions.length > 0) {
+  console.error(`Generated gallery contains ${nulPositions.length} NUL byte(s) at offsets: ${nulPositions.slice(0, 20).join(', ')}`)
+  for (const position of nulPositions.slice(0, 10)) {
+    const start = Math.max(0, position - 160)
+    const end = Math.min(bytes.length, position + 160)
+    const context = bytes.subarray(start, end).toString('utf8').replaceAll('\u0000', '<NUL>')
+    console.error(`NUL context @ ${position}: ${JSON.stringify(context)}`)
+  }
+}
+
 const lower = html.toLowerCase()
 const headOpen = lower.indexOf('<head')
 const headClose = lower.indexOf('</head>')
@@ -23,6 +38,7 @@ const body = bodyOpen >= 0 ? html.slice(bodyOpen, bodyClose >= 0 ? bodyClose : u
 const head = headOpen >= 0 && headClose >= 0 ? html.slice(headOpen, headClose) : ''
 
 check('generated materials HTML is non-empty', html.length > 10_000, `${html.length} bytes`)
+check('generated materials HTML has no NUL bytes', nulPositions.length === 0, `${nulPositions.length} NUL bytes`)
 check('document starts with an HTML5 doctype', /^<!doctype html>/i.test(html.trimStart()))
 check('document language is Russian', /<html\b[^>]*\blang=["']ru["']/i.test(html))
 check('head element exists', headOpen >= 0 && headClose > headOpen)
