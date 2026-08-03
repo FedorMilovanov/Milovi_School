@@ -379,7 +379,6 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         alt={article.imageAlt ?? article.title}
                         loading="lazy"
                         decoding="async"
-                        sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="cat-img cat-card-img-lux h-full w-full object-cover"
                       />
                       <div className="cat-overlay-lux absolute inset-0 z-[2]" />
@@ -438,7 +437,6 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     className="gallery-preview-image h-[360px] w-full object-cover lg:h-[430px]"
                     loading="eager"
                     decoding="async"
-                    sizes="(min-width: 1024px) 56rem, 90vw"
                   />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,236,200,0.22),transparent_28%),linear-gradient(180deg,rgba(0,0,0,0.02),rgba(0,0,0,0.55))]" />
                   <div className="absolute left-6 top-6 border border-white/20 bg-black/35 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.24em] text-amber-100 backdrop-blur-md">
