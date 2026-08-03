@@ -20,12 +20,13 @@ jobs:
           ref: agent/editorial-zero-defects
           fetch-depth: 0
 
-      - name: Verify and apply exact payload
+      - name: Verify and apply exact patch
         run: |
           set -euo pipefail
-          cat .editorial-payload/chunk-* | base64 --decode > /tmp/editorial-final.tar.xz
-          echo '8a28c3a1a249dead875feac88a0e7d35861238c1ed6028d20be2ce1a11cc126c  /tmp/editorial-final.tar.xz' | sha256sum --check --strict
-          tar -xJf /tmp/editorial-final.tar.xz -C .
+          cat .editorial-payload/chunk-* | base64 --decode > /tmp/editorial.patch.xz
+          echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
+          xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
+          patch --batch --forward -p1 < /tmp/editorial.patch
           rm -rf .editorial-payload
           rm -f .github/workflows/editorial-source-snapshot.yml
 
