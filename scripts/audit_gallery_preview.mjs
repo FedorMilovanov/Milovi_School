@@ -57,14 +57,39 @@ const loadDesktop = async () => {
   await page.waitForTimeout(120)
 }
 
-const moveToCard = async (index, steps = 5) => {
+const visiblePointForCard = async (index) => {
   const target = card(index)
   await target.scrollIntoViewIfNeeded()
-  const box = await target.boundingBox()
-  assert.ok(box, `Card ${index} has no bounding box`)
-  const x = box.x + Math.min(Math.max(box.width * 0.5, 24), box.width - 24)
-  const y = box.y + Math.min(Math.max(box.height * 0.16, 48), 96)
-  await page.mouse.move(x, y, { steps })
+  const point = await target.evaluate((element) => {
+    const rect = element.getBoundingClientRect()
+    const left = Math.max(rect.left + 10, 10)
+    const right = Math.min(rect.right - 10, window.innerWidth - 10)
+    const top = Math.max(rect.top + 10, 10)
+    const bottom = Math.min(rect.bottom - 10, window.innerHeight - 10)
+    if (left >= right || top >= bottom) return null
+
+    const xCandidates = [
+      left + (right - left) * 0.5,
+      left + Math.min(26, (right - left) * 0.2),
+      right - Math.min(26, (right - left) * 0.2),
+    ]
+
+    for (let y = top; y <= bottom; y += 16) {
+      for (const x of xCandidates) {
+        const hit = document.elementFromPoint(x, y)
+        if (hit && element.contains(hit)) return { x, y }
+      }
+    }
+    return null
+  })
+  assert.ok(point, `Card ${index} has no unobstructed point in the viewport`)
+  return point
+}
+
+const moveToCard = async (index, steps = 5) => {
+  const point = await visiblePointForCard(index)
+  await page.mouse.move(point.x, point.y, { steps })
+  assert.equal(await card(index).evaluate((element) => element.matches(':hover')), true, `Card ${index} did not receive hover`)
 }
 
 const openViaHover = async (index = 0) => {
@@ -138,7 +163,7 @@ await logCheck('hovered card exposes aria-expanded=true', async () => {
 await logCheck('only one card is aria-expanded at a time', async () => {
   await loadDesktop()
   await openViaHover(0)
-  assert.equal(await cards().locator('[aria-expanded="true"]').count(), 1)
+  assert.equal(await page.locator('.cat-img-card-lux[aria-expanded="true"]').count(), 1)
 })
 
 await logCheck('preview is correctly connected through aria-controls', async () => {
@@ -155,12 +180,12 @@ await logCheck('preview live region uses polite atomic announcements', async () 
   assert.equal(await preview().getAttribute('aria-atomic'), 'true')
 })
 
-await logCheck('moving to another card replaces content without a second panel', async () => {
+await logCheck('moving to another visible card replaces content without a second panel', async () => {
   await loadDesktop()
   await openViaHover(0)
   const firstTitle = await previewTitle()
   await moveToCard(1)
-  await page.waitForTimeout(230)
+  await page.waitForTimeout(260)
   assert.notEqual(await previewTitle(), firstTitle)
   assert.equal(await previewTitle(), await cardTitle(1))
   assert.equal(await preview().count(), 1)
@@ -170,7 +195,7 @@ await logCheck('aria-expanded moves from the old card to the new card', async ()
   await loadDesktop()
   await openViaHover(0)
   await moveToCard(1)
-  await page.waitForTimeout(230)
+  await page.waitForTimeout(260)
   assert.equal(await card(0).getAttribute('aria-expanded'), 'false')
   assert.equal(await card(1).getAttribute('aria-expanded'), 'true')
 })
@@ -195,7 +220,7 @@ await logCheck('leaving and deliberately hovering again re-enables the preview',
   await openViaHover(0)
   await preview().getByRole('button', { name: 'Свернуть предпросмотр' }).click()
   await page.mouse.move(20, 20)
-  await page.waitForTimeout(80)
+  await page.waitForTimeout(520)
   await openViaHover(0)
   assert.ok(await preview().isVisible())
 })
