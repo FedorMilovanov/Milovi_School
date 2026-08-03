@@ -37,7 +37,15 @@ jobs:
               raise SystemExit(f'Expected 8 payload parts, found {len(parts)}')
           encoded = ''.join(part.read_text(encoding='ascii') for part in parts)
           clean = re.sub(r'[^A-Za-z0-9+/=]', '', encoded)
-          print(f'Payload base64: raw={len(encoded)} clean={len(clean)} parts={[part.stat().st_size for part in parts]}')
+          sizes = [part.stat().st_size for part in parts]
+          print(f'Payload base64: raw={len(encoded)} clean={len(clean)} parts={sizes}')
+          # The GitHub tree transport dropped the final base64 character from
+          # the last chunk. Restore that known byte, then verify the complete
+          # binary cryptographically before extracting anything.
+          if len(clean) == 58207 and sizes[-1] == 2207:
+              clean += 'A'
+          if len(clean) != 58208:
+              raise SystemExit(f'Unexpected repaired base64 length: {len(clean)}')
           payload = base64.b64decode(clean, validate=True)
           digest = hashlib.sha256(payload).hexdigest()
           expected = '32b435efdf6a643ab7b1ba504d1f5b45df552e0c342ab50e01e495a5217efb9b'
