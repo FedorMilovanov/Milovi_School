@@ -3,6 +3,7 @@ name: Apply prepared professional fix
 on:
   push:
     branches: [fix/react-19-ssr-root-cause]
+  workflow_dispatch:
 
 permissions:
   contents: write
