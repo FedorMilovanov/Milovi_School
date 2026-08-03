@@ -107,7 +107,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['scripts/audit_gallery_preview.mjs'],
+    files: ['scripts/audit_gallery_preview.mjs', 'scripts/audit_visual_site.mjs'],
     languageOptions: {
       globals: {
         ...browserGlobals,
