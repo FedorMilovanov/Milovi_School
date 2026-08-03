@@ -3,6 +3,9 @@ set -euo pipefail
 
 TARGET="src/components/gallery/GalleryApp.tsx"
 CSS="src/styles/global.css"
+LUXURY_TEXT="src/components/LuxuryText.tsx"
+HTML_FIXER="scripts/fix_generated_html.mjs"
+PACKAGE_JSON="package.json"
 COUNT=0
 
 pass() {
@@ -39,6 +42,9 @@ regex() {
 
 [[ -f "$TARGET" ]] && pass "GalleryApp source exists" || fail "GalleryApp source exists"
 [[ -f "$CSS" ]] && pass "Global gallery CSS exists" || fail "Global gallery CSS exists"
+[[ -f "$LUXURY_TEXT" ]] && pass "LuxuryText source exists" || fail "LuxuryText source exists"
+[[ -f "$HTML_FIXER" ]] && pass "Generated HTML fixer exists" || fail "Generated HTML fixer exists"
+[[ -f "$PACKAGE_JSON" ]] && pass "Package manifest exists" || fail "Package manifest exists"
 contains "React ref support is imported" "useRef"
 contains "Initial hover delay is intentional" "const INITIAL_HOVER_DELAY = 320"
 contains "Card-switch delay is shorter" "const SWITCH_HOVER_DELAY = 120"
@@ -95,6 +101,16 @@ contains "Preview is rendered only when capability is true" "previewArticle && c
 contains "Preview content remounts on article change" "key={previewArticle.id}"
 contains "Reduced-motion CSS disables panel animation" ".gallery-preview-card," "$CSS"
 contains "Reduced-motion CSS disables image animation" ".gallery-preview-image { animation: none; }" "$CSS"
+not_contains "Gallery images do not use sizes without srcset" "sizes=" "$TARGET"
+contains "Luxury letters remain semantic text nodes" "<span className=\"luxury-letter\"" "$LUXURY_TEXT"
+not_contains "Luxury wrapper avoids invalid aria-label on generic span" "'aria-label': children" "$LUXURY_TEXT"
+not_contains "Luxury letters are not hidden from assistive technology" "aria-hidden=\"true\"" "$LUXURY_TEXT"
+contains "Production build runs generated HTML fixer" "astro build && node scripts/fix_generated_html.mjs" "$PACKAGE_JSON"
+contains "HTML fixer targets the Astro island style marker" "astro-island,astro-slot,astro-static-slot{display:contents}" "$HTML_FIXER"
+contains "HTML fixer inserts the island style before head closes" "html.indexOf('</head>')" "$HTML_FIXER"
+contains "HTML fixer inspects the generated body" "html.indexOf('<body')" "$HTML_FIXER"
+contains "HTML fixer verifies no island style remains in body" "still remains in body" "$HTML_FIXER"
+contains "HTML fixer refuses silent no-op output" "style marker was not found" "$HTML_FIXER"
 not_contains "Legacy immediate onMouseEnter opener is absent" "onMouseEnter"
 not_contains "Legacy hasFinePointer state is absent" "hasFinePointer"
 not_contains "Direct card-hover setPreviewIndex is absent" "onPointerEnter={() => setPreviewIndex"
@@ -103,8 +119,8 @@ regex "Wheel listener is removed on cleanup" "removeEventListener\('wheel', onWh
 regex "Scroll listener is removed on cleanup" "removeEventListener\('scroll', onScroll\)"
 regex "Visibility listener is removed on cleanup" "removeEventListener\('visibilitychange', onVisibilityChange\)"
 
-if (( COUNT < 60 )); then
-  fail "Audit executed at least 60 shell assertions"
+if (( COUNT < 70 )); then
+  fail "Audit executed at least 70 shell assertions"
 fi
 
 printf '\nGallery shell contract audit passed: %d checks.\n' "$COUNT"
