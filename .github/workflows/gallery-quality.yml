@@ -1,44 +1,247 @@
-name: Apply verified editorial hardening
+name: Gallery interaction quality gate
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/components/**'
+      - 'src/data/**'
+      - 'src/layouts/**'
+      - 'src/pages/materials.astro'
+      - 'src/styles/global.css'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'astro.config.mjs'
+      - 'scripts/audit_article_depth.py'
+      - 'scripts/audit_editorial_quality.py'
+      - 'scripts/audit_gallery_*.sh'
+      - 'scripts/audit_gallery_*.mjs'
+      - 'scripts/audit_visual_site.mjs'
+      - 'scripts/audit_raw_build.mjs'
+      - 'eslint.config.js'
+      - '.github/workflows/gallery-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/**'
+      - 'src/data/**'
+      - 'src/layouts/**'
+      - 'src/pages/materials.astro'
+      - 'src/styles/global.css'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'astro.config.mjs'
+      - 'scripts/audit_article_depth.py'
+      - 'scripts/audit_editorial_quality.py'
+      - 'scripts/audit_gallery_*.sh'
+      - 'scripts/audit_gallery_*.mjs'
+      - 'scripts/audit_visual_site.mjs'
+      - 'scripts/audit_raw_build.mjs'
+      - 'eslint.config.js'
+      - '.github/workflows/gallery-quality.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: gallery-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  apply:
-    runs-on: ubuntu-24.04
+  local-contract-and-browser:
+    name: Source, build and browser contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - name: Checkout main
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: Checkout exact source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          ref: main
-          fetch-depth: 0
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
 
-      - name: Retrieve and verify signed editorial patch
+      - name: Setup pinned Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Validate audit shell syntax
+        run: |
+          bash -n scripts/audit_gallery_contract.sh
+          bash -n scripts/audit_gallery_live.sh
+
+      - name: Run repository and gallery source contracts
+        run: bash scripts/audit_gallery_contract.sh
+
+      - name: Type-check Astro and React
+        run: npm run check
+
+      - name: Lint complete source tree
+        run: npm run lint
+
+      - name: Audit article depth, sourcing and publication quality
+        run: npm run audit:content
+
+      - name: Audit production dependency security
+        run: npm run audit:security
+
+      - name: Build unmodified production candidate
+        run: npm run build
+        env:
+          NODE_ENV: production
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Audit raw production output
+        run: npm run audit:build
+
+      - name: Run generated gallery HTML contract checks
+        run: node scripts/audit_gallery_generated.mjs
+
+      - name: Install generated-site audit dependencies
+        run: python3 -m pip install --user pillow beautifulsoup4
+
+      - name: Audit generated static site
+        run: npm run audit:site
+
+      - name: Audit privacy and release contracts
+        run: npm run audit:privacy
+        env:
+          PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
+          PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.PUBLIC_GOOGLE_SITE_VERIFICATION }}
+          PUBLIC_YANDEX_SITE_VERIFICATION: ${{ vars.PUBLIC_YANDEX_SITE_VERIFICATION }}
+          PUBLIC_BING_SITE_VERIFICATION: ${{ vars.PUBLIC_BING_SITE_VERIFICATION }}
+          PUBLIC_GA_ID: ${{ vars.PUBLIC_GA_ID }}
+          PUBLIC_YANDEX_METRIKA_ID: ${{ vars.PUBLIC_YANDEX_METRIKA_ID }}
+
+      - name: Install Chromium for interaction audit
+        run: npx playwright install --with-deps chromium
+
+      - name: Start immutable local preview
+        shell: bash
         run: |
           set -euo pipefail
-          git fetch origin agent/editorial-zero-defects
-          while IFS= read -r path; do
-            [[ "$path" == '.editorial-payload/READY' ]] && continue
-            git show "origin/agent/editorial-zero-defects:$path"
-          done < <(git ls-tree -r --name-only origin/agent/editorial-zero-defects .editorial-payload | sort) \
-            | base64 --decode > /tmp/editorial.patch.xz
-          echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
-          xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
+          nohup npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/milovi-preview.log 2>&1 &
+          echo $! > /tmp/milovi-preview.pid
+          for attempt in $(seq 1 60); do
+            if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1:4321/materials/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/milovi-preview.log >&2
+          exit 1
 
-      - name: Apply clean source changes
+      - name: Click through gallery behavior checks
+        run: node scripts/audit_gallery_preview.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+
+      - name: Run cross-page visual and responsive QA
+        run: node scripts/audit_visual_site.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+          VISUAL_QA_DIR: artifacts/visual-qa
+
+      - name: Upload quality evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.6.2
+        with:
+          name: quality-evidence-${{ env.SOURCE_SHA }}
+          path: |
+            artifacts/visual-qa
+            artifacts/content-depth-report
+            artifacts/editorial-quality-report
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Print preview server log
+        if: always()
+        run: cat /tmp/milovi-preview.log || true
+
+      - name: Stop preview server
+        if: always()
+        run: |
+          if [[ -f /tmp/milovi-preview.pid ]]; then
+            kill "$(cat /tmp/milovi-preview.pid)" 2>/dev/null || true
+          fi
+
+  external-live-audit:
+    name: Validate deployed main through external services
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: local-contract-and-browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Validate deployed commit with external services
+        run: bash scripts/audit_gallery_live.sh
+        env:
+          LIVE_BASE: https://french.milovicake.ru
+          EXPECTED_SHA: ${{ github.sha }}
+
+  publish-gallery-status:
+    name: Publish gallery quality status
+    if: always()
+    needs: [local-contract-and-browser, external-live-audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish exact gallery result
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LOCAL_RESULT: ${{ needs.local-contract-and-browser.result }}
+          EXTERNAL_RESULT: ${{ needs.external-live-audit.result }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref }}
+          TARGET_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          git checkout 0d62fde9086a4b24a4b382e4f0f74067afc7494b -- .github/workflows/gallery-quality.yml
-          patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
-          patch --batch --forward -p1 < /tmp/editorial.patch
-          git config user.name 'Milovi Editorial Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add -A
-          git diff --cached --check
-          git commit -m 'Complete zero-defect editorial hardening'
-          git push origin HEAD:main
+          state=failure
+          description='Gallery source, build, browser or live audit failed'
+          if [[ "$LOCAL_RESULT" == success ]]; then
+            if [[ "$EVENT_NAME" == push && "$REF_NAME" == refs/heads/main ]]; then
+              if [[ "$EXTERNAL_RESULT" == success ]]; then
+                state=success
+                description='Gallery source, browser and live audits passed'
+              fi
+            else
+              state=success
+              description='Gallery source and browser audits passed'
+            fi
+          fi
+          STATE="$state" DESCRIPTION="$description" TARGET_URL="$TARGET_URL" python3 - <<'PY' > /tmp/gallery-status.json
+          import json, os
+          print(json.dumps({
+              'state': os.environ['STATE'],
+              'context': 'gallery/quality',
+              'description': os.environ['DESCRIPTION'],
+              'target_url': os.environ['TARGET_URL'],
+          }))
+          PY
+          curl -fsS -X POST \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "${{ github.api_url }}/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            --data-binary @/tmp/gallery-status.json
+          test "$state" = success
