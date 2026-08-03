@@ -30,30 +30,35 @@ jobs:
           from pathlib import Path
           import base64
           import hashlib
-          import re
 
-          expected_parts = [
-              ('2aac4a14d3960670e30f3fd31d4a2a95f0202574baf6a77b5f104ea3051f8c05', 8000),
-              ('0c28e9abda8c73555be89cd92cec8abf24e23ff64378db39fdf3e43389531964', 8000),
-              ('5fa09f5f82452fa3ef0cb5a99a018d0647e6844f96ff618821c220d3020bd47a', 8000),
-              ('e233e8e3aa1b35fa49286d67b1c073d4a190bfcd15bcbc761deaadef11786734', 8000),
-              ('18471418edb01e0908212cb349806a256f0d5cc795aabf0b82e2af124a8fce4d', 8000),
-              ('e568a099fe795acb6e6f982cc273a8d27c0701dabe37e8515214b2464208cbb9', 8000),
-              ('3add6c4f49a0b91574eb0dc35f6144a8002696ca37303ac231cfe694fa9209bc', 8000),
-              ('e3d802a64a63f01abdc9439f4a964f178448ca5324c2d8840c68394fc4fa7aaa', 2208),
+          expected_hashes = [
+              '2aac4a14d3960670e30f3fd31d4a2a95f0202574baf6a77b5f104ea3051f8c05',
+              '0c28e9abda8c73555be89cd92cec8abf24e23ff64378db39fdf3e43389531964',
+              '5fa09f5f82452fa3ef0cb5a99a018d0647e6844f96ff618821c220d3020bd47a',
+              'e233e8e3aa1b35fa49286d67b1c073d4a190bfcd15bcbc761deaadef11786734',
+              '18471418edb01e0908212cb349806a256f0d5cc795aabf0b82e2af124a8fce4d',
+              'e568a099fe795acb6e6f982cc273a8d27c0701dabe37e8515214b2464208cbb9',
+              '3add6c4f49a0b91574eb0dc35f6144a8002696ca37303ac231cfe694fa9209bc',
           ]
           parts = sorted(Path('.bootstrap').glob('part-*'))
           if len(parts) != 8:
               raise SystemExit(f'Expected 8 payload parts, found {len(parts)}')
-          for index, part in enumerate(parts):
-              data = part.read_bytes()
-              digest = hashlib.sha256(data).hexdigest()
-              print(f'{part}: size={len(data)} sha256={digest} first={data[:8]!r} last={data[-8:]!r} expected={expected_parts[index]}')
-          encoded = ''.join(part.read_text(encoding='ascii') for part in parts)
-          clean = re.sub(r'[^A-Za-z0-9+/=]', '', encoded)
-          if len(clean) == 58207:
-              clean += 'A'
-          payload = base64.b64decode(clean, validate=True)
+          verified = []
+          for index, part in enumerate(parts[:7]):
+              text = part.read_text(encoding='ascii')
+              digest = hashlib.sha256(text.encode('ascii')).hexdigest()
+              if len(text) != 8000 or digest != expected_hashes[index]:
+                  raise SystemExit(f'{part} failed verification: size={len(text)} sha256={digest}')
+              verified.append(text)
+
+          # Exact final chunk from the locally validated archive. The GitHub
+          # tree transport omitted one interior byte in part-07, so the
+          # damaged transport copy is never trusted or extracted.
+          final_chunk = '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'
+          if len(final_chunk) != 2208 or hashlib.sha256(final_chunk.encode('ascii')).hexdigest() != 'e3d802a64a63f01abdc9439f4a964f178448ca5324c2d8840c68394fc4fa7aaa':
+              raise SystemExit('Embedded final payload chunk failed verification')
+          encoded = ''.join(verified) + final_chunk
+          payload = base64.b64decode(encoded, validate=True)
           digest = hashlib.sha256(payload).hexdigest()
           expected = '32b435efdf6a643ab7b1ba504d1f5b45df552e0c342ab50e01e495a5217efb9b'
           if digest != expected:
