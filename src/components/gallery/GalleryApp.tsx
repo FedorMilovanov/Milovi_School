@@ -17,7 +17,9 @@ const INITIAL_HOVER_DELAY = 320
 const SWITCH_HOVER_DELAY = 120
 const LEAVE_CLOSE_DELAY = 260
 const SCROLL_CLOSE_DISTANCE = 36
-const PREVIEW_MEDIA_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 768px)'
+const PREVIEW_MEDIA_QUERY = '(hover: hover) and (pointer: fine) and (min-width: 1024px)'
+
+type PreviewDock = 'left' | 'right'
 
 export default function GalleryApp({ articles }: { articles: ArticleClientMeta[] }) {
   // Start from the brand-default dark theme so the first client render matches
@@ -29,6 +31,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [commandOpen, setCommandOpen] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
+  const [previewDock, setPreviewDock] = useState<PreviewDock>('right')
   // The expanded preview is a desktop mouse/keyboard enhancement only. Touch,
   // stylus-only and narrow layouts must keep the normal card-navigation flow.
   const [canUsePreview, setCanUsePreview] = useState(false)
@@ -97,6 +100,17 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
     clearPreviewTimers()
     dismissedCardRef.current = null
     previewOpenedScrollYRef.current = window.scrollY
+
+    // Keep the gallery usable while the expanded panel is open. A card on the
+    // left opens the panel on the right and vice versa, leaving neighbouring
+    // cards visibly available for a direct hover-to-replace interaction.
+    const cardElement = galleryGridRef.current?.querySelector<HTMLElement>(`[data-gallery-index="${index}"]`)
+    if (cardElement) {
+      const rect = cardElement.getBoundingClientRect()
+      const cardCenter = rect.left + rect.width / 2
+      setPreviewDock(cardCenter < window.innerWidth / 2 ? 'right' : 'left')
+    }
+
     previewIndexRef.current = index
     setPreviewIndex(index)
   }, [clearPreviewTimers])
@@ -309,6 +323,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                 return (
                   <a
                     key={article.id}
+                    data-gallery-index={index}
                     href={`/articles/${article.id}/`}
                     onPointerEnter={(event) => {
                       if (event.pointerType !== 'mouse' || !canUsePreview) return
@@ -399,7 +414,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           <aside
             id="gallery-preview"
             ref={previewShellRef}
-            className="gallery-preview-shell fixed inset-x-4 bottom-5 z-50 mx-auto hidden max-w-6xl md:block"
+            data-dock={previewDock}
+            className={`gallery-preview-shell fixed bottom-5 z-50 hidden w-[min(calc(100vw-2rem),900px)] md:block ${previewDock === 'right' ? 'right-4' : 'left-4'}`}
             aria-live="polite"
             aria-atomic="true"
             aria-label="Предпросмотр материала"
