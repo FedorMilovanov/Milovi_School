@@ -19,19 +19,33 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
+      - name: Setup pinned Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: '22.13.0'
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Capture complete dependency audit
+        run: npm audit --json > /tmp/npm-audit-complete.json || true
+
       - name: Pack repository source
         run: tar -czf /tmp/editorial-source.tar.gz --exclude=.git .
 
-      - name: Upload source snapshot
+      - name: Upload source and security diagnostics
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          name: editorial-source-${{ github.sha }}
-          path: /tmp/editorial-source.tar.gz
+          name: editorial-diagnostics-${{ github.sha }}
+          path: |
+            /tmp/editorial-source.tar.gz
+            /tmp/npm-audit-complete.json
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
 
-      - name: Publish snapshot run
+      - name: Publish diagnostic run
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
@@ -47,4 +61,4 @@ jobs:
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             "${{ github.api_url }}/repos/${{ github.repository }}/statuses/$SHA" \
-            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Editorial source snapshot\",\"context\":\"editorial/source-snapshot\"}"
+            -d "{\"state\":\"$state\",\"target_url\":\"$RUN_URL\",\"description\":\"Editorial and dependency diagnostics\",\"context\":\"editorial/diagnostics\"}"
