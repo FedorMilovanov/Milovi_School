@@ -33,14 +33,8 @@ jobs:
 
           gallery = Path('src/components/gallery/GalleryApp.tsx')
           text = gallery.read_text('utf-8')
-          anchor = """  useEffect(() => {
-            if (canUsePreview) return
-            suppressedCardRef.current = null
-            closePreview(false)
-          }, [canUsePreview, closePreview])
-
-          """
-          replacement = anchor + """  useEffect(() => {
+          marker = "  useEffect(() => {\n    if (previewIndex === null) return\n"
+          effect = """  useEffect(() => {
             const releaseSuppressionOutsideCard = (event: PointerEvent) => {
               const suppressedIndex = suppressedCardRef.current
               if (suppressedIndex === null || event.pointerType !== 'mouse') return
@@ -60,18 +54,22 @@ jobs:
 
           """
           if 'releaseSuppressionOutsideCard' not in text:
-              if anchor not in text:
-                  raise SystemExit('Gallery effect insertion anchor not found')
-              gallery.write_text(text.replace(anchor, replacement, 1), 'utf-8')
+              if marker not in text:
+                  raise SystemExit('Gallery preview effect marker not found')
+              gallery.write_text(text.replace(marker, effect + marker, 1), 'utf-8')
 
           contract = Path('scripts/audit_gallery_contract.sh')
-          source = contract.read_text('utf-8')
-          check = "check 'Suppression is released when the pointer leaves that card' contains 'suppressedCardRef.current === index.*suppressedCardRef.current = null' src/components/gallery/GalleryApp.tsx\n"
-          added = check + "check 'Suppression is released after real pointer movement outside the card' contains 'releaseSuppressionOutsideCard' src/components/gallery/GalleryApp.tsx\n"
-          if 'Suppression is released after real pointer movement outside the card' not in source:
-              if check not in source:
-                  raise SystemExit('Source contract insertion anchor not found')
-              contract.write_text(source.replace(check, added, 1), 'utf-8')
+          lines = contract.read_text('utf-8').splitlines()
+          new_check = "check 'Suppression is released after real pointer movement outside the card' contains 'releaseSuppressionOutsideCard' src/components/gallery/GalleryApp.tsx"
+          if new_check not in lines:
+              prefix = "check 'Suppression is released when the pointer leaves that card'"
+              for index, line in enumerate(lines):
+                  if line.startswith(prefix):
+                      lines.insert(index + 1, new_check)
+                      break
+              else:
+                  raise SystemExit('Source contract insertion marker not found')
+              contract.write_text('\n'.join(lines) + '\n', 'utf-8')
           PY
           git show 5fa2dcc221df17bac0e2fd6a07e829a368f7220b:.github/workflows/gallery-quality.yml > .github/workflows/gallery-quality.yml
           git show HEAD^:.github/workflows/repository-hygiene.yml > .github/workflows/repository-hygiene.yml
