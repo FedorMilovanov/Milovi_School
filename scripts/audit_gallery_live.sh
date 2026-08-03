@@ -82,6 +82,7 @@ curl -fsS --compressed --connect-timeout 12 --max-time 35 "$LIVE_BASE/materials/
 curl -fsS --compressed --connect-timeout 12 --max-time 35 "$LIVE_BASE/robots.txt" > "$TMP_DIR/robots.txt"
 curl -fsS --compressed --connect-timeout 12 --max-time 35 "$LIVE_BASE/sitemap-index.xml" > "$TMP_DIR/sitemap-index.xml"
 curl -fsS --compressed --connect-timeout 12 --max-time 35 "$LIVE_BASE/sitemap-0.xml" > "$TMP_DIR/sitemap-0.xml"
+curl -fsSI --connect-timeout 12 --max-time 35 "$LIVE_BASE/materials/" > "$TMP_DIR/headers.txt"
 
 require_status "HTTPS homepage returns 200" "$LIVE_BASE/"
 require_status "HTTPS materials gallery returns 200" "$LIVE_BASE/materials/"
@@ -149,22 +150,32 @@ python3 - "$TMP_DIR/materials.html" "$LIVE_BASE" > "$TMP_DIR/extracted.json" <<'
 import json, re, sys
 from urllib.parse import urljoin
 html, base = open(sys.argv[1], encoding='utf-8').read(), sys.argv[2]
-articles = []
-for href in re.findall(r'href=["\']([^"\']+)["\']', html):
-    absolute = urljoin(base + '/', href)
-    if '/articles/' in absolute and absolute not in articles:
-        articles.append(absolute)
-images = []
-for src in re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', html, flags=re.I):
-    absolute = urljoin(base + '/', src)
-    if absolute not in images:
-        images.append(absolute)
-assets = []
-for value in re.findall(r'(?:src|href)=["\']([^"\']+\.(?:js|css)(?:\?[^"\']*)?)["\']', html, flags=re.I):
-    absolute = urljoin(base + '/', value)
-    if absolute not in assets:
-        assets.append(absolute)
-print(json.dumps({'articles': articles, 'images': images, 'assets': assets}, ensure_ascii=False))
+
+def unique_urls(values):
+    result = []
+    for value in values:
+        absolute = urljoin(base + '/', value)
+        if absolute not in result:
+            result.append(absolute)
+    return result
+
+hrefs = re.findall(r'href=["\']([^"\']+)["\']', html, flags=re.I)
+articles = [url for url in unique_urls(hrefs) if '/articles/' in url]
+images = unique_urls(re.findall(r'<img[^>]+src=["\']([^"\']+)["\']', html, flags=re.I))
+stylesheet_hrefs = re.findall(r'<link[^>]+rel=["\'][^"\']*stylesheet[^"\']*["\'][^>]+href=["\']([^"\']+)["\']', html, flags=re.I)
+stylesheet_hrefs += re.findall(r'<link[^>]+href=["\']([^"\']+)["\'][^>]+rel=["\'][^"\']*stylesheet[^"\']*["\']', html, flags=re.I)
+styles = unique_urls(stylesheet_hrefs)
+script_srcs = unique_urls(re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html, flags=re.I))
+script_tags = len(re.findall(r'<script\b', html, flags=re.I))
+assets = unique_urls(stylesheet_hrefs + re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', html, flags=re.I))
+print(json.dumps({
+    'articles': articles,
+    'images': images,
+    'styles': styles,
+    'script_srcs': script_srcs,
+    'script_tags': script_tags,
+    'assets': assets,
+}, ensure_ascii=False))
 PY
 
 python3 - "$TMP_DIR/extracted.json" <<'PY'
@@ -189,23 +200,32 @@ require_not_contains "Sample article is not marked noindex" "$TMP_DIR/article.ht
 python3 - "$TMP_DIR/extracted.json" > "$TMP_DIR/url-sample.txt" <<'PY'
 import json, sys
 payload = json.load(open(sys.argv[1], encoding='utf-8'))
-for url in payload['articles'][:12] + payload['images'][:12] + payload['assets'][:12]:
+urls = payload['articles'][:12] + payload['images'][:12] + payload['assets'][:12]
+for url in dict.fromkeys(urls):
     print(url)
 PY
+sample_count=0
 while IFS= read -r url; do
   [[ -z "$url" ]] && continue
   code="$(status_code "$url")"
   [[ "$code" == 200 ]] || fail "Sample gallery dependency returns 200: $url (got $code)"
+  sample_count=$((sample_count + 1))
 done < "$TMP_DIR/url-sample.txt"
-pass "36 sampled article/image/asset URLs are healthy"
+(( sample_count >= 20 )) && pass "$sample_count sampled article/image/asset URLs are healthy" || fail "Too few gallery dependencies were sampled"
 
-asset_count="$(python3 - "$TMP_DIR/extracted.json" <<'PY'
+style_count="$(python3 - "$TMP_DIR/extracted.json" <<'PY'
 import json, sys
-payload = json.load(open(sys.argv[1], encoding='utf-8'))
-print(len(payload['assets']))
+print(len(json.load(open(sys.argv[1], encoding='utf-8'))['styles']))
 PY
 )"
-(( asset_count >= 2 )) && pass "Gallery server HTML references CSS and JavaScript assets" || fail "Gallery server HTML references CSS and JavaScript assets"
+(( style_count >= 1 )) && pass "Gallery server HTML references a production stylesheet" || fail "Gallery server HTML references a production stylesheet"
+
+script_tag_count="$(python3 - "$TMP_DIR/extracted.json" <<'PY'
+import json, sys
+print(json.load(open(sys.argv[1], encoding='utf-8'))['script_tags'])
+PY
+)"
+(( script_tag_count >= 1 )) && pass "Gallery server HTML contains hydration or runtime scripts" || fail "Gallery server HTML contains hydration or runtime scripts"
 
 image_count="$(python3 - "$TMP_DIR/extracted.json" <<'PY'
 import json, sys
@@ -220,6 +240,9 @@ import sys
 assert float(sys.argv[1]) < 8.0, sys.argv[1]
 PY
 pass "Live gallery responds in under 8 seconds from GitHub runner"
+
+require_contains "Live gallery response includes a cache policy" "$TMP_DIR/headers.txt" "cache-control:"
+require_contains "Live gallery response includes a content type" "$TMP_DIR/headers.txt" "content-type:"
 
 cert_end="$(echo | openssl s_client -servername "$HOST" -connect "$HOST:443" 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2-)"
 [[ -n "$cert_end" ]] || fail "TLS certificate expiry can be read"
@@ -325,13 +348,8 @@ else
   soft_warn "SSL Labs cached assessment was unavailable"
 fi
 
-if curl -fsSI --connect-timeout 12 --max-time 35 "$LIVE_BASE/materials/" > "$TMP_DIR/headers.txt"; then
-  require_contains "Live response includes a cache policy" "$TMP_DIR/headers.txt" "cache-control:"
-  require_contains "Live response includes content type" "$TMP_DIR/headers.txt" "content-type:"
-fi
-
-if (( COUNT < 45 )); then
-  fail "Live audit executed at least 45 hard checks"
+if (( COUNT < 49 )); then
+  fail "Live audit executed at least 49 hard checks"
 fi
 
 printf '\nExternal gallery audit passed: %d hard checks, %d soft warnings.\n' "$COUNT" "$SOFT_WARNINGS"
