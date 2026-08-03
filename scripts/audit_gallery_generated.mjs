@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { TextDecoder } from 'node:util'
 
 const FILE = 'dist/materials/index.html'
 const bytes = await readFile(FILE)
