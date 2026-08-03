@@ -26,10 +26,10 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     return () => window.removeEventListener('scroll', update)
   }, [])
 
-  // Close mobile menu when viewport becomes desktop-wide
+  // Close compact navigation when viewport becomes desktop-wide.
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= 768) setMobileMenuOpen(false)
+      if (window.innerWidth >= 1024) setMobileMenuOpen(false)
     }
     window.addEventListener('resize', onResize, { passive: true })
     return () => window.removeEventListener('resize', onResize)
@@ -98,7 +98,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             </span>
           </a>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 lg:flex">
             <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Главная</a>
             <a href="/#categories" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoCategories() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Архив</a>
             <a href="/materials/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoArticles() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">Галерея</a>
@@ -139,7 +139,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 md:hidden dark:text-stone-300"
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 lg:hidden dark:text-stone-300"
               aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation-menu"
@@ -166,7 +166,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             aria-modal="true"
             aria-label="Навигационное меню"
             id="mobile-navigation-menu"
-            className="fixed inset-x-0 top-[var(--header-height)] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl md:hidden"
+            className="fixed inset-x-0 top-[var(--header-height)] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl lg:hidden"
             initial={shouldReduce ? false : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
