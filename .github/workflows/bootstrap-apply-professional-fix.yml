@@ -32,20 +32,27 @@ jobs:
           import hashlib
           import re
 
+          expected_parts = [
+              ('2aac4a14d3960670e30f3fd31d4a2a95f0202574baf6a77b5f104ea3051f8c05', 8000),
+              ('0c28e9abda8c73555be89cd92cec8abf24e23ff64378db39fdf3e43389531964', 8000),
+              ('5fa09f5f82452fa3ef0cb5a99a018d0647e6844f96ff618821c220d3020bd47a', 8000),
+              ('e233e8e3aa1b35fa49286d67b1c073d4a190bfcd15bcbc761deaadef11786734', 8000),
+              ('18471418edb01e0908212cb349806a256f0d5cc795aabf0b82e2af124a8fce4d', 8000),
+              ('e568a099fe795acb6e6f982cc273a8d27c0701dabe37e8515214b2464208cbb9', 8000),
+              ('3add6c4f49a0b91574eb0dc35f6144a8002696ca37303ac231cfe694fa9209bc', 8000),
+              ('e3d802a64a63f01abdc9439f4a964f178448ca5324c2d8840c68394fc4fa7aaa', 2208),
+          ]
           parts = sorted(Path('.bootstrap').glob('part-*'))
           if len(parts) != 8:
               raise SystemExit(f'Expected 8 payload parts, found {len(parts)}')
+          for index, part in enumerate(parts):
+              data = part.read_bytes()
+              digest = hashlib.sha256(data).hexdigest()
+              print(f'{part}: size={len(data)} sha256={digest} first={data[:8]!r} last={data[-8:]!r} expected={expected_parts[index]}')
           encoded = ''.join(part.read_text(encoding='ascii') for part in parts)
           clean = re.sub(r'[^A-Za-z0-9+/=]', '', encoded)
-          sizes = [part.stat().st_size for part in parts]
-          print(f'Payload base64: raw={len(encoded)} clean={len(clean)} parts={sizes}')
-          # The GitHub tree transport dropped the final base64 character from
-          # the last chunk. Restore that known byte, then verify the complete
-          # binary cryptographically before extracting anything.
-          if len(clean) == 58207 and sizes[-1] == 2207:
+          if len(clean) == 58207:
               clean += 'A'
-          if len(clean) != 58208:
-              raise SystemExit(f'Unexpected repaired base64 length: {len(clean)}')
           payload = base64.b64decode(clean, validate=True)
           digest = hashlib.sha256(payload).hexdigest()
           expected = '32b435efdf6a643ab7b1ba504d1f5b45df552e0c342ab50e01e495a5217efb9b'
