@@ -12,7 +12,7 @@ let checkNumber = 0
 await fs.rm(OUTPUT_DIR, { recursive: true, force: true })
 await fs.mkdir(OUTPUT_DIR, { recursive: true })
 
-const logCheck = async (name, fn) => {
+async function check(name, fn) {
   checkNumber += 1
   const label = String(checkNumber).padStart(3, '0')
   try {
@@ -26,9 +26,47 @@ const logCheck = async (name, fn) => {
   }
 }
 
+function assertInside(box, width, height, tolerance = 2) {
+  assert.ok(box, 'element has no bounding box')
+  assert.ok(box.x >= -tolerance, JSON.stringify(box))
+  assert.ok(box.y >= -tolerance, JSON.stringify(box))
+  assert.ok(box.x + box.width <= width + tolerance, JSON.stringify(box))
+  assert.ok(box.y + box.height <= height + tolerance, JSON.stringify(box))
+}
+
+async function inspectDocument(page) {
+  return page.evaluate(() => {
+    const ids = [...document.querySelectorAll('[id]')]
+      .map((element) => element.id)
+      .filter(Boolean)
+    const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))]
+    return {
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+      duplicateIds,
+    }
+  })
+}
+
+async function brokenVisibleImages(page) {
+  return page.locator('img:visible').evaluateAll(async (images) => {
+    await Promise.all(images.map(async (image) => {
+      if (image.complete) return
+      await new Promise((resolve) => {
+        image.addEventListener('load', resolve, { once: true })
+        image.addEventListener('error', resolve, { once: true })
+        setTimeout(resolve, 2500)
+      })
+    }))
+    return images
+      .filter((image) => image.naturalWidth === 0 || image.naturalHeight === 0)
+      .map((image) => image.getAttribute('src') || '(missing src)')
+  })
+}
+
 const browser = await chromium.launch({ headless: true })
 
-const createObservedPage = async (options) => {
+async function observedPage(options) {
   const context = await browser.newContext(options)
   const page = await context.newPage()
   const telemetry = {
@@ -56,85 +94,61 @@ const createObservedPage = async (options) => {
   return { context, page, telemetry }
 }
 
-const desktop = await createObservedPage({
+const desktop = await observedPage({
   viewport: { width: 1440, height: 1000 },
   colorScheme: 'dark',
   reducedMotion: 'no-preference',
 })
 
-const routeCases = [
-  { slug: 'home', path: '/' },
-  { slug: 'materials', path: '/materials/' },
-  { slug: 'article', path: '/articles/recipe-kouglof/' },
-  { slug: 'about', path: '/about/' },
-  { slug: 'methodology', path: '/methodology/' },
-  { slug: 'sources', path: '/sources/' },
-  { slug: 'corrections', path: '/corrections/' },
-  { slug: 'editorial-policy', path: '/editorial-policy/' },
-  { slug: 'privacy', path: '/privacy/' },
+const routes = [
+  ['home', '/'],
+  ['materials', '/materials/'],
+  ['article', '/articles/recipe-kouglof/'],
+  ['about', '/about/'],
+  ['methodology', '/methodology/'],
+  ['sources', '/sources/'],
+  ['corrections', '/corrections/'],
+  ['editorial-policy', '/editorial-policy/'],
+  ['privacy', '/privacy/'],
 ]
 
-const routeSnapshots = new Map()
-
-for (const route of routeCases) {
-  const response = await desktop.page.goto(`${BASE_URL}${route.path}`, { waitUntil: 'networkidle' })
+for (const [slug, route] of routes) {
+  const response = await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
   await desktop.page.waitForTimeout(250)
-  routeSnapshots.set(route.slug, { response })
 
-  await logCheck(`${route.slug}: route returns HTTP 200`, async () => {
+  await check(`${slug}: route returns HTTP 200`, async () => {
     assert.equal(response?.status(), 200)
   })
 
-  await logCheck(`${route.slug}: Russian document language is declared`, async () => {
+  await check(`${slug}: Russian document language is declared`, async () => {
     assert.equal(await desktop.page.locator('html').getAttribute('lang'), 'ru')
   })
 
-  await logCheck(`${route.slug}: exactly one visible main landmark exists`, async () => {
-    const visible = desktop.page.locator('main:visible')
-    assert.equal(await visible.count(), 1)
+  await check(`${slug}: exactly one visible main landmark exists`, async () => {
+    assert.equal(await desktop.page.locator('main:visible').count(), 1)
   })
 
-  await logCheck(`${route.slug}: exactly one visible h1 exists`, async () => {
-    const headings = desktop.page.locator('h1:visible')
-    assert.equal(await headings.count(), 1)
-    assert.ok((await headings.first().innerText()).trim().length > 2)
+  await check(`${slug}: exactly one visible non-empty h1 exists`, async () => {
+    const heading = desktop.page.locator('h1:visible')
+    assert.equal(await heading.count(), 1)
+    assert.ok((await heading.innerText()).trim().length > 2)
   })
 
-  await logCheck(`${route.slug}: document has no horizontal page overflow`, async () => {
-    const overflow = await desktop.page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }))
-    assert.ok(overflow.scrollWidth <= overflow.clientWidth + 2, JSON.stringify(overflow))
+  await check(`${slug}: document has no horizontal overflow`, async () => {
+    const state = await inspectDocument(desktop.page)
+    assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
   })
 
-  await logCheck(`${route.slug}: document contains no duplicate element ids`, async () => {
-    const duplicateIds = await desktop.page.evaluate(() => {
-      const ids = [...document.querySelectorAll('[id]')].map((element) => element.id).filter(Boolean)
-      return [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))]
-    })
-    assert.deepEqual(duplicateIds, [])
+  await check(`${slug}: document contains no duplicate ids`, async () => {
+    const state = await inspectDocument(desktop.page)
+    assert.deepEqual(state.duplicateIds, [])
   })
 
-  await logCheck(`${route.slug}: visible images decode successfully`, async () => {
-    const broken = await desktop.page.locator('img:visible').evaluateAll(async (images) => {
-      await Promise.all(images.map(async (image) => {
-        if (!image.complete) {
-          await new Promise((resolve) => {
-            image.addEventListener('load', resolve, { once: true })
-            image.addEventListener('error', resolve, { once: true })
-            setTimeout(resolve, 2500)
-          })
-        }
-      }))
-      return images
-        .filter((image) => image.naturalWidth === 0 || image.naturalHeight === 0)
-        .map((image) => image.getAttribute('src') || '(missing src)')
-    })
-    assert.deepEqual(broken, [])
+  await check(`${slug}: visible images decode successfully`, async () => {
+    assert.deepEqual(await brokenVisibleImages(desktop.page), [])
   })
 
-  await logCheck(`${route.slug}: title and canonical metadata are unique`, async () => {
+  await check(`${slug}: title and canonical metadata are unique`, async () => {
     assert.equal(await desktop.page.locator('head > title').count(), 1)
     assert.ok((await desktop.page.title()).trim().length > 8)
     assert.equal(await desktop.page.locator('head link[rel="canonical"]').count(), 1)
@@ -142,141 +156,174 @@ for (const route of routeCases) {
 }
 
 await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-await desktop.page.waitForTimeout(250)
+await desktop.page.waitForTimeout(1300)
+const desktopBanner = desktop.page.getByRole('banner')
 
-await logCheck('home desktop: header is visible and remains within viewport', async () => {
-  const box = await desktop.page.locator('header').boundingBox()
-  assert.ok(box)
-  assert.ok(box.y >= -1 && box.y + box.height <= 180)
+await check('home desktop: site banner stays inside the viewport', async () => {
+  assertInside(await desktopBanner.boundingBox(), 1440, 1000)
 })
 
-await logCheck('home desktop: brand logo is loaded at declared dimensions', async () => {
-  const logo = desktop.page.locator('header img[alt="Patisserie Russe"]')
-  assert.equal(await logo.count(), 1)
-  const dimensions = await logo.evaluate((image) => ({
+await check('home desktop: brand logo loads at its declared visual size', async () => {
+  const logo = desktopBanner.locator('img[alt="Patisserie Russe"]')
+  const metrics = await logo.evaluate((image) => ({
     naturalWidth: image.naturalWidth,
     naturalHeight: image.naturalHeight,
     width: image.getBoundingClientRect().width,
     height: image.getBoundingClientRect().height,
   }))
-  assert.ok(dimensions.naturalWidth > 0 && dimensions.naturalHeight > 0)
-  assert.ok(dimensions.width >= 40 && dimensions.height >= 40)
+  assert.ok(metrics.naturalWidth > 0 && metrics.naturalHeight > 0)
+  assert.ok(metrics.width >= 40 && metrics.height >= 40, JSON.stringify(metrics))
 })
 
-await logCheck('home desktop: all four primary navigation links are visible', async () => {
-  const nav = desktop.page.locator('header nav:visible')
+await check('home desktop: four primary navigation links are visible', async () => {
+  const nav = desktopBanner.locator('nav:visible')
   assert.equal(await nav.count(), 1)
   for (const name of ['Главная', 'Архив', 'Галерея', 'О проекте']) {
     assert.ok(await nav.getByRole('link', { name, exact: true }).isVisible())
   }
 })
 
-await logCheck('home desktop: primary heading has editorial display scale', async () => {
-  const fontSize = await desktop.page.locator('h1:visible').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
-  assert.ok(fontSize >= 42, `font-size=${fontSize}`)
+await check('home desktop: hero heading has editorial display scale', async () => {
+  const size = await desktop.page.locator('#hero h1').evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
+  assert.ok(size >= 56, `font-size=${size}`)
 })
 
-await logCheck('home desktop: categories anchor exists and is not hidden', async () => {
-  const categories = desktop.page.locator('#categories')
-  assert.equal(await categories.count(), 1)
-  await categories.scrollIntoViewIfNeeded()
-  assert.ok(await categories.isVisible())
+await check('home desktop: hero description is fully visible after entrance animation', async () => {
+  const description = desktop.page.locator('#hero .hero-text > div p').first()
+  const state = await description.evaluate((element) => {
+    const style = getComputedStyle(element)
+    const parentStyle = element.parentElement ? getComputedStyle(element.parentElement) : null
+    return {
+      visible: Boolean(element.getClientRects().length),
+      color: style.color,
+      opacity: Number.parseFloat(parentStyle?.opacity ?? '1'),
+      textLength: element.textContent?.trim().length ?? 0,
+    }
+  })
+  assert.equal(state.visible, true)
+  assert.ok(state.textLength > 80, JSON.stringify(state))
+  assert.ok(state.opacity >= 0.99, JSON.stringify(state))
+  assert.notEqual(state.color, 'rgba(0, 0, 0, 0)')
 })
 
-await logCheck('home desktop: about anchor exists and is not hidden', async () => {
-  const about = desktop.page.locator('#about')
-  assert.equal(await about.count(), 1)
-  await about.scrollIntoViewIfNeeded()
-  assert.ok(await about.isVisible())
+await check('home desktop: both hero calls to action are visible', async () => {
+  assert.ok(await desktop.page.getByRole('link', { name: 'Открыть архив', exact: true }).isVisible())
+  assert.ok(await desktop.page.getByRole('link', { name: /Milovi Cake/ }).last().isVisible())
 })
 
-await logCheck('home desktop: sticky header changes state after scrolling', async () => {
+await check('home desktop: categories anchor exists and is reachable', async () => {
+  const section = desktop.page.locator('#categories')
+  assert.equal(await section.count(), 1)
+  await section.scrollIntoViewIfNeeded()
+  assert.ok(await section.isVisible())
+})
+
+await check('home desktop: about anchor exists and is reachable', async () => {
+  const section = desktop.page.locator('#about')
+  assert.equal(await section.count(), 1)
+  await section.scrollIntoViewIfNeeded()
+  assert.ok(await section.isVisible())
+})
+
+await check('home desktop: sticky header changes visual state after scrolling', async () => {
   await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-  const before = await desktop.page.locator('header').getAttribute('class')
+  const before = await desktopBanner.getAttribute('class')
   await desktop.page.evaluate(() => window.scrollTo(0, 240))
   await desktop.page.waitForTimeout(420)
-  const after = await desktop.page.locator('header').getAttribute('class')
+  const after = await desktopBanner.getAttribute('class')
   assert.notEqual(after, before)
 })
 
-await logCheck('home desktop: theme toggle changes the document theme', async () => {
+await check('home desktop: theme toggle changes the document theme', async () => {
   await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-  const toggle = desktop.page.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ })
+  const toggle = desktopBanner.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ })
   const before = await desktop.page.locator('html').getAttribute('class')
   await toggle.click()
   const after = await desktop.page.locator('html').getAttribute('class')
   assert.notEqual(after, before)
 })
 
-await logCheck('home desktop: theme toggle updates browser theme-color metadata', async () => {
-  const toggle = desktop.page.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ })
+await check('home desktop: theme toggle updates theme-color metadata', async () => {
+  const toggle = desktopBanner.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ })
   const before = await desktop.page.locator('#theme-color-meta').getAttribute('content')
   await toggle.click()
   const after = await desktop.page.locator('#theme-color-meta').getAttribute('content')
   assert.notEqual(after, before)
 })
 
-await logCheck('home desktop: command palette opens from the search control', async () => {
-  await desktop.page.getByRole('button', { name: 'Открыть поиск' }).click()
-  await desktop.page.getByRole('dialog').waitFor({ state: 'visible' })
-  assert.ok(await desktop.page.getByRole('dialog').isVisible())
+await check('home desktop: command palette opens from the header search control', async () => {
+  await desktopBanner.getByRole('button', { name: 'Открыть поиск' }).click()
+  await desktop.page.getByRole('dialog', { name: 'Поиск по материалам' }).waitFor({ state: 'visible' })
 })
 
-await logCheck('home desktop: command palette focuses its search field', async () => {
-  const dialog = desktop.page.getByRole('dialog')
-  const input = dialog.getByRole('textbox')
+await check('home desktop: command palette focuses its search field', async () => {
+  const input = desktop.page.getByRole('dialog', { name: 'Поиск по материалам' }).getByRole('textbox')
   assert.ok(await input.isVisible())
   assert.equal(await input.evaluate((element) => document.activeElement === element), true)
 })
 
-await logCheck('home desktop: command palette returns results for a real query', async () => {
-  const dialog = desktop.page.getByRole('dialog')
-  const input = dialog.getByRole('textbox')
-  await input.fill('круассан')
+await check('home desktop: command palette returns relevant query results', async () => {
+  const dialog = desktop.page.getByRole('dialog', { name: 'Поиск по материалам' })
+  await dialog.getByRole('textbox').fill('круассан')
   await desktop.page.waitForTimeout(350)
   assert.match((await dialog.innerText()).toLowerCase(), /круассан|croissant/)
 })
 
-await logCheck('home desktop: Escape closes the command palette', async () => {
+await check('home desktop: first Escape clears a populated command query', async () => {
+  const dialog = desktop.page.getByRole('dialog', { name: 'Поиск по материалам' })
+  const input = dialog.getByRole('textbox')
   await desktop.page.keyboard.press('Escape')
-  await desktop.page.getByRole('dialog').waitFor({ state: 'detached' })
+  assert.equal(await input.inputValue(), '')
+  assert.ok(await dialog.isVisible())
 })
 
-await logCheck('home desktop: gallery navigation reaches the materials route', async () => {
-  await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-  await desktop.page.locator('header nav:visible').getByRole('link', { name: 'Галерея', exact: true }).click()
+await check('home desktop: second Escape closes the empty command palette', async () => {
+  await desktop.page.keyboard.press('Escape')
+  await desktop.page.getByRole('dialog', { name: 'Поиск по материалам' }).waitFor({ state: 'detached' })
+})
+
+await check('home desktop: Ctrl+K opens the command palette', async () => {
+  await desktop.page.keyboard.press('Control+K')
+  await desktop.page.getByRole('dialog', { name: 'Поиск по материалам' }).waitFor({ state: 'visible' })
+})
+
+await check('home desktop: Escape closes a keyboard-opened empty palette', async () => {
+  await desktop.page.keyboard.press('Escape')
+  await desktop.page.getByRole('dialog', { name: 'Поиск по материалам' }).waitFor({ state: 'detached' })
+})
+
+await check('home desktop: gallery navigation reaches the materials route', async () => {
+  await desktopBanner.locator('nav').getByRole('link', { name: 'Галерея', exact: true }).click()
   await desktop.page.waitForURL((url) => url.pathname === '/materials/')
 })
 
 await desktop.page.goto(`${BASE_URL}/materials/`, { waitUntil: 'networkidle' })
-await desktop.page.waitForTimeout(250)
+await desktop.page.waitForTimeout(350)
 const cards = desktop.page.locator('.cat-img-card-lux')
+const materialsBanner = desktop.page.getByRole('banner')
 
-await logCheck('materials desktop: at least 150 gallery cards are server-rendered', async () => {
+await check('materials desktop: at least 150 cards are server-rendered', async () => {
   assert.ok(await cards.count() >= 150)
 })
 
-await logCheck('materials desktop: gallery uses at least three columns', async () => {
+await check('materials desktop: gallery uses at least three columns', async () => {
   const columns = await cards.evaluateAll((elements) => {
-    const tops = elements.slice(0, 8).map((element) => Math.round(element.getBoundingClientRect().top))
-    const firstTop = tops[0]
-    return tops.filter((top) => Math.abs(top - firstTop) <= 2).length
+    const top = Math.round(elements[0].getBoundingClientRect().top)
+    return elements.slice(0, 8).filter((element) => Math.abs(Math.round(element.getBoundingClientRect().top) - top) <= 2).length
   })
   assert.ok(columns >= 3, `columns=${columns}`)
 })
 
-await logCheck('materials desktop: first row cards have consistent geometry', async () => {
+await check('materials desktop: first-row cards have consistent geometry', async () => {
   const boxes = await cards.evaluateAll((elements) => elements.slice(0, 4).map((element) => {
     const rect = element.getBoundingClientRect()
     return { width: rect.width, height: rect.height, top: rect.top }
   }))
-  const widthSpread = Math.max(...boxes.map((box) => box.width)) - Math.min(...boxes.map((box) => box.width))
-  const heightSpread = Math.max(...boxes.map((box) => box.height)) - Math.min(...boxes.map((box) => box.height))
-  assert.ok(widthSpread <= 2, JSON.stringify(boxes))
-  assert.ok(heightSpread <= 2, JSON.stringify(boxes))
+  assert.ok(Math.max(...boxes.map((box) => box.width)) - Math.min(...boxes.map((box) => box.width)) <= 2, JSON.stringify(boxes))
+  assert.ok(Math.max(...boxes.map((box) => box.height)) - Math.min(...boxes.map((box) => box.height)) <= 2, JSON.stringify(boxes))
 })
 
-await logCheck('materials desktop: cards preserve portrait image proportions', async () => {
+await check('materials desktop: cards preserve portrait image proportions', async () => {
   const ratio = await cards.first().locator('.cat-card-img-wrap-lux').evaluate((element) => {
     const rect = element.getBoundingClientRect()
     return rect.width / rect.height
@@ -284,58 +331,55 @@ await logCheck('materials desktop: cards preserve portrait image proportions', a
   assert.ok(ratio > 0.72 && ratio < 0.88, `ratio=${ratio}`)
 })
 
-await logCheck('materials desktop: visible card titles remain inside card bounds', async () => {
+await check('materials desktop: first twelve titles remain inside card bounds', async () => {
   const clipped = await cards.evaluateAll((elements) => elements.slice(0, 12).filter((card) => {
     const title = card.querySelector('.cat-card-name-lux')
-    if (!(title instanceof HTMLElement)) return true
-    const cardRect = card.getBoundingClientRect()
-    const titleRect = title.getBoundingClientRect()
-    return titleRect.left < cardRect.left - 1 || titleRect.right > cardRect.right + 1 || titleRect.bottom > cardRect.bottom + 1
+    if (!title) return true
+    const outer = card.getBoundingClientRect()
+    const inner = title.getBoundingClientRect()
+    return inner.left < outer.left - 1 || inner.right > outer.right + 1 || inner.bottom > outer.bottom + 1
   }).length)
   assert.equal(clipped, 0)
 })
 
-await logCheck('materials desktop: first twelve card images load without fallback breakage', async () => {
-  for (let index = 0; index < 12; index += 1) {
-    await cards.nth(index).scrollIntoViewIfNeeded()
-  }
+await check('materials desktop: first twelve card images decode', async () => {
+  for (let index = 0; index < 12; index += 1) await cards.nth(index).scrollIntoViewIfNeeded()
   await desktop.page.waitForTimeout(500)
   const broken = await cards.locator('img').evaluateAll((images) => images.slice(0, 12).filter((image) => image.naturalWidth === 0).length)
   assert.equal(broken, 0)
 })
 
-await logCheck('materials desktop: deliberate hover opens a preview panel', async () => {
+await check('materials desktop: all card article links are unique', async () => {
+  const hrefs = await cards.evaluateAll((elements) => elements.map((element) => element.getAttribute('href')).filter(Boolean))
+  assert.equal(new Set(hrefs).size, hrefs.length)
+})
+
+await check('materials desktop: deliberate hover opens one preview panel', async () => {
   await cards.first().scrollIntoViewIfNeeded()
   await desktop.page.mouse.move(5, 5)
   await cards.first().hover()
   await desktop.page.waitForTimeout(430)
-  await desktop.page.locator('#gallery-preview').waitFor({ state: 'visible' })
+  assert.equal(await desktop.page.locator('#gallery-preview:visible').count(), 1)
 })
 
-await logCheck('materials desktop: preview panel remains completely inside viewport', async () => {
-  const box = await desktop.page.locator('#gallery-preview').boundingBox()
-  assert.ok(box)
-  assert.ok(box.x >= 0 && box.y >= 0)
-  assert.ok(box.x + box.width <= 1440 + 1)
-  assert.ok(box.y + box.height <= 1000 + 1)
+await check('materials desktop: preview remains inside viewport', async () => {
+  assertInside(await desktop.page.locator('#gallery-preview').boundingBox(), 1440, 1000)
 })
 
-await logCheck('materials desktop: preview panel does not cover the sticky header', async () => {
-  const previewBox = await desktop.page.locator('#gallery-preview').boundingBox()
-  const headerBox = await desktop.page.locator('header').boundingBox()
-  assert.ok(previewBox && headerBox)
-  assert.ok(previewBox.y >= headerBox.y + headerBox.height - 1)
+await check('materials desktop: preview does not cover the sticky banner', async () => {
+  const preview = await desktop.page.locator('#gallery-preview').boundingBox()
+  const banner = await materialsBanner.boundingBox()
+  assert.ok(preview && banner)
+  assert.ok(preview.y >= banner.y + banner.height - 1, JSON.stringify({ preview, banner }))
 })
 
-await logCheck('materials desktop: preview panel has a loaded image and visible title', async () => {
+await check('materials desktop: preview has a loaded image and visible heading', async () => {
   const preview = desktop.page.locator('#gallery-preview')
   assert.ok((await preview.locator('h2').innerText()).trim().length > 4)
-  const image = preview.locator('img')
-  assert.ok(await image.isVisible())
-  assert.ok(await image.evaluate((element) => element.naturalWidth > 0))
+  assert.ok(await preview.locator('img').evaluate((image) => image.naturalWidth > 0))
 })
 
-await logCheck('materials desktop: preview navigation changes visible content', async () => {
+await check('materials desktop: next control changes preview content', async () => {
   const preview = desktop.page.locator('#gallery-preview')
   const before = (await preview.locator('h2').innerText()).trim()
   await preview.getByRole('button', { name: 'Следующий материал' }).click()
@@ -343,69 +387,81 @@ await logCheck('materials desktop: preview navigation changes visible content', 
   assert.notEqual(after, before)
 })
 
-await logCheck('materials desktop: preview read link targets an article route', async () => {
+await check('materials desktop: previous control reverses navigation', async () => {
+  const preview = desktop.page.locator('#gallery-preview')
+  const before = (await preview.locator('h2').innerText()).trim()
+  await preview.getByRole('button', { name: 'Предыдущий материал' }).click()
+  const after = (await preview.locator('h2').innerText()).trim()
+  assert.notEqual(after, before)
+})
+
+await check('materials desktop: read action targets an article route', async () => {
   const href = await desktop.page.locator('#gallery-preview').getByRole('link', { name: /Читать материал/ }).getAttribute('href')
   assert.ok(href && /^\/articles\/[^/]+\/$/.test(href), href ?? 'missing href')
 })
 
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'materials-desktop-preview.png'), fullPage: false })
-await desktop.page.keyboard.press('Escape')
 
-await desktop.page.goto(`${BASE_URL}/articles/recipe-kouglof/`, { waitUntil: 'networkidle' })
-await desktop.page.waitForTimeout(300)
-
-await logCheck('article desktop: article heading is visible below the sticky header', async () => {
-  const heading = await desktop.page.locator('h1:visible').boundingBox()
-  const header = await desktop.page.locator('header').boundingBox()
-  assert.ok(heading && header)
-  assert.ok(heading.y >= header.y + header.height - 1)
+await check('materials desktop: Escape closes the preview', async () => {
+  await desktop.page.keyboard.press('Escape')
+  await desktop.page.locator('#gallery-preview').waitFor({ state: 'detached' })
 })
 
-await logCheck('article desktop: main content contains substantial editorial text', async () => {
+await desktop.page.goto(`${BASE_URL}/articles/recipe-kouglof/`, { waitUntil: 'networkidle' })
+await desktop.page.waitForTimeout(400)
+const articleBanner = desktop.page.getByRole('banner')
+const articleBodyParagraph = desktop.page.locator('.article-body .drop-cap > p:visible').first()
+
+await check('article desktop: heading begins below sticky site banner', async () => {
+  const heading = await desktop.page.locator('h1:visible').boundingBox()
+  const banner = await articleBanner.boundingBox()
+  assert.ok(heading && banner)
+  assert.ok(heading.y >= banner.y + banner.height - 1, JSON.stringify({ heading, banner }))
+})
+
+await check('article desktop: main content is substantial', async () => {
   const text = (await desktop.page.locator('main').innerText()).replace(/\s+/g, ' ').trim()
   assert.ok(text.length >= 2500, `length=${text.length}`)
 })
 
-await logCheck('article desktop: body copy uses a readable base font size', async () => {
-  const paragraph = desktop.page.locator('main p:visible').first()
-  const fontSize = await paragraph.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
-  assert.ok(fontSize >= 16, `font-size=${fontSize}`)
+await check('article desktop: editorial body paragraph exists', async () => {
+  assert.ok(await articleBodyParagraph.isVisible())
+  assert.ok((await articleBodyParagraph.innerText()).trim().length > 40)
 })
 
-await logCheck('article desktop: paragraphs use comfortable line height', async () => {
-  const paragraph = desktop.page.locator('main p:visible').first()
-  const metrics = await paragraph.evaluate((element) => {
+await check('article desktop: body copy uses readable font size', async () => {
+  const size = await articleBodyParagraph.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))
+  assert.ok(size >= 16, `font-size=${size}`)
+})
+
+await check('article desktop: body copy uses comfortable line height', async () => {
+  const metrics = await articleBodyParagraph.evaluate((element) => {
     const style = getComputedStyle(element)
-    return {
-      fontSize: Number.parseFloat(style.fontSize),
-      lineHeight: Number.parseFloat(style.lineHeight),
-    }
+    return { fontSize: Number.parseFloat(style.fontSize), lineHeight: Number.parseFloat(style.lineHeight) }
   })
-  assert.ok(metrics.lineHeight / metrics.fontSize >= 1.35, JSON.stringify(metrics))
+  assert.ok(metrics.lineHeight / metrics.fontSize >= 1.45, JSON.stringify(metrics))
 })
 
-await logCheck('article desktop: heading hierarchy contains section headings', async () => {
-  assert.ok(await desktop.page.locator('main h2:visible, main h3:visible').count() >= 2)
+await check('article desktop: heading hierarchy contains sections', async () => {
+  assert.ok(await desktop.page.locator('.article-body h2:visible, .article-body h3:visible').count() >= 2)
 })
 
-await logCheck('article desktop: visible content images decode successfully', async () => {
-  const images = desktop.page.locator('main img:visible')
-  const count = await images.count()
-  assert.ok(count >= 1)
-  const broken = await images.evaluateAll((items) => items.filter((image) => image.naturalWidth === 0).length)
-  assert.equal(broken, 0)
+await check('article desktop: visible article images decode', async () => {
+  const images = desktop.page.locator('article img:visible')
+  assert.ok(await images.count() >= 1)
+  assert.equal(await images.evaluateAll((items) => items.filter((image) => image.naturalWidth === 0).length), 0)
 })
 
-await logCheck('article desktop: readable text column does not span the entire viewport', async () => {
-  const paragraphBox = await desktop.page.locator('main p:visible').first().boundingBox()
-  assert.ok(paragraphBox)
-  assert.ok(paragraphBox.width >= 280 && paragraphBox.width <= 1000, JSON.stringify(paragraphBox))
+await check('article desktop: reading column has a comfortable measure', async () => {
+  const box = await articleBodyParagraph.boundingBox()
+  assert.ok(box)
+  assert.ok(box.width >= 420 && box.width <= 900, JSON.stringify(box))
 })
 
-await logCheck('article desktop: all visible links have non-empty accessible names', async () => {
+await check('article desktop: visible links have accessible names', async () => {
   const unnamed = await desktop.page.locator('main a:visible').evaluateAll((links) => links.filter((link) => {
-    const label = link.getAttribute('aria-label') || link.textContent || link.querySelector('img')?.getAttribute('alt') || ''
-    return label.trim().length === 0
+    const name = link.getAttribute('aria-label') || link.textContent || link.querySelector('img')?.getAttribute('alt') || ''
+    return name.trim().length === 0
   }).length)
   assert.equal(unnamed, 0)
 })
@@ -413,12 +469,13 @@ await logCheck('article desktop: all visible links have non-empty accessible nam
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'article-desktop.png'), fullPage: false })
 
 await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+await desktop.page.waitForTimeout(1400)
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'home-desktop-dark.png'), fullPage: false })
-await desktop.page.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ }).click()
-await desktop.page.waitForTimeout(180)
+await desktopBanner.getByRole('button', { name: /Переключить на (светлую|тёмную) тему/ }).click()
+await desktop.page.waitForTimeout(250)
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'home-desktop-light.png'), fullPage: false })
 
-const mobile = await createObservedPage({
+const mobile = await observedPage({
   viewport: { width: 390, height: 844 },
   colorScheme: 'dark',
   isMobile: true,
@@ -427,36 +484,36 @@ const mobile = await createObservedPage({
 })
 
 await mobile.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
-await mobile.page.waitForTimeout(250)
+await mobile.page.waitForTimeout(1400)
+const mobileBanner = mobile.page.getByRole('banner')
 
-await logCheck('home mobile: page has no horizontal overflow at 390px', async () => {
-  const size = await mobile.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth])
-  assert.ok(size[0] <= size[1] + 2, JSON.stringify(size))
+await check('home mobile: page has no horizontal overflow at 390px', async () => {
+  const state = await inspectDocument(mobile.page)
+  assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
 })
 
-await logCheck('home mobile: desktop navigation is hidden', async () => {
-  assert.equal(await mobile.page.locator('header nav:visible').count(), 0)
+await check('home mobile: desktop navigation is hidden', async () => {
+  assert.equal(await mobileBanner.locator('nav:visible').count(), 0)
 })
 
-await logCheck('home mobile: menu trigger is visible and exposes collapsed state', async () => {
-  const trigger = mobile.page.getByRole('button', { name: 'Открыть меню' })
+await check('home mobile: menu trigger is visible and initially collapsed', async () => {
+  const trigger = mobileBanner.getByRole('button', { name: 'Открыть меню' })
   assert.ok(await trigger.isVisible())
   assert.equal(await trigger.getAttribute('aria-expanded'), 'false')
 })
 
-await logCheck('home mobile: header action controls meet minimum touch size', async () => {
-  const controls = mobile.page.locator('header button:visible')
-  const undersized = await controls.evaluateAll((elements) => elements.filter((element) => {
+await check('home mobile: all header actions provide 44px touch targets', async () => {
+  const undersized = await mobileBanner.locator('button:visible').evaluateAll((elements) => elements.filter((element) => {
     const rect = element.getBoundingClientRect()
-    return rect.width < 40 || rect.height < 40
-  }).map((element) => ({ label: element.getAttribute('aria-label'), rect: element.getBoundingClientRect().toJSON() })))
+    return rect.width < 43.5 || rect.height < 43.5
+  }).map((element) => ({ label: element.getAttribute('aria-label'), width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height })))
   assert.deepEqual(undersized, [])
 })
 
-await logCheck('home mobile: logo and action controls do not overlap', async () => {
-  const overlap = await mobile.page.evaluate(() => {
-    const logo = document.querySelector('header a[href="/"]')?.getBoundingClientRect()
-    const buttons = [...document.querySelectorAll('header button')].filter((button) => getComputedStyle(button).display !== 'none')
+await check('home mobile: logo and header actions do not overlap', async () => {
+  const overlap = await mobileBanner.evaluate((banner) => {
+    const logo = banner.querySelector('a[href="/"]')?.getBoundingClientRect()
+    const buttons = [...banner.querySelectorAll('button')].filter((button) => getComputedStyle(button).display !== 'none')
     if (!logo) return true
     return buttons.some((button) => {
       const rect = button.getBoundingClientRect()
@@ -466,184 +523,218 @@ await logCheck('home mobile: logo and action controls do not overlap', async () 
   assert.equal(overlap, false)
 })
 
-await logCheck('home mobile: opening menu creates a modal navigation dialog', async () => {
-  await mobile.page.getByRole('button', { name: 'Открыть меню' }).click()
+await check('home mobile: hero description is fully visible after animations', async () => {
+  const paragraph = mobile.page.locator('#hero .hero-text > div p').first()
+  const state = await paragraph.evaluate((element) => ({
+    opacity: Number.parseFloat(element.parentElement ? getComputedStyle(element.parentElement).opacity : '1'),
+    textLength: element.textContent?.trim().length ?? 0,
+  }))
+  assert.ok(state.opacity >= 0.99, JSON.stringify(state))
+  assert.ok(state.textLength > 80, JSON.stringify(state))
+})
+
+await check('home mobile: opening menu creates a modal navigation dialog', async () => {
+  await mobileBanner.getByRole('button', { name: 'Открыть меню' }).click()
   const menu = mobile.page.getByRole('dialog', { name: 'Навигационное меню' })
   await menu.waitFor({ state: 'visible' })
   assert.equal(await menu.getAttribute('aria-modal'), 'true')
 })
 
-await logCheck('home mobile: open menu locks body scrolling', async () => {
+await check('home mobile: open menu locks body scrolling', async () => {
   assert.equal(await mobile.page.locator('body').evaluate((element) => element.style.overflow), 'hidden')
 })
 
-await logCheck('home mobile: focus moves inside the opened menu', async () => {
-  const inside = await mobile.page.getByRole('dialog', { name: 'Навигационное меню' }).evaluate((dialog) => dialog.contains(document.activeElement))
-  assert.equal(inside, true)
+await check('home mobile: focus moves inside opened menu', async () => {
+  const menu = mobile.page.getByRole('dialog', { name: 'Навигационное меню' })
+  assert.equal(await menu.evaluate((element) => element.contains(document.activeElement)), true)
 })
 
-await logCheck('home mobile: menu fits between header and viewport bottom', async () => {
+await check('home mobile: menu settles below header and inside viewport', async () => {
+  await mobile.page.waitForTimeout(260)
   const menu = await mobile.page.getByRole('dialog', { name: 'Навигационное меню' }).boundingBox()
-  const header = await mobile.page.locator('header').boundingBox()
-  assert.ok(menu && header)
-  assert.ok(menu.y >= header.y + header.height - 2)
-  assert.ok(menu.y + menu.height <= 844 + 2)
+  const banner = await mobileBanner.boundingBox()
+  assert.ok(menu && banner)
+  assert.ok(menu.y >= banner.y + banner.height - 2, JSON.stringify({ menu, banner }))
+  assert.ok(menu.y + menu.height <= 846, JSON.stringify({ menu, banner }))
+})
+
+await check('home mobile: every menu item has a 44px touch target', async () => {
+  const menu = mobile.page.getByRole('dialog', { name: 'Навигационное меню' })
+  const undersized = await menu.getByRole('button').evaluateAll((buttons) => buttons.filter((button) => {
+    const rect = button.getBoundingClientRect()
+    return rect.width < 44 || rect.height < 43.5
+  }).map((button) => ({ text: button.textContent, width: button.getBoundingClientRect().width, height: button.getBoundingClientRect().height })))
+  assert.deepEqual(undersized, [])
 })
 
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'home-mobile-menu.png'), fullPage: false })
 
-await logCheck('home mobile: Escape closes menu and restores scrolling', async () => {
+await check('home mobile: Escape closes menu and restores scrolling', async () => {
   await mobile.page.keyboard.press('Escape')
   await mobile.page.getByRole('dialog', { name: 'Навигационное меню' }).waitFor({ state: 'detached' })
   assert.notEqual(await mobile.page.locator('body').evaluate((element) => element.style.overflow), 'hidden')
 })
 
-await logCheck('home mobile: command palette fits inside the viewport', async () => {
-  await mobile.page.getByRole('button', { name: 'Открыть поиск' }).click()
-  const dialog = mobile.page.getByRole('dialog')
+await check('home mobile: command palette fits inside viewport', async () => {
+  await mobileBanner.getByRole('button', { name: 'Открыть поиск' }).click()
+  const dialog = mobile.page.getByRole('dialog', { name: 'Поиск по материалам' })
   await dialog.waitFor({ state: 'visible' })
-  const box = await dialog.boundingBox()
-  assert.ok(box)
-  assert.ok(box.x >= -1 && box.y >= -1)
-  assert.ok(box.x + box.width <= 391)
-  assert.ok(box.y + box.height <= 845)
+  await mobile.page.waitForTimeout(260)
+  assertInside(await dialog.boundingBox(), 390, 844, 2)
+})
+
+await check('home mobile: command palette focuses its search field', async () => {
+  const input = mobile.page.getByRole('dialog', { name: 'Поиск по материалам' }).getByRole('textbox')
+  assert.equal(await input.evaluate((element) => document.activeElement === element), true)
   await mobile.page.keyboard.press('Escape')
+  await mobile.page.getByRole('dialog', { name: 'Поиск по материалам' }).waitFor({ state: 'detached' })
+})
+
+await check('home mobile: persistent bottom navigation exposes five actions', async () => {
+  const nav = mobile.page.getByRole('navigation', { name: 'Основная навигация' })
+  assert.ok(await nav.isVisible())
+  assert.equal(await nav.locator('a, button').count(), 5)
+})
+
+await check('home mobile: bottom navigation actions have adequate touch height', async () => {
+  const nav = mobile.page.getByRole('navigation', { name: 'Основная навигация' })
+  const undersized = await nav.locator('a, button').evaluateAll((elements) => elements.filter((element) => element.getBoundingClientRect().height < 44).length)
+  assert.equal(undersized, 0)
 })
 
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'home-mobile.png'), fullPage: false })
 
 await mobile.page.goto(`${BASE_URL}/materials/`, { waitUntil: 'networkidle' })
-await mobile.page.waitForTimeout(250)
+await mobile.page.waitForTimeout(350)
 const mobileCards = mobile.page.locator('.cat-img-card-lux')
 
-await logCheck('materials mobile: gallery remains one column wide', async () => {
+await check('materials mobile: gallery resolves to one column', async () => {
   const first = await mobileCards.nth(0).boundingBox()
   const second = await mobileCards.nth(1).boundingBox()
   assert.ok(first && second)
-  assert.ok(second.y >= first.y + first.height - 2)
+  assert.ok(second.y >= first.y + first.height - 2, JSON.stringify({ first, second }))
 })
 
-await logCheck('materials mobile: cards fit the viewport without clipping', async () => {
+await check('materials mobile: first cards fit viewport width', async () => {
   const boxes = await mobileCards.evaluateAll((elements) => elements.slice(0, 4).map((element) => element.getBoundingClientRect().toJSON()))
   assert.ok(boxes.every((box) => box.x >= -1 && box.x + box.width <= 391), JSON.stringify(boxes))
 })
 
-await logCheck('materials mobile: touch interaction never opens hover preview', async () => {
-  await mobileCards.first().tap({ position: { x: 10, y: 10 }, noWaitAfter: true })
+await check('materials mobile: coarse-pointer hover never opens preview', async () => {
+  await mobileCards.first().hover()
   await mobile.page.waitForTimeout(500)
   assert.equal(await mobile.page.locator('#gallery-preview').count(), 0)
 })
 
-await mobile.page.goto(`${BASE_URL}/materials/`, { waitUntil: 'networkidle' })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'materials-mobile.png'), fullPage: false })
 
-await logCheck('materials mobile: tapping a card navigates to its article', async () => {
-  const href = await mobile.page.locator('.cat-img-card-lux').first().getAttribute('href')
+await check('materials mobile: tapping a card navigates to its article', async () => {
+  const href = await mobileCards.first().getAttribute('href')
   assert.ok(href)
-  await mobile.page.locator('.cat-img-card-lux').first().tap()
+  await mobileCards.first().tap()
   await mobile.page.waitForURL((url) => url.pathname === href)
 })
 
-await logCheck('article mobile: article page has no horizontal overflow', async () => {
-  const size = await mobile.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth])
-  assert.ok(size[0] <= size[1] + 2, JSON.stringify(size))
+const mobileArticleParagraph = mobile.page.locator('.article-body .drop-cap > p:visible').first()
+
+await check('article mobile: page has no horizontal overflow', async () => {
+  const state = await inspectDocument(mobile.page)
+  assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
 })
 
-await logCheck('article mobile: heading and first paragraph fit within viewport', async () => {
-  const boxes = await Promise.all([
-    mobile.page.locator('h1:visible').boundingBox(),
-    mobile.page.locator('main p:visible').first().boundingBox(),
-  ])
-  for (const box of boxes) {
+await check('article mobile: heading and body fit viewport width', async () => {
+  for (const locator of [mobile.page.locator('h1:visible'), mobileArticleParagraph]) {
+    const box = await locator.boundingBox()
     assert.ok(box)
     assert.ok(box.x >= -1 && box.x + box.width <= 391, JSON.stringify(box))
   }
 })
 
-await logCheck('article mobile: body copy remains readable', async () => {
-  const metrics = await mobile.page.locator('main p:visible').first().evaluate((element) => {
+await check('article mobile: editorial body copy remains readable', async () => {
+  const metrics = await mobileArticleParagraph.evaluate((element) => {
     const style = getComputedStyle(element)
     return { fontSize: Number.parseFloat(style.fontSize), lineHeight: Number.parseFloat(style.lineHeight) }
   })
-  assert.ok(metrics.fontSize >= 16)
-  assert.ok(metrics.lineHeight / metrics.fontSize >= 1.35)
+  assert.ok(metrics.fontSize >= 16, JSON.stringify(metrics))
+  assert.ok(metrics.lineHeight / metrics.fontSize >= 1.45, JSON.stringify(metrics))
+})
+
+await check('article mobile: fixed reading bar exposes four controls', async () => {
+  const labels = ['Назад', 'Сохранить', 'Больше', 'Фокус']
+  for (const label of labels) assert.ok(await mobile.page.getByRole('button', { name: new RegExp(label) }).last().isVisible())
+})
+
+await check('article mobile: reading-bar controls meet touch-height target', async () => {
+  const bar = mobile.page.locator('div.fixed.inset-x-0.bottom-0').last()
+  const undersized = await bar.getByRole('button').evaluateAll((buttons) => buttons.filter((button) => button.getBoundingClientRect().height < 44).length)
+  assert.equal(undersized, 0)
 })
 
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'article-mobile.png'), fullPage: false })
 
-const tablet = await createObservedPage({
+const tablet = await observedPage({
   viewport: { width: 768, height: 1024 },
   colorScheme: 'dark',
   hasTouch: true,
 })
 await tablet.page.goto(`${BASE_URL}/materials/`, { waitUntil: 'networkidle' })
-await tablet.page.waitForTimeout(250)
+await tablet.page.waitForTimeout(350)
+const tabletCards = tablet.page.locator('.cat-img-card-lux')
 
-await logCheck('materials tablet: gallery resolves to two columns', async () => {
-  const cards = tablet.page.locator('.cat-img-card-lux')
-  const boxes = await cards.evaluateAll((elements) => elements.slice(0, 4).map((element) => element.getBoundingClientRect().toJSON()))
+await check('materials tablet: gallery resolves to two columns', async () => {
+  const boxes = await tabletCards.evaluateAll((elements) => elements.slice(0, 4).map((element) => element.getBoundingClientRect().toJSON()))
   assert.ok(Math.abs(boxes[0].top - boxes[1].top) <= 2, JSON.stringify(boxes))
   assert.ok(boxes[2].top >= boxes[0].bottom - 2, JSON.stringify(boxes))
 })
 
-await logCheck('materials tablet: expanded hover preview remains disabled', async () => {
-  await tablet.page.locator('.cat-img-card-lux').first().hover()
+await check('materials tablet: expanded hover preview remains disabled', async () => {
+  await tabletCards.first().hover()
   await tablet.page.waitForTimeout(500)
   assert.equal(await tablet.page.locator('#gallery-preview').count(), 0)
 })
 
-await logCheck('materials tablet: page has no horizontal overflow', async () => {
-  const size = await tablet.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth])
-  assert.ok(size[0] <= size[1] + 2, JSON.stringify(size))
+await check('materials tablet: page has no horizontal overflow', async () => {
+  const state = await inspectDocument(tablet.page)
+  assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
+})
+
+await check('materials tablet: desktop navigation fits without wrapping page', async () => {
+  const banner = tablet.page.getByRole('banner')
+  assert.ok(await banner.locator('nav:visible').isVisible())
+  assertInside(await banner.boundingBox(), 768, 1024)
 })
 
 await tablet.page.screenshot({ path: path.join(OUTPUT_DIR, 'materials-tablet.png'), fullPage: false })
 
-await logCheck('desktop run: no uncaught JavaScript errors occurred', async () => {
-  assert.deepEqual(desktop.telemetry.pageErrors, [])
-})
+for (const [name, observed] of [['desktop', desktop], ['mobile', mobile]]) {
+  await check(`${name}: no uncaught JavaScript errors occurred`, async () => {
+    assert.deepEqual(observed.telemetry.pageErrors, [])
+  })
+  await check(`${name}: no browser console errors occurred`, async () => {
+    assert.deepEqual(observed.telemetry.consoleErrors, [])
+  })
+  await check(`${name}: no same-origin requests failed`, async () => {
+    assert.deepEqual(observed.telemetry.failedRequests, [])
+  })
+  await check(`${name}: no same-origin HTTP 4xx or 5xx responses occurred`, async () => {
+    assert.deepEqual(observed.telemetry.badResponses, [])
+  })
+}
 
-await logCheck('desktop run: no browser console errors occurred', async () => {
-  assert.deepEqual(desktop.telemetry.consoleErrors, [])
-})
-
-await logCheck('desktop run: no same-origin requests failed', async () => {
-  assert.deepEqual(desktop.telemetry.failedRequests, [])
-})
-
-await logCheck('desktop run: no same-origin HTTP 4xx or 5xx responses occurred', async () => {
-  assert.deepEqual(desktop.telemetry.badResponses, [])
-})
-
-await logCheck('mobile run: no uncaught JavaScript errors occurred', async () => {
-  assert.deepEqual(mobile.telemetry.pageErrors, [])
-})
-
-await logCheck('mobile run: no browser console errors occurred', async () => {
-  assert.deepEqual(mobile.telemetry.consoleErrors, [])
-})
-
-await logCheck('mobile run: no same-origin requests failed', async () => {
-  assert.deepEqual(mobile.telemetry.failedRequests, [])
-})
-
-await logCheck('mobile run: no same-origin HTTP 4xx or 5xx responses occurred', async () => {
-  assert.deepEqual(mobile.telemetry.badResponses, [])
-})
-
-await logCheck('tablet run: no browser or network errors occurred', async () => {
+await check('tablet: no browser or network errors occurred', async () => {
   assert.deepEqual(tablet.telemetry.pageErrors, [])
   assert.deepEqual(tablet.telemetry.consoleErrors, [])
   assert.deepEqual(tablet.telemetry.failedRequests, [])
   assert.deepEqual(tablet.telemetry.badResponses, [])
 })
 
+const screenshots = (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort()
 const report = {
   baseUrl: BASE_URL,
   checks: checkNumber,
   passed: passed.length,
   failed: failures.length,
-  screenshots: (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort(),
+  screenshots,
   failures,
 }
 await fs.writeFile(path.join(OUTPUT_DIR, 'report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8')
@@ -655,5 +746,5 @@ if (failures.length > 0) {
   console.error(`\nVisual QA failed: ${passed.length}/${checkNumber} checks passed.`)
   process.exitCode = 1
 } else {
-  console.log(`\nVisual QA completed: ${passed.length}/${checkNumber} checks passed; ${report.screenshots.length} screenshots captured.`)
+  console.log(`\nVisual QA completed: ${passed.length}/${checkNumber} checks passed; ${screenshots.length} screenshots captured.`)
 }
