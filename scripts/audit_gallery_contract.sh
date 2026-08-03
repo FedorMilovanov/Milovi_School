@@ -49,7 +49,7 @@ contains "Preview requires full desktop width" "(min-width: 1024px)"
 contains "Preview capability state is explicit" "const [canUsePreview, setCanUsePreview]"
 contains "Preview dock state is explicit" "const [previewDock, setPreviewDock]"
 contains "Cards expose stable gallery indexes" "data-gallery-index={index}"
-contains "Dock lookup targets the active card" "querySelector<HTMLElement>(`[data-gallery-index=\"${index}\"]`)"
+contains "Dock lookup targets the active card" 'querySelector<HTMLElement>(`[data-gallery-index="${index}"]`)'
 contains "Panel docks opposite left-side cards" "cardCenter < window.innerWidth / 2 ? 'right' : 'left'"
 contains "Preview publishes its active dock" "data-dock={previewDock}"
 contains "Preview width leaves neighbouring cards visible" "900px"
