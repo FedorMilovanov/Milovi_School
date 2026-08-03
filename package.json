@@ -16,7 +16,7 @@
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py"
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
