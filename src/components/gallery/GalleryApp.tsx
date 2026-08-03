@@ -165,22 +165,22 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   }, [canUsePreview, closePreview])
 
   useEffect(() => {
-  const releaseSuppressionOutsideCard = (event: PointerEvent) => {
-    const suppressedIndex = suppressedCardRef.current
-    if (suppressedIndex === null || event.pointerType !== 'mouse') return
+    const releaseSuppressionOutsideCard = (event: PointerEvent) => {
+      const suppressedIndex = suppressedCardRef.current
+      if (suppressedIndex === null || event.pointerType !== 'mouse') return
 
-    const target = event.target
-    const card = target instanceof Element ? target.closest('[data-gallery-index]') : null
-    const targetIndex = card instanceof HTMLElement ? Number(card.dataset.galleryIndex) : null
+      const target = event.target
+      const card = target instanceof Element ? target.closest('[data-gallery-index]') : null
+      const targetIndex = card instanceof HTMLElement ? Number(card.dataset.galleryIndex) : null
 
-    if (targetIndex !== suppressedIndex) {
-      suppressedCardRef.current = null
+      if (targetIndex !== suppressedIndex) {
+        suppressedCardRef.current = null
+      }
     }
-  }
 
-  document.addEventListener('pointermove', releaseSuppressionOutsideCard, { passive: true })
-  return () => document.removeEventListener('pointermove', releaseSuppressionOutsideCard)
-}, [])
+    document.addEventListener('pointermove', releaseSuppressionOutsideCard, { passive: true })
+    return () => document.removeEventListener('pointermove', releaseSuppressionOutsideCard)
+  }, [])
 
   useEffect(() => {
     if (previewIndex === null) return
