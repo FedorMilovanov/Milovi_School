@@ -174,6 +174,7 @@ check 'Preview closes when the document becomes hidden' contains "addEventListen
 check 'Clicking a gallery gap is treated as outside click' contains "target.closest\('\[data-gallery-index\]'\)" src/components/gallery/GalleryApp.tsx
 check 'Explicit close suppresses the current card' contains 'suppressedCardRef.current = activeCardRef.current \?\? previewIndexRef.current' src/components/gallery/GalleryApp.tsx
 check 'Suppression is released when the pointer leaves that card' contains 'suppressedCardRef.current === index.*suppressedCardRef.current = null' src/components/gallery/GalleryApp.tsx
+check 'Suppression is released after real pointer movement outside the card' contains 'releaseSuppressionOutsideCard' src/components/gallery/GalleryApp.tsx
 check 'No arbitrary post-close time lock remains' not_contains 'hoverLockUntil|performance.now\(\) \+ 450' src/components/gallery/GalleryApp.tsx
 check 'Arrow and button navigation preserve panel dock' contains 'openPreview\(next\)' src/components/gallery/GalleryApp.tsx
 check 'Direct card hover supplies an anchor for dock calculation' contains 'schedulePreview\(index, event.currentTarget\)' src/components/gallery/GalleryApp.tsx
