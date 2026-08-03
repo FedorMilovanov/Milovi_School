@@ -10,65 +10,6 @@ permissions:
   contents: read
 
 jobs:
-  format-final-gallery-effect:
-    name: Format final gallery effect
-    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-    permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout exact PR head with push credentials
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - name: Format suppression effect
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
-
-          path = Path('src/components/gallery/GalleryApp.tsx')
-          text = path.read_text('utf-8')
-          start_marker = "  useEffect(() => {\n  const releaseSuppressionOutsideCard"
-          next_marker = "\n\n  useEffect(() => {\n    if (previewIndex === null) return"
-          if start_marker in text:
-              start = text.index(start_marker)
-              end = text.index(next_marker, start)
-              lines = [
-                  '  useEffect(() => {',
-                  '    const releaseSuppressionOutsideCard = (event: PointerEvent) => {',
-                  '      const suppressedIndex = suppressedCardRef.current',
-                  "      if (suppressedIndex === null || event.pointerType !== 'mouse') return",
-                  '',
-                  '      const target = event.target',
-                  "      const card = target instanceof Element ? target.closest('[data-gallery-index]') : null",
-                  '      const targetIndex = card instanceof HTMLElement ? Number(card.dataset.galleryIndex) : null',
-                  '',
-                  '      if (targetIndex !== suppressedIndex) {',
-                  '        suppressedCardRef.current = null',
-                  '      }',
-                  '    }',
-                  '',
-                  "    document.addEventListener('pointermove', releaseSuppressionOutsideCard, { passive: true })",
-                  "    return () => document.removeEventListener('pointermove', releaseSuppressionOutsideCard)",
-                  '  }, [])',
-              ]
-              text = text[:start] + '\n'.join(lines) + text[end:]
-              path.write_text(text, 'utf-8')
-          elif '    const releaseSuppressionOutsideCard' not in text:
-              raise SystemExit('Suppression effect not found')
-          PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/components/gallery/GalleryApp.tsx
-          git diff --cached --check
-          git commit -m 'Format preview suppression effect'
-          git push origin HEAD:fix/react-19-ssr-root-cause
-
   guard:
     runs-on: ubuntu-latest
     timeout-minutes: 10
