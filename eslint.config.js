@@ -101,4 +101,15 @@ export default defineConfig([
       },
     },
   },
+  {
+    files: ['scripts/audit_gallery_preview.mjs'],
+    languageOptions: {
+      globals: {
+        ...browserGlobals,
+        process: 'readonly',
+        Event: 'readonly',
+        getComputedStyle: 'readonly',
+      },
+    },
+  },
 ])
