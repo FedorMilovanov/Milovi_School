@@ -149,6 +149,10 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType === 'mouse') {
+        // Explicit close suppresses the card only while the pointer stays still.
+        // Any real mouse movement releases that dismissal; the separate time lock
+        // still prevents an accidental immediate reopen beneath the closing panel.
+        dismissedCardRef.current = null
         pointerHasMovedRef.current = true
         lastPointerMoveAtRef.current = performance.now()
       }
