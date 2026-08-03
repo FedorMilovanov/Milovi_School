@@ -60,5 +60,26 @@ const jsonLdBreadcrumbs = {
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />
-  <GalleryApp articles={libraryClientMeta} client:load />
+
+  <!--
+    Render the complete gallery on the server, then hydrate the same React tree
+    through a normal bundled module. This preserves SSR and interaction while
+    avoiding Astro's framework-owned inline island style inside <body>, which
+    is invalid HTML according to the Nu validator.
+  -->
+  <div id="gallery-app-root">
+    <GalleryApp articles={libraryClientMeta} />
+  </div>
+
+  <script>
+    import { createElement } from 'react'
+    import { hydrateRoot } from 'react-dom/client'
+    import GalleryApp from '../components/gallery/GalleryApp'
+    import { libraryClientMeta } from '../data/library'
+
+    const root = document.getElementById('gallery-app-root')
+    if (root) {
+      hydrateRoot(root, createElement(GalleryApp, { articles: libraryClientMeta }))
+    }
+  </script>
 </BaseLayout>
