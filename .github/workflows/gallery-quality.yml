@@ -66,10 +66,7 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
-      - name: Refresh security-patched transitive lockfile
-        run: npm audit fix --package-lock-only
-
-      - name: Install exact refreshed dependencies
+      - name: Install exact dependencies
         run: npm ci
 
       - name: Validate audit shell syntax
@@ -89,7 +86,7 @@ jobs:
       - name: Audit article content and editorial depth
         run: npm run audit:content
 
-      - name: Audit dependency security
+      - name: Audit production dependency security
         run: npm run audit:security
 
       - name: Build unmodified production candidate
@@ -154,7 +151,7 @@ jobs:
           BASE_URL: http://127.0.0.1:4321
           VISUAL_QA_DIR: artifacts/visual-qa
 
-      - name: Upload quality evidence and refreshed lockfile
+      - name: Upload quality evidence
         if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.6.2
         with:
@@ -162,7 +159,6 @@ jobs:
           path: |
             artifacts/visual-qa
             artifacts/content-depth-report
-            package-lock.json
           if-no-files-found: warn
           retention-days: 14
 
