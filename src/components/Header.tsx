@@ -78,21 +78,23 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     }
   }, [mobileMenuOpen])
 
+  const mobileMenuItemClass = 'flex min-h-11 w-full items-center py-2 text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100'
+
   return (
     <>
       <header className={`sticky top-0 z-40 border-b transition-all duration-300 ${scrolled ? 'border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] shadow-sm backdrop-blur-xl' : 'border-transparent bg-[var(--bg-overlay-90)] backdrop-blur-md'}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-5 sm:px-6 lg:px-8">
-          <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="haptic-btn group flex items-center gap-3 text-left">
-            <img src="/images/logo.png" alt="Patisserie Russe" title="Patisserie Russe" width="44" height="44" className="h-11 w-11 rounded-sm transition group-hover:scale-105" loading="eager" decoding="async" />
-            <span className="logo-text-lux">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-5 sm:gap-6 sm:px-6 lg:px-8">
+          <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="haptic-btn group flex min-w-0 items-center gap-3 text-left">
+            <img src="/images/logo.png" alt="Patisserie Russe" title="Patisserie Russe" width="44" height="44" className="h-11 w-11 shrink-0 rounded-sm transition group-hover:scale-105" loading="eager" decoding="async" />
+            <span className="logo-text-lux min-w-0">
               {/* Бренд "Pâtisserie Russe": слово "Pâtisserie" — синий italic
                   с blue glow при hover (см. .logo-name-patisserie в global.css).
                   Стиль перенесён из ARENA AI drop 1-в-1. */}
-              <span className="block font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">
+              <span className="block whitespace-nowrap font-serif text-[1.1rem] font-semibold tracking-[-0.04em] sm:text-[1.25rem]">
                 <span className="logo-name-patisserie">Pâtisserie</span>{' '}
                 <span className="logo-name-russe">Russe</span>
               </span>
-              <span className="block font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500 dark:text-stone-400">French Pastry Archive</span>
+              <span className="hidden whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.28em] text-stone-500 min-[420px]:block dark:text-stone-400">French Pastry Archive</span>
             </span>
           </a>
 
@@ -103,12 +105,12 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <a href="/#about" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoAbout() }} className="nav-link-underline font-mono text-[11px] uppercase tracking-[0.22em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100">О проекте</a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <motion.button
               type="button"
               onClick={onOpenCommand}
               aria-label="Открыть поиск"
-              className="inline-flex h-11 items-center gap-2 border border-[var(--border-subtle)] px-4 text-[11px] font-mono uppercase tracking-[0.22em] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 border border-[var(--border-subtle)] px-0 text-[11px] font-mono uppercase tracking-[0.22em] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 sm:w-auto sm:px-4 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -121,7 +123,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <button
               type="button"
               onClick={onToggleTheme}
-              className="inline-flex h-11 w-11 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
               aria-label={theme === 'dark' ? 'Переключить на светлую тему' : 'Переключить на тёмную тему'}
             >
               {theme === 'dark' ? (
@@ -137,7 +139,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="flex h-11 w-11 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 md:hidden dark:text-stone-300"
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-[var(--border-subtle)] text-stone-700 transition hover:border-stone-400 md:hidden dark:text-stone-300"
               aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation-menu"
@@ -170,32 +172,32 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
             transition={shouldReduce ? { duration: 0 } : { duration: 0.2 }}
           >
-            <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); onGoHome() }}
-                className="text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100"
+                className={mobileMenuItemClass}
               >
                 Главная
               </button>
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); onGoCategories() }}
-                className="text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100"
+                className={mobileMenuItemClass}
               >
                 Архив
               </button>
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); onGoArticles() }}
-                className="text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100"
+                className={mobileMenuItemClass}
               >
                 Галерея
               </button>
               <button
                 type="button"
                 onClick={() => { setMobileMenuOpen(false); onGoAbout() }}
-                className="text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100"
+                className={mobileMenuItemClass}
               >
                 О проекте
               </button>
