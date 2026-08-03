@@ -2,7 +2,7 @@ name: Apply verified editorial hardening
 
 on:
   schedule:
-    - cron: '35 23 * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
