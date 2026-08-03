@@ -135,3 +135,47 @@ jobs:
         env:
           LIVE_BASE: https://french.milovicake.ru
           EXPECTED_SHA: ${{ github.sha }}
+
+  publish-status:
+    name: Publish auditable gallery status
+    if: always()
+    needs: [local-contract-and-browser, external-live-audit]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - name: Publish result and workflow link on commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LOCAL_RESULT: ${{ needs.local-contract-and-browser.result }}
+          LIVE_RESULT: ${{ needs.external-live-audit.result }}
+          API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          if [[ "$LOCAL_RESULT" == "success" && "$LIVE_RESULT" == "success" ]]; then
+            state="success"
+            description="50+ shell, 40+ browser and 45+ live checks passed"
+          else
+            state="failure"
+            description="Gallery audit failed: local=$LOCAL_RESULT live=$LIVE_RESULT"
+          fi
+          payload="$(STATE="$state" DESCRIPTION="$description" RUN_URL="$RUN_URL" python3 - <<'PY'
+          import json, os
+          print(json.dumps({
+              'state': os.environ['STATE'],
+              'description': os.environ['DESCRIPTION'][:140],
+              'context': 'gallery/exhaustive-audit',
+              'target_url': os.environ['RUN_URL'],
+          }))
+          PY
+          )"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H 'Accept: application/vnd.github+json' \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "$API_URL/repos/$REPOSITORY/statuses/$SHA" \
+            -d "$payload"
