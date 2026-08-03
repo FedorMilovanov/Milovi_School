@@ -24,7 +24,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Patch suppression state machine and remove temporary workflows
+      - name: Patch suppression state machine
         shell: bash
         run: |
           set -euo pipefail
@@ -71,12 +71,9 @@ jobs:
                   raise SystemExit('Source contract insertion marker not found')
               contract.write_text('\n'.join(lines) + '\n', 'utf-8')
           PY
-          git show 5fa2dcc221df17bac0e2fd6a07e829a368f7220b:.github/workflows/gallery-quality.yml > .github/workflows/gallery-quality.yml
-          git show HEAD^:.github/workflows/repository-hygiene.yml > .github/workflows/repository-hygiene.yml
-          rm -f .github/workflows/patch-gallery-suppression.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
+          git add src/components/gallery/GalleryApp.tsx scripts/audit_gallery_contract.sh
           git diff --cached --check
           git commit -m 'Release preview suppression after real pointer movement'
           git push origin HEAD:fix/react-19-ssr-root-cause
