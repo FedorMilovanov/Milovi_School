@@ -51,12 +51,27 @@ jobs:
                   raise SystemExit(f'{part} failed verification: size={len(text)} sha256={digest}')
               verified.append(text)
 
-          # Exact final chunk from the locally validated archive. The GitHub
-          # tree transport omitted one interior byte in part-07, so the
-          # damaged transport copy is never trusted or extracted.
-          final_chunk = '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'
-          if len(final_chunk) != 2208 or hashlib.sha256(final_chunk.encode('ascii')).hexdigest() != 'e3d802a64a63f01abdc9439f4a964f178448ca5324c2d8840c68394fc4fa7aaa':
-              raise SystemExit('Embedded final payload chunk failed verification')
+          final_parts = [
+              'Y9U1mS6dmhkOROiMCAlQnTre07YGBOKVDXpPHvGkxTDySSQLQWZew4JjieTAkDKc2zH3xTULTt6QaOEwZl4QlkFJ8ySdu5qaoO8TTkTBBGaJgAcEN3+1UEIQqF5+XIMW5MuBAOjuhonDkY+Q03YhhPgMJMIDxS9lXGQWFSR4V9UiYtM5RvWp8fAmNm9xVti4aqRgxIEI',
+              'cCqjFI7yLz1PhjkZ45olhhW8/LgL42fHZ3SYodTTk6cOBkSJeJ2szNz40rODDjrgUnVKUTCodphJVDI78eyB4NvJ9e7ZO6+kC/RlISOIRvlgSFKDUMz0zTvECOR0TRfcPcmsmN9OJWW3rsfLDjqQuIy9Nh9d1d6QkHqPbGJprVnabZilFh282RhsPGUuW8Ssm+UxVykD',
+              'vx1OkwKYSQ15UF4YGBgZ4BHBwTKEms1KElXT8CyaWT1mK7mWS75j1pJd53XOzoLfb5WAPCfbVgxWd9liTWGuiPGcsNodMdkMMe72cMDzMCChQx4nMMnj4NuQ1+b/dy1IJCmH2ibMLlFFrFD9KSqSuSt4JIEJm+j8mIbGHV3bvkDcEyVPyKJ3wbS3cQmFdEXYP3yD6kNP',
+              'xTANKZIDdkqZnmHz8u3OT8fmKdrXS6KF1dOJNvXiqF18bRIsTGKvEZghK6V3Std2pNXtfBTlXdxF03Frxdl320svtT9l6Iq0LfdRHPjSX7k20cPGz3Y5ZTDazCO/4WxwKMIi/R0ugWBkEuZznveTXlSBUdGFQg7tC1rXNimhVK4bcS6dc1GYpTJGgcYB9IGa5WTaWMrm',
+              'SpbDr24hM5Fgdu5Guz+v4H+ddeQkC7EEeJ4wHs4dvFhUdoeN8WRQ5BthVirEea5rmcL1ZkFJ87sOhXl7cS1c5bp9/tEC5TFJSsiLIrMwpbn37Kw8YXfV+2Sw28+52G+Vu89jFi9PHCccp02JQ4HEy6Bcrxw5QOyab8ESViG9PuYFopg499r63OW4nvJBeVr6m4twwymO',
+              'LVSjDbyUdWzpmdiUXyWwvDbnOttVVvREm8waeS9Dh5y3g4MWdFt0mOImXDV0jppp6IZteOpwGrRprXGY3MK9PHGJR40HYjsBpGFs4OPr7UBqtk2V4DyEQBmUDZKQb1sVzXNWVXKRCVReaWiwxyWDkWoPm8XNCOw9l3TMkJAolZLgn6mQODvWsRzMvFpvz3G+3v0eO/HF',
+              'vq8U0ITPms4ww+exZjY8abTM+294nj+nH6i7wHuOFAWeXANsI7ObM30zNw9c22O6Gkb7TGpM0nvNzCSt77g466Dz+zDhZNlsEj0ihMOyZvex8RdVUQnUbakto6xjlC1ivrzHTztcdwD0q/OVvNhccbybxrtjiefiNOJnyAys0Df3xusOadEJd+EiE9hpHj5Y5MdTrA6k',
+              'M0uroPYgQzNavoLz7NwelfhWWBHNoIQk1J3H7jEDitImEmN6HcWj5sMRSF8yO5jRmwPqGt6CaU4HeLJOXKmlXJmLLf2bWshhyfJUKEkkQnVi8Wui/I968UOvF/Y5C9akhnPN6Hgu97vKHpy6Lo7vGxowVhYUCa18QF7FozmNaeoWLvmoocpUPMw3lKPshpcnEYUaCNRi',
+              'i4XMsylIoLAxrJUFObj7c6jioa11biqW8zhLg2TcOjg0GBDRsfYly0I6NQ4jK4hUrFAuUhR4tY5YQSSKlikQKPjKcyI1aCdT3wTnh4ijoy0o63PJ5cp6KVjrbJ5tSjtFbt+NXvcOJwtFnFJDBKFYmcLTNsHSRNXTlbx5HYZmtJpFGmXzGGLhozFcMMqwWmtGkbZWYF8k',
+              'zaM3m61pqDtIEyY06TrLsltWjocUwbSFMI5bi3GeO6dk2q7ZHhS6tUVmsqiOW9c7RjPHxe1SltBRSj4g65eHPYm3FDbq6azkKqigt4HaDeknx6f02jR8YISAc+Kn9KNS5L+ZT5+tIXLI2RhaiBZ/Z9WABECfD8sPeH9ft/qsZ+b2f/j/Z/ufOz9z/Qz/6/slZ/Zr585+',
+              'oa6/++vj39++mtfWnfyJL63/mC+Q0vYbEIR9AgNBT89oqxVBUYLFtURFJERYKCyCKgo5AgYhAFgCwEAkBJASQVCRFkFWQQkRWRRZAigsICkFAUIsgRVFIsgsFgLBYiSK1A7QWEgxVRVSRBRRUVEUVRiL5GVkU92lAFBGLAWCMRUFjr4KUGfclGMiqGhfN2JH/8XckU4U',
+              'JAbPi9UA',
+          ]
+          final_chunk = ''.join(final_parts)
+          if len(final_chunk) != 2208:
+              raise SystemExit(f'Embedded final payload length mismatch: {len(final_chunk)}')
+          final_digest = hashlib.sha256(final_chunk.encode('ascii')).hexdigest()
+          if final_digest != 'e3d802a64a63f01abdc9439f4a964f178448ca5324c2d8840c68394fc4fa7aaa':
+              raise SystemExit(f'Embedded final payload hash mismatch: {final_digest}')
+
           encoded = ''.join(verified) + final_chunk
           payload = base64.b64decode(encoded, validate=True)
           digest = hashlib.sha256(payload).hexdigest()
