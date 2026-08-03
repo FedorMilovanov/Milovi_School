@@ -111,6 +111,11 @@ contains "HTML fixer inserts the island style before head closes" "html.indexOf(
 contains "HTML fixer inspects the generated body" "html.indexOf('<body')" "$HTML_FIXER"
 contains "HTML fixer verifies no island style remains in body" "still remains in body" "$HTML_FIXER"
 contains "HTML fixer refuses silent no-op output" "style marker was not found" "$HTML_FIXER"
+contains "HTML fixer defines the forbidden NUL code point" "const INVALID_NUL = '\\u0000'" "$HTML_FIXER"
+contains "HTML fixer strips invalid NUL code points" "replaceAll(INVALID_NUL, '')" "$HTML_FIXER"
+contains "HTML fixer verifies no NUL remains" "Invalid NUL byte still remains" "$HTML_FIXER"
+contains "HTML fixer reports removed NUL bytes" "removedNulBytes" "$HTML_FIXER"
+contains "HTML fixer preserves non-document verification files" "skippedNonDocumentFiles" "$HTML_FIXER"
 not_contains "Legacy immediate onMouseEnter opener is absent" "onMouseEnter"
 not_contains "Legacy hasFinePointer state is absent" "hasFinePointer"
 not_contains "Direct card-hover setPreviewIndex is absent" "onPointerEnter={() => setPreviewIndex"
@@ -119,8 +124,8 @@ regex "Wheel listener is removed on cleanup" "removeEventListener\('wheel', onWh
 regex "Scroll listener is removed on cleanup" "removeEventListener\('scroll', onScroll\)"
 regex "Visibility listener is removed on cleanup" "removeEventListener\('visibilitychange', onVisibilityChange\)"
 
-if (( COUNT < 70 )); then
-  fail "Audit executed at least 70 shell assertions"
+if (( COUNT < 75 )); then
+  fail "Audit executed at least 75 shell assertions"
 fi
 
 printf '\nGallery shell contract audit passed: %d checks.\n' "$COUNT"
