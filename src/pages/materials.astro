@@ -4,7 +4,7 @@ import GalleryApp from '../components/gallery/GalleryApp'
 import { libraryClientMeta } from '../data/library'
 
 const siteUrl = 'https://french.milovicake.ru'
-const safeJson = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
+const safeJson = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 
 const jsonLdCollection = {
   '@context': 'https://schema.org',
@@ -69,7 +69,7 @@ const jsonLdBreadcrumbs = {
   <div id="gallery-app-root">
     <GalleryApp articles={libraryClientMeta} />
   </div>
-  <script id="gallery-app-data" type="application/json" set:html={safeJson(libraryClientMeta)} />
+  <script is:inline id="gallery-app-data" type="application/json" set:html={safeJson(libraryClientMeta)} />
 
   <script>
     import { createElement } from 'react'
