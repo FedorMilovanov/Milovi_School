@@ -1,0 +1,31 @@
+name: Editorial source snapshot
+
+on:
+  push:
+    branches:
+      - agent/editorial-zero-defects
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Pack repository source
+        run: tar -czf editorial-source.tar.gz --exclude=.git .
+
+      - name: Upload source snapshot
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: editorial-source-${{ github.sha }}
+          path: editorial-source.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
