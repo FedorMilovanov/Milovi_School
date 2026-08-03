@@ -117,7 +117,7 @@ def metrics(body: str) -> dict[str, int | float]:
     markdown_blocks = len([block for block in re.split(r"\n\s*\n", body) if len(WORD_RE.findall(block)) >= 8])
     paragraphs = max(html_paragraphs, markdown_blocks)
 
-    list_items = len(re.findall(r"<li\b|(?m)^\s*(?:[-*]|\d+[.)])\s+", body, flags=re.I))
+    list_items = len(re.findall(r"<li\b|^\s*(?:[-*]|\d+[.)])\s+", body, flags=re.I | re.M))
     plain = URL_RE.sub(" ", body)
     plain = TAG_RE.sub(" ", plain)
     plain = re.sub(r"[`*_>#|]+", " ", plain)
