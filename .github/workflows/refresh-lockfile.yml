@@ -28,6 +28,7 @@ jobs:
           node-version: '22.13.0'
           cache: npm
 
+      # Generate the exact dependency tree accepted by the live npm advisory database.
       - name: Refresh only the lockfile
         run: npm audit fix --package-lock-only
 
