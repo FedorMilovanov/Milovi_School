@@ -125,6 +125,15 @@ require_contains "Gallery heading is present in server HTML" "$TMP_DIR/materials
 require_not_contains "Materials page is not marked noindex" "$TMP_DIR/materials.html" "noindex"
 require_not_contains "Materials HTML has no insecure absolute resource URLs" "$TMP_DIR/materials.html" "src=\"http://"
 
+python3 - "$TMP_DIR/materials.html" <<'PY'
+from pathlib import Path
+import sys
+payload = Path(sys.argv[1]).read_bytes()
+assert b'\x00' not in payload, 'NUL byte found in live gallery HTML'
+payload.decode('utf-8', errors='strict')
+PY
+pass "Live gallery HTML is strict UTF-8 without NUL bytes"
+
 curl -sS -o "$TMP_DIR/not-found.html" --connect-timeout 12 --max-time 35 "$LIVE_BASE/__gallery-audit-missing__/"
 require_contains "404 page carries noindex, follow" "$TMP_DIR/not-found.html" "noindex, follow"
 
@@ -292,20 +301,30 @@ from urllib.parse import quote
 print(quote(sys.argv[1], safe=''))
 PY
 )"
-if curl -fsS --connect-timeout 15 --max-time 90 "https://validator.w3.org/nu/?doc=$encoded_url&out=json" > "$TMP_DIR/w3c.json"; then
+
+# Validate the exact live payload downloaded above instead of asking Nu to
+# re-fetch through its own proxy. That removes transport/CDN ambiguity and makes
+# this external check cover precisely the same bytes audited by the other tests.
+if curl -fsS --connect-timeout 15 --max-time 90 \
+  -H 'Content-Type: text/html; charset=utf-8' \
+  -H 'User-Agent: Milovi-School-Gallery-Audit/1.0' \
+  --data-binary @"$TMP_DIR/materials.html" \
+  "https://validator.w3.org/nu/?out=json" > "$TMP_DIR/w3c.json"; then
   if python3 - "$TMP_DIR/w3c.json" <<'PY'
 import json, sys
 payload = json.load(open(sys.argv[1], encoding='utf-8'))
 errors = [m for m in payload.get('messages', []) if m.get('type') == 'error']
 if errors:
     for item in errors[:10]:
-        print(item.get('message', 'validator error'), file=sys.stderr)
+        line = item.get('lastLine') or item.get('firstLine') or '?'
+        column = item.get('lastColumn') or item.get('firstColumn') or '?'
+        print(f"line {line}, column {column}: {item.get('message', 'validator error')}", file=sys.stderr)
 raise SystemExit(0 if not errors else 1)
 PY
   then
-    pass "W3C Nu validator reports no HTML errors for gallery"
+    pass "W3C Nu validates the exact live gallery HTML without errors"
   else
-    fail "W3C Nu validator reports HTML errors for gallery"
+    fail "W3C Nu reports HTML errors for the exact live gallery payload"
   fi
 else
   soft_warn "W3C validator was temporarily unreachable"
@@ -348,8 +367,8 @@ else
   soft_warn "SSL Labs cached assessment was unavailable"
 fi
 
-if (( COUNT < 49 )); then
-  fail "Live audit executed at least 49 hard checks"
+if (( COUNT < 51 )); then
+  fail "Live audit executed at least 51 hard checks"
 fi
 
 printf '\nExternal gallery audit passed: %d hard checks, %d soft warnings.\n' "$COUNT" "$SOFT_WARNINGS"
