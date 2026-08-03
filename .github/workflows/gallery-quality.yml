@@ -8,6 +8,7 @@ on:
       - 'src/styles/global.css'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
+      - 'eslint.config.js'
       - '.github/workflows/gallery-quality.yml'
   workflow_dispatch:
 
