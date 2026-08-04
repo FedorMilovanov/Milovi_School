@@ -35,6 +35,87 @@ jobs:
           cd /tmp/final
           patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
           patch --batch --forward -p1 < /tmp/editorial.patch
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('src/data/articleOverrides.ts')
+          source = path.read_text()
+          preferred = {
+              'crookie-conticini': """  'crookie-conticini': Object.freeze({
+            title: 'Crookie: от Maison Louvard до мирового тренда',
+            excerpt: 'Документированная история Stéphane Louvard, повторной выпечки круассана с cookie dough и вирусного распространения продукта.',
+            sourceUrl: 'https://www.bbc.com/travel/article/20240305-the-surprisingly-complicated-history-of-the-croissant',
+            sourceLabel: 'BBC Travel — crookie and croissant history',
+          }),""",
+              'felder-fraisier': "  'felder-fraisier': Object.freeze({ sourceUrl: 'https://www.christophe-felder.com/recettes/', sourceLabel: 'Christophe Felder — recettes officielles' }),",
+              'genin-autodidact': """  'genin-autodidact': Object.freeze({
+            title: 'Жак Жени: независимый путь шоколатье и кондитера',
+            excerpt: 'Проверяемый разбор независимого пути Жака Жени, свежих ганашей, карамели и мильфея без сенсационной биографической легенды.',
+            sourceUrl: 'https://jacquesgenin.fr/univers',
+            sourceLabel: 'Jacques Genin — Univers',
+          }),""",
+              'lignac-far-breton': "  'lignac-far-breton': Object.freeze({ sourceUrl: 'https://www.cuisineactuelle.fr/recettes/recettes-de-chefs/far-breton-au-pruneaux-de-cyril-lignac-53044', sourceLabel: 'Cuisine Actuelle — Far breton de Cyril Lignac' }),",
+              'recipe-pecan-chocolate-creme-brulee': """  'recipe-pecan-chocolate-creme-brulee': Object.freeze({
+            title: 'Entremets «пекан, шоколад и крем-брюле»: профессиональная учебная технология',
+            excerpt: 'Пралине пекан, шоколадный biscuit, insert крем-брюле и ганаш montée на открытых профессиональных базах без ложной авторской атрибуции.',
+            sourceUrl: 'https://www.cacao-barry.com/fr-FR/le-guide-des-recettes',
+            sourceLabel: 'Cacao Barry — Le Guide des Recettes',
+          }),""",
+              'recipe-tarte-tropezienne': """  'recipe-tarte-tropezienne': Object.freeze({
+            sourceUrl: 'https://www.latartetropezienne.fr/fr/?m=aboutus%3Fm%3Daboutus',
+            sourceLabel: 'La Tarte Tropézienne — histoire officielle',
+          }),""",
+          }
+
+          def remove_entry(text: str, key: str) -> str:
+              marker = f"  '{key}': Object.freeze("
+              while (start := text.find(marker)) >= 0:
+                  open_paren = text.index('(', start)
+                  depth = 0
+                  quote = None
+                  escaped = False
+                  index = open_paren
+                  while index < len(text):
+                      char = text[index]
+                      if quote:
+                          if escaped:
+                              escaped = False
+                          elif char == '\\':
+                              escaped = True
+                          elif char == quote:
+                              quote = None
+                      else:
+                          if char in "'\"`":
+                              quote = char
+                          elif char == '(':
+                              depth += 1
+                          elif char == ')':
+                              depth -= 1
+                              if depth == 0:
+                                  index += 1
+                                  break
+                      index += 1
+                  if text[index:index + 1] == ',':
+                      index += 1
+                  if text[index:index + 1] == '\n':
+                      index += 1
+                  text = text[:start] + text[index:]
+              return text
+
+          for key in preferred:
+              source = remove_entry(source, key)
+          insert_at = source.rfind('\n})')
+          if insert_at < 0:
+              raise SystemExit('articleOverrides terminator not found')
+          source = source[:insert_at] + '\n' + '\n'.join(preferred.values()) + source[insert_at:]
+          path.write_text(source)
+
+          keys = re.findall(r"^\s*'([^']+)':", source, re.M)
+          duplicates = sorted({key for key in keys if keys.count(key) > 1})
+          if duplicates:
+              raise SystemExit(f'duplicate override keys remain: {duplicates}')
+          PY
           git diff --check
 
       - name: Setup pinned Node
