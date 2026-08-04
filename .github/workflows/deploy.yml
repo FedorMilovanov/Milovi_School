@@ -40,7 +40,7 @@ jobs:
       - name: Lint source
         run: npm run lint
 
-      - name: Audit article content
+      - name: Audit article depth, sourcing and publication quality
         run: npm run audit:content
 
       - name: Audit production dependencies at high severity
