@@ -15,7 +15,7 @@ export const articleExpansionPart6: Readonly<Record<string, string>> = Object.fr
 
 В мусс или крем закваску не добавляют ради модного слова. Её логика уместна в тестах, бриоши, cakes с ферментированной базой и отдельных соусах из хлебного кваса. Любое применение должно отвечать на вопрос, что именно улучшается: аромат, структура, срок или утилизация продукта.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)
 - [Levain dur maison](https://maison-kayser.com/cours/eric-kayser-vous-explique-comment-faire-votre-levain-dur-maison/)
@@ -46,7 +46,7 @@ export const articleExpansionPart6: Readonly<Record<string, string>> = Object.fr
 
 Это уточняет эволюцию ассортимента.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
@@ -77,7 +77,7 @@ Equinoxe строится на трёх понятных осях: ваниль,
 
 После суток хранения повторяют дегустацию и фиксируют миграцию влаги.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
@@ -96,12 +96,14 @@ Far breton относится к семейству запечённых яич�
 
 ## Атрибуция
 
-Пока нет открытой полной рецептуры Линьяка, описанная технология является классической редакционной адаптацией. Авторское имя допустимо для конкретного официального продукта или опубликованной формулы, но не должно превращать общую бретонскую технику в «секрет шефа».
+Открытая публикация Cuisine Actuelle связывает эту версию far breton с Cyril Lignac, однако профессиональные признаки остаются общими для жанра: гладкий appareil, равномерное распределение pruneaux и контролируемая коагуляция. Имя шефа не превращает базовую бретонскую технику в недоступный «секрет».
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)`,
+- [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)
+- [Cuisine Actuelle — Far breton aux pruneaux de Cyril Lignac](https://www.cuisineactuelle.fr/recettes/recettes-de-chefs/far-breton-au-pruneaux-de-cyril-lignac-53044)
+- [Académie du Goût — Far breton aux pruneaux](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)`,
   'lignac-kouign-amann': `## Где заканчивается карточка шефа и начинается реконструкция
 
 Официальный продукт Сириля Линьяка подтверждает вкус и позиционирование, но не обязательно раскрывает полную производственную формулу. Поэтому технологию корректнее описывать как профессиональную реконструкцию kouign-amann, а не как дословный «секретный рецепт». Базу дают открытые демонстрации MOF и французских пекарей: дрожжевое тесто, пластичное масло, туры, сахар на финальных стадиях и выпечка в форме.
@@ -124,7 +126,7 @@ Far breton относится к семейству запечённых яич�
 
 Проверка на следующий день тоже полезна: она показывает, сколько влаги мигрировало в корку и подходит ли изделие для витрины, а не только для немедленной подачи.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Kouign-amann](https://lapatisseriecyrillignac.com/produit/kouign-amann/)
 - [Croissant par Thomas Marie, MOF](https://www.academiedugout.fr/recettes/croissant_16818_2)
@@ -153,7 +155,7 @@ Far breton относится к семейству запечённых яич�
 
 Временная шкала должна указывать год каждого перехода и организацию, присудившую награду.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Nina Métayer — témoignage alumni](https://www.ferrandi-paris.com/fr/carrieres-reseaux/temoignages-alumni/nina-metayer)
 - [Nina Métayer — World’s Best Pastry Chef](https://www.theworlds50best.com/stories/News/nina-metayer-worlds-best-pastry-chef-2024-interview.html)
@@ -180,14 +182,14 @@ Far breton относится к семейству запечённых яич�
 
 При масштабировании даже небольшая ошибка соли умножается, поэтому технологическая карта должна содержать точность не хуже десятых долей грамма для малой партии.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Nina Métayer — témoignage alumni](https://www.ferrandi-paris.com/fr/carrieres-reseaux/temoignages-alumni/nina-metayer)
 - [Nina Métayer — World’s Best Pastry Chef](https://www.theworlds50best.com/stories/News/nina-metayer-worlds-best-pastry-chef-2024-interview.html)
 - [Galette Notre-Dame](https://www.academiedugout.fr/recettes/galette-des-rois-notre-dame_15371_2)`,
   'metayer-world-best-2023': `## Карьера отдельно от награды
 
-Биография должна последовательно показать boulangerie, FERRANDI, palace, ресторанную работу и Délicatisserie. Награда является итоговой точкой периода, а не объяснением таланта.
+Путь Метайе проходит через boulangerie, FERRANDI, palace, ресторанную работу и собственную Délicatisserie. Награда 2023 года завершает этот период, но не заменяет объяснение профессионального роста и собственной производственной модели.
 
 ## Титул 2023
 
@@ -201,7 +203,7 @@ The World’s 50 Best Restaurants объявила Метайе World’s Best P
 
 Для анализа важнее конкретные изделия: галетты с архитектурной формой, работа с сезонным фруктом, внимание к ферментированному тесту и цифровая модель продажи. Так награды подтверждают карьеру, но не заменяют описание ремесла.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Nina Métayer — témoignage alumni](https://www.ferrandi-paris.com/fr/carrieres-reseaux/temoignages-alumni/nina-metayer)
 - [Nina Métayer — World’s Best Pastry Chef](https://www.theworlds50best.com/stories/News/nina-metayer-worlds-best-pastry-chef-2024-interview.html)`,

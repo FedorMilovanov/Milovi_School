@@ -7,8 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
-    "audit:security": "npm audit --omit=dev --audit-level=high",
+    "check": "tsc --noEmit",
+    "audit:security": "npm audit --audit-level=high",
     "audit:site": "node scripts/run-python-script.mjs scripts/audit_site.py",
     "audit:build": "node scripts/audit_raw_build.mjs",
     "audit:privacy": "node scripts/privacy_contract.mjs",
@@ -16,7 +16,7 @@
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py"
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
@@ -25,7 +25,6 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@astrojs/check": "0.9.10",
     "@astrojs/react": "6.0.2",
     "@astrojs/sitemap": "3.7.3",
     "@eslint/js": "10.0.1",

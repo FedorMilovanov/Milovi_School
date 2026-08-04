@@ -5,7 +5,7 @@ export const articleExpansionPart20: Readonly<Record<string, string>> = Object.f
 
 ## Белки или сливки
 
-Классический mousse au chocolat может строиться на белках, сливках, pâte à bombe или их сочетании. Эти версии дают разную плотность, сладость и безопасность хранения. Статья должна назвать конкретную систему, а не смешивать приёмы из нескольких рецептур.
+Mousse au chocolat может строиться на белках, сливках, pâte à bombe или их сочетании. Эти системы дают разную плотность, сладость и безопасность хранения. В выбранной версии приёмы не смешиваются с другой технологической схемой.
 
 ## Смешивание
 
@@ -15,7 +15,7 @@ export const articleExpansionPart20: Readonly<Record<string, string>> = Object.f
 
 Муссу нужно время в холоде для стабилизации. Но подача прямо из очень холодного холодильника приглушает аромат и делает жир плотным. Несколько минут темперирования улучшают текстуру, если санитарный режим и размер порции это позволяют.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Mousse chocolat noir — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/mousse-chocolat-noir)
 - [Les essentiels Valrhona](https://essentials.valrhona.com/)
@@ -36,7 +36,7 @@ Fondant нельзя описать одной универсальной мин
 
 Жидкий центр не должен означать холодное сырое тесто. Используют надёжные яйца и проверенную технологию. После печи fondant отдыхает коротко, чтобы стенки укрепились, затем извлекается и подаётся сразу. Длительное ожидание продолжает приготовление центра.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Fondant au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=fondant%20au%20chocolat)
 - [Fondant au chocolat — Chef Simon](https://chefsimon.com/recettes/tag/fondant%20au%20chocolat)
@@ -57,7 +57,7 @@ Pain perdu использует хлеб, который потерял част
 
 Pain perdu хорош сразу, пока край слегка хрустит. Соус, мороженое или фрукты должны дополнять, а не превращать блюдо в сахарный сироп. Для ресторанной версии порцию рассчитывают так, чтобы гость мог съесть её до полного размокания.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Pain perdu — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pain-perdu--10)
 - [Pain perdu — Académie du Goût](https://www.academiedugout.fr/recherche?q=pain%20perdu)
@@ -78,7 +78,7 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 
 После наполнения влажность переходит в оболочку. Поэтому choux Chantilly собирают как можно ближе к продаже. Сахарную пудру наносят в финале: в холодильнике она быстро растворяется и превращается в пятна.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Pâte à choux et éclairs — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pate-a-choux-et-eclairs)
 - [Chantilly — Académie du Goût](https://www.academiedugout.fr/recherche?q=chantilly)
@@ -99,7 +99,7 @@ Savarin готовят из дрожжевого теста с развитой 
 
 Часть алкоголя вводят после основного нагрева или подают отдельно, чтобы сохранить аромат. Избыток рома даёт жёсткий спиртовой вкус. Chantilly и фрукты добавляют после полного охлаждения и стекания сиропа.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Savarin et baba — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/savarin-et-baba)
 - [Baba au rhum — Académie du Goût](https://www.academiedugout.fr/recherche?q=baba%20au%20rhum)
@@ -120,7 +120,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 Тарт особенно выразителен тёплым, когда масло и карамель пластичны. После полного охлаждения его хранят закрытым, чтобы дрожжевая основа не высыхала, и кратко восстанавливают в печи, а не в микроволновке.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Tarte au sucre — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20au%20sucre)
 - [Tarte au sucre — Chef Simon](https://chefsimon.com/recettes/tag/tarte%20au%20sucre)
@@ -141,7 +141,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 Крем или конфит вводят после охлаждения, контролируя массу. Сахаром покрывают ещё тёплую, но не масляную поверхность. Закрытый контейнер создаёт конденсат и размягчает корку, поэтому beignets лучше продавать в день приготовления.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Beignets — Chef Simon](https://chefsimon.com/recettes/tag/beignets)
 - [Beignets — Académie du Goût](https://www.academiedugout.fr/recherche?q=beignets)
@@ -162,7 +162,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 Готовые gaufres кладут на решётку отдельно. Стопка удерживает пар и уничтожает хруст. Брюссельскую подают сразу, льежская сохраняет текстуру дольше, но также выигрывает от тёплой подачи и свежей карамели жемчужного сахара.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Gaufres — Chef Simon](https://chefsimon.com/recettes/tag/gaufre)
 - [Gaufres — Académie du Goût](https://www.academiedugout.fr/recherche?q=gaufres)
