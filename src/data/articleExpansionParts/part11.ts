@@ -11,7 +11,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Перед большой партией делают три изделия: одно размораживают по стандартному графику, второе держат дольше, третье подают раньше. Сравнивают текучесть центра, интенсивность аромата, конденсат и поведение велюра. В технологической карте фиксируют температуру морозильника, массу insert, массу ганаша и фактическое время размораживания.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
 - [Les essentiels Valrhona](https://essentials.valrhona.com/)
@@ -28,11 +28,11 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Тонкий sablé, tuile или карамелизированный feuilletage работает только при защите от влаги. Его отделяют от крема тонким слоем шоколада, какао-масла или пралине. Проверка проводится не сразу после сборки, а после полного холодильного хранения: именно тогда видно, сохранился ли задуманный контраст.
 
-## Редакционная карта дегустации
+## Карта дегустации
 
 Для анализа десерта полезно записывать четыре момента: первый контакт ложки, сопротивление при разрезе, изменение текстуры во рту и послевкусие. Такой протокол переводит слова «воздушный» и «нежный» из рекламы в наблюдаемые свойства.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [François Perret — Ritz Paris Le Comptoir](https://www.ritzparislecomptoir.com/fr/francois-perret)
 - [Ritz Paris — pâtisserie](https://www.ritzparis.com/fr-FR/hotel/paris/gastronomie)
@@ -53,7 +53,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 У каждого изделия фиксируют одну главную причину брака, а не общий вывод «рецепт не работает». Для choux это может быть консистенция теста, для крема — температура эмульсии, для мильфея — влажность хранения. Такой журнал превращает курс в собственную технологическую базу.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Yann Couvreur — La Pâtisserie](https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur)
 - [FERRANDI Paris — Pâtisserie](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
@@ -74,7 +74,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Одну базу повторяют минимум три раза без смены марки сырья. Только после стабильного результата меняют шоколад, муку или форму и сравнивают. Так книга превращается из красивого каталога в курс профессиональных привычек.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Christophe Felder — École de pâtisserie](https://www.christophe-felder.com/)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
@@ -95,7 +95,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Для одинакового вида используют эталон фотографии и весовой допуск. Но небольшая природная вариативность допустима и даже полезна: она поддерживает иллюзию настоящих фруктов. Недопустима только вариативность толщины оболочки и массы начинки.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
 - [Cédric Grolet Opéra](https://cedric-grolet.com/)
@@ -116,7 +116,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Шоколадный десерт пробуют при нескольких температурах. Слишком холодный кажется менее ароматным и более жёстким; тёплый теряет форму и становится слаще. В карте сервиса указывают не только время размораживания, но и целевую температуру центра.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Christophe Michalak — site officiel](https://christophemichalak.com/)
 - [Les essentiels Valrhona](https://essentials.valrhona.com/)
@@ -137,7 +137,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Готовое praliné защищают от света, воздуха и тепла. Лёгкое отделение масла возможно и исправляется перемешиванием; выраженное расслоение часто говорит о слабом измельчении или неподходящей пропорции орехов и карамели. Для кремов пасту всегда взвешивают после перемешивания.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Praliné maison — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/praline-maison.html)
 - [Philippe Conticini — recettes et lives](https://philippeconticini.fr/pages/lives-philippe-conticini)
@@ -158,7 +158,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 Фруктовую часть нагревают ровно настолько, насколько требует безопасность и выбранный загуститель. Свежий аромат часто сохраняется комбинацией сырого пюре с небольшой проваренной частью. Контроль проводят после заморозки: именно там видно, не стал ли фрукт водянистым или вареньевым.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Nina Métayer — Délicatisserie](https://delicatisserie.com/)
 - [Nina Métayer — portrait](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/portraits-de-chefs)

@@ -15,7 +15,7 @@ Merveilleux соединяет меренгу, взбитые сливки и с
 
 Изделие собирают близко к подаче, покрывают кремом и сразу обкатывают шоколадной стружкой. Стружка должна быть тонкой и сухой. Длительное холодильное хранение смягчает меренгу; этот эффект допустим только если он предусмотрен стилем конкретного дома.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Merveilleux — Académie du Goût](https://www.academiedugout.fr/recherche?q=merveilleux)
 - [Meringue française — Académie du Goût](https://www.academiedugout.fr/recherche?q=meringue%20fran%C3%A7aise)
@@ -36,7 +36,7 @@ Merveilleux соединяет меренгу, взбитые сливки и с
 
 Quatre-quarts становится ровнее после нескольких часов отдыха: влага распределяется, аромат масла и ванили усиливается. Его охлаждают полностью и хранят плотно завернутым. Холодильник ускоряет ощущение сухости, поэтому без скоропортящейся начинки предпочтительнее прохладная комнатная температура.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Quatre-quarts — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/quatre-quarts.html)
 - [Quatre-quarts — Académie du Goût](https://www.academiedugout.fr/recherche?q=quatre-quarts)
@@ -57,7 +57,7 @@ Gougères отсаживают одинаковыми маленькими по�
 
 Гужеры особенно хороши тёплыми. Их можно заморозить после выпечки и восстановить в сухой печи. Микроволновая печь размягчает оболочку и делает жир заметнее, поэтому для сервиса используют короткий прогрев горячим воздухом.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Gougères — Chef Simon](https://chefsimon.com/recettes/tag/goug%C3%A8res)
 - [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
@@ -78,7 +78,7 @@ Tuile снимают горячей и сразу изгибают на скал
 
 Полностью холодные tuiles сразу помещают в герметичный контейнер с защитой от влажности. Их не ставят рядом с мороженым или кремом заранее. В ресторанной подаче декор добавляют в последнюю минуту.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Tuiles aux amandes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tuiles-aux-amandes--8)
 - [Tuiles — Académie du Goût](https://www.academiedugout.fr/recherche?q=tuiles%20aux%20amandes)
@@ -99,7 +99,7 @@ Beurre Suzette соединяет сахар, масло, апельсиновы
 
 Алкоголь подогревают и поджигают только вдали от вытяжного жира, штор и лица. Фламбе — не обязательный доказатель подлинности; оно добавляет аромат и убирает часть спирта, но плохо приготовленный соус не исправляет. В домашней версии допустимо просто уварить алкоголь в соусе.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Crêpes Suzette — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%AApes%20Suzette)
 - [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
@@ -120,7 +120,7 @@ Financier должен иметь влажную плотную крошку, а
 
 Сильный начальный жар помогает создать корку, но маленькие формы быстро пересыхают. Готовый financier остаётся упругим и влажным внутри. После короткой стабилизации его вынимают на решётку, иначе пар размягчит края.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Financiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/financiers--14)
 - [Financier — Académie du Goût](https://www.academiedugout.fr/recherche?q=financier)
@@ -141,7 +141,7 @@ Insert делают меньше формы и полностью замораж
 
 Bûche часто перевозят и режут на большое число порций. Поэтому тестируют не только внешний вид, но и устойчивость при переносе, чистоту среза, температуру подачи и фактический размер порции. Декор не должен мешать ножу.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Bûches de Noël — Académie du Goût](https://www.academiedugout.fr/recherche?q=b%C3%BBche%20de%20No%C3%ABl)
 - [Bûche au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/buche-de-noel-au-chocolat.html)
@@ -162,7 +162,7 @@ Feuilletage раскатывают равномерно и дают ему от�
 
 После охлаждения поверхность смазывают, наносят рисунок острым ножом и делают маленький выход для пара. Chausson пекут до сухого дна и глубокой золотистой корки. Слишком раннее снятие даёт красивый верх и сырые слои под начинкой.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Chaussons aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/chaussons-aux-pommes--5)
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)

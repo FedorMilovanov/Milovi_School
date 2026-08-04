@@ -23,7 +23,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 Его книги также следует датировать и связывать с конкретным этапом карьеры, а не перечислять отдельным списком.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Christophe Michalak — profil](https://www.academiedugout.fr/chefs/michalak_20)
 - [Michalak ouvre sa première pâtisserie](https://www.academiedugout.fr/articles/christophe-michalak-ouvre-sa-premiere-patisserie-dans-le-marais_2903)
@@ -52,7 +52,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 Это особенно важно для учебной статьи.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
@@ -70,7 +70,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 К середине XX века сочетание Joconde, кофейного сиропа, масляного крема, ганаша и тонкой глазури стало узнаваемой архитектурой Opéra. Низкая прямоугольная форма позволяла в одном срезе увидеть все слои — современный для эпохи отказ от высокой декоративной массы.
 
-## Редакционное правило
+## Граница доказанного
 
 Следует писать «по версии Dalloyau» и отдельно описывать технологию. История бренда и история рецептурной формы пересекаются, но не являются одним и тем же источником.
 
@@ -78,9 +78,9 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 Для спора об авторстве нужны архивные меню и каталоги до 1955 года; повторение корпоративных страниц не создаёт независимого доказательства.
 
-До появления такого корпуса статья должна честно оставлять вопрос открытым, не превращая неопределённость в драму.
+Пока не найден непрерывный корпус датированных меню, каталогов и производственных документов, вопрос авторства остаётся открытым. Неопределённость здесь является состоянием источников, а не поводом для драматизации.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [L’Opéra](https://www.dalloyau.fr/opera.html)
 - [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
@@ -102,7 +102,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 Рецептура Николя Пачелло задаёт конкретные пропорции и ароматический профиль. Описанная физика — общая профессиональная база. При переносе формулы в другую форму необходимо пересчитать высоту слоя и изменить время выпечки; простое увеличение минут пропорционально диаметру не работает.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Flan à la parisienne](https://www.academiedugout.fr/recettes/flan-a-la-parisienne_15246_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
@@ -126,7 +126,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 Пралине содержит много ненасыщенного орехового жира и чувствительно к кислороду, свету и теплу. Его хранят герметично, в прохладе, фиксируя дату обжарки, а не только дату измельчения. Слой масла сверху можно перемешать, если аромат чистый; запах краски или старого ореха означает окисление. В готовом десерте пралине лучше дозировать через несколько текстур, чем увеличивать сахар: хрустящая крупка и текучий центр дают ощущение щедрости при меньшей общей сладости.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Nicolas Paciello — site officiel](https://nicolaspaciello.com/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
@@ -149,7 +149,7 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 Сила Paris-Brest в ясной связи формы и истории. Даже когда меняются крем и размер, кольцо, choux и ореховое praliné остаются узнаваемыми. Историю следует подкреплять датированными источниками, а технологию — отдельной профессиональной картой.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Paris-Brest](https://philippeconticini.fr/pages/paris-brest)
@@ -176,7 +176,7 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 Источники вроде «Ménagier de Paris» описывают домашнюю организацию и рецепты, а не устав конкретного парижского цеха. Поэтому их используют для контекста питания, но юридические права профессии проверяют по ордонансам и архивам. Разделение типов источников защищает статью от красивых, но недоказанных выводов.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Le Ménagier de Paris](https://fr.wikisource.org/wiki/Le_M%C3%A9nagier_de_Paris)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
@@ -194,7 +194,7 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 Связь с Прустом является культурной рамкой Salon Proust, а не доказательством того, что продукт повторяет литературную мадлен. Перре переводит память в современную технологию: свежая партия, точная форма, текстурная оболочка и сервис в заданное время.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Instants Sucrés](https://www.ritzparis.com/fr/e-boutique/art-de-vivre/accessoires-maison/livre-instants-sucres-par-francois-perret-version-francaise)
 - [Salon Proust](https://www.ritzparis.com/fr/hotel/paris/bars-restaurants/salon-proust)`,

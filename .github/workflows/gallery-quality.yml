@@ -13,6 +13,7 @@ on:
       - 'package-lock.json'
       - 'astro.config.mjs'
       - 'scripts/audit_article_depth.py'
+      - 'scripts/audit_editorial_quality.py'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -31,6 +32,7 @@ on:
       - 'package-lock.json'
       - 'astro.config.mjs'
       - 'scripts/audit_article_depth.py'
+      - 'scripts/audit_editorial_quality.py'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -83,7 +85,7 @@ jobs:
       - name: Lint complete source tree
         run: npm run lint
 
-      - name: Audit article content and editorial depth
+      - name: Audit article depth, sourcing and publication quality
         run: npm run audit:content
 
       - name: Audit production dependency security
@@ -159,6 +161,7 @@ jobs:
           path: |
             artifacts/visual-qa
             artifacts/content-depth-report
+            artifacts/editorial-quality-report
           if-no-files-found: warn
           retention-days: 14
 

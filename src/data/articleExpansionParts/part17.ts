@@ -15,7 +15,7 @@ export const articleExpansionPart17: Readonly<Record<string, string>> = Object.f
 
 Соус строят как эмульсию шоколада и горячей жидкой фазы. Он должен покрывать ложку, но свободно литься. При длительном хранении на тепле соус густеет и теряет блеск, поэтому его перемешивают и корректируют горячей жидкостью, а не перегревают.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Les profiteroles — Académie du Goût](https://www.academiedugout.fr/articles/les-profiteroles_2303)
 - [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
@@ -36,14 +36,14 @@ Crème de marrons, pâte de marrons и purée de marrons различаются 
 
 Mont-Blanc собирают близко к подаче. Каштановые нити наносят равномерно, не сдавливая сливки. Для порционных изделий контролируют массу каждого слоя; иначе один десерт будет сухим, другой — перегруженным кремом.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Angelina Paris — savoir-faire](https://www.angelina-paris.fr/notre-savoir-faire)
 - [Mont-Blanc — Académie du Goût](https://www.academiedugout.fr/recherche?q=mont-blanc)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-ile-flottante': `## Œufs à la neige и île flottante
 
-Названия часто используют как синонимы, но исторические рецепты и подача различаются. В современной практике обычно речь идёт о мягкой меренге, плавающей на crème anglaise, с карамелью и иногда орехами. Статья должна назвать выбранную форму и не превращать терминологическую вариативность в спор о единственно верном варианте.
+Названия часто используют как синонимы, но исторические рецепты и подача различаются. В современной версии ниже мягкая меренга подаётся на crème anglaise с карамелью и орехами; терминологическая вариативность не превращается в спор о единственно верном варианте.
 
 ## Меренга
 
@@ -57,7 +57,7 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 
 Карамель добавляют перед подачей. Тонкая нить или лёгкий соус дают горечь и хруст; толстая затвердевшая плита мешает ложке. Меренгу и крем хранят раздельно, чтобы островки не выделяли воду в соус.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Œufs à la neige — Académie du Goût](https://www.academiedugout.fr/recherche?q=oeufs%20%C3%A0%20la%20neige)
 - [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_1532_2)
@@ -78,7 +78,7 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 
 Dacquoise хорошо принимает сироп и крем, но быстро набирает влагу. Его толщину и защитный слой рассчитывают по сроку хранения. Для замораживаемого изделия обязательно тестируют текстуру после размораживания, а не только свежий пласт.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Dacquoise — Académie du Goût](https://www.academiedugout.fr/recherche?q=dacquoise)
 - [Les essentiels Valrhona](https://essentials.valrhona.com/)
@@ -99,7 +99,7 @@ Palmiers пекут до карамелизации нижней стороны,
 
 Печенье полностью охлаждают на решётке и сразу убирают в герметичную тару. Сахар гигроскопичен: влажный воздух быстро уничтожает хруст. Возврат в короткую сухую печь может восстановить текстуру, но не исправит пережжённую карамель.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Petits palmiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/petits-palmiers)
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
@@ -120,7 +120,7 @@ Palmiers пекут до карамелизации нижней стороны,
 
 Смазку наносят тонко, не заливая швы. Готовность проверяют цветом, внутренней температурой и лёгкостью формы, а не только временем. Бриошь охлаждают на решётке; ранняя нарезка выпускает пар и сминает ещё нестабильный мякиш.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Mercotte — conseils pour les brioches](https://www.mercotte.fr/quelques-conseils-utiles-pour-les-pates-levees-surtout-les-brioches/)
 - [Brioche — Académie du Goût](https://www.academiedugout.fr/recherche?q=brioche)
@@ -141,7 +141,7 @@ Pâte brisée, sucrée или feuilletage выбирают осознанно. �
 
 После выпечки тарт охлаждают на решётке и покрывают тонким слоем нейтральной или абрикосовой глазировки. Она защищает плод от высыхания и даёт блеск, но не должна превращаться в сладкий гель. Подача слегка тёплой усиливает аромат масла и яблока.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Tarte fine aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tarte-fine-aux-pommes--13)
 - [Tarte aux pommes — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20aux%20pommes)
@@ -162,7 +162,7 @@ Pâte brisée, sucrée или feuilletage выбирают осознанно. �
 
 Sablés готовы при золотистом крае и пропечённом центре. Их оставляют коротко на противне, затем переносят на решётку. После полного охлаждения хранят герметично; соседство с влажными cakes или кремами быстро лишает сахарный край хруста.
 
-## Французские источники редакции
+## Французские источники и первичные материалы
 
 - [Sablés diamant — Mercotte](https://www.mercotte.fr/2021/09/19/sables-diamant-a-la-noisette-et-aux-eclats-de-noisettes-caramelises/)
 - [Sablés — Académie du Goût](https://www.academiedugout.fr/recherche?q=sabl%C3%A9s)
