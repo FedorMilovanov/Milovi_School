@@ -1,24 +1,27 @@
-name: Apply verified editorial hardening
+name: Build verified editorial candidate
 
 on:
-  push:
-    branches:
-      - agent/editorial-zero-defects
+  pull_request:
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  apply:
+  build-candidate:
+    if: github.event.pull_request.head.ref == 'agent/editorial-zero-defects'
     runs-on: ubuntu-24.04
+    timeout-minutes: 40
     steps:
-      - name: Checkout working branch
+      - name: Checkout exact payload source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
-          ref: agent/editorial-zero-defects
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Apply verified source patch
+      - name: Reconstruct clean main worktree
+        shell: bash
         run: |
           set -euo pipefail
           test -f .editorial-payload/READY
@@ -26,17 +29,91 @@ jobs:
           echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
           xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
           git fetch origin main
-          git checkout origin/main -- .github/workflows/gallery-quality.yml
+          git worktree add --detach /tmp/final origin/main
+          cd /tmp/final
+          patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
           patch --batch --forward -p1 < /tmp/editorial.patch
-          rm -rf .editorial-payload
-          rm -f .github/workflows/editorial-source-snapshot.yml
+          git diff --check
 
-      - name: Commit clean project changes
+      - name: Setup pinned Node
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: '22.13.0'
+          cache: npm
+          cache-dependency-path: /tmp/final/package-lock.json
+
+      - name: Install exact dependencies
+        working-directory: /tmp/final
+        run: npm ci
+
+      - name: Validate shell and source contracts
+        working-directory: /tmp/final
+        run: |
+          bash -n scripts/audit_gallery_contract.sh
+          bash -n scripts/audit_gallery_live.sh
+          bash scripts/audit_gallery_contract.sh
+
+      - name: Run type, lint, editorial and security gates
+        working-directory: /tmp/final
+        run: |
+          npm run check
+          npm run lint
+          npm run audit:content
+          npm run audit:security
+
+      - name: Build and audit generated site
+        working-directory: /tmp/final
+        env:
+          NODE_ENV: production
+          PUBLIC_RELEASE_SHA: editorial-candidate
+        run: |
+          npm run build
+          npm run audit:build
+          node scripts/audit_gallery_generated.mjs
+          python3 -m pip install --user pillow beautifulsoup4
+          npm run audit:site
+          npm run audit:privacy
+
+      - name: Install Chromium
+        working-directory: /tmp/final
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser and responsive QA
+        working-directory: /tmp/final
+        shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'Milovi Editorial Bot'
-          git config user.email 'actions@users.noreply.github.com'
-          git add -A
-          git diff --cached --check
-          git commit -m 'Complete zero-defect editorial hardening'
-          git push origin HEAD:agent/editorial-zero-defects
+          nohup npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/milovi-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1:4321/materials/ >/dev/null; then
+              break
+            fi
+            if [[ "$attempt" == 60 ]]; then
+              cat /tmp/milovi-preview.log >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          BASE_URL=http://127.0.0.1:4321 node scripts/audit_gallery_preview.mjs
+          BASE_URL=http://127.0.0.1:4321 VISUAL_QA_DIR=artifacts/visual-qa node scripts/audit_visual_site.mjs
+
+      - name: Pack exact verified source
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/final-source.tar.gz --exclude=.git -C /tmp/final .
+          sha256sum /tmp/final-source.tar.gz > /tmp/final-source.sha256
+
+      - name: Upload verified candidate
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: verified-editorial-candidate-${{ github.event.pull_request.head.sha }}
+          path: |
+            /tmp/final-source.tar.gz
+            /tmp/final-source.sha256
+            /tmp/final/artifacts/content-depth-report
+            /tmp/final/artifacts/visual-qa
+          if-no-files-found: error
+          retention-days: 2
