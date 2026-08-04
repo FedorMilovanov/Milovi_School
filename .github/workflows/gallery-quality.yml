@@ -1,4 +1,4 @@
-name: Diagnose editorial payload
+name: Export editorial payload diagnostics
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  diagnose-payload:
+  export-payload:
     if: github.event.pull_request.head.ref == 'agent/editorial-zero-defects'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -20,37 +20,35 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify payload structure and compression
+      - name: Export payload and diagnostics
         shell: bash
         run: |
-          set -euo pipefail
-          test -f .editorial-payload/READY
-          find .editorial-payload -maxdepth 1 -type f -printf '%f %s bytes\n' | sort
+          set -uo pipefail
+          find .editorial-payload -maxdepth 1 -type f -printf '%f %s bytes\n' | sort > /tmp/chunk-sizes.txt
           sha256sum .editorial-payload/chunk-* | sort > /tmp/chunk-sha256.txt
           cat .editorial-payload/chunk-* > /tmp/editorial.patch.b64
-          printf 'base64-bytes: '
-          wc -c < /tmp/editorial.patch.b64
           base64 --decode /tmp/editorial.patch.b64 > /tmp/editorial.patch.xz
-          printf 'decoded-bytes: '
-          wc -c < /tmp/editorial.patch.xz
-          printf 'decoded-sha256: '
-          sha256sum /tmp/editorial.patch.xz
-          xz --test /tmp/editorial.patch.xz
-          xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
-          printf 'patch-bytes: '
-          wc -c < /tmp/editorial.patch
-          printf 'patch-files: '
-          grep -c '^diff --git ' /tmp/editorial.patch
-          sed -n '1,20p' /tmp/editorial.patch
-          tail -20 /tmp/editorial.patch
+          {
+            wc -c /tmp/editorial.patch.b64 /tmp/editorial.patch.xz
+            sha256sum /tmp/editorial.patch.b64 /tmp/editorial.patch.xz
+            xz --list --verbose /tmp/editorial.patch.xz
+            xz --test --verbose /tmp/editorial.patch.xz
+          } > /tmp/xz-diagnostics.txt 2>&1 || true
+          xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.partial.patch 2>/tmp/xz-decompress-error.txt || true
+          wc -c /tmp/editorial.partial.patch >> /tmp/xz-diagnostics.txt
 
       - name: Upload payload diagnostics
+        if: always()
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: editorial-payload-diagnostics-${{ github.event.pull_request.head.sha }}
           path: |
+            /tmp/editorial.patch.b64
             /tmp/editorial.patch.xz
-            /tmp/editorial.patch
+            /tmp/editorial.partial.patch
+            /tmp/chunk-sizes.txt
             /tmp/chunk-sha256.txt
+            /tmp/xz-diagnostics.txt
+            /tmp/xz-decompress-error.txt
           if-no-files-found: error
           retention-days: 2
