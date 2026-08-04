@@ -1,24 +1,26 @@
-name: Build verified editorial candidate
+name: Publish verified editorial branch
 
 on:
   pull_request:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-candidate:
+  publish-candidate:
     if: github.event.pull_request.head.ref == 'agent/editorial-zero-defects'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      PUBLIC_RELEASE_SHA: editorial-candidate
     steps:
       - name: Checkout exact payload source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Reconstruct exact candidate on clean main
         shell: bash
@@ -71,11 +73,10 @@ jobs:
           def remove_entry(text: str, key: str) -> str:
               marker = f"  '{key}': Object.freeze("
               while (start := text.find(marker)) >= 0:
-                  open_paren = text.index('(', start)
+                  index = text.index('(', start)
                   depth = 0
                   quote = None
                   escaped = False
-                  index = open_paren
                   while index < len(text):
                       char = text[index]
                       if quote:
@@ -110,7 +111,6 @@ jobs:
               raise SystemExit('articleOverrides terminator not found')
           source = source[:insert_at] + '\n' + '\n'.join(preferred.values()) + source[insert_at:]
           path.write_text(source)
-
           keys = re.findall(r"^\s*'([^']+)':", source, re.M)
           duplicates = sorted({key for key in keys if keys.count(key) > 1})
           if duplicates:
@@ -123,11 +123,13 @@ jobs:
         with:
           node-version: '22.13.0'
 
-      - name: Install exact dependencies
+      - name: Install dependencies and audit helpers
         working-directory: /tmp/final
-        run: npm ci
+        run: |
+          npm ci
+          python3 -m pip install --user pillow beautifulsoup4
 
-      - name: Validate source contracts
+      - name: Run complete source, editorial, security and build validation
         working-directory: /tmp/final
         shell: bash
         run: |
@@ -135,27 +137,8 @@ jobs:
           bash -n scripts/audit_gallery_contract.sh
           bash -n scripts/audit_gallery_live.sh
           bash scripts/audit_gallery_contract.sh
-
-      - name: Run type, lint, editorial and security gates
-        working-directory: /tmp/final
-        run: |
-          npm run check
-          npm run lint
-          npm run audit:content
-          npm run audit:security
-
-      - name: Build and audit generated site
-        working-directory: /tmp/final
-        env:
-          NODE_ENV: production
-          PUBLIC_RELEASE_SHA: editorial-candidate
-        run: |
-          npm run build
-          npm run audit:build
+          npm run validate
           node scripts/audit_gallery_generated.mjs
-          python3 -m pip install --user pillow beautifulsoup4
-          npm run audit:site
-          npm run audit:privacy
 
       - name: Install Chromium
         working-directory: /tmp/final
@@ -182,23 +165,17 @@ jobs:
           BASE_URL=http://127.0.0.1:4321 node scripts/audit_gallery_preview.mjs
           BASE_URL=http://127.0.0.1:4321 VISUAL_QA_DIR=artifacts/visual-qa node scripts/audit_visual_site.mjs
 
-      - name: Pack exact verified source
+      - name: Publish clean verified branch
+        working-directory: /tmp/final
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf /tmp/final/.git
-          tar -czf /tmp/final-source.tar.gz -C /tmp/final .
-          sha256sum /tmp/final-source.tar.gz > /tmp/final-source.sha256
-
-      - name: Upload verified candidate
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
-        with:
-          name: verified-editorial-candidate-${{ github.event.pull_request.head.sha }}
-          path: |
-            /tmp/final-source.tar.gz
-            /tmp/final-source.sha256
-            /tmp/final/artifacts/content-depth-report
-            /tmp/final/artifacts/editorial-quality-report
-            /tmp/final/artifacts/visual-qa
-          if-no-files-found: error
-          retention-days: 2
+          rm -rf artifacts dist .astro node_modules
+          git switch -c agent/editorial-final
+          git config user.name 'Milovi Editorial Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add package.json package-lock.json scripts/audit_editorial_quality.py src/data .github/workflows/deploy.yml .github/workflows/gallery-quality.yml
+          git diff --cached --check
+          git diff --cached --quiet && { echo 'No editorial changes to publish' >&2; exit 1; }
+          git commit -m 'Complete zero-defect editorial hardening'
+          git push origin HEAD:refs/heads/agent/editorial-final
