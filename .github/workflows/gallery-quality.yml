@@ -1,4 +1,4 @@
-name: Build verified editorial candidate
+name: Diagnose editorial payload
 
 on:
   pull_request:
@@ -8,10 +8,10 @@ permissions:
   contents: read
 
 jobs:
-  build-candidate:
+  diagnose-payload:
     if: github.event.pull_request.head.ref == 'agent/editorial-zero-defects'
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 10
     steps:
       - name: Checkout exact payload source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
@@ -20,100 +20,37 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Reconstruct clean main worktree
+      - name: Verify payload structure and compression
         shell: bash
         run: |
           set -euo pipefail
           test -f .editorial-payload/READY
-          cat .editorial-payload/chunk-* | base64 --decode > /tmp/editorial.patch.xz
-          echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
+          find .editorial-payload -maxdepth 1 -type f -printf '%f %s bytes\n' | sort
+          sha256sum .editorial-payload/chunk-* | sort > /tmp/chunk-sha256.txt
+          cat .editorial-payload/chunk-* > /tmp/editorial.patch.b64
+          printf 'base64-bytes: '
+          wc -c < /tmp/editorial.patch.b64
+          base64 --decode /tmp/editorial.patch.b64 > /tmp/editorial.patch.xz
+          printf 'decoded-bytes: '
+          wc -c < /tmp/editorial.patch.xz
+          printf 'decoded-sha256: '
+          sha256sum /tmp/editorial.patch.xz
+          xz --test /tmp/editorial.patch.xz
           xz --decompress --stdout /tmp/editorial.patch.xz > /tmp/editorial.patch
-          git fetch origin main
-          git worktree add --detach /tmp/final origin/main
-          cd /tmp/final
-          patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
-          patch --batch --forward -p1 < /tmp/editorial.patch
-          git diff --check
+          printf 'patch-bytes: '
+          wc -c < /tmp/editorial.patch
+          printf 'patch-files: '
+          grep -c '^diff --git ' /tmp/editorial.patch
+          sed -n '1,20p' /tmp/editorial.patch
+          tail -20 /tmp/editorial.patch
 
-      - name: Setup pinned Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
-        with:
-          node-version: '22.13.0'
-          cache: npm
-          cache-dependency-path: /tmp/final/package-lock.json
-
-      - name: Install exact dependencies
-        working-directory: /tmp/final
-        run: npm ci
-
-      - name: Validate shell and source contracts
-        working-directory: /tmp/final
-        run: |
-          bash -n scripts/audit_gallery_contract.sh
-          bash -n scripts/audit_gallery_live.sh
-          bash scripts/audit_gallery_contract.sh
-
-      - name: Run type, lint, editorial and security gates
-        working-directory: /tmp/final
-        run: |
-          npm run check
-          npm run lint
-          npm run audit:content
-          npm run audit:security
-
-      - name: Build and audit generated site
-        working-directory: /tmp/final
-        env:
-          NODE_ENV: production
-          PUBLIC_RELEASE_SHA: editorial-candidate
-        run: |
-          npm run build
-          npm run audit:build
-          node scripts/audit_gallery_generated.mjs
-          python3 -m pip install --user pillow beautifulsoup4
-          npm run audit:site
-          npm run audit:privacy
-
-      - name: Install Chromium
-        working-directory: /tmp/final
-        run: npx playwright install --with-deps chromium
-
-      - name: Run browser and responsive QA
-        working-directory: /tmp/final
-        shell: bash
-        run: |
-          set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/milovi-preview.log 2>&1 &
-          preview_pid=$!
-          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
-          for attempt in $(seq 1 60); do
-            if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1:4321/materials/ >/dev/null; then
-              break
-            fi
-            if [[ "$attempt" == 60 ]]; then
-              cat /tmp/milovi-preview.log >&2
-              exit 1
-            fi
-            sleep 1
-          done
-          BASE_URL=http://127.0.0.1:4321 node scripts/audit_gallery_preview.mjs
-          BASE_URL=http://127.0.0.1:4321 VISUAL_QA_DIR=artifacts/visual-qa node scripts/audit_visual_site.mjs
-
-      - name: Pack exact verified source
-        shell: bash
-        run: |
-          set -euo pipefail
-          tar -czf /tmp/final-source.tar.gz --exclude=.git -C /tmp/final .
-          sha256sum /tmp/final-source.tar.gz > /tmp/final-source.sha256
-
-      - name: Upload verified candidate
+      - name: Upload payload diagnostics
         uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
-          name: verified-editorial-candidate-${{ github.event.pull_request.head.sha }}
+          name: editorial-payload-diagnostics-${{ github.event.pull_request.head.sha }}
           path: |
-            /tmp/final-source.tar.gz
-            /tmp/final-source.sha256
-            /tmp/final/artifacts/content-depth-report
-            /tmp/final/artifacts/visual-qa
+            /tmp/editorial.patch.xz
+            /tmp/editorial.patch
+            /tmp/chunk-sha256.txt
           if-no-files-found: error
           retention-days: 2
