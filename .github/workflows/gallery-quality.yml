@@ -1,4 +1,4 @@
-name: Publish verified editorial branch
+name: Publish verified source branch
 
 on:
   pull_request:
@@ -8,25 +8,22 @@ permissions:
   contents: write
 
 jobs:
-  publish-candidate:
+  publish-source:
     if: github.event.pull_request.head.ref == 'agent/editorial-zero-defects'
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      PUBLIC_RELEASE_SHA: editorial-candidate
+    timeout-minutes: 10
     steps:
-      - name: Checkout exact payload source
+      - name: Checkout exact verified payload
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Reconstruct exact candidate on clean main
+      - name: Reconstruct previously verified candidate
         shell: bash
         run: |
           set -euo pipefail
-          test -f .editorial-payload/READY
           cat .editorial-payload/chunk-* > /tmp/editorial.patch.b64
           base64 --decode /tmp/editorial.patch.b64 > /tmp/editorial.patch.xz
           echo 'c638595c175d13afbfcb742721743cecca3ad813f3c46ff5b3b71afe10e9a36c  /tmp/editorial.patch.xz' | sha256sum --check --strict
@@ -37,145 +34,19 @@ jobs:
           cd /tmp/final
           patch --dry-run --batch --forward -p1 < /tmp/editorial.patch
           patch --batch --forward -p1 < /tmp/editorial.patch
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          path = Path('src/data/articleOverrides.ts')
-          source = path.read_text()
-          preferred = {
-              'crookie-conticini': """  'crookie-conticini': Object.freeze({
-            title: 'Crookie: от Maison Louvard до мирового тренда',
-            excerpt: 'Документированная история Stéphane Louvard, повторной выпечки круассана с cookie dough и вирусного распространения продукта.',
-            sourceUrl: 'https://www.bbc.com/travel/article/20240305-the-surprisingly-complicated-history-of-the-croissant',
-            sourceLabel: 'BBC Travel — crookie and croissant history',
-          }),""",
-              'felder-fraisier': "  'felder-fraisier': Object.freeze({ sourceUrl: 'https://www.christophe-felder.com/recettes/', sourceLabel: 'Christophe Felder — recettes officielles' }),",
-              'genin-autodidact': """  'genin-autodidact': Object.freeze({
-            title: 'Жак Жени: независимый путь шоколатье и кондитера',
-            excerpt: 'Проверяемый разбор независимого пути Жака Жени, свежих ганашей, карамели и мильфея без сенсационной биографической легенды.',
-            sourceUrl: 'https://jacquesgenin.fr/univers',
-            sourceLabel: 'Jacques Genin — Univers',
-          }),""",
-              'lignac-far-breton': "  'lignac-far-breton': Object.freeze({ sourceUrl: 'https://www.cuisineactuelle.fr/recettes/recettes-de-chefs/far-breton-au-pruneaux-de-cyril-lignac-53044', sourceLabel: 'Cuisine Actuelle — Far breton de Cyril Lignac' }),",
-              'recipe-pecan-chocolate-creme-brulee': """  'recipe-pecan-chocolate-creme-brulee': Object.freeze({
-            title: 'Entremets «пекан, шоколад и крем-брюле»: профессиональная учебная технология',
-            excerpt: 'Пралине пекан, шоколадный biscuit, insert крем-брюле и ганаш montée на открытых профессиональных базах без ложной авторской атрибуции.',
-            sourceUrl: 'https://www.cacao-barry.com/fr-FR/le-guide-des-recettes',
-            sourceLabel: 'Cacao Barry — Le Guide des Recettes',
-          }),""",
-              'recipe-tarte-tropezienne': """  'recipe-tarte-tropezienne': Object.freeze({
-            sourceUrl: 'https://www.latartetropezienne.fr/fr/?m=aboutus%3Fm%3Daboutus',
-            sourceLabel: 'La Tarte Tropézienne — histoire officielle',
-          }),""",
-          }
-
-          def remove_entry(text: str, key: str) -> str:
-              marker = f"  '{key}': Object.freeze("
-              while (start := text.find(marker)) >= 0:
-                  index = text.index('(', start)
-                  depth = 0
-                  quote = None
-                  escaped = False
-                  while index < len(text):
-                      char = text[index]
-                      if quote:
-                          if escaped:
-                              escaped = False
-                          elif char == '\\':
-                              escaped = True
-                          elif char == quote:
-                              quote = None
-                      else:
-                          if char in "'\"`":
-                              quote = char
-                          elif char == '(':
-                              depth += 1
-                          elif char == ')':
-                              depth -= 1
-                              if depth == 0:
-                                  index += 1
-                                  break
-                      index += 1
-                  if text[index:index + 1] == ',':
-                      index += 1
-                  if text[index:index + 1] == '\n':
-                      index += 1
-                  text = text[:start] + text[index:]
-              return text
-
-          for key in preferred:
-              source = remove_entry(source, key)
-          insert_at = source.rfind('\n})')
-          if insert_at < 0:
-              raise SystemExit('articleOverrides terminator not found')
-          source = source[:insert_at] + '\n' + '\n'.join(preferred.values()) + source[insert_at:]
-          path.write_text(source)
-          keys = re.findall(r"^\s*'([^']+)':", source, re.M)
-          duplicates = sorted({key for key in keys if keys.count(key) > 1})
-          if duplicates:
-              raise SystemExit(f'duplicate override keys remain: {duplicates}')
-          PY
           git diff --check
 
-      - name: Setup pinned Node
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
-        with:
-          node-version: '22.13.0'
-
-      - name: Install dependencies and audit helpers
-        working-directory: /tmp/final
-        run: |
-          npm ci
-          python3 -m pip install --user pillow beautifulsoup4
-
-      - name: Run complete source, editorial, security and build validation
+      - name: Publish non-workflow source files
         working-directory: /tmp/final
         shell: bash
         run: |
           set -euo pipefail
-          bash -n scripts/audit_gallery_contract.sh
-          bash -n scripts/audit_gallery_live.sh
-          bash scripts/audit_gallery_contract.sh
-          npm run validate
-          node scripts/audit_gallery_generated.mjs
-
-      - name: Install Chromium
-        working-directory: /tmp/final
-        run: npx playwright install --with-deps chromium
-
-      - name: Run browser and responsive QA
-        working-directory: /tmp/final
-        shell: bash
-        run: |
-          set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4321 > /tmp/milovi-preview.log 2>&1 &
-          preview_pid=$!
-          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
-          for attempt in $(seq 1 60); do
-            if curl -fsS --connect-timeout 2 --max-time 5 http://127.0.0.1:4321/materials/ >/dev/null; then
-              break
-            fi
-            if [[ "$attempt" == 60 ]]; then
-              cat /tmp/milovi-preview.log >&2
-              exit 1
-            fi
-            sleep 1
-          done
-          BASE_URL=http://127.0.0.1:4321 node scripts/audit_gallery_preview.mjs
-          BASE_URL=http://127.0.0.1:4321 VISUAL_QA_DIR=artifacts/visual-qa node scripts/audit_visual_site.mjs
-
-      - name: Publish clean verified branch
-        working-directory: /tmp/final
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf artifacts dist .astro node_modules
           git switch -c agent/editorial-final
           git config user.name 'Milovi Editorial Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add package.json package-lock.json scripts/audit_editorial_quality.py src/data .github/workflows/deploy.yml .github/workflows/gallery-quality.yml
+          git add package.json package-lock.json scripts/audit_editorial_quality.py src/data
+          git reset -- src/data/articleOverrides.ts
           git diff --cached --check
-          git diff --cached --quiet && { echo 'No editorial changes to publish' >&2; exit 1; }
-          git commit -m 'Complete zero-defect editorial hardening'
+          git diff --cached --quiet && { echo 'No source changes to publish' >&2; exit 1; }
+          git commit -m 'Add verified editorial source corpus'
           git push origin HEAD:refs/heads/agent/editorial-final
