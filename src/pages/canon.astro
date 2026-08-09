@@ -107,6 +107,25 @@ const collectionPage = {
   mainEntity: { '@id': `${canonicalUrl}#collection` },
 }
 
+const breadcrumbList = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Pâtisserie Russe',
+      item: `${siteUrl}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Le Canon Sucré',
+      item: canonicalUrl,
+    },
+  ],
+}
+
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
@@ -122,5 +141,6 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(collectionPage)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(itemList)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(breadcrumbList)} slot="head" />
   <CanonPageShell articles={libraryClientMeta} client:load />
 </BaseLayout>
