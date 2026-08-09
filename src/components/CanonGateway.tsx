@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { canonLibrary, type CanonLibraryId } from '../data/canon-library'
+import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
@@ -53,8 +54,10 @@ export default function CanonGateway() {
         ref={ref}
         href="/canon/"
         className="canon-gateway"
+        onPointerEnter={(event) => { if (event.pointerType === 'mouse') prefetchRoute('/canon/') }}
         onPointerMove={onPointerMove}
         onPointerLeave={reset}
+        onFocus={() => prefetchRoute('/canon/')}
         onBlur={reset}
       >
         <span className="canon-gateway-media" aria-hidden="true">
