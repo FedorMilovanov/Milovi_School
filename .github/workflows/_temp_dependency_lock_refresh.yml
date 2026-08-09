@@ -1,5 +1,5 @@
 # One-shot workflow: self-deletes after a fully verified run.
-# Final trigger after Canon content mappings were tightened.
+# Final trigger after deterministic editorial-grid and audit hardening.
 name: TEMP dependency lock refresh
 
 on:
@@ -32,17 +32,34 @@ jobs:
           node-version: 22.13.0
           cache: npm
 
-      - name: Normalize Canon responsive CSS declarations and selectors
+      - name: Normalize Canon CSS to the data-driven grid contract
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           path = Path('src/styles/canon.css')
           text = path.read_text('utf-8')
-          expected = ('inset-left: 43%;', 'inset-bottom: 44%;', '.canon-gateway-media-galette')
+          expected = (
+              '.canon-work {\n  grid-column: span 4;',
+              '.canon-work-anchor { grid-column: span 8; }',
+              '.canon-work { grid-column: span 6; }',
+              '.canon-work { grid-column: span 12; }',
+              'inset-left: 43%;',
+              'inset-bottom: 44%;',
+              '.canon-gateway-media-galette',
+          )
           missing = [token for token in expected if token not in text]
           if missing:
-              raise SystemExit(f'Expected Canon CSS declarations/selectors not found: {missing}')
+              raise SystemExit(f'Expected Canon CSS contracts not found: {missing}')
+
+          text = text.replace(
+              '.canon-work {\n  grid-column: span 4;',
+              '.canon-work {\n  grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);\n  grid-row: var(--canon-grid-row, auto);',
+              1,
+          )
+          text = text.replace('\n.canon-work-anchor { grid-column: span 8; }\n', '\n', 1)
+          text = text.replace('.canon-work { grid-column: span 6; }', '.canon-work { grid-column: span 6; grid-row: auto; }')
+          text = text.replace('.canon-work { grid-column: span 12; }', '.canon-work { grid-column: span 12; grid-row: auto; }')
           text = text.replace('inset-left: 43%;', 'left: 43%;')
           text = text.replace('inset-bottom: 44%;', 'bottom: 44%;')
           text = text.replace('.canon-gateway-media-galette', '.canon-gateway-media-galette-des-rois')
