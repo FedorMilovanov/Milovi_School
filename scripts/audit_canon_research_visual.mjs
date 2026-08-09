@@ -56,6 +56,14 @@ async function assertNoHorizontalOverflow(page) {
   assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
 }
 
+async function scrollEvidenceToTop(page, selector, offset = 104) {
+  const top = await page.locator(selector).evaluate((node) => node.getBoundingClientRect().top + globalThis.scrollY)
+  await page.evaluate(({ targetTop, targetOffset }) => {
+    globalThis.scrollTo({ top: Math.max(0, targetTop - targetOffset), left: 0, behavior: 'auto' })
+  }, { targetTop: top, targetOffset: offset })
+  await page.waitForTimeout(250)
+}
+
 async function assertTelemetry(name, telemetry) {
   await check(`${name}: no uncaught JavaScript errors`, async () => assert.deepEqual(telemetry.page, []))
   await check(`${name}: no browser console errors`, async () => assert.deepEqual(telemetry.console, []))
@@ -94,9 +102,20 @@ await check('desktop research: legend and document panes remain side-by-side', a
   assert.ok(boxes[1].left >= boxes[0].right - 2, JSON.stringify(boxes))
 })
 await check('desktop research: page has no horizontal overflow', async () => assertNoHorizontalOverflow(desktop.page))
-await desktop.page.locator('.canon-research').scrollIntoViewIfNeeded()
-await desktop.page.waitForTimeout(250)
-await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-research.png'), fullPage: false })
+
+await scrollEvidenceToTop(desktop.page, '.canon-research-head')
+await check('desktop research: entry heading is visible in entry evidence', async () => {
+  const box = await desktop.page.locator('.canon-research-head').boundingBox()
+  assert.ok(box && box.y >= 70 && box.y < 180, JSON.stringify(box))
+})
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-research-entry.png'), fullPage: false })
+
+await scrollEvidenceToTop(desktop.page, '.canon-legend-document')
+await check('desktop research: Tatin split is visible in dedicated evidence', async () => {
+  const box = await desktop.page.locator('.canon-legend-document').boundingBox()
+  assert.ok(box && box.y >= 70 && box.y < 180, JSON.stringify(box))
+})
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-research-tatin.png'), fullPage: false })
 
 const mobile = await observedPage(browser, {
   viewport: { width: 390, height: 844 },
@@ -118,9 +137,20 @@ await check('mobile research: legend and document panes stack without overlap', 
   assert.ok(boxes[1].top >= boxes[0].bottom - 2, JSON.stringify(boxes))
 })
 await check('mobile research: page has no horizontal overflow', async () => assertNoHorizontalOverflow(mobile.page))
-await mobile.page.locator('.canon-research').scrollIntoViewIfNeeded()
-await mobile.page.waitForTimeout(250)
-await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research.png'), fullPage: false })
+
+await scrollEvidenceToTop(mobile.page, '.canon-research-head', 92)
+await check('mobile research: entry heading is visible in entry evidence', async () => {
+  const box = await mobile.page.locator('.canon-research-head').boundingBox()
+  assert.ok(box && box.y >= 70 && box.y < 150, JSON.stringify(box))
+})
+await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-entry.png'), fullPage: false })
+
+await scrollEvidenceToTop(mobile.page, '.canon-legend-document', 92)
+await check('mobile research: Tatin split starts inside dedicated evidence viewport', async () => {
+  const box = await mobile.page.locator('.canon-legend-document').boundingBox()
+  assert.ok(box && box.y >= 70 && box.y < 150, JSON.stringify(box))
+})
+await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-tatin.png'), fullPage: false })
 
 await assertTelemetry('desktop research', desktop.telemetry)
 await assertTelemetry('mobile research', mobile.telemetry)
@@ -130,7 +160,12 @@ const report = {
   checks: number,
   passed: passed.length,
   failed: failures.length,
-  screenshots: ['canon-desktop-research.png', 'canon-mobile-research.png'],
+  screenshots: [
+    'canon-desktop-research-entry.png',
+    'canon-desktop-research-tatin.png',
+    'canon-mobile-research-entry.png',
+    'canon-mobile-research-tatin.png',
+  ],
   failures,
 }
 await fs.writeFile(path.join(OUTPUT_DIR, 'canon-research-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8')
