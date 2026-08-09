@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import CanonPageShell from '../components/CanonPageShell'
+import { libraryClientMeta } from '../data/library'
+import { canonWorks } from '../data/canon'
+
+const siteUrl = 'https://french.milovicake.ru'
+const canonicalUrl = `${siteUrl}/canon/`
+
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  '@id': `${canonicalUrl}#collection`,
+  name: 'Le Canon Sucré',
+  description: 'Кураторская коллекция из 15 форм французской pâtisserie.',
+  numberOfItems: canonWorks.length,
+  itemListElement: canonWorks.map((work) => ({
+    '@type': 'ListItem',
+    position: work.order,
+    name: work.name,
+  })),
+}
+
+const collectionPage = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': canonicalUrl,
+  url: canonicalUrl,
+  name: 'Le Canon Sucré — Pâtisserie Russe',
+  description: '15 десертов. Три акта. Кураторский маршрут по формам, техникам и переосмыслениям французской pâtisserie.',
+  inLanguage: 'ru',
+  mainEntity: { '@id': `${canonicalUrl}#collection` },
+}
+
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+---
+
+<BaseLayout
+  title="Le Canon Sucré — Pâtisserie Russe"
+  description="15 десертов. Три акта. Кураторский маршрут по формам, техникам и переосмыслениям французской pâtisserie."
+  canonicalUrl={canonicalUrl}
+  ogType="website"
+  image="/images/og-preview.webp"
+  ogImageWidth={1200}
+  ogImageHeight={630}
+  hidePolicyFooter={true}
+>
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(collectionPage)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(itemList)} slot="head" />
+  <CanonPageShell articles={libraryClientMeta} client:load />
+</BaseLayout>
