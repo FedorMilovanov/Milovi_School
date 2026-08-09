@@ -67,7 +67,15 @@ export default function CanonGateway() {
               className={`canon-gateway-media-item canon-gateway-media-${media.slot}`}
               style={{ '--canon-i': index } as CSSProperties}
             >
-              <img src={media.src} alt={media.alt} loading="lazy" decoding="async" style={{ objectPosition: media.position }} />
+              <img
+                src={media.src}
+                alt={media.alt}
+                width={1280}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                style={{ objectPosition: media.position }}
+              />
             </span>
           ))}
         </span>
