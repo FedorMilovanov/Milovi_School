@@ -1,5 +1,5 @@
 # One-shot workflow: self-deletes after a fully verified run.
-# Final trigger after deterministic editorial-grid and audit hardening.
+# Stable-head trigger after no-JS reveal and explicit grid-row hardening.
 name: TEMP dependency lock refresh
 
 on:
