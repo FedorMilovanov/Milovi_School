@@ -68,7 +68,7 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'religieuse', order: 3, name: 'Religieuse', act: 'forme', visualTone: 'cocoa',
-    image: '/images/articles/michalak-religieuse.webp', imageAlt: 'Religieuse',
+    image: '/images/articles/michalak-religieuse.webp', imageAlt: 'Religieuse — современная интерпретация Christophe Michalak',
     articleId: 'michalak-religieuse', linkLabel: 'Изучить интерпретацию',
     curatorLine: 'Два choux, глазурь и вертикальная сборка делают силуэт частью рецепта.',
     techniques: ['PÂTE À CHOUX', 'CRÈME', 'GLAÇAGE'],
@@ -82,8 +82,8 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'opera', order: 5, name: 'Opéra', act: 'forme', visualTone: 'cocoa',
-    image: '/images/articles/recipe-opera-dalloyau.webp', imageAlt: 'Gâteau Opéra',
-    articleId: 'recipe-opera-dalloyau', linkLabel: 'Открыть разбор',
+    image: '/images/articles/opera-gateau-histoire.webp', imageAlt: 'Gâteau Opéra',
+    articleId: 'opera-gateau-histoire', linkLabel: 'Открыть историческое досье',
     curatorLine: 'Прямоугольник, тонкие слои и строгая высота: вкус организован как графическая конструкция.',
     techniques: ['BISCUIT JOCONDE', 'CAFÉ', 'GANACHE'],
   },
@@ -95,8 +95,6 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'tarte-au-citron', order: 7, name: 'Tarte au Citron', act: 'signature', visualTone: 'cream',
-    image: '/images/articles/recipe-tarte-citron-meringuee.webp', imageAlt: 'Tarte au citron',
-    articleId: 'recipe-tarte-citron-meringuee', linkLabel: 'Изучить базовую технику',
     curatorLine: 'Кислота, pâte sucrée и эмульсия требуют точности, которую невозможно спрятать декором.',
     techniques: ['PÂTE SUCRÉE', 'CITRON', 'ÉMULSION'],
   },
@@ -122,8 +120,8 @@ export const canonWorks: CanonWork[] = [
 
   {
     id: 'kouign-amann', order: 11, name: 'Kouign-Amann', act: 'territoire', visualTone: 'amber',
-    image: '/images/articles/ansel-dka.webp', imageAlt: 'Kouign-amann, современная техническая интерпретация',
-    articleId: 'ansel-dka', linkLabel: 'Изучить технику',
+    image: '/images/articles/lignac-kouign-amann.webp', imageAlt: 'Kouign-Amann',
+    articleId: 'lignac-kouign-amann', linkLabel: 'Изучить технику',
     curatorLine: 'Слоёное дрожжевое тесто, масло и сахар превращают карамелизацию в саму структуру изделия.',
     techniques: ['LAMINATION', 'BEURRE', 'CARAMÉLISATION'],
   },
