@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MEDIA_DIR = ROOT / "public" / "images" / "canon-sucre"
 MEDIA_SOURCE = ROOT / "src" / "data" / "canon-media.ts"
+DIST_CANON = ROOT / "dist" / "canon" / "index.html"
 
 EXPECTED_COUNT = 15
 EXPECTED_WIDTH = 1280
@@ -20,6 +21,8 @@ MAX_TOTAL_BYTES = 2 * 1024 * 1024
 BINDING_RE = re.compile(
     r"(?m)^\s*(?:'([^']+)'|([A-Za-z0-9_-]+))\s*:\s*\{\s*\n\s*image\s*:\s*'([^']+)'"
 )
+IMG_TAG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+SRC_RE = re.compile(r"\bsrc=[\"']([^\"']+)[\"']", re.IGNORECASE)
 
 
 def webp_dimensions(data: bytes) -> tuple[int, int]:
@@ -130,8 +133,29 @@ if total_bytes > MAX_TOTAL_BYTES:
         f"[canon-media] Pack weighs {total_bytes} bytes, above {MAX_TOTAL_BYTES}-byte total budget"
     )
 
+rendered_note = "generated Canon HTML not present; binary contract only"
+if DIST_CANON.exists():
+    html = DIST_CANON.read_text("utf-8", errors="replace")
+    work_tags = [tag for tag in IMG_TAG_RE.findall(html) if "canon-work-image" in tag]
+    rendered_sources = []
+    for tag in work_tags:
+        match = SRC_RE.search(tag)
+        rendered_sources.append(match.group(1) if match else "")
+
+    if len(work_tags) != EXPECTED_COUNT:
+        raise SystemExit(f"[canon-media] Built /canon/ must render {EXPECTED_COUNT} work images, found {len(work_tags)}")
+    if len(set(rendered_sources)) != EXPECTED_COUNT:
+        raise SystemExit("[canon-media] Built /canon/ must render 15 unique work image sources")
+    invalid_sources = sorted(src for src in rendered_sources if src not in expected_paths)
+    if invalid_sources:
+        raise SystemExit(f"[canon-media] Built /canon/ uses media outside the dedicated pack: {invalid_sources}")
+    if "canon-catalogue-plate" in html:
+        raise SystemExit("[canon-media] Catalogue plates are forbidden now that the 15/15 production pack exists")
+    rendered_note = "built /canon/ renders 15/15 dedicated images and 0 catalogue plates"
+
 print("# Le Canon Sucré media quality gate")
 print(f"- PASS: {len(rows)} unique WebP assets")
 print(f"- PASS: all assets are {EXPECTED_WIDTH}x{EXPECTED_HEIGHT}")
 print(f"- PASS: total pack {total_bytes / 1024:.1f} KiB (budget {MAX_TOTAL_BYTES / 1024:.0f} KiB)")
 print(f"- PASS: largest asset {max(size for _, size in rows) / 1024:.1f} KiB (budget {MAX_FILE_BYTES / 1024:.0f} KiB)")
+print(f"- PASS: {rendered_note}")
