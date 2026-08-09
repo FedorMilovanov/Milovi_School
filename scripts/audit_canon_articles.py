@@ -27,6 +27,7 @@ REQUIRED_SAFE_BINDINGS = {
     *EXPECTED,
 }
 WORD_RE = re.compile(r"[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*")
+SECTION_RE = re.compile(r'(?m)^##\s+')
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`([\s\S]*?)`\s*,")
 URL_RE = re.compile(r"\[[^\]]+\]\((https?://[^)\s]+)\)")
 SOURCE_HEADING = '## Французские источники и первичные материалы'
@@ -70,12 +71,14 @@ missing_safe_bindings = REQUIRED_SAFE_BINDINGS - bindings
 if missing_safe_bindings:
     raise SystemExit(f'[canon-articles] Required safe Canon bindings disappeared: {sorted(missing_safe_bindings)}')
 
+metrics: dict[str, tuple[int, int, int]] = {}
 for article_id, body in contents.items():
     words = WORD_RE.findall(re.sub(r'https?://\S+', ' ', body))
-    sections = len(re.findall(r'(?m)^##\s+', body))
+    sections = len(SECTION_RE.findall(body))
     source_heading_count = body.count(SOURCE_HEADING)
     urls = list(dict.fromkeys(URL_RE.findall(body)))
     domains = {urlsplit(url).netloc.lower().removeprefix('www.') for url in urls}
+    metrics[article_id] = (len(words), sections, len(urls))
 
     if len(words) < 850:
         raise SystemExit(f'[canon-articles] {article_id} is too shallow: {len(words)} words')
@@ -114,11 +117,6 @@ for article_id, body in contents.items():
 
 print('# Exact Le Canon Sucré dossier gate')
 for article_id in sorted(EXPECTED):
-    body = contents[article_id]
-    print(
-        f'- PASS: {article_id}: '
-        f'{len(WORD_RE.findall(body))} words, '
-        f'{len(re.findall(r"(?m)^##\\s+", body))} sections, '
-        f'{len(set(URL_RE.findall(body)))} sources'
-    )
+    word_count, section_count, source_count = metrics[article_id]
+    print(f'- PASS: {article_id}: {word_count} words, {section_count} sections, {source_count} sources')
 print('- PASS: 15 unique Canon article bindings; superseded legacy history routes excluded')
