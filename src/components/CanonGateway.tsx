@@ -4,7 +4,13 @@ import { useReducedMotion } from 'framer-motion'
 import LuxuryText from './LuxuryText'
 import '../styles/canon.css'
 
-const OBJECTS = ['saint', 'opera', 'ispahan', 'montblanc', 'galette'] as const
+const MEDIA = [
+  { id: 'paris-brest', src: '/images/articles/paris-brest-race-dessert.webp', position: '50% 50%' },
+  { id: 'opera', src: '/images/articles/recipe-opera-dalloyau.webp', position: '50% 50%' },
+  { id: 'ispahan', src: '/images/articles/herme-ispahan-deep.webp', position: '50% 48%' },
+  { id: 'mont-blanc', src: '/images/articles/recipe-mont-blanc.webp', position: '50% 48%' },
+  { id: 'galette', src: '/images/articles/cuisine-galette.webp', position: '50% 50%' },
+] as const
 
 export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
@@ -42,6 +48,19 @@ export default function CanonGateway() {
         onPointerLeave={reset}
         onBlur={reset}
       >
+        <span className="canon-gateway-media" aria-hidden="true">
+          {MEDIA.map((media, index) => (
+            <span
+              key={media.id}
+              className={`canon-gateway-media-item canon-gateway-media-${media.id}`}
+              style={{ '--canon-i': index } as CSSProperties}
+            >
+              <img src={media.src} alt="" loading="lazy" decoding="async" style={{ objectPosition: media.position }} />
+            </span>
+          ))}
+        </span>
+
+        <span className="canon-gateway-vignette" aria-hidden="true" />
         <span className="canon-gateway-light" aria-hidden="true" />
         <span className="canon-gateway-grain" aria-hidden="true" />
 
@@ -56,12 +75,6 @@ export default function CanonGateway() {
             <span>Открыть коллекцию</span>
             <span className="canon-gateway-arrow" aria-hidden="true">→</span>
           </span>
-        </span>
-
-        <span className="canon-gateway-stage" aria-hidden="true">
-          {OBJECTS.map((object, index) => (
-            <span key={object} className={`canon-object canon-object-${object}`} style={{ '--canon-i': index } as CSSProperties} />
-          ))}
         </span>
 
         <span className="canon-frame canon-frame-a" aria-hidden="true" />
