@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
+import LuxuryText from './LuxuryText'
 import '../styles/canon.css'
 
 const OBJECTS = ['saint', 'opera', 'ispahan', 'montblanc', 'galette'] as const
@@ -46,7 +47,9 @@ export default function CanonGateway() {
 
         <span className="canon-gateway-copy">
           <span className="canon-eyebrow">ÉDITION SPÉCIALE</span>
-          <span id="canon-gateway-title" className="canon-gateway-title">LE CANON SUCRÉ</span>
+          <span id="canon-gateway-title" className="canon-gateway-title">
+            <LuxuryText tone="gold">LE CANON SUCRÉ</LuxuryText>
+          </span>
           <span className="canon-gateway-subtitle">15 форм, ставших языком французской pâtisserie</span>
           <span className="canon-gateway-meta">15 PIÈCES · 3 ACTES</span>
           <span className="canon-gateway-cta">
