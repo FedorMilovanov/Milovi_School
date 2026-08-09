@@ -8,6 +8,7 @@ import {
   type CanonActId,
   type CanonWork,
 } from '../data/canon'
+import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
@@ -49,6 +50,7 @@ function CataloguePlate({ work }: { work: CanonWork }) {
 function CanonWorkCard({ work }: { work: CanonWork }) {
   const mediaRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
+  const destination = work.articleId ? `/articles/${work.articleId}/` : null
 
   const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
     if (!work.isAnchor || reduceMotion || event.pointerType !== 'mouse') return
@@ -70,6 +72,10 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     media.style.setProperty('--canon-work-ry', '0deg')
     media.style.setProperty('--canon-work-mx', '70%')
     media.style.setProperty('--canon-work-my', '25%')
+  }
+
+  const warmDestination = () => {
+    if (destination) prefetchRoute(destination)
   }
 
   const content = (
@@ -136,8 +142,14 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
       className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} ${work.image ? 'has-media' : 'is-catalogue'}`}
       style={gridStyle}
     >
-      {work.articleId ? (
-        <a href={`/articles/${work.articleId}/`} className="canon-work-link" aria-label={`${work.linkLabel ?? 'Открыть материал'}: ${work.name}`}>
+      {destination ? (
+        <a
+          href={destination}
+          className="canon-work-link"
+          aria-label={`${work.linkLabel ?? 'Открыть материал'}: ${work.name}`}
+          onPointerEnter={(event) => { if (event.pointerType === 'mouse') warmDestination() }}
+          onFocus={warmDestination}
+        >
           {content}
         </a>
       ) : (
