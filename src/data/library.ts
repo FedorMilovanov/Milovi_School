@@ -10,12 +10,21 @@ const baseIds = new Set(articles.map((article) => article.id))
 const expansionIds = Object.keys(articleExpansions)
 const overrideIds = Object.keys(articleOverrides)
 
-if (expansionIds.length !== 155) {
-  throw new Error(`[library] Expected 155 editorial expansions, received ${expansionIds.length}`)
+if (baseIds.size === 0) {
+  throw new Error('[library] Article catalog must not be empty')
 }
 
-for (const id of [...expansionIds, ...overrideIds]) {
-  if (!baseIds.has(id)) throw new Error(`[library] Unknown article enrichment id: ${id}`)
+const missingExpansionIds = [...baseIds].filter((id) => !Object.hasOwn(articleExpansions, id))
+const orphanExpansionIds = expansionIds.filter((id) => !baseIds.has(id))
+if (missingExpansionIds.length > 0 || orphanExpansionIds.length > 0) {
+  throw new Error(
+    `[library] Article/expansion id mismatch: missing=${missingExpansionIds.join(',') || 'none'}; ` +
+    `orphan=${orphanExpansionIds.join(',') || 'none'}`,
+  )
+}
+
+for (const id of overrideIds) {
+  if (!baseIds.has(id)) throw new Error(`[library] Unknown article override id: ${id}`)
 }
 
 const estimateReadTime = (content: string) =>
