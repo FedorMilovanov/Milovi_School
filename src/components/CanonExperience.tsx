@@ -129,18 +129,11 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
   } as CSSProperties
 
   return (
-    <motion.article
+    <article
       id={`canon-${work.id}`}
+      data-canon-order={work.order}
       className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} ${work.image ? 'has-media' : 'is-catalogue'}`}
       style={gridStyle}
-      initial={reduceMotion ? false : { opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={reduceMotion ? { duration: 0 } : {
-        duration: 0.68,
-        delay: ((work.order - 1) % 5) * 0.035,
-        ease: [0.22, 1, 0.36, 1],
-      }}
     >
       {work.articleId ? (
         <a href={`/articles/${work.articleId}/`} className="canon-work-link" aria-label={`${work.linkLabel ?? 'Открыть материал'}: ${work.name}`}>
@@ -151,7 +144,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
           {content}
         </div>
       )}
-    </motion.article>
+    </article>
   )
 }
 
@@ -181,6 +174,40 @@ export default function CanonExperience() {
     nodes.forEach((node) => observer.observe(node))
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') return
+
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.canon-work'))
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const node = entry.target as HTMLElement
+          const order = Number(node.dataset.canonOrder ?? 1)
+          if (typeof node.animate === 'function') {
+            node.animate(
+              [
+                { opacity: 0.001, transform: 'translateY(22px)' },
+                { opacity: 1, transform: 'translateY(0)' },
+              ],
+              {
+                duration: 680,
+                delay: ((Math.max(1, order) - 1) % 5) * 35,
+                easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                fill: 'none',
+              },
+            )
+          }
+          observer.unobserve(node)
+        }
+      },
+      { threshold: 0.12 },
+    )
+
+    nodes.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [reduceMotion])
 
   return (
     <main id="main-content" className="canon-page">
