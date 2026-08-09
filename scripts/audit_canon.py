@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist'
 SRC = ROOT / 'src'
 CANON_URL = 'https://french.milovicake.ru/canon/'
+ARTICLE_URL_PREFIX = 'https://french.milovicake.ru/articles/'
 
 errors: list[str] = []
 passed: list[str] = []
@@ -173,8 +174,27 @@ if canon:
 
     if len(item_lists) != 1:
         fail(f'/canon/ must emit exactly one ItemList JSON-LD block, found {len(item_lists)}')
-    elif item_lists[0].get('numberOfItems') != 15:
-        fail('Canon ItemList JSON-LD must declare 15 items')
+    else:
+        item_list = item_lists[0]
+        if item_list.get('numberOfItems') != 15:
+            fail('Canon ItemList JSON-LD must declare 15 items')
+        entries = item_list.get('itemListElement')
+        if not isinstance(entries, list) or len(entries) != 15:
+            fail('Canon ItemList JSON-LD must contain exactly 15 ListItem entries')
+        else:
+            positions = [entry.get('position') for entry in entries if isinstance(entry, dict)]
+            urls = [entry.get('url') for entry in entries if isinstance(entry, dict)]
+            names = [entry.get('name') for entry in entries if isinstance(entry, dict)]
+            if positions != list(range(1, 16)):
+                fail(f'Canon ItemList positions must be contiguous 1–15, found {positions}')
+            if len(urls) != 15 or len(set(urls)) != 15 or any(not isinstance(url, str) for url in urls):
+                fail('Canon ItemList must expose 15 unique stable URLs')
+            else:
+                invalid_urls = [url for url in urls if not (url.startswith(ARTICLE_URL_PREFIX) or url.startswith(f'{CANON_URL}#canon-'))]
+                if invalid_urls:
+                    fail(f'Canon ItemList contains URLs outside article/canonical scope: {invalid_urls}')
+            if len(names) != 15 or any(not isinstance(name, str) or not name.strip() for name in names):
+                fail('Canon ItemList every entry requires a non-empty name')
     if len(collection_pages) != 1:
         fail(f'/canon/ must emit exactly one CollectionPage JSON-LD block, found {len(collection_pages)}')
     elif collection_pages[0].get('@id') != CANON_URL:
@@ -195,7 +215,7 @@ if canon:
             fail(f'Sitemap must contain Canon canonical URL: {CANON_URL}')
 
     if len(errors) == structure_error_count:
-        ok('Canon exhibition structure: 15 works, 3×5 acts, transitions, Technique Index, canonical/sitemap and JSON-LD verified')
+        ok('Canon exhibition structure: 15 works, 3×5 acts, transitions, Technique Index, canonical/sitemap and complete JSON-LD verified')
 
 canon_sources = '\n'.join([
     (SRC / 'data' / 'canon.ts').read_text('utf-8'),
