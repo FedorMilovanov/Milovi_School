@@ -1,10 +1,5 @@
+import { canonWorks } from '../data/canon'
 import '../styles/canon-technique-matrix.css'
-
-const works = [
-  ['saint-honore', '01'], ['paris-brest', '02'], ['religieuse', '03'], ['eclair', '04'], ['opera', '05'],
-  ['baba-au-rhum', '06'], ['tarte-au-citron', '07'], ['ispahan', '08'], ['2000-feuilles', '09'], ['mont-blanc', '10'],
-  ['kouign-amann', '11'], ['tarte-tatin', '12'], ['tarte-tropezienne', '13'], ['canele-bordeaux', '14'], ['galette-des-rois', '15'],
-] as const
 
 const rows = [
   { id: 'choux', label: 'PÂTE À CHOUX', works: ['saint-honore', 'paris-brest', 'religieuse', 'eclair'] },
@@ -16,6 +11,8 @@ const rows = [
   { id: 'emulsion', label: 'ÉMULSION', works: ['tarte-au-citron'] },
   { id: 'mould', label: 'CUISSON MOULÉE', works: ['canele-bordeaux'] },
 ] as const
+
+const pad = (value: number) => String(value).padStart(2, '0')
 
 export default function CanonTechniqueMatrix() {
   return (
@@ -31,31 +28,31 @@ export default function CanonTechniqueMatrix() {
           </p>
         </div>
 
-        <div className="canon-technique-scroll" tabIndex={0} aria-label="Матрица техник Le Canon Sucré">
+        <div className="canon-technique-scroll" aria-label="Матрица техник Le Canon Sucré">
           <div className="canon-technique-grid">
             <div className="canon-technique-corner">TECHNIQUE</div>
-            {works.map(([id, number]) => (
-              <a key={id} href={`#canon-${id}`} className="canon-technique-work-head" aria-label={`Перейти к работе ${number}`}>
-                {number}
+            {canonWorks.map((work) => (
+              <a key={work.id} href={`#canon-${work.id}`} className="canon-technique-work-head" aria-label={`Перейти к ${pad(work.order)} — ${work.name}`}>
+                {pad(work.order)}
               </a>
             ))}
 
             {rows.map((row) => (
               <div className="canon-technique-row" key={row.id}>
                 <div className="canon-technique-label">{row.label}</div>
-                {works.map(([workId, number]) => {
-                  const active = (row.works as readonly string[]).includes(workId)
+                {canonWorks.map((work) => {
+                  const active = (row.works as readonly string[]).includes(work.id)
                   return active ? (
-                    <a
-                      key={workId}
-                      href={`#canon-${workId}`}
+                    <span
+                      key={work.id}
                       className="canon-technique-cell is-active"
-                      aria-label={`${row.label}: перейти к работе ${number}`}
+                      role="img"
+                      aria-label={`${row.label}: ${work.name}`}
                     >
                       <span aria-hidden="true" />
-                    </a>
+                    </span>
                   ) : (
-                    <span key={workId} className="canon-technique-cell" aria-hidden="true">
+                    <span key={work.id} className="canon-technique-cell" aria-hidden="true">
                       <span />
                     </span>
                   )
@@ -65,7 +62,7 @@ export default function CanonTechniqueMatrix() {
           </div>
         </div>
 
-        <p className="canon-technique-note">Нажмите на номер или активную точку, чтобы вернуться к соответствующей работе.</p>
+        <p className="canon-technique-note">Номер работы возвращает к соответствующему объекту коллекции.</p>
       </div>
     </aside>
   )
