@@ -143,4 +143,10 @@ export const canonWorks: CanonWork[] = [
   }),
 ]
 
+const canonWorkIds = new Set(canonWorks.map((work) => work.id))
+const orphanBindings = Object.keys(canonLibrary).filter((id) => !canonWorkIds.has(id))
+if (orphanBindings.length > 0) {
+  throw new Error(`[canon] Factual binding has no curatorial work: ${orphanBindings.join(', ')}`)
+}
+
 export const canonWorksByAct = (act: CanonActId) => canonWorks.filter((work) => work.act === act)
