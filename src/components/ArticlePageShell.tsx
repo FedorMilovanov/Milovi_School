@@ -5,6 +5,7 @@ import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { safeSetItem } from '../utils/storage'
 import Header from './Header'
 import ArticleView from './ArticleView'
+import CanonArticleNav from './CanonArticleNav'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
 import UpdateNotification from './UpdateNotification'
@@ -120,6 +121,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
         <main id="main-content">
+          <CanonArticleNav articleId={article.id} placement="top" />
           <ArticleView
             article={article}
             allArticles={allMeta}
@@ -128,6 +130,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
             disableEscapeBack={commandOpen}
             onTagSearch={openTagSearch}
           />
+          <CanonArticleNav articleId={article.id} placement="bottom" />
         </main>
         <Footer />
         {commandOpen && (
