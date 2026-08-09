@@ -34,13 +34,6 @@ def soup_for(path: Path) -> BeautifulSoup | None:
 
 
 def compact_text(node) -> str:
-    """Collapse element-level text splitting without changing rendered semantics.
-
-    LuxuryText renders each character in its own span. BeautifulSoup's
-    get_text(' ', ...) therefore inserts synthetic spaces between letters that
-    do not exist in the browser accessibility tree. Joining stripped strings
-    gives us a stable comparison for those per-letter wrappers.
-    """
     return ''.join(node.stripped_strings)
 
 
@@ -64,7 +57,7 @@ home = soup_for(DIST / 'index.html')
 canon = soup_for(DIST / 'canon' / 'index.html')
 
 if home:
-    gateway_error_count = len(errors)
+    before = len(errors)
     gateway = home.select_one('a.canon-gateway[href="/canon/"]')
     if not gateway:
         fail('Homepage must contain one Canon gateway linking to /canon/')
@@ -74,16 +67,16 @@ if home:
             fail('Canon gateway is missing its accessible title')
         media = gateway.select('.canon-gateway-media-item img')
         if len(media) != 5:
-            fail(f'Canon gateway must expose five real editorial media items, found {len(media)}')
-        elif any(not img.get('src', '').startswith('/images/articles/') for img in media):
-            fail('Canon gateway media must resolve to production article images')
+            fail(f'Canon gateway must expose five editorial media items, found {len(media)}')
+        elif any(not img.get('src', '').startswith('/images/') for img in media):
+            fail('Canon gateway media must use local production /images/ assets')
         elif any(not img.get('alt', '').strip() for img in media):
-            fail('Canon gateway production media must keep non-empty alt text for global site audits')
-    if len(errors) == gateway_error_count:
-        ok('Homepage Canon gateway: route, title and five production media items verified')
+            fail('Canon gateway production media must keep non-empty alt text')
+    if len(errors) == before:
+        ok('Homepage Canon gateway: route, title and five local production media items verified')
 
 if canon:
-    structure_error_count = len(errors)
+    before = len(errors)
     main = canon.select('main#main-content')
     if len(main) != 1:
         fail(f'/canon/ must contain exactly one #main-content landmark, found {len(main)}')
@@ -133,8 +126,11 @@ if canon:
         plate = media.select_one('.canon-catalogue-plate')
         if bool(image) == bool(plate):
             fail(f'{work_id}: media plane must contain exactly one real image or catalogue plate')
-        if image and not image.get('alt', '').strip():
-            fail(f'{work_id}: public Canon image requires non-empty alt text')
+        if image:
+            if not image.get('src', '').startswith('/images/'):
+                fail(f'{work_id}: Canon media must use a local /images/ asset')
+            if not image.get('alt', '').strip():
+                fail(f'{work_id}: public Canon image requires non-empty alt text')
 
     technique = canon.select_one('.canon-technique-index')
     if not technique:
@@ -154,16 +150,15 @@ if canon:
             fail(f'Technique Index must expose exactly 21 active technique/work marks, found {len(active_cells)}')
         if cell_links:
             fail('Technique matrix dots must not create extra keyboard navigation stops')
-        active_without_labels = [cell for cell in active_cells if cell.get('role') != 'img' or not cell.get('aria-label', '').strip()]
-        if active_without_labels:
+        bad_active = [cell for cell in active_cells if cell.get('role') != 'img' or not cell.get('aria-label', '').strip()]
+        if bad_active:
             fail('Every active technique mark requires a non-interactive accessible label')
         invalid_targets = [a.get('href') for a in technique_headers if a.get('href') not in work_ids]
         if invalid_targets:
             fail(f'Technique Index links to unknown Canon works: {sorted(set(invalid_targets))}')
 
-    forbidden_copy = ('RESEARCH IN PROGRESS', 'ARCHIVE SLOT', 'RESEARCH SLOT')
     rendered_text = canon.get_text(' ', strip=True).upper()
-    for marker in forbidden_copy:
+    for marker in ('RESEARCH IN PROGRESS', 'ARCHIVE SLOT', 'RESEARCH SLOT'):
         if marker in rendered_text:
             fail(f'/canon/ exposes internal placeholder copy: {marker}')
 
@@ -195,10 +190,12 @@ if canon:
                     fail(f'Canon ItemList contains URLs outside article/canonical scope: {invalid_urls}')
             if len(names) != 15 or any(not isinstance(name, str) or not name.strip() for name in names):
                 fail('Canon ItemList every entry requires a non-empty name')
+
     if len(collection_pages) != 1:
         fail(f'/canon/ must emit exactly one CollectionPage JSON-LD block, found {len(collection_pages)}')
     elif collection_pages[0].get('@id') != CANON_URL:
         fail('Canon CollectionPage must use the canonical /canon/ @id')
+
     if len(breadcrumbs) != 1:
         fail(f'/canon/ must emit exactly one BreadcrumbList JSON-LD block, found {len(breadcrumbs)}')
     else:
@@ -214,15 +211,38 @@ if canon:
         if CANON_URL not in sitemap_text:
             fail(f'Sitemap must contain Canon canonical URL: {CANON_URL}')
 
-    if len(errors) == structure_error_count:
-        ok('Canon exhibition structure: 15 works, 3×5 acts, transitions, Technique Index, canonical/sitemap and complete JSON-LD verified')
+    if len(errors) == before:
+        ok('Canon exhibition: 15 works, 3×5 acts, media states, technique/navigation and SEO contracts verified')
 
-canon_sources = '\n'.join([
-    (SRC / 'data' / 'canon.ts').read_text('utf-8'),
-    (SRC / 'data' / 'canon-library.ts').read_text('utf-8'),
-])
-linked_article_ids = re.findall(r"articleId:\s*'([^']+)'", canon_sources)
-article_nav_error_count = len(errors)
+library_source_path = SRC / 'data' / 'canon-library.ts'
+media_source_path = SRC / 'data' / 'canon-media.ts'
+canon_source_path = SRC / 'data' / 'canon.ts'
+
+linked_article_ids: list[str] = []
+if not library_source_path.exists():
+    fail('Missing src/data/canon-library.ts')
+else:
+    library_source = library_source_path.read_text('utf-8')
+    linked_article_ids = re.findall(r"articleId:\s*'([^']+)'", library_source)
+    if re.search(r'\bimage(?:Alt|Mobile)?\s*:', library_source):
+        fail('canon-library.ts must contain route identity only, not media fields')
+
+if not media_source_path.exists():
+    fail('Missing src/data/canon-media.ts')
+else:
+    media_source = media_source_path.read_text('utf-8')
+    if re.search(r'\barticleId\s*:', media_source):
+        fail('canon-media.ts must contain exhibition media only, not article routes')
+
+if not canon_source_path.exists():
+    fail('Missing src/data/canon.ts')
+else:
+    canon_source = canon_source_path.read_text('utf-8')
+    for required in ("from './canon-library'", "from './canon-media'"):
+        if required not in canon_source:
+            fail(f'canon.ts must independently resolve route/media bindings: {required}')
+
+before = len(errors)
 for article_id in linked_article_ids:
     article_html = soup_for(DIST / 'articles' / article_id / 'index.html')
     if not article_html:
@@ -230,17 +250,15 @@ for article_id in linked_article_ids:
     nav = article_html.select('[aria-label*="Le Canon Sucré"]')
     if len(nav) < 2:
         fail(f'Canon-linked article {article_id} must render both top and bottom collection navigation')
-
-    article_structured = json_ld_objects(article_html)
-    article_nodes = [item for item in article_structured if item.get('@type') == 'Article']
+    article_nodes = [item for item in json_ld_objects(article_html) if item.get('@type') == 'Article']
     if len(article_nodes) != 1:
         fail(f'Canon-linked article {article_id} must emit exactly one Article JSON-LD object')
         continue
     part = article_nodes[0].get('isPartOf')
     if not isinstance(part, dict) or part.get('@id') != CANON_URL or part.get('@type') != 'CollectionPage':
         fail(f'Canon-linked article {article_id} must declare Article.isPartOf Le Canon Sucré')
-if linked_article_ids and len(errors) == article_nav_error_count:
-    ok(f'Canon article navigation + structured membership verified on {len(linked_article_ids)} mapped article routes')
+if linked_article_ids and len(errors) == before:
+    ok(f'Canon article navigation + structured membership verified on {len(linked_article_ids)} mapped routes')
 
 page_css_path = SRC / 'styles' / 'canon.css'
 gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
@@ -250,8 +268,9 @@ article_nav_component_path = SRC / 'components' / 'CanonArticleNav.tsx'
 navigation_path = SRC / 'utils' / 'navigation.ts'
 technique_css_path = SRC / 'styles' / 'canon-technique-matrix.css'
 technique_component_path = SRC / 'components' / 'CanonTechniqueMatrix.tsx'
+technique_data_path = SRC / 'data' / 'canon-techniques.ts'
 
-boundary_error_count = len(errors)
+before = len(errors)
 if not page_css_path.exists():
     fail('Missing src/styles/canon.css')
 else:
@@ -259,11 +278,10 @@ else:
     for invalid in ('inset-left:', 'inset-bottom:', '.canon-object'):
         if invalid in page_css:
             fail(f'Canon page CSS contains obsolete/invalid construct: {invalid}')
-    required_grid_contracts = (
+    for contract in (
         'grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);',
         'grid-row: var(--canon-grid-row, auto);',
-    )
-    for contract in required_grid_contracts:
+    ):
         if contract not in page_css:
             fail(f'Canon page CSS is missing data-driven editorial grid contract: {contract}')
 
@@ -274,25 +292,26 @@ else:
     for invalid in ('inset-left:', 'inset-bottom:', '.canon-object'):
         if invalid in gateway_css:
             fail(f'Canon gateway CSS contains obsolete/invalid construct: {invalid}')
-    forbidden_page_selectors = ('.canon-page', '.canon-work-grid', '.canon-catalogue-plate', '.canon-act-rail')
-    leaked = [selector for selector in forbidden_page_selectors if selector in gateway_css]
+    leaked = [selector for selector in ('.canon-page', '.canon-work-grid', '.canon-catalogue-plate', '.canon-act-rail') if selector in gateway_css]
     if leaked:
         fail(f'Homepage gateway CSS leaked exhibition-only selectors: {", ".join(leaked)}')
 
-if gateway_component_path.exists():
+if not gateway_component_path.exists():
+    fail('Missing src/components/CanonGateway.tsx')
+else:
     gateway_component = gateway_component_path.read_text('utf-8')
     if "../styles/canon-gateway.css" not in gateway_component:
         fail('CanonGateway must import the gateway-only stylesheet')
     if "../styles/canon.css" in gateway_component:
         fail('CanonGateway must not import the full exhibition stylesheet')
-    if "../data/canon-library" not in gateway_component:
-        fail('CanonGateway must consume the compact factual library registry')
+    if "../data/canon-media" not in gateway_component:
+        fail('CanonGateway must consume the media registry directly')
+    if "../data/canon-library" in gateway_component:
+        fail('CanonGateway must not depend on article publication bindings')
     if "../data/canon'" in gateway_component or '../data/canon"' in gateway_component:
         fail('CanonGateway must not import the full 15-work curatorial data model')
     if "prefetchRoute('/canon/')" not in gateway_component:
         fail('CanonGateway must warm /canon/ only on explicit user intent')
-else:
-    fail('Missing src/components/CanonGateway.tsx')
 
 if not navigation_path.exists():
     fail('Missing src/utils/navigation.ts')
@@ -310,14 +329,20 @@ for path, label in ((experience_component_path, 'CanonExperience'), (article_nav
 
 if not technique_component_path.exists():
     fail('Missing src/components/CanonTechniqueMatrix.tsx')
+else:
+    technique_component = technique_component_path.read_text('utf-8')
+    if "../data/canon-techniques" not in technique_component:
+        fail('Technique Index must consume the centralized technique relationship registry')
 if not technique_css_path.exists():
     fail('Missing src/styles/canon-technique-matrix.css')
+if not technique_data_path.exists():
+    fail('Missing src/data/canon-techniques.ts')
 
 if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
-if len(errors) == boundary_error_count:
-    ok('Canon boundaries are scoped: semantic collection links, intent-prefetch and isolated visual layers verified')
+if len(errors) == before:
+    ok('Canon boundaries: independent media/routes, intent-prefetch and isolated visual/data layers verified')
 
 print('# Le Canon Sucré quality gate')
 print()
