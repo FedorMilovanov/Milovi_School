@@ -27,6 +27,32 @@ const imagesWithoutAlt = canonWorks.filter((work) => work.image && !work.imageAl
 const mediaPaths = canonWorks.flatMap((work) => [work.image, work.imageMobile].filter((value): value is string => Boolean(value)))
 const missingMedia = mediaPaths.filter((src) => !existsSync(join(process.cwd(), 'public', src.replace(/^\//, ''))))
 
+const gridErrors: string[] = []
+for (const act of canonActs) {
+  for (const row of [1, 2] as const) {
+    const cells = Array<string | null>(12).fill(null)
+    for (const work of canonWorks.filter((item) => item.act === act.id && item.gridRow === row)) {
+      const first = work.gridStart - 1
+      const last = first + work.gridSpan
+      if (first < 0 || last > 12) {
+        gridErrors.push(`${act.id}/row${row}/${work.id}: grid ${work.gridStart}+${work.gridSpan} exceeds 12 columns`)
+        continue
+      }
+      for (let column = first; column < last; column += 1) {
+        if (cells[column]) {
+          gridErrors.push(`${act.id}/row${row}: ${work.id} overlaps ${cells[column]} at column ${column + 1}`)
+        } else {
+          cells[column] = work.id
+        }
+      }
+    }
+    const emptyColumns = cells.flatMap((value, index) => value ? [] : [index + 1])
+    if (emptyColumns.length > 0) {
+      gridErrors.push(`${act.id}/row${row}: empty columns ${emptyColumns.join(',')}`)
+    }
+  }
+}
+
 if (canonWorks.length !== 15) {
   throw new Error(`[canon] Expected exactly 15 works, received ${canonWorks.length}`)
 }
@@ -44,6 +70,9 @@ if (malformedActs.length > 0) {
 }
 if (badOrder.length > 0) {
   throw new Error(`[canon] Order must be contiguous 1–15: ${badOrder.map(({ id, expected, actual }) => `${id}:${actual}!=${expected}`).join(', ')}`)
+}
+if (gridErrors.length > 0) {
+  throw new Error(`[canon] Editorial grid must fill two 12-column rows per act without overlap: ${gridErrors.join(' | ')}`)
 }
 if (imagesWithoutAlt.length > 0) {
   throw new Error(`[canon] Public work images require imageAlt: ${imagesWithoutAlt.join(', ')}`)
