@@ -1,16 +1,23 @@
 import { useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
+import { canonWorks } from '../data/canon'
 import LuxuryText from './LuxuryText'
 import '../styles/canon.css'
 
-const MEDIA = [
-  { id: 'paris-brest', src: '/images/articles/paris-brest-race-dessert.webp', position: '50% 50%' },
-  { id: 'opera', src: '/images/articles/recipe-opera-dalloyau.webp', position: '50% 50%' },
-  { id: 'ispahan', src: '/images/articles/herme-ispahan-deep.webp', position: '50% 48%' },
-  { id: 'mont-blanc', src: '/images/articles/recipe-mont-blanc.webp', position: '50% 48%' },
-  { id: 'galette', src: '/images/articles/cuisine-galette.webp', position: '50% 50%' },
+const GATEWAY_SELECTION = [
+  { id: 'paris-brest', position: '50% 50%' },
+  { id: 'opera', position: '50% 50%' },
+  { id: 'ispahan', position: '50% 48%' },
+  { id: 'mont-blanc', position: '50% 48%' },
+  { id: 'galette-des-rois', position: '50% 50%' },
 ] as const
+
+const MEDIA = GATEWAY_SELECTION.map((selection) => {
+  const work = canonWorks.find((item) => item.id === selection.id)
+  if (!work?.image) throw new Error(`[canon-gateway] Missing collection media for ${selection.id}`)
+  return { id: selection.id, src: work.image, position: selection.position }
+})
 
 export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
