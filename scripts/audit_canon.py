@@ -30,16 +30,28 @@ def soup_for(path: Path) -> BeautifulSoup | None:
     return BeautifulSoup(path.read_text('utf-8', errors='replace'), 'html.parser')
 
 
+def compact_text(node) -> str:
+    """Collapse element-level text splitting without changing rendered semantics.
+
+    LuxuryText renders each character in its own span. BeautifulSoup's
+    get_text(' ', ...) therefore inserts synthetic spaces between letters that
+    do not exist in the browser accessibility tree. Joining stripped strings
+    gives us a stable comparison for those per-letter wrappers.
+    """
+    return ''.join(node.stripped_strings)
+
+
 home = soup_for(DIST / 'index.html')
 canon = soup_for(DIST / 'canon' / 'index.html')
 
 if home:
+    gateway_error_count = len(errors)
     gateway = home.select_one('a.canon-gateway[href="/canon/"]')
     if not gateway:
         fail('Homepage must contain one Canon gateway linking to /canon/')
     else:
         title = gateway.select_one('#canon-gateway-title')
-        if not title or 'LE CANON SUCRÉ' not in title.get_text(' ', strip=True):
+        if not title or compact_text(title).upper() != 'LECANONSUCRÉ':
             fail('Canon gateway is missing its accessible title')
         media = gateway.select('.canon-gateway-media-item img')
         if len(media) != 5:
@@ -48,10 +60,11 @@ if home:
             fail('Canon gateway media must resolve to production article images')
         elif any(not img.get('alt', '').strip() for img in media):
             fail('Canon gateway production media must keep non-empty alt text for global site audits')
-        else:
-            ok('Homepage Canon gateway: route, title and five production media items verified')
+    if len(errors) == gateway_error_count:
+        ok('Homepage Canon gateway: route, title and five production media items verified')
 
 if canon:
+    structure_error_count = len(errors)
     main = canon.select('main#main-content')
     if len(main) != 1:
         fail(f'/canon/ must contain exactly one #main-content landmark, found {len(main)}')
@@ -103,7 +116,7 @@ if canon:
     elif '"numberOfItems":15' not in item_lists[0] and '"numberOfItems": 15' not in item_lists[0]:
         fail('Canon ItemList JSON-LD must declare 15 items')
 
-    if not errors:
+    if len(errors) == structure_error_count:
         ok('Canon exhibition structure: 15 works, 3×5 acts, index, media states and JSON-LD verified')
 
 canon_sources = '\n'.join([
@@ -111,6 +124,7 @@ canon_sources = '\n'.join([
     (SRC / 'data' / 'canon-library.ts').read_text('utf-8'),
 ])
 linked_article_ids = re.findall(r"articleId:\s*'([^']+)'", canon_sources)
+article_nav_error_count = len(errors)
 for article_id in linked_article_ids:
     article_html = soup_for(DIST / 'articles' / article_id / 'index.html')
     if not article_html:
@@ -118,13 +132,14 @@ for article_id in linked_article_ids:
     nav = article_html.select('[aria-label*="Le Canon Sucré"]')
     if len(nav) < 2:
         fail(f'Canon-linked article {article_id} must render both top and bottom collection navigation')
-if linked_article_ids and not any(e.startswith('Canon-linked article') for e in errors):
+if linked_article_ids and len(errors) == article_nav_error_count:
     ok(f'Canon article navigation verified on {len(linked_article_ids)} mapped article routes')
 
 page_css_path = SRC / 'styles' / 'canon.css'
 gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
 gateway_component_path = SRC / 'components' / 'CanonGateway.tsx'
 
+boundary_error_count = len(errors)
 if not page_css_path.exists():
     fail('Missing src/styles/canon.css')
 else:
@@ -168,7 +183,7 @@ else:
 if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
-if not any('Canon page CSS' in e or 'Canon gateway CSS' in e or 'CanonGateway' in e or 'enhancement stylesheet' in e for e in errors):
+if len(errors) == boundary_error_count:
     ok('Canon homepage boundary is scoped: compact data registry + gateway-only CSS')
 
 print('# Le Canon Sucré quality gate')
