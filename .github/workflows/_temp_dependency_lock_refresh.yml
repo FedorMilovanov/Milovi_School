@@ -1,0 +1,63 @@
+name: TEMP dependency lock refresh
+
+on:
+  push:
+    branches:
+      - agent/le-canon-sucre-implementation
+    paths:
+      - .github/workflows/_temp_dependency_lock_refresh.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: temp-dependency-lock-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: agent/le-canon-sucre-implementation
+          persist-credentials: true
+
+      - name: Use project Node version
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Verify current lock installs
+        run: npm ci
+
+      - name: Refresh vulnerable transitive dependency lock
+        run: npm audit fix --package-lock-only
+
+      - name: Verify refreshed lock installs cleanly
+        run: npm ci
+
+      - name: Enforce security gate
+        run: npm audit --audit-level=high
+
+      - name: TypeScript gate
+        run: npm run check
+
+      - name: Production build gate
+        run: npm run build
+
+      - name: Remove one-shot workflow and commit generated lock
+        shell: bash
+        run: |
+          rm .github/workflows/_temp_dependency_lock_refresh.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json .github/workflows/_temp_dependency_lock_refresh.yml
+          if git diff --cached --quiet; then
+            echo "npm audit fix produced no tracked changes; refusing to leave temporary workflow behind"
+            exit 1
+          fi
+          git commit -m "refresh audited dependency lock"
+          git push origin HEAD:agent/le-canon-sucre-implementation
