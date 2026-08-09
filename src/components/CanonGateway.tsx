@@ -3,7 +3,7 @@ import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import { canonWorks } from '../data/canon'
 import LuxuryText from './LuxuryText'
-import '../styles/canon.css'
+import '../styles/canon-gateway.css'
 
 const GATEWAY_SELECTION = [
   { id: 'paris-brest', position: '50% 50%' },
