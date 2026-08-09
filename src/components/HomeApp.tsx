@@ -9,6 +9,7 @@ import Hero from './Hero'
 import StatsBar from './StatsBar'
 import DashboardBento from './DashboardBento'
 import MainCategories from './MainCategories'
+import CanonGateway from './CanonGateway'
 import Categories from './Categories'
 import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
@@ -159,7 +160,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
         : results.filter(r => r.item.category === selectedCategory).map(r => r.item)
       : results.map(r => r.item)
 
-    return { filteredArticles: filtered, matchMap: map }
+    return { filteredArticles, matchMap: map }
   }, [articles, selectedCategory, searchQuery, fuse])
 
   const handleSearchChange = useCallback((query: string) => {
@@ -242,6 +243,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
             articles={articles}
             onSelectCategory={handleSelectCategory}
           />
+          <CanonGateway />
           <ContinueReading articles={articles} onArticleClick={openArticle} />
           <Categories
             categories={categories}
