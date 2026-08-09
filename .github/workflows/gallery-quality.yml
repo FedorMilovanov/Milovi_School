@@ -8,12 +8,16 @@ on:
       - 'src/data/**'
       - 'src/layouts/**'
       - 'src/pages/materials.astro'
+      - 'src/pages/canon.astro'
       - 'src/styles/global.css'
+      - 'src/styles/canon*.css'
       - 'package.json'
       - 'package-lock.json'
       - 'astro.config.mjs'
       - 'scripts/audit_article_depth.py'
       - 'scripts/audit_editorial_quality.py'
+      - 'scripts/audit_canon.py'
+      - 'scripts/audit_canon_visual.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -27,12 +31,16 @@ on:
       - 'src/data/**'
       - 'src/layouts/**'
       - 'src/pages/materials.astro'
+      - 'src/pages/canon.astro'
       - 'src/styles/global.css'
+      - 'src/styles/canon*.css'
       - 'package.json'
       - 'package-lock.json'
       - 'astro.config.mjs'
       - 'scripts/audit_article_depth.py'
       - 'scripts/audit_editorial_quality.py'
+      - 'scripts/audit_canon.py'
+      - 'scripts/audit_canon_visual.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -149,6 +157,12 @@ jobs:
 
       - name: Run cross-page visual and responsive QA
         run: node scripts/audit_visual_site.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+          VISUAL_QA_DIR: artifacts/visual-qa
+
+      - name: Run Canon exhibition visual and responsive QA
+        run: node scripts/audit_canon_visual.mjs
         env:
           BASE_URL: http://127.0.0.1:4321
           VISUAL_QA_DIR: artifacts/visual-qa
