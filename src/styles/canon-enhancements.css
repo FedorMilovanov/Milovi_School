@@ -1,0 +1,118 @@
+/* Lightweight interaction layer kept separate from the large Canon skin. */
+
+.canon-act-rail {
+  position: fixed;
+  top: 50%;
+  right: clamp(12px, 1.8vw, 28px);
+  z-index: 24;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transform: translateY(-50%);
+  mix-blend-mode: normal;
+}
+
+.canon-act-rail-link {
+  display: grid;
+  grid-template-columns: 24px 0fr;
+  align-items: center;
+  min-height: 34px;
+  overflow: hidden;
+  color: rgba(148, 136, 116, .7);
+  text-decoration: none;
+  transition:
+    grid-template-columns .45s cubic-bezier(.22,1,.36,1),
+    color .35s ease,
+    background .35s ease,
+    border-color .35s ease;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--bg-main) 72%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.canon-act-rail-link.is-active,
+.canon-act-rail-link:hover,
+.canon-act-rail-link:focus-visible {
+  grid-template-columns: 24px 1fr;
+  color: var(--text-accent);
+  border-color: var(--border-lux);
+  background: color-mix(in srgb, var(--bg-main) 90%, transparent);
+}
+
+.canon-act-rail-link:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 3px;
+}
+
+.canon-act-rail-roman {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 32px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .08em;
+}
+
+.canon-act-rail-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 10px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity .3s ease, transform .45s cubic-bezier(.22,1,.36,1);
+}
+
+.canon-act-rail-link.is-active .canon-act-rail-name,
+.canon-act-rail-link:hover .canon-act-rail-name,
+.canon-act-rail-link:focus-visible .canon-act-rail-name {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.canon-work {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 620px;
+}
+
+.canon-work-picture,
+.canon-work-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canon-work-image {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.001);
+  transition: transform .85s cubic-bezier(.16,1,.3,1), filter .65s ease, opacity .65s ease;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .canon-work:hover .canon-work-image {
+    transform: scale(1.022);
+    filter: brightness(1.035) contrast(1.025);
+  }
+}
+
+@media (max-width: 1180px), (hover: none), (pointer: coarse) {
+  .canon-act-rail { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canon-act-rail-link,
+  .canon-act-rail-name,
+  .canon-work-image {
+    transition-duration: .01ms !important;
+  }
+  .canon-work-image { transform: none !important; }
+}
