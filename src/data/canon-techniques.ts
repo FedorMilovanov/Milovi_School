@@ -24,7 +24,7 @@ export const canonTechniqueRows: readonly CanonTechniqueRow[] = [
   { id: 'mould', label: 'CUISSON MOULÉE', workIds: ['canele-bordeaux'] },
 ]
 
-const canonIds = new Set<CanonMediaId>(canonWorks.map((work) => work.id))
+const canonIds = new Set<string>(canonWorks.map((work) => work.id))
 const rowIds = new Set<string>()
 let relationshipCount = 0
 
@@ -34,12 +34,13 @@ for (const row of canonTechniqueRows) {
   rowIds.add(row.id)
 
   if (row.workIds.length === 0) throw new Error(`[canon-techniques] Technique row has no works: ${row.id}`)
-  const duplicates = row.workIds.filter((id, index) => row.workIds.indexOf(id) !== index)
+  const relationshipIds: readonly string[] = row.workIds
+  const duplicates = relationshipIds.filter((id, index) => relationshipIds.indexOf(id) !== index)
   if (duplicates.length > 0) {
     throw new Error(`[canon-techniques] Duplicate work relationship in ${row.id}: ${[...new Set(duplicates)].join(', ')}`)
   }
 
-  const unknown = row.workIds.filter((id) => !canonIds.has(id))
+  const unknown = relationshipIds.filter((id) => !canonIds.has(id))
   if (unknown.length > 0) {
     throw new Error(`[canon-techniques] Unknown Canon work in ${row.id}: ${unknown.join(', ')}`)
   }
