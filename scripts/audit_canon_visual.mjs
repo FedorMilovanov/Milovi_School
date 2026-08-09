@@ -56,8 +56,8 @@ function overlapArea(a, b) {
 
 async function assertNoHorizontalOverflow(page) {
   const state = await page.evaluate(() => ({
-    scrollWidth: document.documentElement.scrollWidth,
-    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: globalThis.document.documentElement.scrollWidth,
+    clientWidth: globalThis.document.documentElement.clientWidth,
   }))
   assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
 }
@@ -109,7 +109,7 @@ await check('desktop: page has no horizontal overflow', async () => assertNoHori
 await check('desktop: all real Canon media decode', async () => assertMediaDecode(desktop.page))
 await check('desktop: work grid resolves explicit columns and rows', async () => {
   const placements = await desktop.page.locator('.canon-work').evaluateAll((works) => works.map((work) => {
-    const style = getComputedStyle(work)
+    const style = globalThis.getComputedStyle(work)
     return {
       columnStart: style.gridColumnStart,
       columnEnd: style.gridColumnEnd,
@@ -190,7 +190,7 @@ const reduced = await observedPage(browser, {
 await reduced.page.goto(`${BASE_URL}/canon/`, { waitUntil: 'networkidle' })
 await reduced.page.waitForTimeout(300)
 await check('reduced motion: all Canon works remain fully visible', async () => {
-  const opacity = await reduced.page.locator('.canon-work').evaluateAll((works) => works.map((work) => Number.parseFloat(getComputedStyle(work).opacity)))
+  const opacity = await reduced.page.locator('.canon-work').evaluateAll((works) => works.map((work) => Number.parseFloat(globalThis.getComputedStyle(work).opacity)))
   assert.equal(opacity.length, 15)
   assert.ok(opacity.every((value) => value >= 0.99), JSON.stringify(opacity))
 })
