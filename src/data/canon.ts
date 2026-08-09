@@ -1,10 +1,10 @@
 import { canonLibrary } from './canon-library'
-import { canonMedia } from './canon-media'
+import { canonMedia, type CanonMediaId } from './canon-media'
 
 export type CanonActId = 'forme' | 'signature' | 'territoire'
 
 export interface CanonWork {
-  id: string
+  id: CanonMediaId
   order: number
   name: string
   act: CanonActId
@@ -13,14 +13,16 @@ export interface CanonWork {
   gridRow: 1 | 2
   gridStart: number
   gridSpan: 4 | 8
-  image?: string
+  image: string
   imageMobile?: string
-  imageAlt?: string
+  imageAlt: string
   curatorLine?: string
   techniques?: string[]
   articleId?: string
   linkLabel?: string
 }
+
+type CanonWorkDefinition = Omit<CanonWork, 'image' | 'imageMobile' | 'imageAlt' | 'articleId'>
 
 export interface CanonAct {
   id: CanonActId
@@ -37,13 +39,13 @@ export const canonActs: CanonAct[] = [
 
 /**
  * Curatorial identity, exhibition media and publication route are independent.
- * This allows an exact image to land before its dossier exists and prevents a
- * missing article from forcing fake navigation or fallback media.
+ * All 15 Canon works must have exact exhibition media; article publication is
+ * optional and never creates synthetic navigation for an unpublished dossier.
  */
-function defineCanonWork(work: CanonWork): CanonWork {
-  const media = canonMedia[work.id as keyof typeof canonMedia]
+function defineCanonWork(work: CanonWorkDefinition): CanonWork {
+  const media = canonMedia[work.id]
   const library = canonLibrary[work.id as keyof typeof canonLibrary]
-  return { ...work, ...(media ?? {}), ...(library ?? {}) }
+  return { ...work, ...media, ...(library ?? {}) }
 }
 
 /**
