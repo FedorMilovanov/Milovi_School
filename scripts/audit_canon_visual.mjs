@@ -141,6 +141,26 @@ await check('desktop: both media states are rendered intentionally', async () =>
   assert.ok(images >= 13, `images=${images}`)
   assert.ok(catalogue <= 2, `catalogue=${catalogue}`)
 })
+await check('desktop: Technique Index has 8 rows, 15 headers and 21 active links', async () => {
+  assert.equal(await desktop.page.locator('.canon-technique-label').count(), 8)
+  assert.equal(await desktop.page.locator('.canon-technique-work-head').count(), 15)
+  assert.equal(await desktop.page.locator('a.canon-technique-cell.is-active').count(), 21)
+})
+await check('desktop: Technique Index fits its own viewport without inner horizontal scrolling', async () => {
+  const state = await desktop.page.locator('.canon-technique-scroll').evaluate((node) => ({
+    scrollWidth: node.scrollWidth,
+    clientWidth: node.clientWidth,
+  }))
+  assert.ok(state.scrollWidth <= state.clientWidth + 2, JSON.stringify(state))
+})
+await check('desktop: every Technique Index destination resolves to a Canon work', async () => {
+  const result = await desktop.page.locator('.canon-technique-index a[href^="#canon-"]').evaluateAll((links) => links.map((link) => ({
+    href: link.getAttribute('href'),
+    exists: Boolean(globalThis.document.querySelector(link.getAttribute('href') || '__missing__')),
+  })))
+  assert.ok(result.length >= 36, JSON.stringify(result))
+  assert.ok(result.every((item) => item.exists), JSON.stringify(result.filter((item) => !item.exists)))
+})
 
 await desktop.page.evaluate(() => globalThis.scrollTo({ top: 0, left: 0, behavior: 'auto' }))
 await desktop.page.waitForTimeout(200)
@@ -151,6 +171,9 @@ await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-hero.
 await desktop.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(250)
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-act.png'), fullPage: false })
+await desktop.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
+await desktop.page.waitForTimeout(250)
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-technique.png'), fullPage: false })
 
 const mobile = await observedPage(browser, {
   viewport: { width: 390, height: 844 },
@@ -182,10 +205,25 @@ await check('mobile: Canon index collapses to one column', async () => {
   assert.ok(boxes[2].top >= boxes[1].bottom - 2, JSON.stringify(boxes))
 })
 await check('mobile: all real Canon media decode', async () => assertMediaDecode(mobile.page))
+await check('mobile: Technique Index uses contained horizontal scrolling', async () => {
+  const state = await mobile.page.locator('.canon-technique-scroll').evaluate((node) => ({
+    scrollWidth: node.scrollWidth,
+    clientWidth: node.clientWidth,
+    before: node.scrollLeft,
+  }))
+  assert.ok(state.scrollWidth > state.clientWidth + 100, JSON.stringify(state))
+  await mobile.page.locator('.canon-technique-scroll').evaluate((node) => { node.scrollLeft = 180 })
+  const after = await mobile.page.locator('.canon-technique-scroll').evaluate((node) => node.scrollLeft)
+  assert.ok(after > 100, `scrollLeft=${after}`)
+  await assertNoHorizontalOverflow(mobile.page)
+})
 
 await mobile.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
 await mobile.page.waitForTimeout(250)
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile.png'), fullPage: false })
+await mobile.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
+await mobile.page.waitForTimeout(250)
+await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-technique.png'), fullPage: false })
 
 const reduced = await observedPage(browser, {
   viewport: { width: 1024, height: 900 },
@@ -210,7 +248,13 @@ const report = {
   checks: number,
   passed: passed.length,
   failed: failures.length,
-  screenshots: ['canon-desktop-hero.png', 'canon-desktop-act.png', 'canon-mobile.png'],
+  screenshots: [
+    'canon-desktop-hero.png',
+    'canon-desktop-act.png',
+    'canon-desktop-technique.png',
+    'canon-mobile.png',
+    'canon-mobile-technique.png',
+  ],
   failures,
 }
 await fs.writeFile(path.join(OUTPUT_DIR, 'canon-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8')
