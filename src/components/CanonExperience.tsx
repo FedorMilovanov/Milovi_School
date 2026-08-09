@@ -10,6 +10,7 @@ import {
 } from '../data/canon'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
+import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
 
@@ -337,6 +338,7 @@ export default function CanonExperience() {
         })}
       </div>
 
+      <CanonResearchTimeline />
       <CanonTechniqueMatrix />
 
       <section className="canon-end">
