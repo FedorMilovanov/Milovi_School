@@ -53,11 +53,6 @@
   overscroll-behavior-inline: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(212, 173, 107, 0.35) transparent;
-  outline: none;
-}
-
-.canon-technique-scroll:focus-visible {
-  box-shadow: 0 0 0 1px rgba(239, 204, 145, 0.62);
 }
 
 .canon-technique-grid {
@@ -117,7 +112,6 @@
 .canon-technique-cell {
   display: grid;
   place-items: center;
-  text-decoration: none;
   transition: background 0.35s ease;
 }
 
@@ -151,17 +145,20 @@
     background: rgba(212, 173, 107, 0.05);
   }
 
-  .canon-technique-cell.is-active:hover,
-  .canon-technique-cell.is-active:focus-visible {
-    background: rgba(212, 173, 107, 0.055);
+  .canon-technique-row:hover .canon-technique-label {
+    color: #e6c587;
+    background: rgba(212, 173, 107, 0.025);
   }
 
-  .canon-technique-cell.is-active:hover > span,
-  .canon-technique-cell.is-active:focus-visible > span {
-    width: 10px;
-    height: 10px;
+  .canon-technique-row:hover .canon-technique-cell.is-active {
+    background: rgba(212, 173, 107, 0.035);
+  }
+
+  .canon-technique-row:hover .canon-technique-cell.is-active > span {
+    width: 9px;
+    height: 9px;
     background: #efcc91;
-    box-shadow: 0 0 24px rgba(212, 173, 107, 0.35);
+    box-shadow: 0 0 22px rgba(212, 173, 107, 0.3);
   }
 }
 
