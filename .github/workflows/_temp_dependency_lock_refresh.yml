@@ -30,6 +30,22 @@ jobs:
           node-version: 22.13.0
           cache: npm
 
+      - name: Normalize Canon responsive CSS declarations
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('src/styles/canon.css')
+          text = path.read_text('utf-8')
+          expected = ('inset-left: 43%;', 'inset-bottom: 44%;')
+          missing = [token for token in expected if token not in text]
+          if missing:
+              raise SystemExit(f'Expected Canon CSS declarations not found: {missing}')
+          text = text.replace('inset-left: 43%;', 'left: 43%;')
+          text = text.replace('inset-bottom: 44%;', 'bottom: 44%;')
+          path.write_text(text, encoding='utf-8')
+          PY
+
       - name: Verify current lock installs
         run: npm ci
 
@@ -48,16 +64,19 @@ jobs:
       - name: Production build gate
         run: npm run build
 
-      - name: Remove one-shot workflow and commit generated lock
+      - name: Canon static quality gate
+        run: node scripts/run-python-script.mjs scripts/audit_canon.py
+
+      - name: Remove one-shot workflow and commit verified outputs
         shell: bash
         run: |
           rm .github/workflows/_temp_dependency_lock_refresh.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json .github/workflows/_temp_dependency_lock_refresh.yml
+          git add package-lock.json src/styles/canon.css .github/workflows/_temp_dependency_lock_refresh.yml
           if git diff --cached --quiet; then
-            echo "npm audit fix produced no tracked changes; refusing to leave temporary workflow behind"
+            echo "One-shot refresh produced no tracked changes; refusing to leave temporary workflow behind"
             exit 1
           fi
-          git commit -m "refresh audited dependency lock"
+          git commit -m "close Canon dependency and CSS quality gates"
           git push origin HEAD:agent/le-canon-sucre-implementation
