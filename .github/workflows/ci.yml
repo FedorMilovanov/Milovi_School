@@ -226,6 +226,10 @@ jobs:
         run: |
           git fetch origin main --depth=1
           git checkout origin/main -- .github/workflows/ci.yml
+          # audit:site intentionally refreshes this tracked generated report.
+          # It is evidence from the run, not a closeout deliverable, so restore it
+          # before enforcing the strict three-file mutation boundary.
+          git restore --source=HEAD --worktree -- audit/site-audit-report.md
           allowed='^( M|M |A |D ) (package-lock\.json|src/styles/canon\.css|\.github/workflows/ci\.yml)$'
           unexpected="$(git status --porcelain | grep -Ev "$allowed" || true)"
           if [ -n "$unexpected" ]; then
