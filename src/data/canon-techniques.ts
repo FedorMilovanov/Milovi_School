@@ -1,9 +1,10 @@
 import { canonWorks } from './canon'
+import type { CanonMediaId } from './canon-media'
 
 export interface CanonTechniqueRow {
   id: string
   label: string
-  workIds: readonly string[]
+  workIds: readonly CanonMediaId[]
 }
 
 /**
@@ -23,7 +24,7 @@ export const canonTechniqueRows: readonly CanonTechniqueRow[] = [
   { id: 'mould', label: 'CUISSON MOULÉE', workIds: ['canele-bordeaux'] },
 ]
 
-const canonIds = new Set(canonWorks.map((work) => work.id))
+const canonIds = new Set<CanonMediaId>(canonWorks.map((work) => work.id))
 const rowIds = new Set<string>()
 let relationshipCount = 0
 
