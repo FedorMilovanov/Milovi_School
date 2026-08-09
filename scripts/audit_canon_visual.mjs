@@ -78,7 +78,7 @@ async function prefetchCount(page, pathname) {
   return page.evaluate((expectedPath) => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
     .filter((link) => {
       try {
-        return new URL(link.href, globalThis.location.href).pathname === expectedPath
+        return new globalThis.URL(link.href, globalThis.location.href).pathname === expectedPath
       } catch {
         return false
       }
@@ -156,11 +156,11 @@ await check('desktop: dossier route prefetch appears once on hover/focus intent'
   const link = desktop.page.locator('.canon-work-link').first()
   const href = await link.getAttribute('href')
   assert.ok(href?.startsWith('/articles/'), `href=${href}`)
-  const pathname = new URL(href, BASE_URL).pathname
+  const pathname = new globalThis.URL(href, BASE_URL).pathname
   assert.equal(await prefetchCount(desktop.page, pathname), 0)
   await link.hover()
   await desktop.page.waitForFunction((expectedPath) => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
-    .some((node) => new URL(node.href, globalThis.location.href).pathname === expectedPath), pathname)
+    .some((node) => new globalThis.URL(node.href, globalThis.location.href).pathname === expectedPath), pathname)
   assert.equal(await prefetchCount(desktop.page, pathname), 1)
   await link.focus()
   await link.hover()
@@ -214,7 +214,7 @@ await check('desktop: homepage gateway prefetches /canon/ once on user intent', 
   assert.equal(await prefetchCount(desktop.page, '/canon/'), 0)
   await gateway.hover()
   await desktop.page.waitForFunction(() => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
-    .some((node) => new URL(node.href, globalThis.location.href).pathname === '/canon/'))
+    .some((node) => new globalThis.URL(node.href, globalThis.location.href).pathname === '/canon/'))
   assert.equal(await prefetchCount(desktop.page, '/canon/'), 1)
   await gateway.focus()
   await gateway.hover()
