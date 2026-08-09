@@ -1,7 +1,8 @@
 import { useRef } from 'react'
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { canonActs, canonWorks, canonWorksByAct, type CanonWork } from '../data/canon'
+import LuxuryText from './LuxuryText'
 import '../styles/canon.css'
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -69,7 +70,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
   )
 }
 
-function ResearchModule({ label, title, children }: { label: string; title: string; children: React.ReactNode }) {
+function ResearchModule({ label, title, children }: { label: string; title: string; children: ReactNode }) {
   return (
     <aside className="canon-research-module">
       <span className="canon-module-label">{label}</span>
@@ -96,13 +97,13 @@ export default function CanonExperience() {
           </motion.p>
           <motion.h1
             id="canon-title"
-            className="canon-hero-title luxury-color-text"
-            data-tone="gold"
+            className="canon-hero-title"
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: reduceMotion ? 0 : .8, delay: reduceMotion ? 0 : .08, ease: [0.22, 1, 0.36, 1] }}
           >
-            LE CANON<br />SUCRÉ
+            <LuxuryText tone="gold" as="span">LE CANON</LuxuryText><br />
+            <LuxuryText tone="gold" as="span">SUCRÉ</LuxuryText>
           </motion.h1>
           <div className="canon-hero-deck">
             <motion.p
@@ -125,7 +126,7 @@ export default function CanonExperience() {
         </div>
       </section>
 
-      <main>
+      <main id="main-content">
         <section className="canon-section canon-shell canon-manifesto" aria-labelledby="canon-manifesto-title">
           <div>
             <span className="canon-section-kicker">MANIFESTE</span>
