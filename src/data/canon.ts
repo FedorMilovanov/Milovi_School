@@ -146,7 +146,7 @@ export const canonWorks: CanonWork[] = [
   }),
 ]
 
-const canonWorkIds = new Set(canonWorks.map((work) => work.id))
+const canonWorkIds = new Set<string>(canonWorks.map((work) => work.id))
 const orphanArticleBindings = Object.keys(canonLibrary).filter((id) => !canonWorkIds.has(id))
 const orphanMediaBindings = Object.keys(canonMedia).filter((id) => !canonWorkIds.has(id))
 if (orphanArticleBindings.length > 0) {
