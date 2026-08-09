@@ -100,7 +100,7 @@ rows: list[tuple[str, int]] = []
 
 for work_id in sorted(bindings):
     relative = bindings[work_id].removeprefix("/")
-    path = ROOT / "public" / relative.removeprefix("images/") if False else ROOT / "public" / relative
+    path = ROOT / "public" / relative
     data = path.read_bytes()
     total_bytes += len(data)
 
