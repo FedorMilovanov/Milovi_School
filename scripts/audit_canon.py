@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -39,6 +40,22 @@ def compact_text(node) -> str:
     gives us a stable comparison for those per-letter wrappers.
     """
     return ''.join(node.stripped_strings)
+
+
+def json_ld_objects(soup: BeautifulSoup) -> list[dict]:
+    objects: list[dict] = []
+    for script in soup.select('script[type="application/ld+json"]'):
+        text = script.string or script.get_text() or ''
+        try:
+            value = json.loads(text)
+        except json.JSONDecodeError as error:
+            fail(f'Invalid JSON-LD: {error}')
+            continue
+        if isinstance(value, dict):
+            objects.append(value)
+        elif isinstance(value, list):
+            objects.extend(item for item in value if isinstance(item, dict))
+    return objects
 
 
 home = soup_for(DIST / 'index.html')
@@ -132,18 +149,28 @@ if canon:
         if marker in rendered_text:
             fail(f'/canon/ exposes internal placeholder copy: {marker}')
 
-    item_lists = []
-    for script in canon.select('script[type="application/ld+json"]'):
-        text = script.string or script.get_text() or ''
-        if '"@type":"ItemList"' in text or '"@type": "ItemList"' in text:
-            item_lists.append(text)
+    structured = json_ld_objects(canon)
+    item_lists = [item for item in structured if item.get('@type') == 'ItemList']
+    collection_pages = [item for item in structured if item.get('@type') == 'CollectionPage']
+    breadcrumbs = [item for item in structured if item.get('@type') == 'BreadcrumbList']
+
     if len(item_lists) != 1:
         fail(f'/canon/ must emit exactly one ItemList JSON-LD block, found {len(item_lists)}')
-    elif '"numberOfItems":15' not in item_lists[0] and '"numberOfItems": 15' not in item_lists[0]:
+    elif item_lists[0].get('numberOfItems') != 15:
         fail('Canon ItemList JSON-LD must declare 15 items')
+    if len(collection_pages) != 1:
+        fail(f'/canon/ must emit exactly one CollectionPage JSON-LD block, found {len(collection_pages)}')
+    elif collection_pages[0].get('@id') != 'https://french.milovicake.ru/canon/':
+        fail('Canon CollectionPage must use the canonical /canon/ @id')
+    if len(breadcrumbs) != 1:
+        fail(f'/canon/ must emit exactly one BreadcrumbList JSON-LD block, found {len(breadcrumbs)}')
+    else:
+        crumbs = breadcrumbs[0].get('itemListElement')
+        if not isinstance(crumbs, list) or len(crumbs) != 2:
+            fail('Canon BreadcrumbList must contain Home → Le Canon Sucré')
 
     if len(errors) == structure_error_count:
-        ok('Canon exhibition structure: 15 works, 3×5 acts, Technique Index, media states and JSON-LD verified')
+        ok('Canon exhibition structure: 15 works, 3×5 acts, Technique Index and three JSON-LD contracts verified')
 
 canon_sources = '\n'.join([
     (SRC / 'data' / 'canon.ts').read_text('utf-8'),
@@ -158,12 +185,24 @@ for article_id in linked_article_ids:
     nav = article_html.select('[aria-label*="Le Canon Sucré"]')
     if len(nav) < 2:
         fail(f'Canon-linked article {article_id} must render both top and bottom collection navigation')
+
+    article_structured = json_ld_objects(article_html)
+    article_nodes = [item for item in article_structured if item.get('@type') == 'Article']
+    if len(article_nodes) != 1:
+        fail(f'Canon-linked article {article_id} must emit exactly one Article JSON-LD object')
+        continue
+    part = article_nodes[0].get('isPartOf')
+    if not isinstance(part, dict) or part.get('@id') != 'https://french.milovicake.ru/canon/' or part.get('@type') != 'CollectionPage':
+        fail(f'Canon-linked article {article_id} must declare Article.isPartOf Le Canon Sucré')
 if linked_article_ids and len(errors) == article_nav_error_count:
-    ok(f'Canon article navigation verified on {len(linked_article_ids)} mapped article routes')
+    ok(f'Canon article navigation + structured membership verified on {len(linked_article_ids)} mapped article routes')
 
 page_css_path = SRC / 'styles' / 'canon.css'
 gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
 gateway_component_path = SRC / 'components' / 'CanonGateway.tsx'
+experience_component_path = SRC / 'components' / 'CanonExperience.tsx'
+article_nav_component_path = SRC / 'components' / 'CanonArticleNav.tsx'
+navigation_path = SRC / 'utils' / 'navigation.ts'
 technique_css_path = SRC / 'styles' / 'canon-technique-matrix.css'
 technique_component_path = SRC / 'components' / 'CanonTechniqueMatrix.tsx'
 
@@ -205,8 +244,24 @@ if gateway_component_path.exists():
         fail('CanonGateway must consume the compact factual library registry')
     if "../data/canon'" in gateway_component or '../data/canon"' in gateway_component:
         fail('CanonGateway must not import the full 15-work curatorial data model')
+    if "prefetchRoute('/canon/')" not in gateway_component:
+        fail('CanonGateway must warm /canon/ only on explicit user intent')
 else:
     fail('Missing src/components/CanonGateway.tsx')
+
+if not navigation_path.exists():
+    fail('Missing src/utils/navigation.ts')
+else:
+    navigation_source = navigation_path.read_text('utf-8')
+    for required in ('export function prefetchRoute', 'connection?.saveData', "connection?.effectiveType === '2g'", "link.rel = 'prefetch'"):
+        if required not in navigation_source:
+            fail(f'Intent-prefetch utility is missing conservative contract: {required}')
+
+for path, label in ((experience_component_path, 'CanonExperience'), (article_nav_component_path, 'CanonArticleNav')):
+    if not path.exists():
+        fail(f'Missing {path.relative_to(ROOT)}')
+    elif 'prefetchRoute' not in path.read_text('utf-8'):
+        fail(f'{label} must use the shared intent-prefetch utility')
 
 if not technique_component_path.exists():
     fail('Missing src/components/CanonTechniqueMatrix.tsx')
@@ -217,7 +272,7 @@ if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
 if len(errors) == boundary_error_count:
-    ok('Canon page boundaries are scoped: gateway, exhibition and Technique Index stay isolated')
+    ok('Canon boundaries are scoped: semantic collection links, intent-prefetch and isolated visual layers verified')
 
 print('# Le Canon Sucré quality gate')
 print()
