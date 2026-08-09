@@ -124,27 +124,26 @@ jobs:
       - name: Install generated-site audit dependencies
         run: python3 -m pip install --user pillow beautifulsoup4
 
-      - name: Normalize final Canon CSS contracts
+      - name: Normalize exhibition CSS and remove duplicated gateway layer
         shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           path = Path('src/styles/canon.css')
           text = path.read_text('utf-8')
-          expected = (
-              '.canon-work {\n  grid-column: span 4;',
-              '.canon-work-anchor { grid-column: span 8; }',
-              '.canon-work { grid-column: span 6; }',
-              '.canon-work { grid-column: span 12; }',
-              'inset-left: 43%;',
-              'inset-bottom: 44%;',
-              '.canon-gateway-media-galette',
-          )
-          missing = [token for token in expected if token not in text]
-          if missing:
-              raise SystemExit(f'Expected Canon CSS contracts not found: {missing}')
+          gateway_marker = '/* -------------------------------- Gateway -------------------------------- */'
+          page_marker = '/* ------------------------------- Canon page ------------------------------- */'
+          if gateway_marker not in text or page_marker not in text:
+              raise SystemExit('Expected Canon gateway/page markers not found')
 
+          prefix = text.split(gateway_marker, 1)[0].rstrip()
+          page = page_marker + text.split(page_marker, 1)[1]
+          text = prefix + '\n\n' + page.lstrip()
+
+          if '.canon-work {\n  grid-column: span 4;' not in text:
+              raise SystemExit('Expected legacy desktop work-grid rule not found')
           text = text.replace(
               '.canon-work {\n  grid-column: span 4;',
               '.canon-work {\n  grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);\n  grid-row: var(--canon-grid-row, auto);',
@@ -152,11 +151,30 @@ jobs:
           )
           text = text.replace('\n.canon-work-anchor { grid-column: span 8; }\n', '\n', 1)
           text = text.replace('.canon-work { grid-column: span 6; }', '.canon-work { grid-column: span 6; grid-row: auto; }')
+          text = text.replace('.canon-work-anchor { grid-column: span 12; }', '.canon-work-anchor { grid-column: span 12; grid-row: auto; }')
           text = text.replace('.canon-work { grid-column: span 12; }', '.canon-work { grid-column: span 12; grid-row: auto; }')
-          text = text.replace('inset-left: 43%;', 'left: 43%;')
-          text = text.replace('inset-bottom: 44%;', 'bottom: 44%;')
-          text = text.replace('.canon-gateway-media-galette', '.canon-gateway-media-galette-des-rois')
-          path.write_text(text, encoding='utf-8')
+
+          # Remove gateway-only responsive rules left below the page marker.
+          text = re.sub(r'(?ms)^\s*\.canon-gateway::before\s*\{.*?^\s*\}\n?', '', text)
+          text = re.sub(r'(?m)^\s*\.canon-gateway[^\n{]*\{[^{}]*\}\n?', '', text)
+          text = re.sub(r'(?m)^\s*\.canon-eyebrow[^\n{]*\{[^{}]*\}\n?', '', text)
+          text = re.sub(r'(?m)^\s*\.canon-frame[^\n{]*\{[^{}]*\}\n?', '', text)
+          text = text.replace('  .canon-gateway-media,\n  .canon-work-media', '  .canon-work-media')
+          text = text.replace('  .canon-gateway,\n  .canon-gateway *,\n  .canon-work,', '  .canon-work,')
+          text = text.replace('  .canon-gateway-media,\n  .canon-work-media,\n  .canon-work-image', '  .canon-work-media,\n  .canon-work-image')
+          text = text.replace('  .canon-gateway-light,\n  .canon-work-sheen', '  .canon-work-sheen')
+
+          for forbidden in ('.canon-gateway', '.canon-eyebrow', '.canon-frame', '.canon-object', 'inset-left:', 'inset-bottom:'):
+              if forbidden in text:
+                  raise SystemExit(f'Obsolete page-CSS token remained after cleanup: {forbidden}')
+          for required in (
+              'grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);',
+              'grid-row: var(--canon-grid-row, auto);',
+          ):
+              if required not in text:
+                  raise SystemExit(f'Required data-driven grid contract missing: {required}')
+
+          path.write_text(text.rstrip() + '\n', encoding='utf-8')
           PY
 
       - name: Refresh vulnerable transitive dependency lock
@@ -178,6 +196,27 @@ jobs:
         run: npm run build
         env:
           PUBLIC_RELEASE_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Diagnose homepage HTML audit candidates
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from bs4 import BeautifulSoup
+
+          path = Path('dist/index.html')
+          soup = BeautifulSoup(path.read_text('utf-8', errors='replace'), 'html.parser')
+          print('--- French Pastry Archive DOM contexts ---')
+          for node in soup.find_all(string=lambda value: value and 'French Pastry Archive' in value):
+              parent = node.parent
+              print(str(parent)[:1200])
+          print('--- Buttons without obvious accessible name ---')
+          for button in soup.find_all('button'):
+              visible = button.get_text(' ', strip=True)
+              labelled = button.get('aria-label') or button.get('title') or visible
+              if not labelled:
+                  print(str(button)[:1600])
+          PY
 
       - name: Audit normalized generated site
         run: npm run audit:site
