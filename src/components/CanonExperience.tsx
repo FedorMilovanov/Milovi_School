@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent } from 'react'
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
   canonActs,
@@ -122,10 +122,24 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     </>
   )
 
+  const gridStyle = {
+    '--canon-grid-start': work.gridStart,
+    '--canon-grid-span': work.gridSpan,
+  } as CSSProperties
+
   return (
-    <article
+    <motion.article
       id={`canon-${work.id}`}
       className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} ${work.image ? 'has-media' : 'is-catalogue'}`}
+      style={gridStyle}
+      initial={reduceMotion ? false : { opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={reduceMotion ? { duration: 0 } : {
+        duration: 0.68,
+        delay: ((work.order - 1) % 5) * 0.035,
+        ease: [0.22, 1, 0.36, 1],
+      }}
     >
       {work.articleId ? (
         <a href={`/articles/${work.articleId}/`} className="canon-work-link" aria-label={`${work.linkLabel ?? 'Открыть материал'}: ${work.name}`}>
@@ -136,7 +150,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
           {content}
         </div>
       )}
-    </article>
+    </motion.article>
   )
 }
 
