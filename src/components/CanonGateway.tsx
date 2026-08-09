@@ -16,7 +16,8 @@ const GATEWAY_SELECTION = [
 const MEDIA = GATEWAY_SELECTION.map((selection) => {
   const work = canonWorks.find((item) => item.id === selection.id)
   if (!work?.image) throw new Error(`[canon-gateway] Missing collection media for ${selection.id}`)
-  return { id: selection.id, src: work.image, position: selection.position }
+  if (!work.imageAlt) throw new Error(`[canon-gateway] Missing accessible media label for ${selection.id}`)
+  return { id: selection.id, src: work.image, alt: work.imageAlt, position: selection.position }
 })
 
 export default function CanonGateway() {
@@ -62,7 +63,7 @@ export default function CanonGateway() {
               className={`canon-gateway-media-item canon-gateway-media-${media.id}`}
               style={{ '--canon-i': index } as CSSProperties}
             >
-              <img src={media.src} alt="" loading="lazy" decoding="async" style={{ objectPosition: media.position }} />
+              <img src={media.src} alt={media.alt} loading="lazy" decoding="async" style={{ objectPosition: media.position }} />
             </span>
           ))}
         </span>
