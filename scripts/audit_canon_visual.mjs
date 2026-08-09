@@ -104,7 +104,7 @@ await check('desktop: Canon index exposes 15 unique destinations', async () => {
   assert.equal(hrefs.length, 15)
   assert.equal(new Set(hrefs).size, 15)
 })
-await check('desktop: act rail is visible', async () => assert.ok(await desktop.page.locator('.canon-act-rail').isVisible()))
+await check('desktop: act rail stays hidden before exhibition acts', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
 await check('desktop: page has no horizontal overflow', async () => assertNoHorizontalOverflow(desktop.page))
 await check('desktop: all real Canon media decode', async () => assertMediaDecode(desktop.page))
 await check('desktop: work grid resolves explicit columns and rows', async () => {
@@ -141,10 +141,15 @@ await check('desktop: both media states are rendered intentionally', async () =>
   assert.ok(images >= 13, `images=${images}`)
   assert.ok(catalogue <= 2, `catalogue=${catalogue}`)
 })
-await check('desktop: Technique Index has 8 rows, 15 headers and 21 active links', async () => {
+await check('desktop: Technique Index has 8 rows, 15 headers and 21 active marks', async () => {
   assert.equal(await desktop.page.locator('.canon-technique-label').count(), 8)
   assert.equal(await desktop.page.locator('.canon-technique-work-head').count(), 15)
-  assert.equal(await desktop.page.locator('a.canon-technique-cell.is-active').count(), 21)
+  assert.equal(await desktop.page.locator('.canon-technique-cell.is-active').count(), 21)
+})
+await check('desktop: Technique Index exposes only 15 keyboard navigation links', async () => {
+  assert.equal(await desktop.page.locator('.canon-technique-index a').count(), 15)
+  assert.equal(await desktop.page.locator('a.canon-technique-cell').count(), 0)
+  assert.equal(await desktop.page.locator('.canon-technique-index [tabindex]').count(), 0)
 })
 await check('desktop: Technique Index fits its own viewport without inner horizontal scrolling', async () => {
   const state = await desktop.page.locator('.canon-technique-scroll').evaluate((node) => ({
@@ -158,7 +163,7 @@ await check('desktop: every Technique Index destination resolves to a Canon work
     href: link.getAttribute('href'),
     exists: Boolean(globalThis.document.querySelector(link.getAttribute('href') || '__missing__')),
   })))
-  assert.ok(result.length >= 36, JSON.stringify(result))
+  assert.equal(result.length, 15)
   assert.ok(result.every((item) => item.exists), JSON.stringify(result.filter((item) => !item.exists)))
 })
 
@@ -169,10 +174,12 @@ await check('desktop: hero evidence is captured from page top', async () => {
 })
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-hero.png'), fullPage: false })
 await desktop.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
-await desktop.page.waitForTimeout(250)
+await desktop.page.waitForTimeout(350)
+await check('desktop: act rail appears while exhibition acts are in view', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 1))
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-act.png'), fullPage: false })
 await desktop.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
-await desktop.page.waitForTimeout(250)
+await desktop.page.waitForTimeout(350)
+await check('desktop: act rail leaves when Technique Index becomes the reading context', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-technique.png'), fullPage: false })
 
 const mobile = await observedPage(browser, {
@@ -189,7 +196,11 @@ await mobile.page.waitForTimeout(450)
 await check('mobile: Canon route returns HTTP 200', async () => assert.equal(mobileResponse?.status(), 200))
 await check('mobile: page has no horizontal overflow', async () => assertNoHorizontalOverflow(mobile.page))
 await check('mobile: all 15 works remain present', async () => assert.equal(await mobile.page.locator('.canon-work').count(), 15))
-await check('mobile: desktop act rail is hidden', async () => assert.equal(await mobile.page.locator('.canon-act-rail:visible').count(), 0))
+await check('mobile: desktop act rail remains hidden', async () => {
+  await mobile.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
+  await mobile.page.waitForTimeout(250)
+  assert.equal(await mobile.page.locator('.canon-act-rail:visible').count(), 0)
+})
 await check('mobile: work layout collapses to one column', async () => {
   const boxes = await mobile.page.locator('#canon-act-forme .canon-work').evaluateAll((works) => works.slice(0, 3).map((work) => work.getBoundingClientRect().toJSON()))
   assert.equal(boxes.length, 3)
