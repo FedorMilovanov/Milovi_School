@@ -305,35 +305,46 @@ export default function CanonExperience() {
       </nav>
 
       <div id="canon-acts" className="canon-shell canon-acts">
-        {canonActs.map((act, actIndex) => (
-          <section
-            key={act.id}
-            id={`canon-act-${act.id}`}
-            data-canon-act={act.id}
-            className="canon-act"
-            aria-labelledby={`canon-act-title-${act.id}`}
-          >
-            <header className="canon-act-head">
-              <div>
-                <span className="canon-act-kicker">ACTE {act.roman}</span>
-                <h2 id={`canon-act-title-${act.id}`} className="canon-act-title">{act.title}</h2>
-              </div>
-              <p className="canon-act-subtitle">{act.subtitle}</p>
-            </header>
+        {canonActs.map((act, actIndex) => {
+          const nextAct = canonActs[actIndex + 1]
+          return (
+            <section
+              key={act.id}
+              id={`canon-act-${act.id}`}
+              data-canon-act={act.id}
+              className="canon-act"
+              aria-labelledby={`canon-act-title-${act.id}`}
+            >
+              <header className="canon-act-head">
+                <div>
+                  <span className="canon-act-kicker">ACTE {act.roman}</span>
+                  <h2 id={`canon-act-title-${act.id}`} className="canon-act-title">{act.title}</h2>
+                </div>
+                <p className="canon-act-subtitle">{act.subtitle}</p>
+              </header>
 
-            <div className="canon-work-grid">
-              {canonWorksByAct(act.id).map((work) => <CanonWorkCard key={work.id} work={work} />)}
-            </div>
-
-            {actIndex < canonActs.length - 1 && (
-              <div className="canon-act-transition" aria-hidden="true">
-                <span>{act.roman}</span>
-                <span className="canon-act-transition-line" />
-                <span>{canonActs[actIndex + 1].roman}</span>
+              <div className="canon-work-grid">
+                {canonWorksByAct(act.id).map((work) => <CanonWorkCard key={work.id} work={work} />)}
               </div>
-            )}
-          </section>
-        ))}
+
+              {nextAct && (
+                <a
+                  className="canon-act-transition"
+                  href={`#canon-act-${nextAct.id}`}
+                  aria-label={`Перейти к акту ${nextAct.roman}: ${nextAct.title}`}
+                >
+                  <span className="canon-act-transition-current">ACTE {act.roman}</span>
+                  <span className="canon-act-transition-line" aria-hidden="true" />
+                  <span className="canon-act-transition-next">
+                    <span>ACTE {nextAct.roman}</span>
+                    <strong>{nextAct.title}</strong>
+                    <span className="canon-act-transition-arrow" aria-hidden="true">↓</span>
+                  </span>
+                </a>
+              )}
+            </section>
+          )
+        })}
       </div>
 
       <CanonTechniqueMatrix />
