@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / 'dist'
 SRC = ROOT / 'src'
+CANON_URL = 'https://french.milovicake.ru/canon/'
 
 errors: list[str] = []
 passed: list[str] = []
@@ -86,6 +87,10 @@ if canon:
     if len(main) != 1:
         fail(f'/canon/ must contain exactly one #main-content landmark, found {len(main)}')
 
+    canonical_link = canon.select_one('link[rel="canonical"]')
+    if not canonical_link or canonical_link.get('href') != CANON_URL:
+        fail(f'/canon/ must expose canonical link {CANON_URL}')
+
     works = canon.select('.canon-work')
     acts = canon.select('.canon-act')
     index_links = canon.select('.canon-index-link[href^="#canon-"]')
@@ -104,6 +109,18 @@ if canon:
             fail(f'Missing Canon act section: {act_id}')
         elif len(act.select('.canon-work')) != 5:
             fail(f'Canon act {act_id} must render five works')
+
+    transitions = canon.select('a.canon-act-transition[href^="#canon-act-"]')
+    transition_hrefs = [link.get('href') for link in transitions]
+    expected_transitions = ['#canon-act-signature', '#canon-act-territoire']
+    if transition_hrefs != expected_transitions:
+        fail(f'Canon act transitions must be {expected_transitions}, found {transition_hrefs}')
+    for link in transitions:
+        href = link.get('href')
+        if not href or not canon.select_one(href):
+            fail(f'Canon act transition points to missing destination: {href}')
+        if not link.get('aria-label', '').strip():
+            fail(f'Canon act transition requires an accessible label: {href}')
 
     for work in works:
         work_id = work.get('id', '<unknown>')
@@ -160,7 +177,7 @@ if canon:
         fail('Canon ItemList JSON-LD must declare 15 items')
     if len(collection_pages) != 1:
         fail(f'/canon/ must emit exactly one CollectionPage JSON-LD block, found {len(collection_pages)}')
-    elif collection_pages[0].get('@id') != 'https://french.milovicake.ru/canon/':
+    elif collection_pages[0].get('@id') != CANON_URL:
         fail('Canon CollectionPage must use the canonical /canon/ @id')
     if len(breadcrumbs) != 1:
         fail(f'/canon/ must emit exactly one BreadcrumbList JSON-LD block, found {len(breadcrumbs)}')
@@ -169,8 +186,16 @@ if canon:
         if not isinstance(crumbs, list) or len(crumbs) != 2:
             fail('Canon BreadcrumbList must contain Home → Le Canon Sucré')
 
+    sitemap_files = sorted(DIST.glob('sitemap*.xml'))
+    if not sitemap_files:
+        fail('Build must emit a sitemap containing /canon/')
+    else:
+        sitemap_text = '\n'.join(path.read_text('utf-8', errors='replace') for path in sitemap_files)
+        if CANON_URL not in sitemap_text:
+            fail(f'Sitemap must contain Canon canonical URL: {CANON_URL}')
+
     if len(errors) == structure_error_count:
-        ok('Canon exhibition structure: 15 works, 3×5 acts, Technique Index and three JSON-LD contracts verified')
+        ok('Canon exhibition structure: 15 works, 3×5 acts, transitions, Technique Index, canonical/sitemap and JSON-LD verified')
 
 canon_sources = '\n'.join([
     (SRC / 'data' / 'canon.ts').read_text('utf-8'),
@@ -192,7 +217,7 @@ for article_id in linked_article_ids:
         fail(f'Canon-linked article {article_id} must emit exactly one Article JSON-LD object')
         continue
     part = article_nodes[0].get('isPartOf')
-    if not isinstance(part, dict) or part.get('@id') != 'https://french.milovicake.ru/canon/' or part.get('@type') != 'CollectionPage':
+    if not isinstance(part, dict) or part.get('@id') != CANON_URL or part.get('@type') != 'CollectionPage':
         fail(f'Canon-linked article {article_id} must declare Article.isPartOf Le Canon Sucré')
 if linked_article_ids and len(errors) == article_nav_error_count:
     ok(f'Canon article navigation + structured membership verified on {len(linked_article_ids)} mapped article routes')
