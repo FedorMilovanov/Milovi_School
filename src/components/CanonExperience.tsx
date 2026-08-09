@@ -152,6 +152,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
 export default function CanonExperience() {
   const reduceMotion = useReducedMotion()
   const [activeAct, setActiveAct] = useState<CanonActId>('forme')
+  const [railVisible, setRailVisible] = useState(false)
 
   useEffect(() => {
     const nodes = canonActs
@@ -173,6 +174,19 @@ export default function CanonExperience() {
     )
 
     nodes.forEach((node) => observer.observe(node))
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const region = document.getElementById('canon-acts')
+    if (!region || typeof IntersectionObserver === 'undefined') return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setRailVisible(Boolean(entry?.isIntersecting)),
+      { rootMargin: '-12% 0px -12% 0px', threshold: [0, 0.01] },
+    )
+
+    observer.observe(region)
     return () => observer.disconnect()
   }, [])
 
@@ -212,7 +226,7 @@ export default function CanonExperience() {
 
   return (
     <main id="main-content" className="canon-page">
-      <CanonActRail activeAct={activeAct} />
+      {railVisible && <CanonActRail activeAct={activeAct} />}
 
       <section className="canon-hero" aria-labelledby="canon-title">
         <div className="canon-shell canon-hero-inner">
@@ -278,7 +292,7 @@ export default function CanonExperience() {
         </div>
       </nav>
 
-      <div className="canon-shell">
+      <div id="canon-acts" className="canon-shell canon-acts">
         {canonActs.map((act, actIndex) => (
           <section
             key={act.id}
