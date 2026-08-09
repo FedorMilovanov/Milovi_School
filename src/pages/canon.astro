@@ -24,6 +24,10 @@ const badOrder = canonWorks
   .map((work, index) => ({ id: work.id, expected: index + 1, actual: work.order }))
   .filter(({ expected, actual }) => expected !== actual)
 const imagesWithoutAlt = canonWorks.filter((work) => work.image && !work.imageAlt).map((work) => work.id)
+const desktopMedia = canonWorks.flatMap((work) => work.image ? [{ id: work.id, src: work.image }] : [])
+const duplicateDesktopMedia = desktopMedia
+  .filter(({ src }, index) => desktopMedia.findIndex((candidate) => candidate.src === src) !== index)
+  .map(({ src }) => src)
 const mediaPaths = canonWorks.flatMap((work) => [work.image, work.imageMobile].filter((value): value is string => Boolean(value)))
 const missingMedia = mediaPaths.filter((src) => !existsSync(join(process.cwd(), 'public', src.replace(/^\//, ''))))
 
@@ -76,6 +80,9 @@ if (gridErrors.length > 0) {
 }
 if (imagesWithoutAlt.length > 0) {
   throw new Error(`[canon] Public work images require imageAlt: ${imagesWithoutAlt.join(', ')}`)
+}
+if (duplicateDesktopMedia.length > 0) {
+  throw new Error(`[canon] One desktop image cannot represent multiple Canon works: ${[...new Set(duplicateDesktopMedia)].join(', ')}`)
 }
 if (missingMedia.length > 0) {
   throw new Error(`[canon] Missing public media: ${missingMedia.join(', ')}`)
