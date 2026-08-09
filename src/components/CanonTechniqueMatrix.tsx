@@ -1,16 +1,6 @@
 import { canonWorks } from '../data/canon'
+import { canonTechniqueRows } from '../data/canon-techniques'
 import '../styles/canon-technique-matrix.css'
-
-const rows = [
-  { id: 'choux', label: 'PÂTE À CHOUX', works: ['saint-honore', 'paris-brest', 'religieuse', 'eclair'] },
-  { id: 'lamination', label: 'FEUILLETAGE · LAMINATION', works: ['saint-honore', '2000-feuilles', 'kouign-amann', 'galette-des-rois'] },
-  { id: 'caramel', label: 'CARAMEL · CARAMÉLISATION', works: ['saint-honore', '2000-feuilles', 'kouign-amann', 'tarte-tatin', 'canele-bordeaux'] },
-  { id: 'praline', label: 'PRALINÉ', works: ['paris-brest', '2000-feuilles'] },
-  { id: 'levee', label: 'PÂTE LEVÉE · BRIOCHE', works: ['baba-au-rhum', 'kouign-amann', 'tarte-tropezienne'] },
-  { id: 'meringue', label: 'MERINGUE', works: ['mont-blanc'] },
-  { id: 'emulsion', label: 'ÉMULSION', works: ['tarte-au-citron'] },
-  { id: 'mould', label: 'CUISSON MOULÉE', works: ['canele-bordeaux'] },
-] as const
 
 const pad = (value: number) => String(value).padStart(2, '0')
 
@@ -37,11 +27,11 @@ export default function CanonTechniqueMatrix() {
               </a>
             ))}
 
-            {rows.map((row) => (
+            {canonTechniqueRows.map((row) => (
               <div className="canon-technique-row" key={row.id}>
                 <div className="canon-technique-label">{row.label}</div>
                 {canonWorks.map((work) => {
-                  const active = (row.works as readonly string[]).includes(work.id)
+                  const active = row.workIds.includes(work.id)
                   return active ? (
                     <span
                       key={work.id}
