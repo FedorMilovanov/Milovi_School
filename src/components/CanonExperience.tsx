@@ -9,6 +9,7 @@ import {
   type CanonWork,
 } from '../data/canon'
 import LuxuryText from './LuxuryText'
+import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -308,6 +309,8 @@ export default function CanonExperience() {
           </section>
         ))}
       </div>
+
+      <CanonTechniqueMatrix />
 
       <section className="canon-end">
         <div className="canon-shell">
