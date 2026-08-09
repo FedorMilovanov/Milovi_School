@@ -32,30 +32,32 @@ export default function CanonTechniqueMatrix() {
         </div>
 
         <div className="canon-technique-scroll" tabIndex={0} aria-label="Матрица техник Le Canon Sucré">
-          <div className="canon-technique-grid" role="table" aria-label="Связь десертов и ключевых техник">
-            <div className="canon-technique-corner" role="columnheader">TECHNIQUE</div>
+          <div className="canon-technique-grid">
+            <div className="canon-technique-corner">TECHNIQUE</div>
             {works.map(([id, number]) => (
-              <a key={id} href={`#canon-${id}`} className="canon-technique-work-head" role="columnheader" aria-label={`Работа ${number}`}>
+              <a key={id} href={`#canon-${id}`} className="canon-technique-work-head" aria-label={`Перейти к работе ${number}`}>
                 {number}
               </a>
             ))}
 
             {rows.map((row) => (
-              <div className="canon-technique-row" role="row" key={row.id}>
-                <div className="canon-technique-label" role="rowheader">{row.label}</div>
+              <div className="canon-technique-row" key={row.id}>
+                <div className="canon-technique-label">{row.label}</div>
                 {works.map(([workId, number]) => {
                   const active = (row.works as readonly string[]).includes(workId)
-                  return (
+                  return active ? (
                     <a
                       key={workId}
                       href={`#canon-${workId}`}
-                      className={`canon-technique-cell ${active ? 'is-active' : ''}`}
-                      role="cell"
-                      aria-label={`${row.label}: работа ${number}${active ? ' — используется' : ' — не является ключевой'}`}
-                      tabIndex={active ? 0 : -1}
+                      className="canon-technique-cell is-active"
+                      aria-label={`${row.label}: перейти к работе ${number}`}
                     >
                       <span aria-hidden="true" />
                     </a>
+                  ) : (
+                    <span key={workId} className="canon-technique-cell" aria-hidden="true">
+                      <span />
+                    </span>
                   )
                 })}
               </div>
