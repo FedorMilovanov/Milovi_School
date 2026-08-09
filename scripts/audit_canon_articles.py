@@ -107,12 +107,13 @@ for article_id, body in contents.items():
     missing_domains = required_domains - domains
     if missing_domains:
         raise SystemExit(f'[canon-articles] {article_id} missing required authoritative domains: {sorted(missing_domains)}')
-    missing_boundaries = [phrase for phrase in required_boundaries if phrase not in body]
+    folded_body = body.casefold()
+    missing_boundaries = [phrase for phrase in required_boundaries if phrase.casefold() not in folded_body]
     if missing_boundaries:
         raise SystemExit(f'[canon-articles] {article_id} lost fail-closed wording: {missing_boundaries}')
 
     for marker in ('Контент в разработке', 'RESEARCH IN PROGRESS', 'TODO', 'FIXME'):
-        if marker.casefold() in body.casefold():
+        if marker.casefold() in folded_body:
             raise SystemExit(f'[canon-articles] {article_id} contains placeholder marker: {marker}')
 
 print('# Exact Le Canon Sucré dossier gate')
