@@ -11,7 +11,6 @@ import ErrorBoundary from './ErrorBoundary'
 import { safeSetItem } from '../utils/storage'
 import { navigateTo } from '../utils/navigation'
 import type { ArticleClientMeta } from '../data/types'
-import '../styles/canon-enhancements.css'
 
 const CommandPalette = lazy(() => import('./CommandPalette'))
 
