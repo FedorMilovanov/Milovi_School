@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
   canonActs,
@@ -31,6 +31,20 @@ function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   )
 }
 
+function CataloguePlate({ work }: { work: CanonWork }) {
+  const act = canonActs.find((item) => item.id === work.act)
+
+  return (
+    <div className={`canon-catalogue-plate canon-tone-${work.visualTone}`} aria-hidden="true">
+      <span className="canon-catalogue-number">{pad(work.order)}</span>
+      <span className="canon-catalogue-act">ACTE {act?.roman ?? ''}</span>
+      <span className="canon-catalogue-name">{work.name}</span>
+      <span className="canon-catalogue-line" />
+      <span className="canon-catalogue-note">LE CANON SUCRÉ</span>
+    </div>
+  )
+}
+
 function CanonWorkCard({ work }: { work: CanonWork }) {
   const mediaRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
@@ -44,6 +58,8 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     const ny = ((event.clientY - rect.top) / rect.height - 0.5) * 2
     media.style.setProperty('--canon-work-rx', `${(-ny * 1.25).toFixed(2)}deg`)
     media.style.setProperty('--canon-work-ry', `${(nx * 1.4).toFixed(2)}deg`)
+    media.style.setProperty('--canon-work-mx', `${((nx + 1) * 50).toFixed(1)}%`)
+    media.style.setProperty('--canon-work-my', `${((ny + 1) * 50).toFixed(1)}%`)
   }
 
   const resetTilt = () => {
@@ -51,56 +67,76 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     if (!media) return
     media.style.setProperty('--canon-work-rx', '0deg')
     media.style.setProperty('--canon-work-ry', '0deg')
+    media.style.setProperty('--canon-work-mx', '70%')
+    media.style.setProperty('--canon-work-my', '25%')
   }
 
   const content = (
     <>
       <div
         ref={mediaRef}
-        className={`canon-work-media canon-tone-${work.visualTone}`}
+        className={`canon-work-media canon-tone-${work.visualTone} ${work.image ? 'has-image' : 'is-catalogue'}`}
         onPointerMove={onPointerMove}
         onPointerLeave={resetTilt}
       >
         {work.image ? (
           <picture className="canon-work-picture">
             {work.imageMobile && <source media="(max-width: 620px)" srcSet={work.imageMobile} />}
-            <img src={work.image} alt="" loading="lazy" decoding="async" className="canon-work-image" />
+            <img
+              src={work.image}
+              alt={work.imageAlt ?? work.name}
+              loading="lazy"
+              decoding="async"
+              className="canon-work-image"
+            />
           </picture>
         ) : (
-          <span className="canon-placeholder-object" aria-hidden="true" />
+          <CataloguePlate work={work} />
         )}
+        <span className="canon-work-sheen" aria-hidden="true" />
       </div>
+
       <div className="canon-work-label">
-        <span className="canon-work-number">{pad(work.order)}</span>
-        <span className="canon-work-name">{work.name}</span>
-        <span className="canon-work-status">DOSSIER · RESEARCH</span>
-        <span className="canon-work-rule" aria-hidden="true" />
+        <div className="canon-work-heading-row">
+          <span className="canon-work-number">{pad(work.order)}</span>
+          <span className="canon-work-name">{work.name}</span>
+        </div>
+
+        {work.curatorLine && <p className="canon-work-curator">{work.curatorLine}</p>}
+
+        {work.techniques && work.techniques.length > 0 && (
+          <div className="canon-work-techniques" aria-label={`Ключевые элементы: ${work.techniques.join(', ')}`}>
+            {work.techniques.map((technique) => <span key={technique}>{technique}</span>)}
+          </div>
+        )}
+
+        <div className="canon-work-footer-row">
+          <span className="canon-work-rule" aria-hidden="true" />
+          {work.articleId && (
+            <span className="canon-work-cta">
+              {work.linkLabel ?? 'Открыть материал'} <span aria-hidden="true">→</span>
+            </span>
+          )}
+        </div>
       </div>
     </>
   )
 
   return (
-    <article id={`canon-${work.id}`} className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''}`}>
+    <article
+      id={`canon-${work.id}`}
+      className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} ${work.image ? 'has-media' : 'is-catalogue'}`}
+    >
       {work.articleId ? (
-        <a href={`/articles/${work.articleId}/`} className="canon-work-link" aria-label={`Открыть досье: ${work.name}`}>
+        <a href={`/articles/${work.articleId}/`} className="canon-work-link" aria-label={`${work.linkLabel ?? 'Открыть материал'}: ${work.name}`}>
           {content}
         </a>
       ) : (
-        <div className="canon-work-static" aria-label={`${work.name}: досье будет подключено после Research`}>
+        <div className="canon-work-static">
           {content}
         </div>
       )}
     </article>
-  )
-}
-
-function ResearchModule({ label, title, children }: { label: string; title: string; children: ReactNode }) {
-  return (
-    <aside className="canon-research-module">
-      <span className="canon-module-label">{label}</span>
-      <h3>{title}</h3>
-      <p>{children}</p>
-    </aside>
   )
 }
 
@@ -124,7 +160,7 @@ export default function CanonExperience() {
         const act = visible.target.getAttribute('data-canon-act') as CanonActId | null
         if (act) setActiveAct(act)
       },
-      { rootMargin: '-28% 0px -58% 0px', threshold: [0, .05, .15, .3] },
+      { rootMargin: '-28% 0px -58% 0px', threshold: [0, 0.05, 0.15, 0.3] },
     )
 
     nodes.forEach((node) => observer.observe(node))
@@ -141,26 +177,28 @@ export default function CanonExperience() {
             className="canon-hero-label"
             initial={reduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : .55, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
           >
             PÂTISSERIE RUSSE · COLLECTION 01
           </motion.p>
+
           <motion.h1
             id="canon-title"
             className="canon-hero-title"
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : .8, delay: reduceMotion ? 0 : .08, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduceMotion ? 0 : 0.8, delay: reduceMotion ? 0 : 0.08, ease: [0.22, 1, 0.36, 1] }}
           >
             <LuxuryText tone="gold" as="span">LE CANON</LuxuryText><br />
             <LuxuryText tone="gold" as="span">SUCRÉ</LuxuryText>
           </motion.h1>
+
           <div className="canon-hero-deck">
             <motion.p
               className="canon-hero-intro"
               initial={reduceMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : .65, delay: reduceMotion ? 0 : .18, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: reduceMotion ? 0 : 0.65, delay: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
             >
               15 десертов. Три акта. Формы, техники и переосмысления, ставшие профессиональным языком французской pâtisserie.
             </motion.p>
@@ -168,9 +206,9 @@ export default function CanonExperience() {
               className="canon-hero-count"
               initial={reduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: reduceMotion ? 0 : .7, delay: reduceMotion ? 0 : .28 }}
+              transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.28 }}
             >
-              15 PIÈCES<br />3 ACTES<br />RESEARCH IN PROGRESS
+              15 PIÈCES<br />3 ACTES<br />1 COLLECTION
             </motion.p>
           </div>
         </div>
@@ -182,7 +220,7 @@ export default function CanonExperience() {
           <h2 id="canon-manifesto-title">Qu’est-ce qu’un canon&nbsp;?</h2>
         </div>
         <p>
-          Это не рейтинг «лучших десертов». Le Canon Sucré — кураторский маршрут по формам, которые закрепили технику, пережили эпоху, стали профессиональным ориентиром или получили настолько сильное переосмысление, что изменили современную pâtisserie. Исторические даты, атрибуции и архивные свидетельства подключаются только после закрытия Research.
+          Это не рейтинг «лучших десертов». Le Canon Sucré — кураторский маршрут по формам, которые закрепили технику, пережили эпоху, стали профессиональным ориентиром или получили настолько сильное переосмысление, что вошли в современный язык pâtisserie.
         </p>
       </section>
 
@@ -218,22 +256,12 @@ export default function CanonExperience() {
               {canonWorksByAct(act.id).map((work) => <CanonWorkCard key={work.id} work={work} />)}
             </div>
 
-            {actIndex === 0 && (
-              <ResearchModule label="ARCHIVE · SLOT 01" title="Документ как экспонат">
-                Здесь появится первое подтверждённое факсимиле — страница книги, меню, реклама или газетное свидетельство с provenance, точным локатором и правами. Viewer и «музейное стекло» уже предусмотрены архитектурой, но реальный объект не подставляется до rights gate.
-              </ResearchModule>
-            )}
-
-            {actIndex === 1 && (
-              <ResearchModule label="LÉGENDE / DOCUMENT" title="Легенда не равна факту">
-                Этот модуль будет включаться только там, где Research действительно обнаружит конфликт между популярной историей и документальным свидетельством. Никаких красных FALSE-бейджей: две версии будут показаны спокойно, с разной доказательной массой.
-              </ResearchModule>
-            )}
-
-            {actIndex === 2 && (
-              <ResearchModule label="ATLAS / TECHNIQUE" title="От списка к системе">
-                Финальный слой свяжет подтверждённые места происхождения и профессиональные техники. Карта и матрица не получают декоративных точек: только доказанные территории и закрытые составные/технологические связи.
-              </ResearchModule>
+            {actIndex < canonActs.length - 1 && (
+              <div className="canon-act-transition" aria-hidden="true">
+                <span>{act.roman}</span>
+                <span className="canon-act-transition-line" />
+                <span>{canonActs[actIndex + 1].roman}</span>
+              </div>
             )}
           </section>
         ))}
@@ -243,7 +271,7 @@ export default function CanonExperience() {
         <div className="canon-shell">
           <span className="canon-end-count">15 / 15</span>
           <h2 className="canon-end-title">LE CANON<br />CONTINUE.</h2>
-          <p>Пятнадцать — не музейная витрина, запертая навсегда. Research должен показать, что действительно выдерживает критерий канона, что остаётся сильным резервом и что красивее оставить за пределами коллекции.</p>
+          <p>Канон — не закрытая витрина. Он остаётся системой форм и техник, которые можно читать рядом, сравнивать и заново понимать через современную pâtisserie.</p>
           <a href="/materials/" className="canon-end-link">Вернуться в библиотеку →</a>
         </div>
       </section>
