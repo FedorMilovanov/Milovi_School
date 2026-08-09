@@ -1,4 +1,5 @@
 import { canonLibrary } from './canon-library'
+import { canonMedia } from './canon-media'
 
 export type CanonActId = 'forme' | 'signature' | 'territoire'
 
@@ -35,14 +36,14 @@ export const canonActs: CanonAct[] = [
 ]
 
 /**
- * Every curatorial work is resolved through the same factual binding registry.
- * Adding an exact route/media binding in canon-library.ts automatically enables
- * the collection image and article navigation without duplicating route/media
- * identity in this file. Curatorial/UI copy remains owned here.
+ * Curatorial identity, exhibition media and publication route are independent.
+ * This allows an exact image to land before its dossier exists and prevents a
+ * missing article from forcing fake navigation or fallback media.
  */
 function defineCanonWork(work: CanonWork): CanonWork {
-  const binding = canonLibrary[work.id as keyof typeof canonLibrary]
-  return binding ? { ...work, ...binding } : work
+  const media = canonMedia[work.id as keyof typeof canonMedia]
+  const library = canonLibrary[work.id as keyof typeof canonLibrary]
+  return { ...work, ...(media ?? {}), ...(library ?? {}) }
 }
 
 /**
@@ -144,9 +145,13 @@ export const canonWorks: CanonWork[] = [
 ]
 
 const canonWorkIds = new Set(canonWorks.map((work) => work.id))
-const orphanBindings = Object.keys(canonLibrary).filter((id) => !canonWorkIds.has(id))
-if (orphanBindings.length > 0) {
-  throw new Error(`[canon] Factual binding has no curatorial work: ${orphanBindings.join(', ')}`)
+const orphanArticleBindings = Object.keys(canonLibrary).filter((id) => !canonWorkIds.has(id))
+const orphanMediaBindings = Object.keys(canonMedia).filter((id) => !canonWorkIds.has(id))
+if (orphanArticleBindings.length > 0) {
+  throw new Error(`[canon] Article binding has no curatorial work: ${orphanArticleBindings.join(', ')}`)
+}
+if (orphanMediaBindings.length > 0) {
+  throw new Error(`[canon] Media binding has no curatorial work: ${orphanMediaBindings.join(', ')}`)
 }
 
 export const canonWorksByAct = (act: CanonActId) => canonWorks.filter((work) => work.act === act)
