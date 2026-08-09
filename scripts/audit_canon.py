@@ -46,6 +46,8 @@ if home:
             fail(f'Canon gateway must expose five real editorial media items, found {len(media)}')
         elif any(not img.get('src', '').startswith('/images/articles/') for img in media):
             fail('Canon gateway media must resolve to production article images')
+        elif any(not img.get('alt', '').strip() for img in media):
+            fail('Canon gateway production media must keep non-empty alt text for global site audits')
         else:
             ok('Homepage Canon gateway: route, title and five production media items verified')
 
@@ -124,10 +126,17 @@ else:
     for invalid in ('inset-left:', 'inset-bottom:', '.canon-object'):
         if invalid in css:
             fail(f'Canon CSS contains obsolete/invalid construct: {invalid}')
+    required_grid_contracts = (
+        'grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);',
+        'grid-row: var(--canon-grid-row, auto);',
+    )
+    for contract in required_grid_contracts:
+        if contract not in css:
+            fail(f'Canon CSS is missing data-driven editorial grid contract: {contract}')
     if (SRC / 'styles' / 'canon-enhancements.css').exists():
         fail('Duplicate Canon enhancement stylesheet must not exist')
     if not any('Canon CSS' in e for e in errors):
-        ok('Canon CSS uses one visual authority with no obsolete fake-object layer')
+        ok('Canon CSS uses one visual authority with data-driven grid and no obsolete fake-object layer')
 
 print('# Le Canon Sucré quality gate')
 print()
