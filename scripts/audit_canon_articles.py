@@ -14,6 +14,18 @@ EXPECTED = {
     'genin-tarte-au-citron-canon',
     'herme-2000-feuilles-canon',
 }
+EXPECTED_BINDING_COUNT = 15
+SUPERSEDED_CANON_HISTORY_BINDINGS = {
+    'paris-brest-race-dessert',
+    'eclair-histoire-complete',
+    'opera-gateau-histoire',
+}
+REQUIRED_SAFE_BINDINGS = {
+    'recipe-paris-brest-classique',
+    'recipe-eclairs-adam',
+    'recipe-opera-dalloyau',
+    *EXPECTED,
+}
 WORD_RE = re.compile(r"[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*")
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`([\s\S]*?)`\s*,")
 URL_RE = re.compile(r"\[[^\]]+\]\((https?://[^)\s]+)\)")
@@ -36,10 +48,27 @@ if meta_ids != EXPECTED:
 if content_ids != EXPECTED:
     raise SystemExit(f'[canon-articles] Content ids mismatch: expected={sorted(EXPECTED)}, found={sorted(content_ids)}')
 
-bindings = set(re.findall(r"articleId:\s*'([^']+)'", library_text))
+binding_list = re.findall(r"articleId:\s*'([^']+)'", library_text)
+bindings = set(binding_list)
+if len(binding_list) != EXPECTED_BINDING_COUNT or len(bindings) != EXPECTED_BINDING_COUNT:
+    raise SystemExit(
+        f'[canon-articles] Canon must expose exactly {EXPECTED_BINDING_COUNT} unique article bindings; '
+        f'found total={len(binding_list)}, unique={len(bindings)}'
+    )
+
 missing_bindings = EXPECTED - bindings
 if missing_bindings:
     raise SystemExit(f'[canon-articles] Exact dossiers are not bound into Canon library: {sorted(missing_bindings)}')
+
+superseded = SUPERSEDED_CANON_HISTORY_BINDINGS & bindings
+if superseded:
+    raise SystemExit(
+        '[canon-articles] Canon links to legacy history pages with superseded origin wording: '
+        f'{sorted(superseded)}'
+    )
+missing_safe_bindings = REQUIRED_SAFE_BINDINGS - bindings
+if missing_safe_bindings:
+    raise SystemExit(f'[canon-articles] Required safe Canon bindings disappeared: {sorted(missing_safe_bindings)}')
 
 for article_id, body in contents.items():
     words = WORD_RE.findall(re.sub(r'https?://\S+', ' ', body))
@@ -92,4 +121,4 @@ for article_id in sorted(EXPECTED):
         f'{len(re.findall(r"(?m)^##\\s+", body))} sections, '
         f'{len(set(URL_RE.findall(body)))} sources'
     )
-print('- PASS: both exact dossiers are bound into the 15-work Canon library')
+print('- PASS: 15 unique Canon article bindings; superseded legacy history routes excluded')
