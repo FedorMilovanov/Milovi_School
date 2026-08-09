@@ -109,17 +109,20 @@ if canon:
             fail('Technique Index must remain inside the main Canon landmark')
         technique_headers = technique.select('.canon-technique-work-head[href^="#canon-"]')
         technique_rows = technique.select('.canon-technique-label')
-        active_cells = technique.select('a.canon-technique-cell.is-active[href^="#canon-"]')
-        inactive_links = technique.select('a.canon-technique-cell:not(.is-active)')
+        active_cells = technique.select('.canon-technique-cell.is-active')
+        cell_links = technique.select('a.canon-technique-cell')
         if len(technique_headers) != 15 or len({a.get('href') for a in technique_headers}) != 15:
-            fail('Technique Index must expose 15 unique work headers')
+            fail('Technique Index must expose 15 unique work-header links')
         if len(technique_rows) != 8:
             fail(f'Technique Index must expose exactly eight technique rows, found {len(technique_rows)}')
         if len(active_cells) != 21:
-            fail(f'Technique Index must expose exactly 21 active technique/work links, found {len(active_cells)}')
-        if inactive_links:
-            fail('Inactive Technique Index cells must not be interactive links')
-        invalid_targets = [a.get('href') for a in [*technique_headers, *active_cells] if a.get('href') not in work_ids]
+            fail(f'Technique Index must expose exactly 21 active technique/work marks, found {len(active_cells)}')
+        if cell_links:
+            fail('Technique matrix dots must not create extra keyboard navigation stops')
+        active_without_labels = [cell for cell in active_cells if cell.get('role') != 'img' or not cell.get('aria-label', '').strip()]
+        if active_without_labels:
+            fail('Every active technique mark requires a non-interactive accessible label')
+        invalid_targets = [a.get('href') for a in technique_headers if a.get('href') not in work_ids]
         if invalid_targets:
             fail(f'Technique Index links to unknown Canon works: {sorted(set(invalid_targets))}')
 
