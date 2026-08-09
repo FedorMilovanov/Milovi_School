@@ -41,6 +41,9 @@ interface HomeAppProps {
 }
 
 export default function HomeApp({ articles }: HomeAppProps) {
+  
+
+  
   const nonEmptyCategories = useMemo(() => {
     const articleCategoryIds = new Set(articles.map(a => a.category))
     return categories.filter(c => articleCategoryIds.has(c.id))
@@ -57,6 +60,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
   }, [articles])
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
@@ -79,7 +83,6 @@ export default function HomeApp({ articles }: HomeAppProps) {
       window.history.replaceState({}, '', qs ? `?${qs}` : window.location.pathname)
     }
   }, [])
-
   // Hydration-safe theme state: SSR and the first client render both use
   // "dark" to match the static HTML. The pre-paint script in BaseLayout has
   // already applied the real visual theme to <html>, so this only synchronises
@@ -103,6 +106,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
     const root = document.documentElement
     root.style.colorScheme = theme
     root.classList.toggle('dark', theme === 'dark')
+    // Keep the single <meta name="theme-color"> in sync so Android Chrome
+    // updates its system bar immediately when the user toggles theme.
     const meta = document.getElementById('theme-color-meta')
     if (meta) meta.setAttribute('content', theme === 'dark' ? THEME_DARK : THEME_LIGHT)
   }, [theme, themeReady])
@@ -126,6 +131,13 @@ export default function HomeApp({ articles }: HomeAppProps) {
     }, 0)
   }, [syncUrlQuery])
 
+
+  
+
+  
+
+  
+  
   const fuse = useMemo(() => new Fuse(articles, ARTICLE_FUSE_OPTIONS), [articles])
 
   const { filteredArticles, matchMap } = useMemo(() => {
@@ -167,12 +179,17 @@ export default function HomeApp({ articles }: HomeAppProps) {
     window.setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0)
   }, [])
 
+  
+
   const openArticle = useCallback((article: ArticleClientMeta) => {
     void navigateTo(`/articles/${article.id}/`)
   }, [])
 
   const closeCommand = useCallback(() => setCommandOpen(false), [setCommandOpen])
   const handleCommandSelectCategory = useCallback((id: string) => {
+    // Close the modal first; then wait two frames so the body overflow lock is
+    // restored before we scroll. This avoids iOS/Chrome races where
+    // scrollIntoView runs against a still-locked <body>.
     setCommandOpen(false)
     setSelectedCategory(id)
     setSearchQuery('')
@@ -207,6 +224,10 @@ export default function HomeApp({ articles }: HomeAppProps) {
           onGoAbout={() => scrollToSection('about')}
           onOpenCommand={() => setCommandOpen(v => !v)}
         />
+        {/*
+          id="main-content" is the target of the global skip-to-content link
+          rendered in BaseLayout.astro. <main> is the correct landmark.
+        */}
         <main id="main-content">
           <Hero
             totalArticles={articles.length}
@@ -232,7 +253,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
             onSearchChange={handleSearchChange}
             allArticles={articles}
           />
-
+          
           {(searchQuery.trim() !== '' || selectedCategory !== null) && (
             <ArticlesGrid
               articles={filteredArticles}
@@ -247,6 +268,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
           )}
 
           <DashboardBento articles={articles} onArticleClick={openArticle} />
+          
         </main>
         <Footer />
         {commandOpen && (
@@ -274,6 +296,9 @@ export default function HomeApp({ articles }: HomeAppProps) {
         <ToastContainer />
         <ScrollProgress />
         <ScrollToTop />
+        {/* Премиальный курсор с золотым трейлом + посимвольной подсветкой
+            заголовков. Перенесён из ARENA AI drop 1-в-1. Сам компонент
+            на mobile / touch-устройствах гасит себя через ранний return. */}
         <Cursor theme={theme} />
       </ErrorBoundary>
     </div>
