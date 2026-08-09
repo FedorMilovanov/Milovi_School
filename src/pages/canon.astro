@@ -2,10 +2,33 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import CanonPageShell from '../components/CanonPageShell'
 import { libraryClientMeta } from '../data/library'
-import { canonWorks } from '../data/canon'
+import { canonActs, canonWorks } from '../data/canon'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/canon/`
+
+const libraryIds = new Set(libraryClientMeta.map((article) => article.id))
+const canonIds = canonWorks.map((work) => work.id)
+const duplicateCanonIds = canonIds.filter((id, index) => canonIds.indexOf(id) !== index)
+const brokenArticleLinks = canonWorks
+  .filter((work) => work.articleId && !libraryIds.has(work.articleId))
+  .map((work) => `${work.id} -> ${work.articleId}`)
+const malformedActs = canonActs
+  .map((act) => ({ act: act.id, count: canonWorks.filter((work) => work.act === act.id).length }))
+  .filter(({ count }) => count !== 5)
+
+if (canonWorks.length !== 15) {
+  throw new Error(`[canon] Expected exactly 15 works, received ${canonWorks.length}`)
+}
+if (duplicateCanonIds.length > 0) {
+  throw new Error(`[canon] Duplicate work ids: ${[...new Set(duplicateCanonIds)].join(', ')}`)
+}
+if (brokenArticleLinks.length > 0) {
+  throw new Error(`[canon] Unknown article links: ${brokenArticleLinks.join(', ')}`)
+}
+if (malformedActs.length > 0) {
+  throw new Error(`[canon] Every act must contain exactly five works: ${malformedActs.map(({ act, count }) => `${act}=${count}`).join(', ')}`)
+}
 
 const itemList = {
   '@context': 'https://schema.org',
@@ -18,6 +41,7 @@ const itemList = {
     '@type': 'ListItem',
     position: work.order,
     name: work.name,
+    ...(work.articleId ? { url: `${siteUrl}/articles/${work.articleId}/` } : {}),
   })),
 }
 
@@ -32,7 +56,7 @@ const collectionPage = {
   mainEntity: { '@id': `${canonicalUrl}#collection` },
 }
 
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout
