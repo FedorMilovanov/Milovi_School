@@ -41,9 +41,13 @@ if len(canon_ids) != EXPECTED_CANON_WORKS:
 work_refs: list[str] = []
 for raw in re.findall(r"workIds:\s*\[([^\]]+)\]", source):
     work_refs.extend(re.findall(r"'([^']+)'", raw))
-unknown_refs = sorted(set(work_refs) - canon_ids)
+referenced_ids = set(work_refs)
+unknown_refs = sorted(referenced_ids - canon_ids)
 if unknown_refs:
     raise SystemExit(f"[canon-research] Research milestone references unknown Canon ids: {unknown_refs}")
+missing_coverage = sorted(canon_ids - referenced_ids)
+if missing_coverage:
+    raise SystemExit(f"[canon-research] Documentary chronology does not cover Canon works: {missing_coverage}")
 
 required_boundaries = [
     'не современным событию документом',
@@ -55,20 +59,22 @@ required_boundaries = [
     'показывает этот конфликт честно',
     'Прямая линия «Сатурналии → современная galette» как факт не публикуется',
 ]
-missing_boundaries = [phrase for phrase in required_boundaries if phrase not in source]
+folded_source = source.casefold()
+missing_boundaries = [phrase for phrase in required_boundaries if phrase.casefold() not in folded_source]
 if missing_boundaries:
     raise SystemExit(f"[canon-research] Fail-closed wording boundary disappeared: {missing_boundaries}")
 
 print("# Le Canon Sucré Research transfer gate")
 print(f"- PASS: {len(milestone_ids)} bounded documentary milestones")
-print(f"- PASS: all research links resolve within the {len(canon_ids)}-object Canon id set")
+print(f"- PASS: chronology covers all {len(canon_ids)} Canon works")
 print("- PASS: critical fail-closed wording boundaries preserved")
 
 if PAGE.exists():
     soup = BeautifulSoup(PAGE.read_text("utf-8"), "html.parser")
-    section = soup.select_one('.canon-research')
-    if section is None:
-        raise SystemExit("[canon-research] Generated /canon/ has no documentary chronology section")
+    sections = soup.select('.canon-research')
+    if len(sections) != 1:
+        raise SystemExit(f"[canon-research] Generated /canon/ must contain exactly one documentary chronology section, found {len(sections)}")
+    section = sections[0]
 
     milestones = section.select('.canon-research-milestone')
     if len(milestones) != EXPECTED_MILESTONES:
@@ -89,6 +95,11 @@ if PAGE.exists():
     links = section.select('a[href^="#canon-"]')
     if not links:
         raise SystemExit("[canon-research] Research section exposes no links back to Canon works")
+    rendered_work_ids = {link.get('href', '').removeprefix('#canon-') for link in links if link.get('href')}
+    missing_rendered_coverage = sorted(canon_ids - rendered_work_ids)
+    if missing_rendered_coverage:
+        raise SystemExit(f"[canon-research] Rendered chronology does not link back to Canon works: {missing_rendered_coverage}")
+
     missing_destinations = []
     for link in links:
         href = link.get('href', '')
@@ -100,7 +111,7 @@ if PAGE.exists():
     if section.select_one('.canon-timeline-placeholder, .canon-research-placeholder') is not None:
         raise SystemExit("[canon-research] Placeholder research UI is forbidden in generated Canon")
 
-    print(f"- PASS: generated chronology renders {len(milestones)} milestones")
+    print(f"- PASS: generated chronology renders {len(milestones)} milestones exactly once")
     print("- PASS: Research section contains no historical image/facsimile assets")
-    print(f"- PASS: {len(links)} in-collection research links resolve")
+    print(f"- PASS: Research links return to all {len(canon_ids)} Canon works")
     print("- PASS: Tatin LÉGENDE / DOCUMENT interlude present")
