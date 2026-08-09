@@ -145,12 +145,14 @@ await check('desktop: works do not geometrically overlap inside an act', async (
     }
   }
 })
-await check('desktop: both media states are rendered intentionally', async () => {
-  const images = await desktop.page.locator('.canon-work .canon-work-image').count()
-  const catalogue = await desktop.page.locator('.canon-work .canon-catalogue-plate').count()
-  assert.equal(images + catalogue, 15)
-  assert.ok(images >= 13, `images=${images}`)
-  assert.ok(catalogue <= 2, `catalogue=${catalogue}`)
+await check('desktop: all 15 works use the dedicated Canon media pack', async () => {
+  const images = desktop.page.locator('.canon-work .canon-work-image')
+  const catalogue = desktop.page.locator('.canon-work .canon-catalogue-plate')
+  assert.equal(await images.count(), 15)
+  assert.equal(await catalogue.count(), 0)
+  const sources = await images.evaluateAll((nodes) => nodes.map((image) => image.getAttribute('src') || ''))
+  assert.equal(new Set(sources).size, 15)
+  assert.ok(sources.every((src) => src.startsWith('/images/canon-sucre/')), JSON.stringify(sources))
 })
 await check('desktop: dossier route prefetch appears once on hover/focus intent', async () => {
   const link = desktop.page.locator('.canon-work-link').first()
@@ -198,10 +200,20 @@ await check('desktop: hero evidence is captured from page top', async () => {
   assert.ok(await desktop.page.evaluate(() => globalThis.scrollY <= 2))
 })
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-hero.png'), fullPage: false })
+
 await desktop.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(350)
 await check('desktop: act rail appears while exhibition acts are in view', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 1))
-await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-act.png'), fullPage: false })
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-forme.png'), fullPage: false })
+
+await desktop.page.locator('#canon-act-signature').scrollIntoViewIfNeeded()
+await desktop.page.waitForTimeout(350)
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-signature.png'), fullPage: false })
+
+await desktop.page.locator('#canon-act-territoire').scrollIntoViewIfNeeded()
+await desktop.page.waitForTimeout(350)
+await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-territoire.png'), fullPage: false })
+
 await desktop.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(350)
 await check('desktop: act rail leaves when Technique Index becomes the reading context', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
@@ -219,6 +231,7 @@ await check('desktop: homepage gateway prefetches /canon/ once on user intent', 
   await gateway.focus()
   await gateway.hover()
   assert.equal(await prefetchCount(desktop.page, '/canon/'), 1)
+  await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-home-gateway.png'), fullPage: false })
 })
 
 const mobile = await observedPage(browser, {
@@ -300,8 +313,11 @@ const report = {
   failed: failures.length,
   screenshots: [
     'canon-desktop-hero.png',
-    'canon-desktop-act.png',
+    'canon-desktop-forme.png',
+    'canon-desktop-signature.png',
+    'canon-desktop-territoire.png',
     'canon-desktop-technique.png',
+    'canon-home-gateway.png',
     'canon-mobile.png',
     'canon-mobile-technique.png',
   ],
