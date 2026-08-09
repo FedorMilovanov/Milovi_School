@@ -18,6 +18,7 @@ on:
       - 'scripts/audit_editorial_quality.py'
       - 'scripts/audit_canon.py'
       - 'scripts/audit_canon_visual.mjs'
+      - 'scripts/audit_canon_research_visual.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -41,6 +42,7 @@ on:
       - 'scripts/audit_editorial_quality.py'
       - 'scripts/audit_canon.py'
       - 'scripts/audit_canon_visual.mjs'
+      - 'scripts/audit_canon_research_visual.mjs'
       - 'scripts/audit_gallery_*.sh'
       - 'scripts/audit_gallery_*.mjs'
       - 'scripts/audit_visual_site.mjs'
@@ -163,6 +165,12 @@ jobs:
 
       - name: Run Canon exhibition visual and responsive QA
         run: node scripts/audit_canon_visual.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+          VISUAL_QA_DIR: artifacts/visual-qa
+
+      - name: Run Canon Research visual QA
+        run: node scripts/audit_canon_research_visual.mjs
         env:
           BASE_URL: http://127.0.0.1:4321
           VISUAL_QA_DIR: artifacts/visual-qa
