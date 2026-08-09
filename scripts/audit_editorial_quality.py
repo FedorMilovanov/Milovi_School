@@ -15,7 +15,6 @@ DEEP_PATH = ROOT / "src" / "data" / "deepContents.ts"
 EXPANSIONS_DIR = ROOT / "src" / "data" / "articleExpansionParts"
 OUTPUT_DIR = ROOT / "artifacts" / "editorial-quality-report"
 
-EXPECTED_ARTICLES = 155
 SOURCE_HEADING = "## Французские источники и первичные материалы"
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 ARTICLE_START_RE = re.compile(r"(?m)^\s*\{\s*id:\s*'([^']+)'")
@@ -136,24 +135,29 @@ issues: list[dict[str, object]] = []
 def issue(article_id: str, code: str, detail: str) -> None:
     issues.append({"articleId": article_id, "code": code, "detail": detail})
 
-if len(article_ids) != EXPECTED_ARTICLES:
-    issue("__catalog__", "article_count", f"expected {EXPECTED_ARTICLES}, found {len(article_ids)}")
-if len(base_entries) != EXPECTED_ARTICLES:
-    issue("__catalog__", "base_count", f"expected {EXPECTED_ARTICLES}, found {len(base_entries)}")
-if len(expansion_entries) != EXPECTED_ARTICLES:
-    issue("__catalog__", "expansion_count", f"expected {EXPECTED_ARTICLES}, found {len(expansion_entries)}")
+if not article_ids:
+    issue("__catalog__", "empty_catalog", "no article ids were parsed")
 if duplicate_ids:
     issue("__catalog__", "duplicate_expansion_ids", ", ".join(sorted(set(duplicate_ids))))
-if article_ids != set(base_entries) or article_ids != set(expansion_entries):
+
+base_ids = set(base_entries)
+expansion_ids = set(expansion_entries)
+if article_ids != base_ids:
     issue(
         "__catalog__",
-        "id_mismatch",
-        f"article/base/expansion ids differ: articles={len(article_ids)}, base={len(base_entries)}, expansions={len(expansion_entries)}",
+        "base_id_mismatch",
+        f"missing={sorted(article_ids - base_ids)}, extra={sorted(base_ids - article_ids)}",
+    )
+if article_ids != expansion_ids:
+    issue(
+        "__catalog__",
+        "expansion_id_mismatch",
+        f"missing={sorted(article_ids - expansion_ids)}, extra={sorted(expansion_ids - article_ids)}",
     )
 
 source_counts: list[int] = []
 trusted_counts: Counter[str] = Counter()
-for article_id in sorted(article_ids & set(base_entries) & set(expansion_entries)):
+for article_id in sorted(article_ids & base_ids & expansion_ids):
     base = base_entries[article_id]
     expansion = expansion_entries[article_id]
     merged = f"{base}\n\n{expansion}"
