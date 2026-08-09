@@ -203,7 +203,7 @@ await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-hero.
 
 await desktop.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(350)
-await check('desktop: act rail appears while exhibition acts are in view', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 1))
+await check('desktop: act rail stays hidden at 1440 to preserve the content gutter', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-forme.png'), fullPage: false })
 
 await desktop.page.locator('#canon-act-signature').scrollIntoViewIfNeeded()
@@ -216,7 +216,7 @@ await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-terri
 
 await desktop.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(350)
-await check('desktop: act rail leaves when Technique Index becomes the reading context', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
+await check('desktop: act rail remains absent when Technique Index becomes the reading context', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-technique.png'), fullPage: false })
 
 await check('desktop: homepage gateway prefetches /canon/ once on user intent', async () => {
@@ -233,6 +233,29 @@ await check('desktop: homepage gateway prefetches /canon/ once on user intent', 
   assert.equal(await prefetchCount(desktop.page, '/canon/'), 1)
   await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-home-gateway.png'), fullPage: false })
 })
+
+const wide = await observedPage(browser, {
+  viewport: { width: 1680, height: 1000 },
+  colorScheme: 'dark',
+  reducedMotion: 'no-preference',
+})
+await wide.page.goto(`${BASE_URL}/canon/`, { waitUntil: 'networkidle' })
+await wide.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
+await wide.page.waitForTimeout(350)
+await check('wide desktop: contextual act rail appears only when a safe outer gutter exists', async () => {
+  const rail = wide.page.locator('.canon-act-rail:visible')
+  assert.equal(await rail.count(), 1)
+  assert.equal(await rail.locator('a').count(), 3)
+  assert.equal(await rail.locator('.canon-act-rail-name').count(), 0)
+})
+await check('wide desktop: act rail does not overlap Canon works', async () => {
+  const railBox = await wide.page.locator('.canon-act-rail:visible').boundingBox()
+  const workBoxes = await wide.page.locator('#canon-act-forme .canon-work').evaluateAll((works) => works.map((work) => work.getBoundingClientRect().toJSON()))
+  assert.ok(railBox)
+  assert.ok(workBoxes.every((box) => overlapArea(railBox, box) <= 1), JSON.stringify({ railBox, workBoxes }))
+})
+await check('wide desktop: page has no horizontal overflow', async () => assertNoHorizontalOverflow(wide.page))
+await wide.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-wide-rail.png'), fullPage: false })
 
 const mobile = await observedPage(browser, {
   viewport: { width: 390, height: 844 },
@@ -303,6 +326,7 @@ await check('reduced motion: all Canon works remain fully visible', async () => 
 await check('reduced motion: page has no horizontal overflow', async () => assertNoHorizontalOverflow(reduced.page))
 
 await assertTelemetry('desktop Canon + gateway', desktop.telemetry)
+await assertTelemetry('wide desktop Canon', wide.telemetry)
 await assertTelemetry('mobile Canon', mobile.telemetry)
 await assertTelemetry('reduced-motion Canon', reduced.telemetry)
 
@@ -318,6 +342,7 @@ const report = {
     'canon-desktop-territoire.png',
     'canon-desktop-technique.png',
     'canon-home-gateway.png',
+    'canon-wide-rail.png',
     'canon-mobile.png',
     'canon-mobile-technique.png',
   ],
@@ -325,7 +350,7 @@ const report = {
 }
 await fs.writeFile(path.join(OUTPUT_DIR, 'canon-report.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8')
 
-await Promise.all([desktop.context.close(), mobile.context.close(), reduced.context.close()])
+await Promise.all([desktop.context.close(), wide.context.close(), mobile.context.close(), reduced.context.close()])
 await browser.close()
 
 if (failures.length > 0) {
