@@ -106,8 +106,11 @@ if canon:
     if not errors:
         ok('Canon exhibition structure: 15 works, 3×5 acts, index, media states and JSON-LD verified')
 
-canon_source = (SRC / 'data' / 'canon.ts').read_text('utf-8')
-linked_article_ids = re.findall(r"articleId:\s*'([^']+)'", canon_source)
+canon_sources = '\n'.join([
+    (SRC / 'data' / 'canon.ts').read_text('utf-8'),
+    (SRC / 'data' / 'canon-library.ts').read_text('utf-8'),
+])
+linked_article_ids = re.findall(r"articleId:\s*'([^']+)'", canon_sources)
 for article_id in linked_article_ids:
     article_html = soup_for(DIST / 'articles' / article_id / 'index.html')
     if not article_html:
@@ -155,6 +158,10 @@ if gateway_component_path.exists():
         fail('CanonGateway must import the gateway-only stylesheet')
     if "../styles/canon.css" in gateway_component:
         fail('CanonGateway must not import the full exhibition stylesheet')
+    if "../data/canon-library" not in gateway_component:
+        fail('CanonGateway must consume the compact factual library registry')
+    if "../data/canon'" in gateway_component or '../data/canon"' in gateway_component:
+        fail('CanonGateway must not import the full 15-work curatorial data model')
 else:
     fail('Missing src/components/CanonGateway.tsx')
 
@@ -162,7 +169,7 @@ if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
 if not any('Canon page CSS' in e or 'Canon gateway CSS' in e or 'CanonGateway' in e or 'enhancement stylesheet' in e for e in errors):
-    ok('Canon styles are scoped: lightweight homepage gateway + data-driven exhibition CSS')
+    ok('Canon homepage boundary is scoped: compact data registry + gateway-only CSS')
 
 print('# Le Canon Sucré quality gate')
 print()
