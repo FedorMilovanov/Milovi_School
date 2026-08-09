@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import re
+from pathlib import Path
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parents[1]
+META = ROOT / 'src' / 'data' / 'canonArticles.ts'
+CONTENT = ROOT / 'src' / 'data' / 'canonArticleContents.ts'
+LIBRARY = ROOT / 'src' / 'data' / 'canon-library.ts'
+
+EXPECTED = {
+    'genin-tarte-au-citron-canon',
+    'herme-2000-feuilles-canon',
+}
+WORD_RE = re.compile(r"[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*")
+ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`([\s\S]*?)`\s*,")
+URL_RE = re.compile(r"\[[^\]]+\]\((https?://[^)\s]+)\)")
+SOURCE_HEADING = '## Французские источники и первичные материалы'
+
+for path in (META, CONTENT, LIBRARY):
+    if not path.exists():
+        raise SystemExit(f'[canon-articles] Missing {path.relative_to(ROOT)}')
+
+meta_text = META.read_text('utf-8')
+content_text = CONTENT.read_text('utf-8')
+library_text = LIBRARY.read_text('utf-8')
+
+meta_ids = set(re.findall(r"(?m)^\s*id:\s*'([^']+)'", meta_text))
+contents = {article_id: body for article_id, body in ENTRY_RE.findall(content_text)}
+content_ids = set(contents)
+
+if meta_ids != EXPECTED:
+    raise SystemExit(f'[canon-articles] Metadata ids mismatch: expected={sorted(EXPECTED)}, found={sorted(meta_ids)}')
+if content_ids != EXPECTED:
+    raise SystemExit(f'[canon-articles] Content ids mismatch: expected={sorted(EXPECTED)}, found={sorted(content_ids)}')
+
+bindings = set(re.findall(r"articleId:\s*'([^']+)'", library_text))
+missing_bindings = EXPECTED - bindings
+if missing_bindings:
+    raise SystemExit(f'[canon-articles] Exact dossiers are not bound into Canon library: {sorted(missing_bindings)}')
+
+for article_id, body in contents.items():
+    words = WORD_RE.findall(re.sub(r'https?://\S+', ' ', body))
+    sections = len(re.findall(r'(?m)^##\s+', body))
+    source_heading_count = body.count(SOURCE_HEADING)
+    urls = list(dict.fromkeys(URL_RE.findall(body)))
+    domains = {urlsplit(url).netloc.lower().removeprefix('www.') for url in urls}
+
+    if len(words) < 850:
+        raise SystemExit(f'[canon-articles] {article_id} is too shallow: {len(words)} words')
+    if sections < 7:
+        raise SystemExit(f'[canon-articles] {article_id} needs at least 7 substantive sections, found {sections}')
+    if source_heading_count != 1:
+        raise SystemExit(f'[canon-articles] {article_id} must contain exactly one source heading, found {source_heading_count}')
+    if len(urls) < 5:
+        raise SystemExit(f'[canon-articles] {article_id} needs at least 5 unique source links, found {len(urls)}')
+
+    if article_id == 'genin-tarte-au-citron-canon':
+        required_domains = {'editionsalternatives.com', 'jacquesgenin.fr'}
+        required_boundaries = [
+            'Genin не изобретатель жанра',
+            'не закрывает конкретный день рождения лимонного тарта',
+            'не делает Эктон «изобретателем современной tarte au citron»',
+        ]
+    else:
+        required_domains = {'pierreherme.com', 'fr.gaultmillau.com'}
+        required_boundaries = [
+            '2000 не означает доказанные две тысячи физических слоёв',
+            'Product не цитирует их и не строит на них жёсткую хронологию',
+            'точный первый день продажи и точный ранний каталог остаются открытыми',
+        ]
+
+    missing_domains = required_domains - domains
+    if missing_domains:
+        raise SystemExit(f'[canon-articles] {article_id} missing required authoritative domains: {sorted(missing_domains)}')
+    missing_boundaries = [phrase for phrase in required_boundaries if phrase not in body]
+    if missing_boundaries:
+        raise SystemExit(f'[canon-articles] {article_id} lost fail-closed wording: {missing_boundaries}')
+
+    for marker in ('Контент в разработке', 'RESEARCH IN PROGRESS', 'TODO', 'FIXME'):
+        if marker.casefold() in body.casefold():
+            raise SystemExit(f'[canon-articles] {article_id} contains placeholder marker: {marker}')
+
+print('# Exact Le Canon Sucré dossier gate')
+for article_id in sorted(EXPECTED):
+    body = contents[article_id]
+    print(
+        f'- PASS: {article_id}: '
+        f'{len(WORD_RE.findall(body))} words, '
+        f'{len(re.findall(r"(?m)^##\\s+", body))} sections, '
+        f'{len(set(URL_RE.findall(body)))} sources'
+    )
+print('- PASS: both exact dossiers are bound into the 15-work Canon library')
