@@ -1,3 +1,4 @@
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { canonActs, canonWorks } from '../data/canon'
 import { prefetchRoute } from '../utils/navigation'
 
@@ -7,7 +8,7 @@ const destinationFor = (work: (typeof canonWorks)[number]) =>
   work.articleId ? `/articles/${work.articleId}/` : `/canon/#canon-${work.id}`
 
 const intentProps = (href: string) => ({
-  onPointerEnter: (event: React.PointerEvent<HTMLAnchorElement>) => {
+  onPointerEnter: (event: ReactPointerEvent<HTMLAnchorElement>) => {
     if (event.pointerType === 'mouse') prefetchRoute(href)
   },
   onFocus: () => prefetchRoute(href),
