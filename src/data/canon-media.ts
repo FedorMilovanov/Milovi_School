@@ -5,63 +5,72 @@ export interface CanonMediaBinding {
 }
 
 /**
- * Canon exhibition media only. Media identity is deliberately independent from
- * article publication: an exact Canon image can be integrated before its dossier
- * exists without inventing a clickable route. Final generated Canon artwork can
- * replace these current exact object images one work at a time.
+ * Dedicated standardized exhibition media for Le Canon Sucré.
+ *
+ * Media identity stays independent from article publication in canon-library.ts:
+ * exact Canon artwork can land before its dossier exists without inventing a route.
+ * Production contract: 1280×800 WebP, centered crop-safe composition, no text/branding.
  */
 export const canonMedia = {
   'saint-honore': {
-    image: '/images/articles/recipe-saint-honore.webp',
-    imageAlt: 'Saint-Honoré',
+    image: '/images/canon-sucre/saint-honore.webp',
+    imageAlt: 'Saint-Honoré — pâte feuilletée, choux caramélisés et crème',
   },
   'paris-brest': {
-    image: '/images/articles/paris-brest-race-dessert.webp',
-    imageAlt: 'Paris-Brest',
+    image: '/images/canon-sucre/paris-brest.webp',
+    imageAlt: 'Paris-Brest — couronne de pâte à choux et crème pralinée',
   },
   religieuse: {
-    image: '/images/articles/michalak-religieuse.webp',
-    imageAlt: 'Religieuse — современная интерпретация Christophe Michalak',
+    image: '/images/canon-sucre/religieuse.webp',
+    imageAlt: 'Religieuse — deux choux glacés et collerette de crème',
   },
   eclair: {
-    image: '/images/articles/eclair-histoire-complete.webp',
-    imageAlt: 'Éclair',
+    image: '/images/canon-sucre/eclair.webp',
+    imageAlt: 'Éclair — pâte à choux allongée et glaçage chocolat',
   },
   opera: {
-    image: '/images/articles/opera-gateau-histoire.webp',
-    imageAlt: 'Gâteau Opéra',
+    image: '/images/canon-sucre/opera.webp',
+    imageAlt: 'Gâteau Opéra — couches de Joconde, café et chocolat',
   },
   'baba-au-rhum': {
-    image: '/images/articles/recipe-baba-rhum-alain-ducasse.webp',
-    imageAlt: 'Baba au Rhum',
+    image: '/images/canon-sucre/baba-au-rhum.webp',
+    imageAlt: 'Baba au Rhum — baba cannelé imbibé avec Chantilly',
+  },
+  'tarte-au-citron': {
+    image: '/images/canon-sucre/tarte-au-citron.webp',
+    imageAlt: 'Tarte au Citron — pâte sucrée fine et crème citron',
   },
   ispahan: {
-    image: '/images/articles/herme-ispahan-deep.webp',
-    imageAlt: 'Ispahan Pierre Hermé',
+    image: '/images/canon-sucre/ispahan.webp',
+    imageAlt: 'Ispahan — macaron rose, framboises et crème',
+  },
+  '2000-feuilles': {
+    image: '/images/canon-sucre/2000-feuilles.webp',
+    imageAlt: '2000 Feuilles — feuilletage caramélisé et crème pralinée',
   },
   'mont-blanc': {
-    image: '/images/articles/recipe-mont-blanc.webp',
-    imageAlt: 'Mont-Blanc aux marrons',
+    image: '/images/canon-sucre/mont-blanc.webp',
+    imageAlt: 'Mont-Blanc — vermicelles de marron et crème',
   },
   'kouign-amann': {
-    image: '/images/articles/lignac-kouign-amann.webp',
-    imageAlt: 'Kouign-Amann',
+    image: '/images/canon-sucre/kouign-amann.webp',
+    imageAlt: 'Kouign-Amann — feuilletage breton profondément caramélisé',
   },
   'tarte-tatin': {
-    image: '/images/articles/recipe-tarte-tatin.webp',
-    imageAlt: 'Tarte Tatin',
+    image: '/images/canon-sucre/tarte-tatin.webp',
+    imageAlt: 'Tarte Tatin — pommes caramélisées et pâte fine',
   },
   'tarte-tropezienne': {
-    image: '/images/articles/recipe-tarte-tropezienne.webp',
-    imageAlt: 'Tarte Tropézienne',
+    image: '/images/canon-sucre/tarte-tropezienne.webp',
+    imageAlt: 'Tarte Tropézienne — brioche, crème et sucre grain',
   },
   'canele-bordeaux': {
-    image: '/images/articles/recipe-canele.webp',
-    imageAlt: 'Canelé de Bordeaux',
+    image: '/images/canon-sucre/canele-bordeaux.webp',
+    imageAlt: 'Canelé de Bordeaux — coque sombre profondément caramélisée',
   },
   'galette-des-rois': {
-    image: '/images/articles/cuisine-galette.webp',
-    imageAlt: 'Galette des Rois',
+    image: '/images/canon-sucre/galette-des-rois.webp',
+    imageAlt: 'Galette des Rois — feuilletage doré et rayage traditionnel',
   },
 } as const satisfies Record<string, CanonMediaBinding>
 
