@@ -143,6 +143,7 @@ check 'Generated gallery audit exists' test -f scripts/audit_gallery_generated.m
 check 'Duplicate generated-gallery audit has been removed' test ! -e scripts/audit_generated_gallery_html.mjs
 check 'Playwright interaction audit exists' test -f scripts/audit_gallery_preview.mjs
 check 'Canon browser visual audit exists' test -f scripts/audit_canon_visual.mjs
+check 'Canon Research browser visual audit exists' test -f scripts/audit_canon_research_visual.mjs
 check 'Post-build HTML mutator has been removed' test ! -e scripts/fix_generated_html.mjs
 check 'No production code or workflow references the removed mutator' not_contains 'fix_generated_html' package.json .github README.md AGENTS.md
 check 'Production build is a direct Astro build' node -e "const p=require('./package.json'); process.exit(p.scripts.build==='astro build'?0:1)"
@@ -196,6 +197,7 @@ check 'Pages artifact action is pinned to current Node 24 v5 commit' contains 'a
 check 'Pages deploy action is pinned to current Node 24 v5.0.0 commit' contains 'actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128' .github/workflows/deploy.yml
 check 'Gallery quality gate runs on pull requests' contains '^  pull_request:' .github/workflows/gallery-quality.yml
 check 'Gallery quality gate executes Canon browser audit' contains 'node scripts/audit_canon_visual\.mjs' .github/workflows/gallery-quality.yml
+check 'Gallery quality gate executes Canon Research browser audit' contains 'node scripts/audit_canon_research_visual\.mjs' .github/workflows/gallery-quality.yml
 check 'External live audit is restricted to deployed main pushes' contains "if: github.event_name == 'push' && github.ref == 'refs/heads/main'" .github/workflows/gallery-quality.yml
 check 'Core validation workflows do not request contents write' not_contains 'contents:[[:space:]]*write' .github/workflows/ci.yml .github/workflows/gallery-quality.yml .github/workflows/deep-polish-audit.yml .github/workflows/repository-hygiene.yml
 check 'All shell audit files parse successfully' all_shell_scripts_parse
