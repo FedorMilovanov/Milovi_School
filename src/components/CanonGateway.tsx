@@ -1,12 +1,12 @@
 import { useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { canonLibrary, type CanonLibraryId } from '../data/canon-library'
+import { canonMedia, type CanonMediaId } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
-const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonLibraryId; slot: string; position: string }> = [
+const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonMediaId; slot: string; position: string }> = [
   { id: 'saint-honore', slot: 'paris-brest', position: '50% 50%' },
   { id: 'opera', slot: 'opera', position: '50% 50%' },
   { id: 'ispahan', slot: 'ispahan', position: '50% 48%' },
@@ -17,8 +17,8 @@ const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonLibraryId; slot: string; posit
 const MEDIA = GATEWAY_SELECTION.map(({ id, slot, position }) => ({
   id,
   slot,
-  src: canonLibrary[id].image,
-  alt: canonLibrary[id].imageAlt,
+  src: canonMedia[id].image,
+  alt: canonMedia[id].imageAlt,
   position,
 }))
 
