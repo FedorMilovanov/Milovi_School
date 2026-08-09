@@ -74,6 +74,17 @@ async function assertMediaDecode(page) {
   assert.deepEqual(broken, [])
 }
 
+async function prefetchCount(page, pathname) {
+  return page.evaluate((expectedPath) => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
+    .filter((link) => {
+      try {
+        return new URL(link.href, globalThis.location.href).pathname === expectedPath
+      } catch {
+        return false
+      }
+    }).length, pathname)
+}
+
 async function assertTelemetry(name, telemetry) {
   await check(`${name}: no uncaught JavaScript errors`, async () => assert.deepEqual(telemetry.page, []))
   await check(`${name}: no browser console errors`, async () => assert.deepEqual(telemetry.console, []))
@@ -141,6 +152,20 @@ await check('desktop: both media states are rendered intentionally', async () =>
   assert.ok(images >= 13, `images=${images}`)
   assert.ok(catalogue <= 2, `catalogue=${catalogue}`)
 })
+await check('desktop: dossier route prefetch appears once on hover/focus intent', async () => {
+  const link = desktop.page.locator('.canon-work-link').first()
+  const href = await link.getAttribute('href')
+  assert.ok(href?.startsWith('/articles/'), `href=${href}`)
+  const pathname = new URL(href, BASE_URL).pathname
+  assert.equal(await prefetchCount(desktop.page, pathname), 0)
+  await link.hover()
+  await desktop.page.waitForFunction((expectedPath) => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
+    .some((node) => new URL(node.href, globalThis.location.href).pathname === expectedPath), pathname)
+  assert.equal(await prefetchCount(desktop.page, pathname), 1)
+  await link.focus()
+  await link.hover()
+  assert.equal(await prefetchCount(desktop.page, pathname), 1)
+})
 await check('desktop: Technique Index has 8 rows, 15 headers and 21 active marks', async () => {
   assert.equal(await desktop.page.locator('.canon-technique-label').count(), 8)
   assert.equal(await desktop.page.locator('.canon-technique-work-head').count(), 15)
@@ -181,6 +206,20 @@ await desktop.page.locator('.canon-technique-index').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(350)
 await check('desktop: act rail leaves when Technique Index becomes the reading context', async () => assert.equal(await desktop.page.locator('.canon-act-rail:visible').count(), 0))
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-technique.png'), fullPage: false })
+
+await check('desktop: homepage gateway prefetches /canon/ once on user intent', async () => {
+  await desktop.page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' })
+  const gateway = desktop.page.locator('a.canon-gateway[href="/canon/"]')
+  await gateway.scrollIntoViewIfNeeded()
+  assert.equal(await prefetchCount(desktop.page, '/canon/'), 0)
+  await gateway.hover()
+  await desktop.page.waitForFunction(() => Array.from(globalThis.document.querySelectorAll('link[rel="prefetch"]'))
+    .some((node) => new URL(node.href, globalThis.location.href).pathname === '/canon/'))
+  assert.equal(await prefetchCount(desktop.page, '/canon/'), 1)
+  await gateway.focus()
+  await gateway.hover()
+  assert.equal(await prefetchCount(desktop.page, '/canon/'), 1)
+})
 
 const mobile = await observedPage(browser, {
   viewport: { width: 390, height: 844 },
@@ -250,7 +289,7 @@ await check('reduced motion: all Canon works remain fully visible', async () => 
 })
 await check('reduced motion: page has no horizontal overflow', async () => assertNoHorizontalOverflow(reduced.page))
 
-await assertTelemetry('desktop Canon', desktop.telemetry)
+await assertTelemetry('desktop Canon + gateway', desktop.telemetry)
 await assertTelemetry('mobile Canon', mobile.telemetry)
 await assertTelemetry('reduced-motion Canon', reduced.telemetry)
 
