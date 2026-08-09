@@ -1,3 +1,5 @@
+import { canonLibrary } from './canon-library'
+
 export type CanonActId = 'forme' | 'signature' | 'territoire'
 
 export interface CanonWork {
@@ -27,38 +29,16 @@ export interface CanonAct {
 }
 
 export const canonActs: CanonAct[] = [
-  {
-    id: 'forme',
-    roman: 'I',
-    title: 'LA FORME',
-    subtitle: 'Когда конструкция стала языком.',
-  },
-  {
-    id: 'signature',
-    roman: 'II',
-    title: 'LA SIGNATURE',
-    subtitle: 'Когда классика обрела автора или Maison.',
-  },
-  {
-    id: 'territoire',
-    roman: 'III',
-    title: 'LE TERRITOIRE',
-    subtitle: 'Когда место, сезон и ритуал стали частью формы.',
-  },
+  { id: 'forme', roman: 'I', title: 'LA FORME', subtitle: 'Когда конструкция стала языком.' },
+  { id: 'signature', roman: 'II', title: 'LA SIGNATURE', subtitle: 'Когда классика обрела автора или Maison.' },
+  { id: 'territoire', roman: 'III', title: 'LE TERRITOIRE', subtitle: 'Когда место, сезон и ритуал стали частью формы.' },
 ]
 
 /**
- * Collection projection over the existing library.
- * Only already-existing article routes and images are bound here. Historical
- * dates, origin claims, archival objects and rights-sensitive material remain
- * outside this file until the Research transfer closes them.
- *
- * A work without `image` is intentionally rendered as a finished catalogue
- * plate, never as a fake pastry illustration or skeleton placeholder.
- *
- * gridRow/gridStart/gridSpan define the desktop exhibition composition
- * explicitly. Responsive breakpoints collapse that composition to 2 and 1
- * columns without mutating collection order.
+ * Curatorial projection of the 15 Canon works.
+ * Exact existing library routes/media come only from canon-library.ts.
+ * Research-owned dates, origins, archives and rights remain outside this layer
+ * until the Research transfer closes them.
  */
 export const canonWorks: CanonWork[] = [
   {
@@ -68,29 +48,25 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'paris-brest', order: 2, name: 'Paris-Brest', act: 'forme', visualTone: 'cocoa', gridRow: 1, gridStart: 9, gridSpan: 4,
-    image: '/images/articles/paris-brest-race-dessert.webp', imageAlt: 'Paris-Brest',
-    articleId: 'paris-brest-race-dessert', linkLabel: 'Открыть историю',
+    ...canonLibrary['paris-brest'],
     curatorLine: 'Кольцевая pâte à choux и пралине превратили форму в мгновенно узнаваемый знак.',
     techniques: ['PÂTE À CHOUX', 'PRALINÉ', 'CRÈME'],
   },
   {
     id: 'religieuse', order: 3, name: 'Religieuse', act: 'forme', visualTone: 'cocoa', gridRow: 2, gridStart: 1, gridSpan: 4,
-    image: '/images/articles/michalak-religieuse.webp', imageAlt: 'Religieuse — современная интерпретация Christophe Michalak',
-    articleId: 'michalak-religieuse', linkLabel: 'Изучить интерпретацию',
+    ...canonLibrary.religieuse,
     curatorLine: 'Два choux, глазурь и вертикальная сборка делают силуэт частью рецепта.',
     techniques: ['PÂTE À CHOUX', 'CRÈME', 'GLAÇAGE'],
   },
   {
     id: 'eclair', order: 4, name: 'Éclair', act: 'forme', visualTone: 'cream', gridRow: 2, gridStart: 5, gridSpan: 4,
-    image: '/images/articles/eclair-histoire-complete.webp', imageAlt: 'Éclair',
-    articleId: 'eclair-histoire-complete', linkLabel: 'Открыть историю',
+    ...canonLibrary.eclair,
     curatorLine: 'Продольная форма choux стала самостоятельным носителем крема, глазури и современного авторского языка.',
     techniques: ['PÂTE À CHOUX', 'CRÈME', 'FONDANT'],
   },
   {
     id: 'opera', order: 5, name: 'Opéra', act: 'forme', visualTone: 'cocoa', gridRow: 2, gridStart: 9, gridSpan: 4,
-    image: '/images/articles/opera-gateau-histoire.webp', imageAlt: 'Gâteau Opéra',
-    articleId: 'opera-gateau-histoire', linkLabel: 'Открыть историческое досье',
+    ...canonLibrary.opera,
     curatorLine: 'Прямоугольник, тонкие слои и строгая высота: вкус организован как графическая конструкция.',
     techniques: ['BISCUIT JOCONDE', 'CAFÉ', 'GANACHE'],
   },
@@ -107,8 +83,7 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'ispahan', order: 8, name: 'Ispahan', act: 'signature', isAnchor: true, visualTone: 'rose', gridRow: 1, gridStart: 5, gridSpan: 8,
-    image: '/images/articles/herme-ispahan-deep.webp', imageAlt: 'Ispahan Pierre Hermé',
-    articleId: 'herme-ispahan-deep', linkLabel: 'Открыть досье',
+    ...canonLibrary.ispahan,
     curatorLine: 'Роза, личи и малина работают как единый узнаваемый вкусовой аккорд.',
     techniques: ['MACARON', 'ROSE', 'LITCHI · FRAMBOISE'],
   },
@@ -119,44 +94,38 @@ export const canonWorks: CanonWork[] = [
   },
   {
     id: 'mont-blanc', order: 10, name: 'Mont-Blanc', act: 'signature', visualTone: 'cocoa', gridRow: 2, gridStart: 9, gridSpan: 4,
-    image: '/images/articles/recipe-mont-blanc.webp', imageAlt: 'Mont-Blanc aux marrons',
-    articleId: 'recipe-mont-blanc', linkLabel: 'Открыть разбор',
+    ...canonLibrary['mont-blanc'],
     curatorLine: 'Меренга, шантийи и каштан собираются в силуэт, который узнаётся ещё до первого укуса.',
     techniques: ['MERINGUE', 'CHANTILLY', 'MARRON'],
   },
 
   {
     id: 'kouign-amann', order: 11, name: 'Kouign-Amann', act: 'territoire', visualTone: 'amber', gridRow: 1, gridStart: 1, gridSpan: 4,
-    image: '/images/articles/lignac-kouign-amann.webp', imageAlt: 'Kouign-Amann',
-    articleId: 'lignac-kouign-amann', linkLabel: 'Изучить технику',
+    ...canonLibrary['kouign-amann'],
     curatorLine: 'Слоёное дрожжевое тесто, масло и сахар превращают карамелизацию в саму структуру изделия.',
     techniques: ['LAMINATION', 'BEURRE', 'CARAMÉLISATION'],
   },
   {
     id: 'tarte-tatin', order: 12, name: 'Tarte Tatin', act: 'territoire', visualTone: 'amber', gridRow: 1, gridStart: 5, gridSpan: 4,
-    image: '/images/articles/recipe-tarte-tatin.webp', imageAlt: 'Tarte Tatin',
-    articleId: 'recipe-tarte-tatin', linkLabel: 'Открыть разбор',
+    ...canonLibrary['tarte-tatin'],
     curatorLine: 'Фрукт, карамель и перевёрнутая сборка делают технику важнее декоративной поверхности.',
     techniques: ['POMME', 'CARAMEL', 'CUISSON INVERSÉE'],
   },
   {
     id: 'tarte-tropezienne', order: 13, name: 'Tarte Tropézienne', act: 'territoire', visualTone: 'cream', gridRow: 1, gridStart: 9, gridSpan: 4,
-    image: '/images/articles/recipe-tarte-tropezienne.webp', imageAlt: 'Tarte Tropézienne',
-    articleId: 'recipe-tarte-tropezienne', linkLabel: 'Открыть разбор',
+    ...canonLibrary['tarte-tropezienne'],
     curatorLine: 'Бриошь и крем создают десерт, чья мягкость столь же важна, как узнаваемая форма.',
     techniques: ['BRIOCHE', 'CRÈME', 'SUCRE GRAIN'],
   },
   {
     id: 'canele-bordeaux', order: 14, name: 'Canelé de Bordeaux', act: 'territoire', isAnchor: true, visualTone: 'copper', gridRow: 2, gridStart: 1, gridSpan: 8,
-    image: '/images/articles/recipe-canele.webp', imageAlt: 'Canelé de Bordeaux',
-    articleId: 'recipe-canele', linkLabel: 'Открыть технику',
+    ...canonLibrary['canele-bordeaux'],
     curatorLine: 'Контраст почти чёрной карамельной оболочки и влажной сердцевины рождается прежде всего в форме и режиме выпечки.',
     techniques: ['MOULE', 'CARAMÉLISATION', 'CUISSON'],
   },
   {
     id: 'galette-des-rois', order: 15, name: 'Galette des Rois', act: 'territoire', visualTone: 'amber', gridRow: 2, gridStart: 9, gridSpan: 4,
-    image: '/images/articles/cuisine-galette.webp', imageAlt: 'Galette des Rois',
-    articleId: 'cuisine-galette', linkLabel: 'Открыть материал',
+    ...canonLibrary['galette-des-rois'],
     curatorLine: 'Feuilletage, миндальная начинка и сезонный ритуал соединяют ремесло с повторяющейся культурной практикой.',
     techniques: ['FEUILLETAGE', 'AMANDE', 'RAYAGE'],
   },
