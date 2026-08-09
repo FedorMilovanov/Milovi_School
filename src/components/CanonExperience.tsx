@@ -123,6 +123,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
   )
 
   const gridStyle = {
+    '--canon-grid-row': work.gridRow,
     '--canon-grid-start': work.gridStart,
     '--canon-grid-span': work.gridSpan,
   } as CSSProperties
