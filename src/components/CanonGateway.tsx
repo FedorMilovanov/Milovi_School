@@ -5,16 +5,17 @@ import { canonLibrary, type CanonLibraryId } from '../data/canon-library'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
-const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonLibraryId; position: string }> = [
-  { id: 'paris-brest', position: '50% 50%' },
-  { id: 'opera', position: '50% 50%' },
-  { id: 'ispahan', position: '50% 48%' },
-  { id: 'mont-blanc', position: '50% 48%' },
-  { id: 'galette-des-rois', position: '50% 50%' },
+const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonLibraryId; slot: string; position: string }> = [
+  { id: 'saint-honore', slot: 'paris-brest', position: '50% 50%' },
+  { id: 'opera', slot: 'opera', position: '50% 50%' },
+  { id: 'ispahan', slot: 'ispahan', position: '50% 48%' },
+  { id: 'mont-blanc', slot: 'mont-blanc', position: '50% 48%' },
+  { id: 'galette-des-rois', slot: 'galette-des-rois', position: '50% 50%' },
 ]
 
-const MEDIA = GATEWAY_SELECTION.map(({ id, position }) => ({
+const MEDIA = GATEWAY_SELECTION.map(({ id, slot, position }) => ({
   id,
+  slot,
   src: canonLibrary[id].image,
   alt: canonLibrary[id].imageAlt,
   position,
@@ -60,7 +61,7 @@ export default function CanonGateway() {
           {MEDIA.map((media, index) => (
             <span
               key={media.id}
-              className={`canon-gateway-media-item canon-gateway-media-${media.id}`}
+              className={`canon-gateway-media-item canon-gateway-media-${media.slot}`}
               style={{ '--canon-i': index } as CSSProperties}
             >
               <img src={media.src} alt={media.alt} loading="lazy" decoding="async" style={{ objectPosition: media.position }} />
