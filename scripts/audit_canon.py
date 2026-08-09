@@ -118,25 +118,51 @@ for article_id in linked_article_ids:
 if linked_article_ids and not any(e.startswith('Canon-linked article') for e in errors):
     ok(f'Canon article navigation verified on {len(linked_article_ids)} mapped article routes')
 
-css_path = SRC / 'styles' / 'canon.css'
-if not css_path.exists():
+page_css_path = SRC / 'styles' / 'canon.css'
+gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
+gateway_component_path = SRC / 'components' / 'CanonGateway.tsx'
+
+if not page_css_path.exists():
     fail('Missing src/styles/canon.css')
 else:
-    css = css_path.read_text('utf-8')
+    page_css = page_css_path.read_text('utf-8')
     for invalid in ('inset-left:', 'inset-bottom:', '.canon-object'):
-        if invalid in css:
-            fail(f'Canon CSS contains obsolete/invalid construct: {invalid}')
+        if invalid in page_css:
+            fail(f'Canon page CSS contains obsolete/invalid construct: {invalid}')
     required_grid_contracts = (
         'grid-column: var(--canon-grid-start, auto) / span var(--canon-grid-span, 4);',
         'grid-row: var(--canon-grid-row, auto);',
     )
     for contract in required_grid_contracts:
-        if contract not in css:
-            fail(f'Canon CSS is missing data-driven editorial grid contract: {contract}')
-    if (SRC / 'styles' / 'canon-enhancements.css').exists():
-        fail('Duplicate Canon enhancement stylesheet must not exist')
-    if not any('Canon CSS' in e for e in errors):
-        ok('Canon CSS uses one visual authority with data-driven grid and no obsolete fake-object layer')
+        if contract not in page_css:
+            fail(f'Canon page CSS is missing data-driven editorial grid contract: {contract}')
+
+if not gateway_css_path.exists():
+    fail('Missing src/styles/canon-gateway.css')
+else:
+    gateway_css = gateway_css_path.read_text('utf-8')
+    for invalid in ('inset-left:', 'inset-bottom:', '.canon-object'):
+        if invalid in gateway_css:
+            fail(f'Canon gateway CSS contains obsolete/invalid construct: {invalid}')
+    forbidden_page_selectors = ('.canon-page', '.canon-work-grid', '.canon-catalogue-plate', '.canon-act-rail')
+    leaked = [selector for selector in forbidden_page_selectors if selector in gateway_css]
+    if leaked:
+        fail(f'Homepage gateway CSS leaked exhibition-only selectors: {", ".join(leaked)}')
+
+if gateway_component_path.exists():
+    gateway_component = gateway_component_path.read_text('utf-8')
+    if "../styles/canon-gateway.css" not in gateway_component:
+        fail('CanonGateway must import the gateway-only stylesheet')
+    if "../styles/canon.css" in gateway_component:
+        fail('CanonGateway must not import the full exhibition stylesheet')
+else:
+    fail('Missing src/components/CanonGateway.tsx')
+
+if (SRC / 'styles' / 'canon-enhancements.css').exists():
+    fail('Duplicate Canon enhancement stylesheet must not exist')
+
+if not any('Canon page CSS' in e or 'Canon gateway CSS' in e or 'CanonGateway' in e or 'enhancement stylesheet' in e for e in errors):
+    ok('Canon styles are scoped: lightweight homepage gateway + data-driven exhibition CSS')
 
 print('# Le Canon Sucré quality gate')
 print()
