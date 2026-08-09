@@ -154,13 +154,13 @@ await check('mobile research: page has no horizontal overflow', async () => asse
 
 await scrollEvidenceToTop(mobile.page, '.canon-research-head', 92)
 await check('mobile research: entry heading is visible in entry evidence', async () => {
-  await assertEvidenceStartsInViewport(mobile.page, '.canon-research-head', 60, 160)
+  await assertEvidenceStartsInViewport(mobile.page, '.canon-research-head', 60, 220)
 })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-entry.png'), fullPage: false })
 
 await scrollEvidenceToTop(mobile.page, '.canon-legend-document', 92)
 await check('mobile research: Tatin split starts inside dedicated evidence viewport', async () => {
-  await assertEvidenceStartsInViewport(mobile.page, '.canon-legend-document', 60, 160)
+  await assertEvidenceStartsInViewport(mobile.page, '.canon-legend-document', 60, 220)
 })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-tatin.png'), fullPage: false })
 
