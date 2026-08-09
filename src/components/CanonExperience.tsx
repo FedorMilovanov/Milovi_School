@@ -23,27 +23,13 @@ function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
           key={act.id}
           href={`#canon-act-${act.id}`}
           className={`canon-act-rail-link ${activeAct === act.id ? 'is-active' : ''}`}
+          aria-label={`Перейти к акту ${act.roman}: ${act.title}`}
           aria-current={activeAct === act.id ? 'location' : undefined}
         >
           <span className="canon-act-rail-roman">{act.roman}</span>
-          <span className="canon-act-rail-name">{act.title}</span>
         </a>
       ))}
     </nav>
-  )
-}
-
-function CataloguePlate({ work }: { work: CanonWork }) {
-  const act = canonActs.find((item) => item.id === work.act)
-
-  return (
-    <div className={`canon-catalogue-plate canon-tone-${work.visualTone}`} aria-hidden="true">
-      <span className="canon-catalogue-number">{pad(work.order)}</span>
-      <span className="canon-catalogue-act">ACTE {act?.roman ?? ''}</span>
-      <span className="canon-catalogue-name">{work.name}</span>
-      <span className="canon-catalogue-line" />
-      <span className="canon-catalogue-note">LE CANON SUCRÉ</span>
-    </div>
   )
 }
 
@@ -82,24 +68,22 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     <>
       <div
         ref={mediaRef}
-        className={`canon-work-media canon-tone-${work.visualTone} ${work.image ? 'has-image' : 'is-catalogue'}`}
+        className={`canon-work-media canon-tone-${work.visualTone} has-image`}
         onPointerMove={onPointerMove}
         onPointerLeave={resetTilt}
       >
-        {work.image ? (
-          <picture className="canon-work-picture">
-            {work.imageMobile && <source media="(max-width: 620px)" srcSet={work.imageMobile} />}
-            <img
-              src={work.image}
-              alt={work.imageAlt ?? work.name}
-              loading="lazy"
-              decoding="async"
-              className="canon-work-image"
-            />
-          </picture>
-        ) : (
-          <CataloguePlate work={work} />
-        )}
+        <picture className="canon-work-picture">
+          {work.imageMobile && <source media="(max-width: 620px)" srcSet={work.imageMobile} />}
+          <img
+            src={work.image}
+            alt={work.imageAlt}
+            width={1280}
+            height={800}
+            loading="lazy"
+            decoding="async"
+            className="canon-work-image"
+          />
+        </picture>
         <span className="canon-work-sheen" aria-hidden="true" />
       </div>
 
@@ -139,7 +123,7 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
     <article
       id={`canon-${work.id}`}
       data-canon-order={work.order}
-      className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} ${work.image ? 'has-media' : 'is-catalogue'}`}
+      className={`canon-work ${work.isAnchor ? 'canon-work-anchor' : ''} has-media`}
       style={gridStyle}
     >
       {destination ? (
@@ -238,7 +222,11 @@ export default function CanonExperience() {
 
   return (
     <main id="main-content" className="canon-page">
-      {railVisible && <CanonActRail activeAct={activeAct} />}
+      {railVisible && (
+        <div className="hidden min-[1600px]:block">
+          <CanonActRail activeAct={activeAct} />
+        </div>
+      )}
 
       <section className="canon-hero" aria-labelledby="canon-title">
         <div className="canon-shell canon-hero-inner">
