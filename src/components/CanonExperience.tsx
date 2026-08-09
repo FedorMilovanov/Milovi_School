@@ -329,16 +329,18 @@ export default function CanonExperience() {
 
               {nextAct && (
                 <a
-                  className="canon-act-transition"
+                  className="canon-act-transition group no-underline focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-8 focus-visible:outline-amber-200/70"
                   href={`#canon-act-${nextAct.id}`}
                   aria-label={`Перейти к акту ${nextAct.roman}: ${nextAct.title}`}
                 >
-                  <span className="canon-act-transition-current">ACTE {act.roman}</span>
-                  <span className="canon-act-transition-line" aria-hidden="true" />
-                  <span className="canon-act-transition-next">
+                  <span className="canon-act-transition-current transition-colors duration-500 group-hover:text-amber-200/75 motion-reduce:transition-none">
+                    ACTE {act.roman}
+                  </span>
+                  <span className="canon-act-transition-line transition-[filter,transform] duration-500 group-hover:scale-x-[1.04] group-hover:brightness-150 motion-reduce:transition-none" aria-hidden="true" />
+                  <span className="canon-act-transition-next flex items-center gap-2 transition-transform duration-500 group-hover:translate-y-0.5 motion-reduce:transition-none">
                     <span>ACTE {nextAct.roman}</span>
-                    <strong>{nextAct.title}</strong>
-                    <span className="canon-act-transition-arrow" aria-hidden="true">↓</span>
+                    <strong className="font-normal text-amber-100/65 transition-colors duration-500 group-hover:text-amber-100 motion-reduce:transition-none">{nextAct.title}</strong>
+                    <span className="canon-act-transition-arrow text-amber-200/45" aria-hidden="true">↓</span>
                   </span>
                 </a>
               )}
