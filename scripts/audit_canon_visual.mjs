@@ -142,6 +142,11 @@ await check('desktop: both media states are rendered intentionally', async () =>
   assert.ok(catalogue <= 2, `catalogue=${catalogue}`)
 })
 
+await desktop.page.evaluate(() => globalThis.scrollTo({ top: 0, left: 0, behavior: 'auto' }))
+await desktop.page.waitForTimeout(200)
+await check('desktop: hero evidence is captured from page top', async () => {
+  assert.ok(await desktop.page.evaluate(() => globalThis.scrollY <= 2))
+})
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-hero.png'), fullPage: false })
 await desktop.page.locator('#canon-act-forme').scrollIntoViewIfNeeded()
 await desktop.page.waitForTimeout(250)
