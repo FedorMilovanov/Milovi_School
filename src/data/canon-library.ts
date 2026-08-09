@@ -15,6 +15,12 @@ export interface CanonLibraryBinding {
  * product content provide an exact binding.
  */
 export const canonLibrary = {
+  'saint-honore': {
+    image: '/images/articles/recipe-saint-honore.webp',
+    imageAlt: 'Saint-Honoré',
+    articleId: 'recipe-saint-honore',
+    linkLabel: 'Открыть разбор',
+  },
   'paris-brest': {
     image: '/images/articles/paris-brest-race-dessert.webp',
     imageAlt: 'Paris-Brest',
@@ -38,6 +44,12 @@ export const canonLibrary = {
     imageAlt: 'Gâteau Opéra',
     articleId: 'opera-gateau-histoire',
     linkLabel: 'Открыть историческое досье',
+  },
+  'baba-au-rhum': {
+    image: '/images/articles/recipe-baba-rhum-alain-ducasse.webp',
+    imageAlt: 'Baba au Rhum',
+    articleId: 'recipe-baba-rhum-alain-ducasse',
+    linkLabel: 'Открыть разбор',
   },
   ispahan: {
     image: '/images/articles/herme-ispahan-deep.webp',
