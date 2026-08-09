@@ -1,6 +1,7 @@
 import { articles } from './articles'
 import { articleExpansions } from './articleExpansions'
 import { articleOverrides } from './articleOverrides'
+import { canonArticles } from './canonArticles'
 import type { Article, ArticleMeta, ArticleClientMeta } from './types'
 
 const CONTENT_EXPANSION_DATE = '2026-08-03'
@@ -9,6 +10,7 @@ const WORD_RE = /[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-�
 const baseIds = new Set(articles.map((article) => article.id))
 const expansionIds = Object.keys(articleExpansions)
 const overrideIds = Object.keys(articleOverrides)
+const canonIds = new Set(canonArticles.map((article) => article.id))
 
 if (baseIds.size === 0) {
   throw new Error('[library] Article catalog must not be empty')
@@ -25,6 +27,11 @@ if (missingExpansionIds.length > 0 || orphanExpansionIds.length > 0) {
 
 for (const id of overrideIds) {
   if (!baseIds.has(id)) throw new Error(`[library] Unknown article override id: ${id}`)
+}
+
+const canonLegacyCollisions = [...canonIds].filter((id) => baseIds.has(id))
+if (canonLegacyCollisions.length > 0) {
+  throw new Error(`[library] Canon article id collides with legacy catalog: ${canonLegacyCollisions.join(',')}`)
 }
 
 const estimateReadTime = (content: string) =>
@@ -44,9 +51,18 @@ const enrichArticle = (article: Article): Article => {
   }
 }
 
+const normalizeStandaloneArticle = (article: Article): Article => ({
+  ...article,
+  content: article.content.trim(),
+  readTime: Math.max(article.readTime, estimateReadTime(article.content)),
+})
+
 // Full articles (with content) — use only at build time / SSG pages.
+// Legacy articles retain their strict base+expansion contract; exact Canon dossiers
+// are complete standalone articles and therefore do not create fake expansion rows.
 const unique = new Map<string, Article>()
 for (const article of articles) unique.set(article.id, enrichArticle(article))
+for (const article of canonArticles) unique.set(article.id, normalizeStandaloneArticle(article))
 export const libraryArticles = Array.from(unique.values()).sort((a, b) =>
   (b.date ?? '').localeCompare(a.date ?? '')
 )
