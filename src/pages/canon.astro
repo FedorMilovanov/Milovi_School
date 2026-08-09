@@ -12,12 +12,18 @@ const canonicalUrl = `${siteUrl}/canon/`
 const libraryIds = new Set(libraryClientMeta.map((article) => article.id))
 const canonIds = canonWorks.map((work) => work.id)
 const duplicateCanonIds = canonIds.filter((id, index) => canonIds.indexOf(id) !== index)
+const articleIds = canonWorks.flatMap((work) => work.articleId ? [work.articleId] : [])
+const duplicateArticleIds = articleIds.filter((id, index) => articleIds.indexOf(id) !== index)
 const brokenArticleLinks = canonWorks
   .filter((work) => work.articleId && !libraryIds.has(work.articleId))
   .map((work) => `${work.id} -> ${work.articleId}`)
 const malformedActs = canonActs
   .map((act) => ({ act: act.id, count: canonWorks.filter((work) => work.act === act.id).length }))
   .filter(({ count }) => count !== 5)
+const badOrder = canonWorks
+  .map((work, index) => ({ id: work.id, expected: index + 1, actual: work.order }))
+  .filter(({ expected, actual }) => expected !== actual)
+const imagesWithoutAlt = canonWorks.filter((work) => work.image && !work.imageAlt).map((work) => work.id)
 const mediaPaths = canonWorks.flatMap((work) => [work.image, work.imageMobile].filter((value): value is string => Boolean(value)))
 const missingMedia = mediaPaths.filter((src) => !existsSync(join(process.cwd(), 'public', src.replace(/^\//, ''))))
 
@@ -27,11 +33,20 @@ if (canonWorks.length !== 15) {
 if (duplicateCanonIds.length > 0) {
   throw new Error(`[canon] Duplicate work ids: ${[...new Set(duplicateCanonIds)].join(', ')}`)
 }
+if (duplicateArticleIds.length > 0) {
+  throw new Error(`[canon] One article cannot represent multiple Canon works: ${[...new Set(duplicateArticleIds)].join(', ')}`)
+}
 if (brokenArticleLinks.length > 0) {
   throw new Error(`[canon] Unknown article links: ${brokenArticleLinks.join(', ')}`)
 }
 if (malformedActs.length > 0) {
   throw new Error(`[canon] Every act must contain exactly five works: ${malformedActs.map(({ act, count }) => `${act}=${count}`).join(', ')}`)
+}
+if (badOrder.length > 0) {
+  throw new Error(`[canon] Order must be contiguous 1–15: ${badOrder.map(({ id, expected, actual }) => `${id}:${actual}!=${expected}`).join(', ')}`)
+}
+if (imagesWithoutAlt.length > 0) {
+  throw new Error(`[canon] Public work images require imageAlt: ${imagesWithoutAlt.join(', ')}`)
 }
 if (missingMedia.length > 0) {
   throw new Error(`[canon] Missing public media: ${missingMedia.join(', ')}`)
