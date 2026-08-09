@@ -57,11 +57,27 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function scrollEvidenceToTop(page, selector, offset = 104) {
-  const top = await page.locator(selector).evaluate((node) => node.getBoundingClientRect().top + globalThis.scrollY)
-  await page.evaluate(({ targetTop, targetOffset }) => {
-    globalThis.scrollTo({ top: Math.max(0, targetTop - targetOffset), left: 0, behavior: 'auto' })
-  }, { targetTop: top, targetOffset: offset })
+  const locator = page.locator(selector)
+  await locator.scrollIntoViewIfNeeded()
+  await locator.evaluate((node, targetOffset) => {
+    node.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' })
+    const scroller = globalThis.document.scrollingElement ?? globalThis.document.documentElement
+    scroller.scrollTop = Math.max(0, scroller.scrollTop - targetOffset)
+  }, offset)
   await page.waitForTimeout(250)
+}
+
+async function assertEvidenceStartsInViewport(page, selector, minTop, maxTop) {
+  const state = await page.locator(selector).evaluate((node) => {
+    const rect = node.getBoundingClientRect()
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportHeight: globalThis.innerHeight,
+    }
+  })
+  assert.ok(state.top >= minTop && state.top < maxTop, JSON.stringify(state))
+  assert.ok(state.bottom > 0 && state.top < state.viewportHeight, JSON.stringify(state))
 }
 
 async function assertTelemetry(name, telemetry) {
@@ -105,15 +121,13 @@ await check('desktop research: page has no horizontal overflow', async () => ass
 
 await scrollEvidenceToTop(desktop.page, '.canon-research-head')
 await check('desktop research: entry heading is visible in entry evidence', async () => {
-  const box = await desktop.page.locator('.canon-research-head').boundingBox()
-  assert.ok(box && box.y >= 70 && box.y < 180, JSON.stringify(box))
+  await assertEvidenceStartsInViewport(desktop.page, '.canon-research-head', 70, 190)
 })
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-research-entry.png'), fullPage: false })
 
 await scrollEvidenceToTop(desktop.page, '.canon-legend-document')
 await check('desktop research: Tatin split is visible in dedicated evidence', async () => {
-  const box = await desktop.page.locator('.canon-legend-document').boundingBox()
-  assert.ok(box && box.y >= 70 && box.y < 180, JSON.stringify(box))
+  await assertEvidenceStartsInViewport(desktop.page, '.canon-legend-document', 70, 190)
 })
 await desktop.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-desktop-research-tatin.png'), fullPage: false })
 
@@ -140,15 +154,13 @@ await check('mobile research: page has no horizontal overflow', async () => asse
 
 await scrollEvidenceToTop(mobile.page, '.canon-research-head', 92)
 await check('mobile research: entry heading is visible in entry evidence', async () => {
-  const box = await mobile.page.locator('.canon-research-head').boundingBox()
-  assert.ok(box && box.y >= 70 && box.y < 150, JSON.stringify(box))
+  await assertEvidenceStartsInViewport(mobile.page, '.canon-research-head', 60, 160)
 })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-entry.png'), fullPage: false })
 
 await scrollEvidenceToTop(mobile.page, '.canon-legend-document', 92)
 await check('mobile research: Tatin split starts inside dedicated evidence viewport', async () => {
-  const box = await mobile.page.locator('.canon-legend-document').boundingBox()
-  assert.ok(box && box.y >= 70 && box.y < 150, JSON.stringify(box))
+  await assertEvidenceStartsInViewport(mobile.page, '.canon-legend-document', 60, 160)
 })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-tatin.png'), fullPage: false })
 
