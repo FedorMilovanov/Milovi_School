@@ -6,7 +6,7 @@ const pad = (value: number) => String(value).padStart(2, '0')
 
 export default function CanonTechniqueMatrix() {
   return (
-    <aside className="canon-technique-index" aria-labelledby="canon-technique-title">
+    <section className="canon-technique-index" aria-labelledby="canon-technique-title">
       <div className="canon-technique-shell">
         <div className="canon-technique-heading">
           <div>
@@ -54,6 +54,6 @@ export default function CanonTechniqueMatrix() {
 
         <p className="canon-technique-note">Номер работы возвращает к соответствующему объекту коллекции.</p>
       </div>
-    </aside>
+    </section>
   )
 }
