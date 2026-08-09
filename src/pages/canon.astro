@@ -1,4 +1,6 @@
 ---
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import CanonPageShell from '../components/CanonPageShell'
 import { libraryClientMeta } from '../data/library'
@@ -16,6 +18,8 @@ const brokenArticleLinks = canonWorks
 const malformedActs = canonActs
   .map((act) => ({ act: act.id, count: canonWorks.filter((work) => work.act === act.id).length }))
   .filter(({ count }) => count !== 5)
+const mediaPaths = canonWorks.flatMap((work) => [work.image, work.imageMobile].filter((value): value is string => Boolean(value)))
+const missingMedia = mediaPaths.filter((src) => !existsSync(join(process.cwd(), 'public', src.replace(/^\//, ''))))
 
 if (canonWorks.length !== 15) {
   throw new Error(`[canon] Expected exactly 15 works, received ${canonWorks.length}`)
@@ -28,6 +32,9 @@ if (brokenArticleLinks.length > 0) {
 }
 if (malformedActs.length > 0) {
   throw new Error(`[canon] Every act must contain exactly five works: ${malformedActs.map(({ act, count }) => `${act}=${count}`).join(', ')}`)
+}
+if (missingMedia.length > 0) {
+  throw new Error(`[canon] Missing public media: ${missingMedia.join(', ')}`)
 }
 
 const itemList = {
