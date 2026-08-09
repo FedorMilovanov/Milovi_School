@@ -24,6 +24,7 @@ export default function CanonArticleNav({ articleId, placement }: CanonArticleNa
   if (index < 0) return null
 
   const current = canonWorks[index]
+  const currentCanonDestination = `/canon/#canon-${current.id}`
   const act = canonActs.find((item) => item.id === current.act)
   const previous = index > 0 ? canonWorks[index - 1] : null
   const next = index < canonWorks.length - 1 ? canonWorks[index + 1] : null
@@ -32,7 +33,7 @@ export default function CanonArticleNav({ articleId, placement }: CanonArticleNa
     return (
       <aside className="border-b border-amber-900/10 bg-stone-950 px-4 text-amber-50 sm:px-6 dark:border-amber-100/10" aria-label="Эта статья входит в Le Canon Sucré">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <a href="/canon/" {...intentProps('/canon/')} className="group inline-flex items-center gap-3 no-underline">
+          <a href={currentCanonDestination} {...intentProps(currentCanonDestination)} className="group inline-flex items-center gap-3 no-underline">
             <span className="font-mono text-[8px] uppercase tracking-[0.26em] text-amber-200/55 transition group-hover:text-amber-200">Le Canon Sucré</span>
             <span className="h-px w-8 bg-amber-200/20 transition-all duration-500 group-hover:w-12 group-hover:bg-amber-200/50" aria-hidden="true" />
             <span className="font-serif text-sm text-amber-50/80 transition group-hover:text-amber-50">{current.name}</span>
