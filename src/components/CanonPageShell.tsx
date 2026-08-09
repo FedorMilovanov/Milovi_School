@@ -2,7 +2,6 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import Header from './Header'
 import Footer from './Footer'
 import CanonExperience from './CanonExperience'
-import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import Cursor from './Cursor'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
@@ -72,7 +71,6 @@ export default function CanonPageShell({ articles }: { articles: ArticleClientMe
         />
 
         <CanonExperience />
-        <CanonTechniqueMatrix />
         <Footer />
 
         {commandOpen && (
