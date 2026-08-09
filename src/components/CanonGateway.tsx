@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
 import '../styles/canon.css'
 
@@ -8,7 +9,7 @@ export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
   const reduceMotion = useReducedMotion()
 
-  const onPointerMove = (event: React.PointerEvent<HTMLAnchorElement>) => {
+  const onPointerMove = (event: ReactPointerEvent<HTMLAnchorElement>) => {
     if (reduceMotion || event.pointerType !== 'mouse') return
     const node = ref.current
     if (!node) return
@@ -56,7 +57,7 @@ export default function CanonGateway() {
 
         <span className="canon-gateway-stage" aria-hidden="true">
           {OBJECTS.map((object, index) => (
-            <span key={object} className={`canon-object canon-object-${object}`} style={{ '--canon-i': index } as React.CSSProperties} />
+            <span key={object} className={`canon-object canon-object-${object}`} style={{ '--canon-i': index } as CSSProperties} />
           ))}
         </span>
 
