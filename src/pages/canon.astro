@@ -92,7 +92,9 @@ const itemList = {
     '@type': 'ListItem',
     position: work.order,
     name: work.name,
-    ...(work.articleId ? { url: `${siteUrl}/articles/${work.articleId}/` } : {}),
+    url: work.articleId
+      ? `${siteUrl}/articles/${work.articleId}/`
+      : `${canonicalUrl}#canon-${work.id}`,
   })),
 }
 
