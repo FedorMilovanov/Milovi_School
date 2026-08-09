@@ -72,6 +72,7 @@ if canon:
     works = canon.select('.canon-work')
     acts = canon.select('.canon-act')
     index_links = canon.select('.canon-index-link[href^="#canon-"]')
+    work_ids = {f'#{work.get("id")}' for work in works if work.get('id')}
 
     if len(works) != 15:
         fail(f'/canon/ must render exactly 15 works, found {len(works)}')
@@ -100,6 +101,28 @@ if canon:
         if image and not image.get('alt', '').strip():
             fail(f'{work_id}: public Canon image requires non-empty alt text')
 
+    technique = canon.select_one('.canon-technique-index')
+    if not technique:
+        fail('/canon/ must include the Technique Index')
+    else:
+        if len(main) == 1 and not main[0].select_one('.canon-technique-index'):
+            fail('Technique Index must remain inside the main Canon landmark')
+        technique_headers = technique.select('.canon-technique-work-head[href^="#canon-"]')
+        technique_rows = technique.select('.canon-technique-label')
+        active_cells = technique.select('a.canon-technique-cell.is-active[href^="#canon-"]')
+        inactive_links = technique.select('a.canon-technique-cell:not(.is-active)')
+        if len(technique_headers) != 15 or len({a.get('href') for a in technique_headers}) != 15:
+            fail('Technique Index must expose 15 unique work headers')
+        if len(technique_rows) != 8:
+            fail(f'Technique Index must expose exactly eight technique rows, found {len(technique_rows)}')
+        if len(active_cells) != 21:
+            fail(f'Technique Index must expose exactly 21 active technique/work links, found {len(active_cells)}')
+        if inactive_links:
+            fail('Inactive Technique Index cells must not be interactive links')
+        invalid_targets = [a.get('href') for a in [*technique_headers, *active_cells] if a.get('href') not in work_ids]
+        if invalid_targets:
+            fail(f'Technique Index links to unknown Canon works: {sorted(set(invalid_targets))}')
+
     forbidden_copy = ('RESEARCH IN PROGRESS', 'ARCHIVE SLOT', 'RESEARCH SLOT')
     rendered_text = canon.get_text(' ', strip=True).upper()
     for marker in forbidden_copy:
@@ -117,7 +140,7 @@ if canon:
         fail('Canon ItemList JSON-LD must declare 15 items')
 
     if len(errors) == structure_error_count:
-        ok('Canon exhibition structure: 15 works, 3×5 acts, index, media states and JSON-LD verified')
+        ok('Canon exhibition structure: 15 works, 3×5 acts, Technique Index, media states and JSON-LD verified')
 
 canon_sources = '\n'.join([
     (SRC / 'data' / 'canon.ts').read_text('utf-8'),
@@ -138,6 +161,8 @@ if linked_article_ids and len(errors) == article_nav_error_count:
 page_css_path = SRC / 'styles' / 'canon.css'
 gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
 gateway_component_path = SRC / 'components' / 'CanonGateway.tsx'
+technique_css_path = SRC / 'styles' / 'canon-technique-matrix.css'
+technique_component_path = SRC / 'components' / 'CanonTechniqueMatrix.tsx'
 
 boundary_error_count = len(errors)
 if not page_css_path.exists():
@@ -180,11 +205,16 @@ if gateway_component_path.exists():
 else:
     fail('Missing src/components/CanonGateway.tsx')
 
+if not technique_component_path.exists():
+    fail('Missing src/components/CanonTechniqueMatrix.tsx')
+if not technique_css_path.exists():
+    fail('Missing src/styles/canon-technique-matrix.css')
+
 if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
 if len(errors) == boundary_error_count:
-    ok('Canon homepage boundary is scoped: compact data registry + gateway-only CSS')
+    ok('Canon page boundaries are scoped: gateway, exhibition and Technique Index stay isolated')
 
 print('# Le Canon Sucré quality gate')
 print()
