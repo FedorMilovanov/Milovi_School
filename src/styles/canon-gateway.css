@@ -280,27 +280,32 @@
   }
 
   .canon-gateway {
-    min-height: 620px;
+    min-height: 585px;
     align-items: end;
   }
 
   .canon-gateway-media {
-    inset: 0 0 41% 0;
+    inset: 0 0 auto 0;
+    height: clamp(190px, 42vw, 340px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #070605;
     transform: none;
   }
 
   .canon-gateway-media img {
-    object-fit: cover;
-    object-position: 72% 58%;
+    object-fit: contain;
+    object-position: 50% 50%;
     transform: none;
   }
 
   .canon-gateway-vignette {
     background:
       linear-gradient(180deg,
-        rgba(7, 6, 5, 0.03) 0%,
-        rgba(7, 6, 5, 0.08) 38%,
-        rgba(7, 6, 5, 0.76) 57%,
+        rgba(7, 6, 5, 0.00) 0%,
+        rgba(7, 6, 5, 0.03) 34%,
+        rgba(7, 6, 5, 0.78) 57%,
         rgba(7, 6, 5, 0.98) 72%,
         #070605 100%);
   }
@@ -325,15 +330,11 @@
 
 @media (max-width: 540px) {
   .canon-gateway {
-    min-height: 590px;
+    min-height: 560px;
   }
 
   .canon-gateway-media {
-    bottom: 46%;
-  }
-
-  .canon-gateway-media img {
-    object-position: 74% 59%;
+    height: 190px;
   }
 
   .canon-gateway-copy {
