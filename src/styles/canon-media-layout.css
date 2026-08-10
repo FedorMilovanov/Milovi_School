@@ -1,0 +1,53 @@
+/* Le Canon Sucré — media art direction
+ *
+ * Dedicated Canon assets are authored as 1280×800 (16:10). This layer keeps
+ * exhibition frames on the same geometry instead of forcing landscape masters
+ * through a 4:5 cover crop. The goal is to preserve the complete pastry form,
+ * not to make every card artificially portrait-shaped.
+ */
+
+.canon-work-media,
+.canon-work-anchor .canon-work-media {
+  min-height: 0;
+  aspect-ratio: 16 / 10;
+}
+
+.canon-work-picture,
+.canon-work-picture img {
+  width: 100%;
+  height: 100%;
+}
+
+.canon-work-image {
+  object-fit: cover;
+  object-position: 50% 50%;
+  transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .canon-work-link:hover .canon-work-image {
+    transform: scale(1.025);
+  }
+}
+
+/* Preserve the master composition on tablets and phones as well. The previous
+ * mobile 4:5 rule reintroduced the same destructive crop at <=820px. */
+@media (max-width: 820px) {
+  .canon-work-media,
+  .canon-work-anchor .canon-work-media {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 540px) {
+  .canon-work-label {
+    padding-top: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canon-work-image {
+    transform: none !important;
+  }
+}
