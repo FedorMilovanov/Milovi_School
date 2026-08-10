@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import hashlib
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENT = ROOT / 'src' / 'components' / 'CanonGateway.tsx'
 CSS = ROOT / 'src' / 'styles' / 'canon-gateway.css'
 ASSET = ROOT / 'public' / 'images' / 'canon-sucre' / 'canon-gateway-hero.webp'
+EXPECTED_BYTES = 77970
+EXPECTED_SHA256 = 'a954f979338ba59328cf2d92ea4e848265ce17054b5b6b807ff45fe9a8afd5fc'
 
 errors: list[str] = []
 
 if not ASSET.exists():
     errors.append('Missing final owner-selected Canon gateway asset')
 else:
-    size = ASSET.stat().st_size
-    if size <= 0:
-        errors.append('Canon gateway asset is empty')
-    if size > 800_000:
-        errors.append(f'Canon gateway asset is unexpectedly heavy: {size} bytes')
+    data = ASSET.read_bytes()
+    size = len(data)
+    digest = hashlib.sha256(data).hexdigest()
+    if size != EXPECTED_BYTES:
+        errors.append(f'Canon gateway derivative byte size changed: {size} != {EXPECTED_BYTES}')
+    if digest != EXPECTED_SHA256:
+        errors.append(f'Canon gateway derivative SHA-256 changed: {digest}')
 
 component = COMPONENT.read_text('utf-8') if COMPONENT.exists() else ''
 css = CSS.read_text('utf-8') if CSS.exists() else ''
@@ -57,7 +62,8 @@ if errors:
     raise SystemExit(1)
 
 print('# Canon gateway asset gate')
-print(f'- PASS: final panoramic asset present ({ASSET.stat().st_size} bytes)')
+print(f'- PASS: exact final panoramic derivative present ({ASSET.stat().st_size} bytes)')
+print(f'- PASS: SHA-256 locked to {EXPECTED_SHA256}')
 print('- PASS: 1916×821 dimensions declared in component')
 print('- PASS: desktop full-bleed crop preserves the low horizontal lineup')
 print('- PASS: mobile uses contained panorama instead of cutting pastry forms')
