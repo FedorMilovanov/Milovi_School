@@ -1,12 +1,23 @@
 import { useRef } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
+import { canonMedia, type CanonMediaId } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
 const GATEWAY_IMAGE = '/images/canon-sucre/canon-gateway-hero.webp'
-const GATEWAY_IMAGE_ALT = 'Le Canon Sucré: Saint-Honoré, Opéra, Ispahan, Mont-Blanc, Galette des Rois и canelé на тёмных каменных подставках'
+const GATEWAY_WORKS = [
+  'saint-honore',
+  'opera',
+  'ispahan',
+  'mont-blanc',
+  'galette-des-rois',
+  'canele-bordeaux',
+] as const satisfies readonly CanonMediaId[]
+const GATEWAY_IMAGE_ALT = `Le Canon Sucré: ${GATEWAY_WORKS
+  .map((id) => canonMedia[id].imageAlt.split(':')[0])
+  .join(', ')} на тёмных каменных подставках`
 
 export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
