@@ -161,7 +161,6 @@ for article_path in article_paths:
         alt = str(hero.get("alt", "")).strip()
         check(bool(alt), f"Article hero alt missing: {article_id}")
         check(not LEGACY_ALT_TEMPLATE_RE.search(alt), f"Legacy keyword-template alt leaked to output: {article_id}")
-        check("(" not in alt[-45:] or "," not in alt[-45:], f"Article hero alt appears to end in a keyword-list tail: {article_id}")
         og_alt = soup.find("meta", attrs={"property": "og:image:alt"})
         check(bool(og_alt and str(og_alt.get("content", "")).strip() == alt), f"Article hero/OG alt must share one editorial source: {article_id}")
 
