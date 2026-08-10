@@ -1,0 +1,288 @@
+/* Le Canon Sucré — documentary chronology and myth/document interlude */
+
+.canon-research {
+  position: relative;
+  overflow: clip;
+  padding-block: clamp(7rem, 12vw, 12rem);
+  border-bottom: 1px solid var(--canon-line);
+  background:
+    radial-gradient(circle at 82% 14%, rgba(84, 111, 134, .07), transparent 24%),
+    radial-gradient(circle at 16% 74%, rgba(189, 135, 70, .07), transparent 25%),
+    #0b0a08;
+}
+
+.canon-research-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, .65fr);
+  gap: clamp(2.5rem, 8vw, 8rem);
+  align-items: end;
+  padding-bottom: clamp(4rem, 7vw, 7rem);
+  border-bottom: 1px solid var(--canon-line);
+}
+
+.canon-research-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .24em;
+  color: rgba(224, 187, 124, .68);
+}
+
+.canon-research-head h2 {
+  margin-top: 1rem;
+  max-width: 920px;
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 6.7vw, 7rem);
+  font-weight: 600;
+  line-height: .87;
+  letter-spacing: -.06em;
+  color: #e7d3af;
+}
+
+.canon-research-head > p {
+  max-width: 620px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 1.7vw, 1.4rem);
+  line-height: 1.65;
+  color: rgba(242, 233, 217, .62);
+}
+
+.canon-research-timeline {
+  position: relative;
+  padding-block: clamp(3rem, 7vw, 7rem);
+}
+
+.canon-research-timeline::before {
+  content: '';
+  position: absolute;
+  left: 176px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(212, 173, 107, .2) 5%, rgba(212, 173, 107, .14) 95%, transparent);
+}
+
+.canon-research-milestone {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 3.25rem;
+  padding-block: clamp(2rem, 3.5vw, 3.4rem);
+}
+
+.canon-research-date {
+  position: relative;
+  padding-top: .15rem;
+  text-align: right;
+}
+
+.canon-research-date span {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2vw, 1.75rem);
+  font-variant-numeric: tabular-nums;
+  color: rgba(237, 215, 177, .72);
+}
+
+.canon-research-date i {
+  position: absolute;
+  right: -34px;
+  top: .68rem;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(229, 193, 131, .5);
+  border-radius: 50%;
+  background: #0b0a08;
+  box-shadow: 0 0 0 5px rgba(11, 10, 8, .95);
+}
+
+.canon-research-milestone[data-evidence='CONFLICT'] .canon-research-date i {
+  border-color: rgba(169, 193, 216, .64);
+}
+
+.canon-research-copy {
+  max-width: 900px;
+  padding-left: clamp(.5rem, 2vw, 2rem);
+}
+
+.canon-research-evidence {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: .22rem .5rem;
+  border: 1px solid rgba(212, 173, 107, .24);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .16em;
+  color: rgba(224, 190, 132, .7);
+}
+
+.canon-research-milestone[data-evidence='CONFLICT'] .canon-research-evidence {
+  border-color: rgba(111, 149, 179, .3);
+  color: rgba(164, 193, 216, .72);
+}
+
+.canon-research-copy h3 {
+  margin-top: 1rem;
+  max-width: 820px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.45rem, 2.6vw, 2.45rem);
+  line-height: 1.05;
+  letter-spacing: -.035em;
+  color: #ead8ba;
+}
+
+.canon-research-copy p {
+  margin-top: .9rem;
+  max-width: 820px;
+  font-size: .98rem;
+  line-height: 1.72;
+  color: rgba(239, 230, 215, .58);
+}
+
+.canon-research-works {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .9rem;
+  margin-top: 1.2rem;
+}
+
+.canon-research-works a,
+.canon-document-pane > a {
+  color: rgba(229, 194, 135, .68);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212, 173, 107, .28);
+  transition: color .4s var(--canon-ease), border-color .4s var(--canon-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .canon-research-works a:hover,
+  .canon-document-pane > a:hover {
+    color: #edca8e;
+    border-color: rgba(232, 194, 128, .65);
+  }
+}
+
+.canon-legend-document {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: clamp(2rem, 5vw, 5rem);
+  border-top: 1px solid rgba(212, 173, 107, .2);
+  border-bottom: 1px solid rgba(212, 173, 107, .15);
+}
+
+.canon-legend-pane,
+.canon-document-pane {
+  min-height: 390px;
+  padding: clamp(2.5rem, 5vw, 5rem);
+}
+
+.canon-legend-pane {
+  background: linear-gradient(145deg, rgba(68, 49, 35, .22), rgba(18, 15, 12, .2));
+  border-right: 1px solid rgba(212, 173, 107, .14);
+}
+
+.canon-document-pane {
+  background: linear-gradient(145deg, rgba(28, 42, 51, .2), rgba(15, 13, 11, .2));
+}
+
+.canon-legend-pane h3,
+.canon-document-pane h3 {
+  margin-top: 1.35rem;
+  max-width: 620px;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 4.2rem);
+  line-height: .96;
+  letter-spacing: -.045em;
+  color: #e5d1ae;
+}
+
+.canon-legend-pane p,
+.canon-document-pane p {
+  margin-top: 1.5rem;
+  max-width: 640px;
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  line-height: 1.62;
+  color: rgba(238, 228, 211, .58);
+}
+
+.canon-document-pane > a {
+  display: inline-block;
+  margin-top: 2rem;
+}
+
+.canon-research-foot {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.5rem 3rem;
+  align-items: baseline;
+  padding-top: 2.25rem;
+}
+
+.canon-research-foot > span {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .17em;
+  color: rgba(218, 182, 121, .68);
+}
+
+.canon-research-foot > p {
+  max-width: 760px;
+  font-size: .85rem;
+  line-height: 1.6;
+  color: rgba(236, 228, 215, .58);
+}
+
+@media (max-width: 760px) {
+  .canon-research-head,
+  .canon-legend-document,
+  .canon-research-foot {
+    grid-template-columns: 1fr;
+  }
+
+  .canon-research-head {
+    gap: 2rem;
+  }
+
+  .canon-research-timeline::before {
+    left: 8px;
+  }
+
+  .canon-research-milestone {
+    grid-template-columns: 1fr;
+    gap: .8rem;
+    padding-left: 2.25rem;
+  }
+
+  .canon-research-date {
+    text-align: left;
+  }
+
+  .canon-research-date i {
+    left: -2.6rem;
+    right: auto;
+  }
+
+  .canon-research-copy {
+    padding-left: 0;
+  }
+
+  .canon-legend-pane,
+  .canon-document-pane {
+    min-height: 0;
+  }
+
+  .canon-legend-pane {
+    border-right: 0;
+    border-bottom: 1px solid rgba(212, 173, 107, .14);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canon-research-works a,
+  .canon-document-pane > a {
+    transition: none;
+  }
+}

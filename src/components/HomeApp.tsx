@@ -9,6 +9,7 @@ import Hero from './Hero'
 import StatsBar from './StatsBar'
 import DashboardBento from './DashboardBento'
 import MainCategories from './MainCategories'
+import CanonGateway from './CanonGateway'
 import Categories from './Categories'
 import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
@@ -242,6 +243,7 @@ export default function HomeApp({ articles }: HomeAppProps) {
             articles={articles}
             onSelectCategory={handleSelectCategory}
           />
+          <CanonGateway />
           <ContinueReading articles={articles} onArticleClick={openArticle} />
           <Categories
             categories={categories}

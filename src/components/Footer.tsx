@@ -57,6 +57,7 @@ export default function Footer() {
             <span className="logo-name-patisserie">Pâtisserie</span> Russe · French Pastry Archive · {year}
           </p>
           <nav aria-label="Навигация по проекту" className="flex flex-wrap gap-x-6 gap-y-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-400">
+            <a href="/canon/" className="transition text-amber-200/80 hover:text-amber-100">Le Canon Sucré</a>
             <a href="/materials/" className="transition hover:text-amber-200">Галерея</a>
             <a href="/about/" className="transition hover:text-amber-200">О проекте</a>
             <a href="/methodology/" className="transition hover:text-amber-200">Методология</a>

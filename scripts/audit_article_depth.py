@@ -203,19 +203,26 @@ bodies = parse_template_entries(deep_text)
 expansions = parse_template_entries(expansion_text)
 overrides = parse_overrides(overrides_text)
 
-if len(articles) != 155:
-    raise SystemExit(f"Depth audit expected 155 article records, parsed {len(articles)}")
-if set(articles) != set(bodies):
+if not articles:
+    raise SystemExit("Depth audit parsed no article records")
+article_ids = set(articles)
+body_ids = set(bodies)
+expansion_ids = set(expansions)
+if article_ids != body_ids:
     raise SystemExit(
-        "Depth audit id mismatch: "
-        f"missing={sorted(set(articles) - set(bodies))}, "
-        f"extra={sorted(set(bodies) - set(articles))}"
+        "Depth audit article/base id mismatch: "
+        f"missing={sorted(article_ids - body_ids)}, "
+        f"extra={sorted(body_ids - article_ids)}"
     )
-if len(expansions) != 155:
-    raise SystemExit(f"Depth audit expected 155 researched expansions, parsed {len(expansions)}")
-unknown = (set(expansions) | set(overrides)) - set(articles)
+if article_ids != expansion_ids:
+    raise SystemExit(
+        "Depth audit article/expansion id mismatch: "
+        f"missing={sorted(article_ids - expansion_ids)}, "
+        f"extra={sorted(expansion_ids - article_ids)}"
+    )
+unknown = set(overrides) - article_ids
 if unknown:
-    raise SystemExit(f"Depth audit found unknown enrichment ids: {sorted(unknown)}")
+    raise SystemExit(f"Depth audit found unknown override ids: {sorted(unknown)}")
 
 for article_id, override in overrides.items():
     if "title" in override:

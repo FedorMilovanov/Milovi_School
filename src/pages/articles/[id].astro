@@ -6,6 +6,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro'
 import ArticlePageShell from '../../components/ArticlePageShell'
 import { libraryArticles, libraryClientMeta } from '../../data/library'
 import { categories } from '../../data/categories'
+import { canonWorks } from '../../data/canon'
 import type { Article } from '../../data/types'
 
 export function getStaticPaths() {
@@ -19,9 +20,11 @@ const { article } = Astro.props as { article: Article }
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/articles/${article.id}/`
+const canonUrl = `${siteUrl}/canon/`
 const pageTitle = `${article.title} — Patisserie Russe`
 
 const categoryName = categories.find((c) => c.id === article.category)?.name ?? article.category
+const canonWork = canonWorks.find((work) => work.articleId === article.id)
 
 // ── OG image ────────────────────────────────────────────────────────────────
 function buildOgImage(input: string | undefined, width?: number, height?: number): { url: string; width?: number; height?: number } {
@@ -96,6 +99,16 @@ const jsonLdArticle = {
   url: canonicalUrl,
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
   keywords: article.tags?.join(', '),
+  ...(canonWork
+    ? {
+        isPartOf: {
+          '@type': 'CollectionPage',
+          '@id': canonUrl,
+          url: canonUrl,
+          name: 'Le Canon Sucré',
+        },
+      }
+    : {}),
   ...(article.sourceUrl ? { citation: article.sourceUrl } : {}),
   ...(article.date
     ? {

@@ -9,14 +9,17 @@
     "preview": "astro preview",
     "check": "tsc --noEmit",
     "audit:security": "npm audit --audit-level=high",
-    "audit:site": "node scripts/run-python-script.mjs scripts/audit_site.py",
+    "audit:media": "node scripts/run-python-script.mjs scripts/audit_canon_media.py",
+    "audit:research": "node scripts/run-python-script.mjs scripts/audit_canon_research.py",
+    "audit:canon-articles": "node scripts/run-python-script.mjs scripts/audit_canon_articles.py",
+    "audit:site": "node scripts/run-python-script.mjs scripts/audit_site.py && npm run audit:media && node scripts/run-python-script.mjs scripts/audit_canon.py && npm run audit:research",
     "audit:build": "node scripts/audit_raw_build.mjs",
     "audit:privacy": "node scripts/privacy_contract.mjs",
     "validate": "npm run check && npm run lint && npm run audit:content && npm run audit:security && npm run build && npm run audit:build && npm run audit:site && npm run audit:privacy",
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py"
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py && npm run audit:canon-articles"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
