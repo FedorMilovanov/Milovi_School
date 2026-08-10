@@ -49,7 +49,7 @@ export default function CanonGateway() {
         <span className="canon-gateway-media" aria-hidden="true">
           <img
             src={GATEWAY_MEDIA.image}
-            alt=""
+            alt={GATEWAY_MEDIA.imageAlt}
             width={1280}
             height={800}
             loading="lazy"
