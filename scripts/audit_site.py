@@ -112,7 +112,7 @@ for html in html_files:
     for script in soup.find_all('script', attrs={'type':'application/ld+json'}):
         txt=script.string or script.get_text() or ''
         try:
-            data=json.loads(txt)
+            json.loads(txt)
             jsonld_count += 1
         except Exception as e:
             err(f'Invalid JSON-LD in {rel}: {e}')
@@ -128,17 +128,13 @@ for html in html_files:
         u=tag.get(attr)
         if not u or u.startswith('#') or u.startswith('mailto:') or u.startswith('tel:') or u.startswith('javascript:'): continue
         if u.startswith('/') or u.startswith(SITE):
-            p=urlparse(u).path
-            # skip canonical to live absolute? still local route should exist
-            if tag.name=='link' and tag.get('rel') and 'canonical' in tag.get('rel'): pass
             if not local_asset_exists(u): err(f'Broken local {attr} in {rel}: {u}')
             local_links += 1
 ok(f'HTML routes checked: {len(html_files)}, local refs checked: {local_links}, JSON-LD blocks: {jsonld_count}')
 
-# 4 articles / sitemap / image sitemap
+# 4 articles / sitemap / current Google image-sitemap syntax
 article_dirs=sorted((DIST/'articles').glob('*/index.html')) if (DIST/'articles').exists() else []
 ok(f'Built article pages: {len(article_dirs)}')
-# expected article count from generated pages vs sitemap article URLs
 site_xml = DIST/'sitemap-0.xml'
 if site_xml.exists():
     xml=site_xml.read_text('utf-8')
@@ -156,11 +152,12 @@ if site_xml.exists():
                 imloc=im.find('image:loc', ns)
                 if imloc is None or not imloc.text: err('Sitemap image without loc')
                 elif not local_asset_exists(imloc.text): err(f'Sitemap image does not exist locally: {imloc.text}')
-                title=im.find('image:title', ns)
-                cap=im.find('image:caption', ns)
-                if title is None or not (title.text or '').strip(): err(f'Sitemap image missing title for {loc.text if loc is not None else "?"}')
-                if cap is None or not (cap.text or '').strip(): warn(f'Sitemap image missing caption for {loc.text if loc is not None else "?"}')
-        ok(f'Sitemap checked: {len(urls)} URLs, {image_urls} image entries')
+                # Google removed title/caption/geo/license from the supported image
+                # sitemap extension. Their reappearance is a regression, not a requirement.
+                for deprecated in ('title','caption','geo_location','license'):
+                    if im.find(f'image:{deprecated}', ns) is not None:
+                        err(f'Deprecated image sitemap element present: image:{deprecated}')
+        ok(f'Sitemap checked: {len(urls)} URLs, {image_urls} image entries (image:loc only)')
     except Exception as e:
         err(f'Cannot parse sitemap-0.xml: {e}')
 else:
@@ -180,13 +177,11 @@ for aid in ids:
     if not (DIST/'articles'/aid/'index.html').exists(): err(f'Article id has no built page: {aid}')
 ok(f'Article ids checked: {len(ids)}, unique={len(set(ids))}')
 
-
 # 6 UI static checks
 button_missing=[]
 for comp in (SRC/'components').glob('*.tsx'):
     txt=comp.read_text('utf-8', errors='replace')
     for m in re.finditer(r'<button(\s|>)', txt):
-        # Skip <button> occurrences inside JS/TS comment lines
         line_start = txt.rfind('\n', 0, m.start()) + 1
         line_prefix = txt[line_start:m.start()]
         if '//' in line_prefix:
