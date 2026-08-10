@@ -53,6 +53,9 @@ export default function CanonTechniqueMatrix() {
         </div>
 
         <p className="canon-technique-note">Номер работы возвращает к соответствующему объекту коллекции.</p>
+        <p className="canon-technique-note">
+          VISUAL NOTE · Изображения Le Canon Sucré — редакционные AI-визуализации, созданные для проекта. Документальная хронология и исторические выводы опираются на отдельно верифицированный Research-корпус.
+        </p>
       </div>
     </section>
   )
