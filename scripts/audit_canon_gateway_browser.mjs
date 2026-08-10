@@ -20,6 +20,8 @@ async function capture(label, viewport, path) {
   await page.waitForTimeout(300)
 
   const state = await gateway.evaluate((node) => {
+    const ownerDocument = node.ownerDocument
+    const view = ownerDocument.defaultView
     const media = node.querySelector('.canon-gateway-media')
     const image = node.querySelector('.canon-gateway-media img')
     const copy = node.querySelector('.canon-gateway-copy')
@@ -29,7 +31,7 @@ async function capture(label, viewport, path) {
       const r = element.getBoundingClientRect()
       return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom }
     }
-    const style = image ? getComputedStyle(image) : null
+    const style = image && view ? view.getComputedStyle(image) : null
     return {
       gateway: rect(node),
       media: rect(media),
@@ -41,8 +43,8 @@ async function capture(label, viewport, path) {
       naturalHeight: image?.naturalHeight || 0,
       objectFit: style?.objectFit || '',
       objectPosition: style?.objectPosition || '',
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: ownerDocument.documentElement.scrollWidth,
+      clientWidth: ownerDocument.documentElement.clientWidth,
     }
   })
 
