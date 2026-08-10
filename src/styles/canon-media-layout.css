@@ -21,12 +21,12 @@
 .canon-work-image {
   object-fit: cover;
   object-position: 50% 50%;
-  transform: none;
+  transform: scale(var(--canon-media-scale, 1));
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .canon-work-link:hover .canon-work-image {
-    transform: scale(1.025);
+    transform: scale(calc(var(--canon-media-scale, 1) * 1.025));
   }
 }
 
@@ -48,6 +48,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .canon-work-image {
-    transform: none !important;
+    transform: scale(var(--canon-media-scale, 1)) !important;
   }
 }
