@@ -17,6 +17,7 @@ EXPECTED_WIDTH = 1280
 EXPECTED_HEIGHT = 800
 MAX_FILE_BYTES = 180 * 1024
 MAX_TOTAL_BYTES = 2 * 1024 * 1024
+AUXILIARY_MEDIA_PATHS = {"/images/canon-sucre/canon-gateway-hero.webp"}
 
 BINDING_RE = re.compile(
     r"(?m)^\s*(?:'([^']+)'|([A-Za-z0-9_-]+))\s*:\s*\{\s*\n\s*image\s*:\s*'([^']+)'"
@@ -88,13 +89,16 @@ if len(bindings) != EXPECTED_COUNT:
 
 expected_paths = {f"/images/canon-sucre/{work_id}.webp" for work_id in bindings}
 actual_paths = {f"/images/canon-sucre/{path.name}" for path in MEDIA_DIR.glob("*.webp")}
+actual_work_paths = actual_paths - AUXILIARY_MEDIA_PATHS
+unexpected_auxiliary = actual_paths - expected_paths - AUXILIARY_MEDIA_PATHS
+
 if set(bindings.values()) != expected_paths:
     unexpected = sorted(set(bindings.values()) - expected_paths)
     missing = sorted(expected_paths - set(bindings.values()))
     raise SystemExit(f"[canon-media] Canon ID/path mismatch: unexpected={unexpected}; missing={missing}")
-if actual_paths != expected_paths:
-    missing = sorted(expected_paths - actual_paths)
-    extra = sorted(actual_paths - expected_paths)
+if actual_work_paths != expected_paths or unexpected_auxiliary:
+    missing = sorted(expected_paths - actual_work_paths)
+    extra = sorted((actual_work_paths - expected_paths) | unexpected_auxiliary)
     raise SystemExit(f"[canon-media] Pack/file mismatch: missing={missing}; extra={extra}")
 
 seen_hashes: dict[str, str] = {}
@@ -154,8 +158,10 @@ if DIST_CANON.exists():
     rendered_note = "built /canon/ renders 15/15 dedicated images and 0 catalogue plates"
 
 print("# Le Canon Sucré media quality gate")
-print(f"- PASS: {len(rows)} unique WebP assets")
-print(f"- PASS: all assets are {EXPECTED_WIDTH}x{EXPECTED_HEIGHT}")
-print(f"- PASS: total pack {total_bytes / 1024:.1f} KiB (budget {MAX_TOTAL_BYTES / 1024:.0f} KiB)")
-print(f"- PASS: largest asset {max(size for _, size in rows) / 1024:.1f} KiB (budget {MAX_FILE_BYTES / 1024:.0f} KiB)")
+print(f"- PASS: {len(rows)} unique work WebP assets")
+print(f"- PASS: all work assets are {EXPECTED_WIDTH}x{EXPECTED_HEIGHT}")
+print(f"- PASS: total work pack {total_bytes / 1024:.1f} KiB (budget {MAX_TOTAL_BYTES / 1024:.0f} KiB)")
+print(f"- PASS: largest work asset {max(size for _, size in rows) / 1024:.1f} KiB (budget {MAX_FILE_BYTES / 1024:.0f} KiB)")
+if AUXILIARY_MEDIA_PATHS & actual_paths:
+    print("- PASS: dedicated gateway derivative excluded from 15-work pack accounting and validated by audit:canon-gateway")
 print(f"- PASS: {rendered_note}")
