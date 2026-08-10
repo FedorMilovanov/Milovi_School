@@ -1,0 +1,4 @@
+Owner-supplied source filename: mona-lisa-1_b_Create_a_single_cont.png
+Source dimensions: 1916x821
+Mounted derivative: public/images/canon-sucre/canon-gateway-hero.webp
+Date accepted for integration: 2026-08-10
