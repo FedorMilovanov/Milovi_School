@@ -70,8 +70,8 @@ if home:
             fail(f'Canon gateway must expose one coherent editorial image, found {len(media)}')
         elif not media[0].get('src', '').startswith('/images/'):
             fail('Canon gateway media must use a local production /images/ asset')
-        elif media[0].get('alt') != '':
-            fail('Canon gateway image is decorative beside equivalent link copy and must use empty alt')
+        elif not media[0].get('alt', '').strip():
+            fail('Canon gateway production media must keep a non-empty descriptive alt')
         if gateway.select('.canon-gateway-media-item'):
             fail('Canon gateway must not regress to the fragmented multi-panel thumbnail stack')
     if len(errors) == before:
