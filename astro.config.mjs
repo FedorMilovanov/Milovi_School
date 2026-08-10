@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
+const siteUrl = 'https://french.milovicake.ru'
 
 // https://french.milovicake.ru
 //
@@ -56,6 +57,14 @@ function bumpServiceWorkerVersion() {
   }
 }
 
+/**
+ * Post-process Astro's sitemap with image discovery and trustworthy lastmod.
+ *
+ * Google removed image:caption/image:title/image:geo_location/image:license from
+ * its current image-sitemap specification. We intentionally emit only image:loc.
+ * lastmod is added only for article URLs whose generated Article JSON-LD exposes
+ * a real dateModified value; static pages are not given synthetic timestamps.
+ */
 function enhanceImageSitemap() {
   const xmlEscape = (value = '') => String(value)
     .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
@@ -73,7 +82,13 @@ function enhanceImageSitemap() {
     .replace(/&gt;/g, '>')
 
   const readText = async (file) => fs.readFile(file, 'utf8').catch(() => '')
-  const stripTags = (value = '') => htmlDecode(String(value).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim())
+  const absoluteImage = (value) => {
+    const decoded = htmlDecode(value)
+    if (!decoded) return ''
+    if (/^https:\/\//i.test(decoded)) return decoded
+    if (decoded.startsWith('/')) return `${siteUrl}${decoded}`
+    return ''
+  }
 
   return {
     name: 'milovi-image-sitemap',
@@ -81,44 +96,74 @@ function enhanceImageSitemap() {
       'astro:build:done': async ({ dir }) => {
         const dist = dir.pathname
         const sitemapPath = path.join(dist, 'sitemap-0.xml')
-        const sitemap = await readText(sitemapPath)
-        if (!sitemap || sitemap.includes('<image:image>')) return
+        let sitemapXml = await readText(sitemapPath)
+        if (!sitemapXml) return
 
-        const imageByLoc = new Map()
+        const pageMetadata = new Map()
         const articlesDir = path.join(dist, 'articles')
-        const articleIds = await fs.readdir(articlesDir).catch(() => null)
-        if (!articleIds) return
+        const articleIds = await fs.readdir(articlesDir).catch(() => [])
 
         for (const id of articleIds) {
           const html = await readText(path.join(articlesDir, id, 'index.html'))
           if (!html) continue
-          const loc = `https://french.milovicake.ru/articles/${id}/`
-          const image = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1]
-          if (!image) continue
-          const rawTitle = html.match(/<meta property="og:image:alt" content="([^"]+)"/)?.[1]
-            ?? html.match(/<title>(.*?)<\/title>/)?.[1]
-            ?? ''
-          const rawCaption = html.match(/<figcaption[^>]*>(.*?)<\/figcaption>/s)?.[1]
-            ?? html.match(/<meta name="description" content="([^"]+)"/)?.[1]
-            ?? rawTitle
-          const captionText = stripTags(rawCaption)
-          imageByLoc.set(loc, {
-            image: htmlDecode(image),
-            title: stripTags(rawTitle).replace(/\s+—\s+Patisserie Russe$/i, ''),
-            // Guard: if regex accidentally captured a large HTML chunk, fall back to title
-            caption: captionText.length <= 500 ? captionText : stripTags(rawTitle),
+          const loc = `${siteUrl}/articles/${id}/`
+          const image = absoluteImage(html.match(/<meta property="og:image" content="([^"]+)"/)?.[1] ?? '')
+          const dateModified = html.match(/"dateModified"\s*:\s*"([^"]+)"/)?.[1] ?? ''
+          pageMetadata.set(loc, {
+            images: image ? [image] : [],
+            lastmod: /^\d{4}-\d{2}-\d{2}(?:T[^"<]+)?$/.test(dateModified) ? dateModified : '',
           })
         }
 
-        const updated = sitemap.replace(/<url><loc>([^<]+)<\/loc>(.*?)<\/url>/gs, (block, loc, rest) => {
-          const data = imageByLoc.get(loc)
+        const canonHtml = await readText(path.join(dist, 'canon', 'index.html'))
+        if (canonHtml) {
+          const canonImages = []
+          const imageMatches = canonHtml.matchAll(/<img[^>]+src="([^"]+)"/g)
+          for (const match of imageMatches) {
+            const image = absoluteImage(match[1])
+            if (!image.includes('/images/canon-sucre/')) continue
+            if (!canonImages.includes(image)) canonImages.push(image)
+          }
+          pageMetadata.set(`${siteUrl}/canon/`, { images: canonImages, lastmod: '' })
+        }
+
+        // Be defensive if the sitemap generator changes namespace defaults.
+        if (!sitemapXml.includes('xmlns:image=')) {
+          sitemapXml = sitemapXml.replace(
+            /<urlset\b/,
+            '<urlset xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"',
+          )
+        }
+
+        let imageCount = 0
+        let lastmodCount = 0
+        const updated = sitemapXml.replace(/<url><loc>([^<]+)<\/loc>(.*?)<\/url>/gs, (block, rawLoc, rawRest) => {
+          const loc = htmlDecode(rawLoc)
+          const data = pageMetadata.get(loc)
           if (!data) return block
-          return `<url><loc>${loc}</loc>${rest}<image:image><image:loc>${xmlEscape(data.image)}</image:loc><image:title>${xmlEscape(data.title)}</image:title><image:caption>${xmlEscape(data.caption)}</image:caption></image:image></url>`
+
+          // A fresh Astro build should not contain these, but stripping them keeps
+          // the post-processor idempotent and removes legacy deprecated image tags.
+          let rest = rawRest.replace(/<image:image>[\s\S]*?<\/image:image>/g, '')
+          rest = rest.replace(/<lastmod>[^<]+<\/lastmod>/g, '')
+
+          const lastmod = data.lastmod ? `<lastmod>${xmlEscape(data.lastmod)}</lastmod>` : ''
+          if (lastmod) lastmodCount += 1
+
+          const images = data.images
+            .filter((image, index, list) => image && list.indexOf(image) === index)
+            .map((image) => {
+              imageCount += 1
+              return `<image:image><image:loc>${xmlEscape(image)}</image:loc></image:image>`
+            })
+            .join('')
+
+          return `<url><loc>${rawLoc}</loc>${lastmod}${rest}${images}</url>`
         })
 
-        if (updated !== sitemap) {
+        if (updated !== sitemapXml) {
           await fs.writeFile(sitemapPath, updated, 'utf8')
-          console.log(`[milovi-image-sitemap] Added image metadata for ${imageByLoc.size} article URLs`)
+          console.log(`[milovi-image-sitemap] Added ${imageCount} image URLs and ${lastmodCount} trustworthy lastmod values`)
         }
       },
     },
@@ -126,7 +171,7 @@ function enhanceImageSitemap() {
 }
 
 export default defineConfig({
-  site: 'https://french.milovicake.ru',
+  site: siteUrl,
   output: 'static',
   trailingSlash: 'always',
   integrations: [

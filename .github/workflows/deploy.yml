@@ -105,6 +105,12 @@ jobs:
       EXPECTED_SHA: ${{ github.sha }}
       LIVE_BASE: https://french.milovicake.ru
     steps:
+      - name: Checkout live-proof scripts
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
       - name: Wait for CDN and verify immutable release witness
         shell: bash
         run: |
@@ -125,12 +131,38 @@ jobs:
       - name: Smoke policy and error surfaces
         run: |
           set -euo pipefail
-          for path in / /privacy/ /editorial-policy/ /sources/ /corrections/; do
+          for path in / /privacy/ /editorial-policy/ /sources/ /corrections/ /canon/; do
             curl -fsS --connect-timeout 10 --max-time 20 "$LIVE_BASE$path" >/dev/null
           done
           status="$(curl -sS -o /tmp/not-found.html -w '%{http_code}' "$LIVE_BASE/__release-proof-missing-page__")"
           test "$status" = "404"
           grep -qi 'noindex, follow' /tmp/not-found.html
+
+      - name: Prove live SEO and image-discovery contracts
+        run: bash scripts/audit_seo_live.sh
+
+  indexnow:
+    name: Notify IndexNow of changed public URLs
+    if: github.event_name == 'push'
+    needs: live-proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout release and parent
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Submit changed URLs to IndexNow
+        run: node scripts/notify_indexnow.mjs
+        env:
+          LIVE_BASE: https://french.milovicake.ru
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
 
   publish-release-status:
     name: Publish release proof status

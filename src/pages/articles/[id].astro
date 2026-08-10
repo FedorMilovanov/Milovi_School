@@ -22,6 +22,7 @@ const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/articles/${article.id}/`
 const canonUrl = `${siteUrl}/canon/`
 const pageTitle = `${article.title} — Patisserie Russe`
+const generatedMediaSourceType = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia'
 
 const categoryName = categories.find((c) => c.id === article.category)?.name ?? article.category
 const canonWork = canonWorks.find((work) => work.articleId === article.id)
@@ -45,6 +46,9 @@ function buildOgImage(input: string | undefined, width?: number, height?: number
 }
 
 const ogImg = buildOgImage(article.image, article.imageWidth, article.imageHeight)
+const socialImageAlt = article.imageAlt ?? article.imageTitle ?? article.title
+const imageCredit = article.imageCredit ?? 'Patisserie Russe / Milovi School'
+const generatedEditorialImage = /(?:\bAI\b|generated|генератив|сгенерирован)/i.test(imageCredit)
 
 // ── Structured data ──────────────────────────────────────────────────────────
 const articleBodyPlain = (article.content ?? '')
@@ -73,8 +77,9 @@ const jsonLdImage = {
   height: article.imageHeight ?? ogImg.height ?? 800,
   caption: article.imageCaption ?? article.title,
   name: article.imageTitle ?? article.title,
-  creditText: article.imageCredit ?? 'Patisserie Russe / Milovi School',
+  creditText: imageCredit,
   representativeOfPage: true,
+  ...(generatedEditorialImage ? { digitalSourceType: generatedMediaSourceType } : {}),
 }
 
 const jsonLdArticle = {
@@ -150,8 +155,6 @@ const jsonLdBreadcrumb = {
 // Google as structured-data spam (manual action risk in Search Console).
 function extractRecipeSteps(content: string | undefined): { '@type': 'HowToStep'; text: string }[] {
   if (!content) return []
-  // Numbered "1. step" or "1) step" lines, must contain at least 12 characters
-  // of content (filters out year stamps like "1985." and noise).
   const stepRegex = /^\s*\d+[.)]\s+(.{12,})$/gm
   const cookingVerb = /(смеш|взб|добав|введ|растоп|довед|выпек|охлад|замороз|раскат|нареж|собер|перелож|процед|пробей|пробить|нагр|вар|завар|влей|влить|вылож|перемеш|карамелиз|темперир|отсад|накрой|оставь|сними|снять)/i
   const steps: { '@type': 'HowToStep'; text: string }[] = []
@@ -224,6 +227,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   title={pageTitle}
   description={article.excerpt}
   image={ogImg.url}
+  imageAlt={socialImageAlt}
   ogImageWidth={ogImg.width}
   ogImageHeight={ogImg.height}
   canonicalUrl={canonicalUrl}

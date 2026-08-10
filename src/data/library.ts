@@ -6,6 +6,7 @@ import type { Article, ArticleMeta, ArticleClientMeta } from './types'
 
 const CONTENT_EXPANSION_DATE = '2026-08-03'
 const WORD_RE = /[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*/g
+const LEGACY_ALT_TEMPLATE_RE = /^(?:Французская кондитерская школа: визуал к материалу|Французский десерт «|Иллюстрация французской кондитерской техники|Исторический материал о французской pâtisserie|Инфографичный визуал к аналитике французской кондитерской)/i
 
 const baseIds = new Set(articles.map((article) => article.id))
 const expansionIds = Object.keys(articleExpansions)
@@ -37,15 +38,32 @@ if (canonLegacyCollisions.length > 0) {
 const estimateReadTime = (content: string) =>
   Math.max(1, Math.ceil((content.match(WORD_RE)?.length ?? 0) / 180))
 
+/**
+ * Legacy article imports contain machine-style alt strings that repeat title,
+ * generic SEO phrases and parenthesized keyword lists. Search engines and
+ * assistive technology benefit from a concise contextual alternative instead.
+ * Preserve genuinely custom short alts; normalize only the known legacy
+ * templates (or unusually long generated strings) to the editorial image title.
+ */
+const normalizeImageAlt = (article: Article): string => {
+  const current = article.imageAlt?.trim() ?? ''
+  if (current && !LEGACY_ALT_TEMPLATE_RE.test(current) && current.length <= 140) return current
+
+  const imageTitle = article.imageTitle?.trim() ?? ''
+  if (imageTitle && imageTitle.length <= 140 && !imageTitle.endsWith('…')) return imageTitle
+  return article.title.trim()
+}
+
 const enrichArticle = (article: Article): Article => {
   const expansion = articleExpansions[article.id]
   const override = articleOverrides[article.id]
+  const merged = { ...article, ...override }
   const content = expansion ? `${article.content.trim()}\n\n${expansion.trim()}` : article.content
 
   return {
-    ...article,
-    ...override,
+    ...merged,
     content,
+    imageAlt: normalizeImageAlt(merged),
     readTime: Math.max(article.readTime, estimateReadTime(content)),
     updatedAt: expansion ? CONTENT_EXPANSION_DATE : article.updatedAt,
   }
@@ -54,6 +72,7 @@ const enrichArticle = (article: Article): Article => {
 const normalizeStandaloneArticle = (article: Article): Article => ({
   ...article,
   content: article.content.trim(),
+  imageAlt: normalizeImageAlt(article),
   readTime: Math.max(article.readTime, estimateReadTime(article.content)),
 })
 
