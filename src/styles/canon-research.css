@@ -22,9 +22,9 @@
 
 .canon-research-kicker {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: .24em;
-  color: rgba(224, 187, 124, .58);
+  color: rgba(224, 187, 124, .68);
 }
 
 .canon-research-head h2 {
@@ -105,18 +105,18 @@
 .canon-research-evidence {
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
+  min-height: 23px;
   padding: .22rem .5rem;
-  border: 1px solid rgba(212, 173, 107, .18);
+  border: 1px solid rgba(212, 173, 107, .24);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: .16em;
-  color: rgba(224, 190, 132, .56);
+  color: rgba(224, 190, 132, .7);
 }
 
 .canon-research-milestone[data-evidence='CONFLICT'] .canon-research-evidence {
-  border-color: rgba(111, 149, 179, .24);
-  color: rgba(164, 193, 216, .68);
+  border-color: rgba(111, 149, 179, .3);
+  color: rgba(164, 193, 216, .72);
 }
 
 .canon-research-copy h3 {
@@ -146,13 +146,13 @@
 
 .canon-research-works a,
 .canon-document-pane > a {
-  color: rgba(229, 194, 135, .62);
+  color: rgba(229, 194, 135, .68);
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: .13em;
   text-transform: uppercase;
   text-decoration: none;
-  border-bottom: 1px solid rgba(212, 173, 107, .22);
+  border-bottom: 1px solid rgba(212, 173, 107, .28);
   transition: color .4s var(--canon-ease), border-color .4s var(--canon-ease);
 }
 
@@ -223,16 +223,16 @@
 
 .canon-research-foot > span {
   font-family: var(--font-mono);
-  font-size: 8px;
+  font-size: 9px;
   letter-spacing: .17em;
-  color: rgba(218, 182, 121, .48);
+  color: rgba(218, 182, 121, .68);
 }
 
 .canon-research-foot > p {
   max-width: 760px;
-  font-size: .78rem;
+  font-size: .85rem;
   line-height: 1.6;
-  color: rgba(236, 228, 215, .4);
+  color: rgba(236, 228, 215, .58);
 }
 
 @media (max-width: 760px) {
