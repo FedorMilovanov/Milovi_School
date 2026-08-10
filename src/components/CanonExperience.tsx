@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
@@ -8,11 +8,13 @@ import {
   type CanonActId,
   type CanonWork,
 } from '../data/canon'
+import type { ArticleClientMeta } from '../data/types'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
+import '../styles/canon-editorial.css'
 
 const pad = (value: number) => String(value).padStart(2, '0')
 
@@ -34,7 +36,7 @@ function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   )
 }
 
-function CanonWorkCard({ work }: { work: CanonWork }) {
+function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleClientMeta }) {
   const mediaRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
   const destination = work.articleId ? `/articles/${work.articleId}/` : null
@@ -96,6 +98,17 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
 
         {work.curatorLine && <p className="canon-work-curator">{work.curatorLine}</p>}
 
+        {article && (
+          <div className="canon-work-dossier">
+            <div className="canon-work-dossier-meta" aria-label={`Полное досье, время чтения ${article.readTime} минут`}>
+              <span>DOSSIER</span>
+              <span aria-hidden="true">·</span>
+              <span>{article.readTime} MIN</span>
+            </div>
+            <p className="canon-work-excerpt">{article.excerpt}</p>
+          </div>
+        )}
+
         {work.techniques && work.techniques.length > 0 && (
           <div className="canon-work-techniques" aria-label={`Ключевые элементы: ${work.techniques.join(', ')}`}>
             {work.techniques.map((technique) => <span key={technique}>{technique}</span>)}
@@ -146,10 +159,11 @@ function CanonWorkCard({ work }: { work: CanonWork }) {
   )
 }
 
-export default function CanonExperience() {
+export default function CanonExperience({ articles }: { articles: ArticleClientMeta[] }) {
   const reduceMotion = useReducedMotion()
   const [activeAct, setActiveAct] = useState<CanonActId>('forme')
   const [railVisible, setRailVisible] = useState(false)
+  const articlesById = useMemo(() => new Map(articles.map((article) => [article.id, article])), [articles])
 
   useEffect(() => {
     const nodes = canonActs
@@ -278,7 +292,7 @@ export default function CanonExperience() {
           <h2 id="canon-manifesto-title">Qu’est-ce qu’un canon&nbsp;?</h2>
         </div>
         <p>
-          Это не рейтинг «лучших десертов». Le Canon Sucré — кураторский маршрут по формам, которые закрепили технику, пережили эпоху, стали профессиональным ориентиром или получили настолько сильное переосмысление, что вошли в современный язык pâtisserie.
+          Это не рейтинг «лучших десертов». Le Canon Sucré — кураторский маршрут по формам, которые закрепили технику, пережили эпоху, стали профессиональным ориентиром или получили настолько сильное переосмысление, что вошли в современный язык pâtisserie. Каждая работа связана с полноценным досье библиотеки: карточка теперь показывает не рекламный слоган, а вход в исследовательский материал.
         </p>
       </section>
 
@@ -313,7 +327,13 @@ export default function CanonExperience() {
               </header>
 
               <div className="canon-work-grid">
-                {canonWorksByAct(act.id).map((work) => <CanonWorkCard key={work.id} work={work} />)}
+                {canonWorksByAct(act.id).map((work) => (
+                  <CanonWorkCard
+                    key={work.id}
+                    work={work}
+                    article={work.articleId ? articlesById.get(work.articleId) : undefined}
+                  />
+                ))}
               </div>
 
               {nextAct && (
