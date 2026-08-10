@@ -36,6 +36,9 @@ audit/
 *_DIAGNOSTIC.txt
 *_DIAGNOSTIC.json
 
+# Deterministically materialized owner-selected Canon gateway derivative
+/public/images/canon-sucre/canon-gateway-hero.webp
+
 # Local/tooling noise — do not commit
 .config/
 .arena/

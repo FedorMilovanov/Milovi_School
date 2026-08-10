@@ -1,12 +1,23 @@
 import { useRef } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { canonMedia } from '../data/canon-media'
+import { canonMedia, type CanonMediaId } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
-const GATEWAY_MEDIA = canonMedia['saint-honore']
+const GATEWAY_IMAGE = '/images/canon-sucre/canon-gateway-hero.webp'
+const GATEWAY_WORKS = [
+  'saint-honore',
+  'opera',
+  'ispahan',
+  'mont-blanc',
+  'galette-des-rois',
+  'canele-bordeaux',
+] as const satisfies readonly CanonMediaId[]
+const GATEWAY_IMAGE_ALT = `Le Canon Sucré: ${GATEWAY_WORKS
+  .map((id) => canonMedia[id].imageAlt.split(':')[0])
+  .join(', ')} на тёмных каменных подставках`
 
 export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
@@ -19,8 +30,8 @@ export default function CanonGateway() {
     const rect = node.getBoundingClientRect()
     const nx = ((event.clientX - rect.left) / rect.width - 0.5) * 2
     const ny = ((event.clientY - rect.top) / rect.height - 0.5) * 2
-    node.style.setProperty('--canon-rx', `${(-ny * 0.55).toFixed(2)}deg`)
-    node.style.setProperty('--canon-ry', `${(nx * 0.65).toFixed(2)}deg`)
+    node.style.setProperty('--canon-rx', `${(-ny * 0.3).toFixed(2)}deg`)
+    node.style.setProperty('--canon-ry', `${(nx * 0.35).toFixed(2)}deg`)
     node.style.setProperty('--canon-mx', `${((nx + 1) * 50).toFixed(1)}%`)
     node.style.setProperty('--canon-my', `${((ny + 1) * 50).toFixed(1)}%`)
   }
@@ -30,8 +41,8 @@ export default function CanonGateway() {
     if (!node) return
     node.style.setProperty('--canon-rx', '0deg')
     node.style.setProperty('--canon-ry', '0deg')
-    node.style.setProperty('--canon-mx', '72%')
-    node.style.setProperty('--canon-my', '40%')
+    node.style.setProperty('--canon-mx', '68%')
+    node.style.setProperty('--canon-my', '54%')
   }
 
   return (
@@ -48,10 +59,10 @@ export default function CanonGateway() {
       >
         <span className="canon-gateway-media" aria-hidden="true">
           <img
-            src={GATEWAY_MEDIA.image}
-            alt={GATEWAY_MEDIA.imageAlt}
-            width={1280}
-            height={800}
+            src={GATEWAY_IMAGE}
+            alt={GATEWAY_IMAGE_ALT}
+            width={1916}
+            height={821}
             loading="lazy"
             decoding="async"
           />

@@ -1,10 +1,10 @@
 /* ============================================================
    Le Canon Sucré — homepage gateway
 
-   One coherent editorial image, one reading hierarchy, one destination.
-   The previous five-panel thumbnail stack fragmented the collection and forced
-   five unrelated cover crops into a luxury banner. This treatment preserves a
-   single 16:10 master and lets typography + image behave as one composition.
+   Owner-selected panoramic artwork is the visual authority here.
+   The image already contains deliberate left-side negative space and a low
+   horizontal pastry line, so the gateway uses the full master as one plane.
+   No thumbnail stack, no portrait crops, no synthetic collage.
    ============================================================ */
 
 :root {
@@ -22,49 +22,44 @@
 .canon-gateway {
   --canon-rx: 0deg;
   --canon-ry: 0deg;
-  --canon-mx: 72%;
-  --canon-my: 40%;
+  --canon-mx: 68%;
+  --canon-my: 54%;
   position: relative;
   display: grid;
-  min-height: clamp(390px, 31vw, 520px);
+  min-height: clamp(380px, 29vw, 500px);
   max-width: 1520px;
   margin: 0 auto;
   overflow: hidden;
   isolation: isolate;
   color: var(--canon-gateway-ink);
   text-decoration: none;
-  background:
-    radial-gradient(circle at 73% 42%, rgba(176, 122, 62, 0.13), transparent 34%),
-    linear-gradient(108deg, #080706 0%, #0a0908 48%, #12100d 100%);
+  background: #070605;
   border: 1px solid rgba(212, 173, 107, 0.16);
   box-shadow:
     0 36px 96px -52px rgba(0, 0, 0, 0.82),
     inset 0 1px 0 rgba(255, 255, 255, 0.025);
-  perspective: 1500px;
+  perspective: 1600px;
   transform: translateZ(0);
 }
 
 .canon-gateway-media {
   position: absolute;
-  inset: 0 0 0 39%;
+  inset: 0;
   z-index: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
-  transform: perspective(1500px) rotateX(var(--canon-rx)) rotateY(var(--canon-ry)) scale(1.002);
-  transform-origin: 64% 50%;
+  transform: perspective(1600px) rotateX(var(--canon-rx)) rotateY(var(--canon-ry)) scale(1.002);
+  transform-origin: 68% 55%;
   transition: transform 0.9s var(--canon-gateway-ease), filter 0.7s ease;
-  filter: saturate(0.82) brightness(0.78) contrast(1.05);
+  filter: saturate(0.91) brightness(0.88) contrast(1.04);
 }
 
 .canon-gateway-media img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: 61% 50%;
-  transform: scale(0.985);
+  object-fit: cover;
+  object-position: 50% 56%;
+  transform: scale(1.002);
   transition: transform 0.95s var(--canon-gateway-ease), filter 0.75s ease;
 }
 
@@ -75,13 +70,15 @@
   pointer-events: none;
   background:
     linear-gradient(90deg,
-      rgba(7, 6, 5, 1) 0%,
-      rgba(7, 6, 5, 0.97) 31%,
-      rgba(7, 6, 5, 0.82) 43%,
-      rgba(7, 6, 5, 0.28) 58%,
-      rgba(7, 6, 5, 0.06) 78%,
-      rgba(7, 6, 5, 0.24) 100%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 42%, rgba(0, 0, 0, 0.26));
+      rgba(6, 5, 4, 0.82) 0%,
+      rgba(6, 5, 4, 0.64) 27%,
+      rgba(6, 5, 4, 0.34) 43%,
+      rgba(6, 5, 4, 0.07) 61%,
+      rgba(6, 5, 4, 0.00) 78%),
+    linear-gradient(180deg,
+      rgba(0, 0, 0, 0.08) 0%,
+      transparent 42%,
+      rgba(0, 0, 0, 0.22) 100%);
 }
 
 .canon-gateway-light {
@@ -91,11 +88,11 @@
   pointer-events: none;
   background: radial-gradient(
     circle at var(--canon-mx) var(--canon-my),
-    rgba(236, 198, 130, 0.13) 0,
-    rgba(236, 198, 130, 0.045) 19%,
-    transparent 42%
+    rgba(236, 198, 130, 0.10) 0,
+    rgba(236, 198, 130, 0.035) 18%,
+    transparent 40%
   );
-  opacity: 0.5;
+  opacity: 0.42;
   mix-blend-mode: screen;
   transition: opacity 0.65s var(--canon-gateway-ease);
 }
@@ -105,7 +102,7 @@
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  opacity: 0.10;
+  opacity: 0.075;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E");
   mix-blend-mode: soft-light;
 }
@@ -114,9 +111,9 @@
   position: relative;
   z-index: 5;
   align-self: center;
-  width: min(48%, 660px);
+  width: min(47%, 650px);
   padding: clamp(2.4rem, 4.4vw, 5rem);
-  transform: translateZ(42px);
+  transform: translateZ(36px);
 }
 
 .canon-eyebrow,
@@ -130,7 +127,7 @@
 }
 
 .canon-eyebrow {
-  color: rgba(228, 192, 128, 0.78);
+  color: rgba(228, 192, 128, 0.82);
   transition: letter-spacing 0.65s var(--canon-gateway-ease), color 0.65s ease;
 }
 
@@ -146,31 +143,32 @@
 
 .canon-gateway-title {
   display: block;
-  max-width: 620px;
+  max-width: 610px;
   margin-top: clamp(1rem, 1.8vw, 1.55rem);
   font-family: var(--font-serif);
-  font-size: clamp(3.2rem, 5.8vw, 6.1rem);
+  font-size: clamp(3.1rem, 5.5vw, 5.8rem);
   font-weight: 600;
-  line-height: 0.82;
-  letter-spacing: -0.067em;
+  line-height: 0.84;
+  letter-spacing: -0.064em;
   color: #ead1a0;
   text-wrap: balance;
-  text-shadow: 0 8px 42px rgba(0, 0, 0, 0.38);
+  text-shadow: 0 8px 42px rgba(0, 0, 0, 0.52);
 }
 
 .canon-gateway-subtitle {
   display: block;
-  max-width: 34rem;
+  max-width: 33rem;
   margin-top: clamp(1.2rem, 2vw, 1.8rem);
   font-family: var(--font-serif);
-  font-size: clamp(1.05rem, 1.45vw, 1.38rem);
+  font-size: clamp(1.02rem, 1.38vw, 1.34rem);
   line-height: 1.42;
-  color: rgba(247, 240, 228, 0.80);
+  color: rgba(247, 240, 228, 0.82);
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.56);
 }
 
 .canon-gateway-meta {
   margin-top: 1.2rem;
-  color: rgba(230, 207, 169, 0.48);
+  color: rgba(230, 207, 169, 0.54);
 }
 
 .canon-gateway-cta {
@@ -225,16 +223,16 @@
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .canon-gateway:hover .canon-gateway-media {
-    transform: perspective(1500px) rotateX(var(--canon-rx)) rotateY(var(--canon-ry)) scale(1.008);
-    filter: saturate(0.92) brightness(0.89) contrast(1.05);
+    transform: perspective(1600px) rotateX(var(--canon-rx)) rotateY(var(--canon-ry)) scale(1.006);
+    filter: saturate(0.98) brightness(0.95) contrast(1.04);
   }
 
   .canon-gateway:hover .canon-gateway-media img {
-    transform: scale(1.008);
+    transform: scale(1.012);
   }
 
   .canon-gateway:hover .canon-gateway-light {
-    opacity: 0.82;
+    opacity: 0.72;
   }
 
   .canon-gateway:hover .canon-eyebrow {
@@ -268,11 +266,11 @@
 
 @media (max-width: 1180px) {
   .canon-gateway-copy {
-    width: 54%;
+    width: 52%;
   }
 
-  .canon-gateway-media {
-    left: 42%;
+  .canon-gateway-media img {
+    object-position: 54% 56%;
   }
 }
 
@@ -282,28 +280,30 @@
   }
 
   .canon-gateway {
-    min-height: 640px;
+    min-height: 585px;
     align-items: end;
   }
 
   .canon-gateway-media {
-    inset: 0 0 38% 0;
+    inset: 0 0 auto 0;
+    height: clamp(190px, 42vw, 340px);
+    background: #070605;
     transform: none;
   }
 
   .canon-gateway-media img {
-    object-fit: contain;
-    object-position: 50% 50%;
+    object-fit: cover;
+    object-position: 100% 58%;
     transform: none;
   }
 
   .canon-gateway-vignette {
     background:
       linear-gradient(180deg,
-        rgba(7, 6, 5, 0.08) 0%,
-        rgba(7, 6, 5, 0.20) 36%,
-        rgba(7, 6, 5, 0.86) 61%,
-        rgba(7, 6, 5, 0.99) 76%,
+        rgba(7, 6, 5, 0.00) 0%,
+        rgba(7, 6, 5, 0.03) 34%,
+        rgba(7, 6, 5, 0.78) 57%,
+        rgba(7, 6, 5, 0.98) 72%,
         #070605 100%);
   }
 
@@ -317,7 +317,7 @@
 
   .canon-gateway-title {
     max-width: 650px;
-    font-size: clamp(3.2rem, 12vw, 5.7rem);
+    font-size: clamp(3.15rem, 11.5vw, 5.5rem);
   }
 
   .canon-gateway-subtitle {
@@ -327,11 +327,11 @@
 
 @media (max-width: 540px) {
   .canon-gateway {
-    min-height: 610px;
+    min-height: 560px;
   }
 
   .canon-gateway-media {
-    bottom: 42%;
+    height: 190px;
   }
 
   .canon-gateway-copy {
