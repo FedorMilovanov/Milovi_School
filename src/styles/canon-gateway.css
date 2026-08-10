@@ -287,16 +287,13 @@
   .canon-gateway-media {
     inset: 0 0 auto 0;
     height: clamp(190px, 42vw, 340px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: #070605;
     transform: none;
   }
 
   .canon-gateway-media img {
-    object-fit: contain;
-    object-position: 50% 50%;
+    object-fit: cover;
+    object-position: 100% 58%;
     transform: none;
   }
 
