@@ -48,6 +48,12 @@ async function observedPage(browser, options) {
   return { context, page, telemetry }
 }
 
+function overlapArea(a, b) {
+  const width = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x))
+  const height = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y))
+  return width * height
+}
+
 async function assertNoHorizontalOverflow(page) {
   const state = await page.evaluate(() => ({
     scrollWidth: globalThis.document.documentElement.scrollWidth,
@@ -161,6 +167,16 @@ await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-researc
 await scrollEvidenceToTop(mobile.page, '.canon-legend-document', 92)
 await check('mobile research: Tatin split starts inside dedicated evidence viewport', async () => {
   await assertEvidenceStartsInViewport(mobile.page, '.canon-legend-document', 60, 220)
+})
+await check('mobile research: scroll-to-top control does not cover document copy', async () => {
+  const button = mobile.page.locator('button[aria-label="Наверх"]')
+  await button.waitFor({ state: 'visible' })
+  const buttonBox = await button.evaluate((node) => node.getBoundingClientRect().toJSON())
+  const copyBoxes = await mobile.page.locator('.canon-document-pane p').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().toJSON()))
+  assert.ok(copyBoxes.length > 0)
+  for (const copyBox of copyBoxes) {
+    assert.ok(overlapArea(buttonBox, copyBox) <= 1, JSON.stringify({ buttonBox, copyBox }))
+  }
 })
 await mobile.page.screenshot({ path: path.join(OUTPUT_DIR, 'canon-mobile-research-tatin.png'), fullPage: false })
 
