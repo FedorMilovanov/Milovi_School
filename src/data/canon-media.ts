@@ -2,6 +2,12 @@ export interface CanonMediaBinding {
   image: string
   imageAlt: string
   imageMobile?: string
+  /**
+   * Subject-scale correction inside the fixed 16:10 exhibition frame.
+   * Keep this exceptional and data-owned: it is for masters whose pastry was
+   * generated materially smaller than the rest of the pack, not for layout.
+   */
+  imageScale?: number
 }
 
 /**
@@ -27,6 +33,7 @@ export const canonMedia = {
   eclair: {
     image: '/images/canon-sucre/eclair.webp',
     imageAlt: 'Éclair (эклер): вытянутое заварное пирожное с тонкой глазурью',
+    imageScale: 1.04,
   },
   opera: {
     image: '/images/canon-sucre/opera.webp',
@@ -39,6 +46,7 @@ export const canonMedia = {
   'tarte-au-citron': {
     image: '/images/canon-sucre/tarte-au-citron.webp',
     imageAlt: 'Tarte au Citron (лимонный тарт): тонкая pâte sucrée и гладкий цитрусовый крем',
+    imageScale: 1.24,
   },
   ispahan: {
     image: '/images/canon-sucre/ispahan.webp',
@@ -71,6 +79,7 @@ export const canonMedia = {
   'galette-des-rois': {
     image: '/images/canon-sucre/galette-des-rois.webp',
     imageAlt: 'Galette des Rois (галет де руа): золотистое слоёное тесто с традиционным rayage',
+    imageScale: 1.18,
   },
 } as const satisfies Record<string, CanonMediaBinding>
 

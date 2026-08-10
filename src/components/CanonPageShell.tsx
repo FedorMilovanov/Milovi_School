@@ -70,7 +70,7 @@ export default function CanonPageShell({ articles }: { articles: ArticleClientMe
           onOpenCommand={() => setCommandOpen((value) => !value)}
         />
 
-        <CanonExperience />
+        <CanonExperience articles={articles} />
         <Footer />
 
         {commandOpen && (

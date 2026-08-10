@@ -16,13 +16,14 @@ export interface CanonWork {
   image: string
   imageMobile?: string
   imageAlt: string
+  imageScale?: number
   curatorLine?: string
   techniques?: string[]
   articleId?: string
   linkLabel?: string
 }
 
-type CanonWorkDefinition = Omit<CanonWork, 'image' | 'imageMobile' | 'imageAlt' | 'articleId'>
+type CanonWorkDefinition = Omit<CanonWork, 'image' | 'imageMobile' | 'imageAlt' | 'imageScale' | 'articleId'>
 
 export interface CanonAct {
   id: CanonActId
