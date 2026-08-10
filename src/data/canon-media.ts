@@ -14,63 +14,63 @@ export interface CanonMediaBinding {
 export const canonMedia = {
   'saint-honore': {
     image: '/images/canon-sucre/saint-honore.webp',
-    imageAlt: 'Saint-Honoré — pâte feuilletée, choux caramélisés et crème',
+    imageAlt: 'Saint-Honoré (Сент-Оноре): слоёная основа, карамелизированные шу и крем',
   },
   'paris-brest': {
     image: '/images/canon-sucre/paris-brest.webp',
-    imageAlt: 'Paris-Brest — couronne de pâte à choux et crème pralinée',
+    imageAlt: 'Paris-Brest (Пари-Брест): кольцо из заварного теста с пралине-кремом',
   },
   religieuse: {
     image: '/images/canon-sucre/religieuse.webp',
-    imageAlt: 'Religieuse — deux choux glacés et collerette de crème',
+    imageAlt: 'Religieuse (Религиоз): два глазированных шу с кремовой коллереткой',
   },
   eclair: {
     image: '/images/canon-sucre/eclair.webp',
-    imageAlt: 'Éclair — pâte à choux allongée et glaçage chocolat',
+    imageAlt: 'Éclair (эклер): вытянутое заварное пирожное с тонкой глазурью',
   },
   opera: {
     image: '/images/canon-sucre/opera.webp',
-    imageAlt: 'Gâteau Opéra — couches de Joconde, café et chocolat',
+    imageAlt: 'Gâteau Opéra (Опера): ровные слои бисквита Joconde, кофе и шоколада',
   },
   'baba-au-rhum': {
     image: '/images/canon-sucre/baba-au-rhum.webp',
-    imageAlt: 'Baba au Rhum — baba cannelé imbibé avec Chantilly',
+    imageAlt: 'Baba au Rhum (ромовая баба): пропитанный рифлёный баба с кремом Chantilly',
   },
   'tarte-au-citron': {
     image: '/images/canon-sucre/tarte-au-citron.webp',
-    imageAlt: 'Tarte au Citron — pâte sucrée fine et crème citron',
+    imageAlt: 'Tarte au Citron (лимонный тарт): тонкая pâte sucrée и гладкий цитрусовый крем',
   },
   ispahan: {
     image: '/images/canon-sucre/ispahan.webp',
-    imageAlt: 'Ispahan — macaron rose, framboises et crème',
+    imageAlt: 'Ispahan Пьера Эрме: розовый макарон, малина, личи и розовый крем',
   },
   '2000-feuilles': {
     image: '/images/canon-sucre/2000-feuilles.webp',
-    imageAlt: '2000 Feuilles — feuilletage caramélisé et crème pralinée',
+    imageAlt: '2000 Feuilles Пьера Эрме: карамелизированное слоёное тесто и пралине-крем',
   },
   'mont-blanc': {
     image: '/images/canon-sucre/mont-blanc.webp',
-    imageAlt: 'Mont-Blanc — vermicelles de marron et crème',
+    imageAlt: 'Mont-Blanc (Монблан): тонкие нити каштанового крема поверх Chantilly',
   },
   'kouign-amann': {
     image: '/images/canon-sucre/kouign-amann.webp',
-    imageAlt: 'Kouign-Amann — feuilletage breton profondément caramélisé',
+    imageAlt: 'Kouign-Amann (куинь-аман): слоёная бретонская выпечка с глубокой карамелизацией',
   },
   'tarte-tatin': {
     image: '/images/canon-sucre/tarte-tatin.webp',
-    imageAlt: 'Tarte Tatin — pommes caramélisées et pâte fine',
+    imageAlt: 'Tarte Tatin (тарт Татен): карамелизированные яблоки на тонкой хрустящей основе',
   },
   'tarte-tropezienne': {
     image: '/images/canon-sucre/tarte-tropezienne.webp',
-    imageAlt: 'Tarte Tropézienne — brioche, crème et sucre grain',
+    imageAlt: 'Tarte Tropézienne (тарт Тропезьен): золотистая бриошь с ровным слоем крема',
   },
   'canele-bordeaux': {
     image: '/images/canon-sucre/canele-bordeaux.webp',
-    imageAlt: 'Canelé de Bordeaux — coque sombre profondément caramélisée',
+    imageAlt: 'Canelé de Bordeaux (канеле): тёмная карамельная корка и светлая влажная сердцевина',
   },
   'galette-des-rois': {
     image: '/images/canon-sucre/galette-des-rois.webp',
-    imageAlt: 'Galette des Rois — feuilletage doré et rayage traditionnel',
+    imageAlt: 'Galette des Rois (галет де руа): золотистое слоёное тесто с традиционным rayage',
   },
 } as const satisfies Record<string, CanonMediaBinding>
 
