@@ -21,12 +21,14 @@
 .canon-work-image {
   object-fit: cover;
   object-position: 50% 50%;
-  transform: scale(var(--canon-media-scale, 1));
+  transform: none;
+  scale: var(--canon-media-scale, 1);
+  transition: scale .9s var(--canon-ease), filter .75s ease;
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .canon-work-link:hover .canon-work-image {
-    transform: scale(calc(var(--canon-media-scale, 1) * 1.025));
+    scale: calc(var(--canon-media-scale, 1) * 1.025);
   }
 }
 
@@ -48,6 +50,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .canon-work-image {
-    transform: scale(var(--canon-media-scale, 1)) !important;
+    transform: none !important;
+    scale: var(--canon-media-scale, 1) !important;
   }
 }
