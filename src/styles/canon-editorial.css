@@ -1,10 +1,38 @@
 @import './canon-media-layout.css';
 
-/* Le Canon Sucré — editorial density for collection cards.
+/* Le Canon Sucré — editorial density and art direction.
  *
  * The collection should preview the substance behind each route instead of
  * reducing a researched dossier to one curator sentence and three labels.
  */
+
+/* The first-screen right half used to be an empty gradient field. A single
+ * Canon master is now integrated as one continuous visual plane — no cards,
+ * no thumbnail strip, no fake collage. */
+.canon-hero::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  right: -2.5%;
+  width: min(58vw, 900px);
+  aspect-ratio: 16 / 10;
+  transform: translateY(-48%);
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(10, 9, 8, 0.96) 0%, rgba(10, 9, 8, 0.42) 23%, rgba(10, 9, 8, 0.03) 60%),
+    linear-gradient(180deg, rgba(10, 9, 8, 0.38), transparent 24% 76%, rgba(10, 9, 8, 0.48)),
+    url('/images/canon-sucre/ispahan.webp') center / cover no-repeat;
+  opacity: 0.46;
+  filter: saturate(0.68) brightness(0.72) contrast(1.03);
+  -webkit-mask-image: radial-gradient(ellipse at 61% 50%, #000 0 54%, rgba(0, 0, 0, 0.82) 67%, transparent 91%);
+  mask-image: radial-gradient(ellipse at 61% 50%, #000 0 54%, rgba(0, 0, 0, 0.82) 67%, transparent 91%);
+}
+
+.canon-hero-inner {
+  position: relative;
+  z-index: 2;
+}
 
 .canon-work-dossier {
   margin: 1.15rem 0 0 42px;
@@ -35,6 +63,20 @@
 .canon-work-anchor .canon-work-excerpt {
   max-width: 860px;
   font-size: clamp(1rem, 1.26vw, 1.14rem);
+}
+
+@media (max-width: 900px) {
+  .canon-hero::after {
+    right: -18%;
+    width: 82vw;
+    opacity: 0.28;
+  }
+}
+
+@media (max-width: 620px) {
+  .canon-hero::after {
+    display: none;
+  }
 }
 
 @media (max-width: 540px) {
