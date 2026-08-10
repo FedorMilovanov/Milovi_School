@@ -76,6 +76,17 @@ jobs:
           BASE_URL: http://127.0.0.1:4174
         run: node scripts/audit_canon_gateway_browser.mjs
 
+      - name: Upload exact-head screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: canon-gateway-screenshots-${{ env.SOURCE_SHA }}
+          path: |
+            /tmp/canon-gateway-desktop.jpg
+            /tmp/canon-gateway-mobile.jpg
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Stop exact-head candidate
         if: always()
         run: kill "$(cat /tmp/canon-gateway-server.pid)" 2>/dev/null || true
