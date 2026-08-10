@@ -65,15 +65,17 @@ if home:
         title = gateway.select_one('#canon-gateway-title')
         if not title or compact_text(title).upper() != 'LECANONSUCRÉ':
             fail('Canon gateway is missing its accessible title')
-        media = gateway.select('.canon-gateway-media-item img')
-        if len(media) != 5:
-            fail(f'Canon gateway must expose five editorial media items, found {len(media)}')
-        elif any(not img.get('src', '').startswith('/images/') for img in media):
-            fail('Canon gateway media must use local production /images/ assets')
-        elif any(not img.get('alt', '').strip() for img in media):
-            fail('Canon gateway production media must keep non-empty alt text')
+        media = gateway.select('.canon-gateway-media img')
+        if len(media) != 1:
+            fail(f'Canon gateway must expose one coherent editorial image, found {len(media)}')
+        elif not media[0].get('src', '').startswith('/images/'):
+            fail('Canon gateway media must use a local production /images/ asset')
+        elif media[0].get('alt') != '':
+            fail('Canon gateway image is decorative beside equivalent link copy and must use empty alt')
+        if gateway.select('.canon-gateway-media-item'):
+            fail('Canon gateway must not regress to the fragmented multi-panel thumbnail stack')
     if len(errors) == before:
-        ok('Homepage Canon gateway: route, title and five local production media items verified')
+        ok('Homepage Canon gateway: route, title and one coherent local editorial image verified')
 
 if canon:
     before = len(errors)
@@ -131,6 +133,14 @@ if canon:
                 fail(f'{work_id}: Canon media must use a local /images/ asset')
             if not image.get('alt', '').strip():
                 fail(f'{work_id}: public Canon image requires non-empty alt text')
+
+        dossier = work.select_one('.canon-work-dossier')
+        excerpt = work.select_one('.canon-work-excerpt')
+        dossier_meta = work.select_one('.canon-work-dossier-meta')
+        if not dossier or not excerpt or not compact_text(excerpt):
+            fail(f'{work_id}: every published Canon card must expose a substantive dossier preview')
+        if not dossier_meta or 'DOSSIER' not in compact_text(dossier_meta).upper():
+            fail(f'{work_id}: dossier preview requires visible reading-context metadata')
 
     technique = canon.select_one('.canon-technique-index')
     if not technique:
@@ -212,7 +222,7 @@ if canon:
             fail(f'Sitemap must contain Canon canonical URL: {CANON_URL}')
 
     if len(errors) == before:
-        ok('Canon exhibition: 15 works, 3×5 acts, media states, technique/navigation and SEO contracts verified')
+        ok('Canon exhibition: 15 works, 3×5 acts, native media, dossier previews, technique/navigation and SEO contracts verified')
 
 library_source_path = SRC / 'data' / 'canon-library.ts'
 media_source_path = SRC / 'data' / 'canon-media.ts'
@@ -261,6 +271,8 @@ if linked_article_ids and len(errors) == before:
     ok(f'Canon article navigation + structured membership verified on {len(linked_article_ids)} mapped routes')
 
 page_css_path = SRC / 'styles' / 'canon.css'
+media_layout_css_path = SRC / 'styles' / 'canon-media-layout.css'
+editorial_css_path = SRC / 'styles' / 'canon-editorial.css'
 gateway_css_path = SRC / 'styles' / 'canon-gateway.css'
 gateway_component_path = SRC / 'components' / 'CanonGateway.tsx'
 experience_component_path = SRC / 'components' / 'CanonExperience.tsx'
@@ -285,6 +297,27 @@ else:
         if contract not in page_css:
             fail(f'Canon page CSS is missing data-driven editorial grid contract: {contract}')
 
+if not media_layout_css_path.exists():
+    fail('Missing src/styles/canon-media-layout.css')
+else:
+    media_layout_css = media_layout_css_path.read_text('utf-8')
+    if 'aspect-ratio: 16 / 10;' not in media_layout_css:
+        fail('Canon media art direction must explicitly preserve the 1280×800 16:10 master ratio')
+    if 'aspect-ratio: 4 / 5;' in media_layout_css:
+        fail('Canon media art direction must never reintroduce destructive 4:5 crops')
+    if 'transform: none;' not in media_layout_css:
+        fail('Canon media art direction must neutralize the old baseline zoom before hover')
+
+if not editorial_css_path.exists():
+    fail('Missing src/styles/canon-editorial.css')
+else:
+    editorial_css = editorial_css_path.read_text('utf-8')
+    if "@import './canon-media-layout.css';" not in editorial_css:
+        fail('Canon editorial stylesheet must load media art direction after base canon.css')
+    for selector in ('.canon-work-dossier', '.canon-work-excerpt'):
+        if selector not in editorial_css:
+            fail(f'Canon editorial density stylesheet is missing {selector}')
+
 if not gateway_css_path.exists():
     fail('Missing src/styles/canon-gateway.css')
 else:
@@ -295,6 +328,8 @@ else:
     leaked = [selector for selector in ('.canon-page', '.canon-work-grid', '.canon-catalogue-plate', '.canon-act-rail') if selector in gateway_css]
     if leaked:
         fail(f'Homepage gateway CSS leaked exhibition-only selectors: {", ".join(leaked)}')
+    if '.canon-gateway-media-item' in gateway_css:
+        fail('Homepage gateway CSS must not contain the retired multi-panel thumbnail system')
 
 if not gateway_component_path.exists():
     fail('Missing src/components/CanonGateway.tsx')
@@ -312,6 +347,9 @@ else:
         fail('CanonGateway must not import the full 15-work curatorial data model')
     if "prefetchRoute('/canon/')" not in gateway_component:
         fail('CanonGateway must warm /canon/ only on explicit user intent')
+    for retired in ('GATEWAY_SELECTION', 'canon-gateway-media-item'):
+        if retired in gateway_component:
+            fail(f'CanonGateway still contains retired fragmented media construct: {retired}')
 
 if not navigation_path.exists():
     fail('Missing src/utils/navigation.ts')
@@ -342,7 +380,7 @@ if (SRC / 'styles' / 'canon-enhancements.css').exists():
     fail('Duplicate Canon enhancement stylesheet must not exist')
 
 if len(errors) == before:
-    ok('Canon boundaries: independent media/routes, intent-prefetch and isolated visual/data layers verified')
+    ok('Canon boundaries: independent media/routes, native-ratio art direction, dossier density, intent-prefetch and isolated visual/data layers verified')
 
 print('# Le Canon Sucré quality gate')
 print()
