@@ -1,26 +1,12 @@
 import { useRef } from 'react'
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 import { useReducedMotion } from 'framer-motion'
-import { canonMedia, type CanonMediaId } from '../data/canon-media'
+import { canonMedia } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import '../styles/canon-gateway.css'
 
-const GATEWAY_SELECTION: ReadonlyArray<{ id: CanonMediaId; slot: string; position: string }> = [
-  { id: 'saint-honore', slot: 'paris-brest', position: '50% 50%' },
-  { id: 'opera', slot: 'opera', position: '50% 50%' },
-  { id: 'ispahan', slot: 'ispahan', position: '50% 48%' },
-  { id: 'mont-blanc', slot: 'mont-blanc', position: '50% 48%' },
-  { id: 'galette-des-rois', slot: 'galette-des-rois', position: '50% 50%' },
-]
-
-const MEDIA = GATEWAY_SELECTION.map(({ id, slot, position }) => ({
-  id,
-  slot,
-  src: canonMedia[id].image,
-  alt: canonMedia[id].imageAlt,
-  position,
-}))
+const GATEWAY_MEDIA = canonMedia['saint-honore']
 
 export default function CanonGateway() {
   const ref = useRef<HTMLAnchorElement>(null)
@@ -33,8 +19,8 @@ export default function CanonGateway() {
     const rect = node.getBoundingClientRect()
     const nx = ((event.clientX - rect.left) / rect.width - 0.5) * 2
     const ny = ((event.clientY - rect.top) / rect.height - 0.5) * 2
-    node.style.setProperty('--canon-rx', `${(-ny * 1.15).toFixed(2)}deg`)
-    node.style.setProperty('--canon-ry', `${(nx * 1.35).toFixed(2)}deg`)
+    node.style.setProperty('--canon-rx', `${(-ny * 0.55).toFixed(2)}deg`)
+    node.style.setProperty('--canon-ry', `${(nx * 0.65).toFixed(2)}deg`)
     node.style.setProperty('--canon-mx', `${((nx + 1) * 50).toFixed(1)}%`)
     node.style.setProperty('--canon-my', `${((ny + 1) * 50).toFixed(1)}%`)
   }
@@ -45,7 +31,7 @@ export default function CanonGateway() {
     node.style.setProperty('--canon-rx', '0deg')
     node.style.setProperty('--canon-ry', '0deg')
     node.style.setProperty('--canon-mx', '72%')
-    node.style.setProperty('--canon-my', '38%')
+    node.style.setProperty('--canon-my', '40%')
   }
 
   return (
@@ -61,23 +47,14 @@ export default function CanonGateway() {
         onBlur={reset}
       >
         <span className="canon-gateway-media" aria-hidden="true">
-          {MEDIA.map((media, index) => (
-            <span
-              key={media.id}
-              className={`canon-gateway-media-item canon-gateway-media-${media.slot}`}
-              style={{ '--canon-i': index } as CSSProperties}
-            >
-              <img
-                src={media.src}
-                alt={media.alt}
-                width={1280}
-                height={800}
-                loading="lazy"
-                decoding="async"
-                style={{ objectPosition: media.position }}
-              />
-            </span>
-          ))}
+          <img
+            src={GATEWAY_MEDIA.image}
+            alt=""
+            width={1280}
+            height={800}
+            loading="lazy"
+            decoding="async"
+          />
         </span>
 
         <span className="canon-gateway-vignette" aria-hidden="true" />
@@ -90,7 +67,7 @@ export default function CanonGateway() {
             <LuxuryText tone="gold">LE CANON SUCRÉ</LuxuryText>
           </span>
           <span className="canon-gateway-subtitle">15 форм, ставших языком французской pâtisserie</span>
-          <span className="canon-gateway-meta">15 PIÈCES · 3 ACTES</span>
+          <span className="canon-gateway-meta">15 PIÈCES · 3 ACTES · 1 COLLECTION</span>
           <span className="canon-gateway-cta">
             <span>Открыть коллекцию</span>
             <span className="canon-gateway-arrow" aria-hidden="true">→</span>
