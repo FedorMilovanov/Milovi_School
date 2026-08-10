@@ -35,13 +35,20 @@ for retired in ('canon-gateway-media-item', 'GATEWAY_SELECTION'):
         errors.append(f'Retired fragmented gateway construct returned: {retired}')
 
 if 'inset: 0;' not in css:
-    errors.append('Gateway media must remain a full-bleed image plane')
+    errors.append('Desktop gateway media must remain a full-bleed image plane')
 if 'object-fit: cover;' not in css:
-    errors.append('Gateway requires bounded cover art direction')
+    errors.append('Desktop gateway requires bounded cover art direction')
 if not re.search(r'object-position:\s*(?:50|5[0-9])%\s+(?:5[0-9])%;', css):
-    errors.append('Desktop gateway crop anchor is missing')
-if 'object-position: 72% 58%;' not in css:
-    errors.append('Mobile gateway crop anchor must focus the pastry lineup')
+    errors.append('Desktop gateway vertical crop anchor is missing')
+
+mobile_contracts = [
+    'height: clamp(190px, 42vw, 340px);',
+    'object-fit: contain;',
+    'object-position: 50% 50%;',
+]
+for token in mobile_contracts:
+    if token not in css:
+        errors.append(f'Mobile gateway must preserve the complete panoramic composition: {token}')
 
 if errors:
     print('# Canon gateway asset gate')
@@ -52,5 +59,6 @@ if errors:
 print('# Canon gateway asset gate')
 print(f'- PASS: final panoramic asset present ({ASSET.stat().st_size} bytes)')
 print('- PASS: 1916×821 dimensions declared in component')
-print('- PASS: desktop full-bleed and mobile subject-focused art direction protected')
+print('- PASS: desktop full-bleed crop preserves the low horizontal lineup')
+print('- PASS: mobile uses contained panorama instead of cutting pastry forms')
 print('- PASS: retired five-panel gateway constructs absent')
