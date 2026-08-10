@@ -1,0 +1,1 @@
+Owner intent: use the supplied long panoramic image as the homepage Le Canon Sucré gateway artwork. Do not regenerate or substitute imagery during integration. Typography remains a separate site layer over the image's intentional left negative space.
