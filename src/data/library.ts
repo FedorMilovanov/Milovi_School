@@ -2,9 +2,11 @@ import { articles } from './articles'
 import { articleExpansions } from './articleExpansions'
 import { articleOverrides } from './articleOverrides'
 import { canonArticles } from './canonArticles'
+import { canonArticleAppendices } from './canonArticleAppendices'
 import type { Article, ArticleMeta, ArticleClientMeta } from './types'
 
 const CONTENT_EXPANSION_DATE = '2026-08-03'
+const CANON_EDITORIAL_DATE = '2026-08-10'
 const WORD_RE = /[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+(?:[-‑–—'][A-Za-zА-Яа-яЁёÀ-ÿ0-9]+)*/g
 const LEGACY_ALT_TEMPLATE_RE = /^(?:Французская кондитерская школа: визуал к материалу|Французский десерт «|Иллюстрация французской кондитерской техники|Исторический материал о французской pâtisserie|Инфографичный визуал к аналитике французской кондитерской)/i
 
@@ -12,6 +14,7 @@ const baseIds = new Set(articles.map((article) => article.id))
 const expansionIds = Object.keys(articleExpansions)
 const overrideIds = Object.keys(articleOverrides)
 const canonIds = new Set(canonArticles.map((article) => article.id))
+const appendixIds = Object.keys(canonArticleAppendices)
 
 if (baseIds.size === 0) {
   throw new Error('[library] Article catalog must not be empty')
@@ -35,8 +38,19 @@ if (canonLegacyCollisions.length > 0) {
   throw new Error(`[library] Canon article id collides with legacy catalog: ${canonLegacyCollisions.join(',')}`)
 }
 
+const orphanAppendixIds = appendixIds.filter((id) => !baseIds.has(id) && !canonIds.has(id))
+if (orphanAppendixIds.length > 0) {
+  throw new Error(`[library] Canon appendix targets unknown article ids: ${orphanAppendixIds.join(',')}`)
+}
+
 const estimateReadTime = (content: string) =>
   Math.max(1, Math.ceil((content.match(WORD_RE)?.length ?? 0) / 180))
+
+const appendCanonEditorial = (id: string, content: string): string => {
+  const appendix = canonArticleAppendices[id]
+  if (!appendix) return content.trim()
+  return `${content.trim()}\n\n${appendix.trim()}`
+}
 
 /**
  * Legacy article imports contain machine-style alt strings that repeat title,
@@ -56,25 +70,32 @@ const normalizeImageAlt = (article: Article): string => {
 
 const enrichArticle = (article: Article): Article => {
   const expansion = articleExpansions[article.id]
+  const appendix = canonArticleAppendices[article.id]
   const override = articleOverrides[article.id]
   const merged = { ...article, ...override }
-  const content = expansion ? `${article.content.trim()}\n\n${expansion.trim()}` : article.content
+  const expanded = expansion ? `${article.content.trim()}\n\n${expansion.trim()}` : article.content
+  const content = appendCanonEditorial(article.id, expanded)
 
   return {
     ...merged,
     content,
     imageAlt: normalizeImageAlt(merged),
     readTime: Math.max(article.readTime, estimateReadTime(content)),
-    updatedAt: expansion ? CONTENT_EXPANSION_DATE : article.updatedAt,
+    updatedAt: appendix ? CANON_EDITORIAL_DATE : expansion ? CONTENT_EXPANSION_DATE : article.updatedAt,
   }
 }
 
-const normalizeStandaloneArticle = (article: Article): Article => ({
-  ...article,
-  content: article.content.trim(),
-  imageAlt: normalizeImageAlt(article),
-  readTime: Math.max(article.readTime, estimateReadTime(article.content)),
-})
+const normalizeStandaloneArticle = (article: Article): Article => {
+  const appendix = canonArticleAppendices[article.id]
+  const content = appendCanonEditorial(article.id, article.content)
+  return {
+    ...article,
+    content,
+    imageAlt: normalizeImageAlt(article),
+    readTime: Math.max(article.readTime, estimateReadTime(content)),
+    updatedAt: appendix ? CANON_EDITORIAL_DATE : article.updatedAt,
+  }
+}
 
 // Full articles (with content) — use only at build time / SSG pages.
 // Legacy articles retain their strict base+expansion contract; exact Canon dossiers
