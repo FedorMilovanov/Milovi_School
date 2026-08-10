@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Fail-closed SEO/Image-SEO contract for the generated static site.
 
-This audit intentionally checks standards-backed invariants, not folklore:
-- indexable content pages permit large image previews;
-- Canon exposes a preferred image plus 15 credited ImageObjects with AI provenance;
+Standards-backed invariants only:
+- indexable content pages explicitly permit large image previews;
+- social image metadata is descriptive and typed;
+- article hero alts do not regress to legacy keyword-template strings;
+- Article and Canon ImageObject markup describes real files and honest provenance;
 - image sitemap uses current image:loc-only markup and discovers all Canon media;
-- lastmod appears only where generated Article JSON-LD provides a dateModified;
-- WebSite exposes a stable alternateName fallback.
+- lastmod is derived from generated Article.dateModified, never synthetic build time;
+- WebSite exposes stable site-name aliases;
+- IndexNow ownership/deploy wiring is structurally valid and post-live-proof.
 
-Raw search-engine ownership verification documents are intentionally excluded from
-page-level SEO requirements. They are challenge-response files, not content pages.
+Raw search-engine ownership verification documents are challenge-response files,
+not content pages, and are intentionally excluded from page-level SEO rules.
 """
 
 from __future__ import annotations
@@ -25,10 +28,19 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
+PUBLIC = ROOT / "public"
 SITE = "https://french.milovicake.ru"
 CANON = f"{SITE}/canon/"
 DIGITAL_SOURCE_TYPE = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
 IMAGE_NS = "http://www.google.com/schemas/sitemap-image/1.1"
+LEGACY_ALT_TEMPLATE_RE = re.compile(
+    r"^(?:Французская кондитерская школа: визуал к материалу|"
+    r"Французский десерт «|Иллюстрация французской кондитерской техники|"
+    r"Исторический материал о французской pâtisserie|"
+    r"Инфографичный визуал к аналитике французской кондитерской)",
+    re.I,
+)
+INDEXNOW_KEY_RE = re.compile(r"^[A-Za-z0-9-]{8,128}$")
 
 errors: list[str] = []
 checks = 0
@@ -81,7 +93,7 @@ if not DIST.is_dir():
     print("SEO audit failed: dist/ is missing", file=sys.stderr)
     raise SystemExit(1)
 
-# 1. Every indexable content HTML page explicitly permits large previews.
+# 1. Indexable content pages: preview permissions + social image metadata.
 indexable_count = 0
 for html_path in DIST.rglob("*.html"):
     if is_ownership_verification(html_path):
@@ -91,12 +103,24 @@ for html_path in DIST.rglob("*.html"):
     robots_value = (robots.get("content", "") if robots else "").lower()
     if "noindex" in robots_value:
         continue
+
     indexable_count += 1
-    check(bool(robots), f"Indexable page lacks robots meta: {html_path.relative_to(DIST)}")
+    rel = html_path.relative_to(DIST)
+    check(bool(robots), f"Indexable page lacks robots meta: {rel}")
     check(
         "max-image-preview:large" in robots_value.replace(" ", ""),
-        f"Indexable page must allow large image previews: {html_path.relative_to(DIST)}",
+        f"Indexable page must allow large image previews: {rel}",
     )
+
+    og_image = soup.find("meta", attrs={"property": "og:image"})
+    og_alt = soup.find("meta", attrs={"property": "og:image:alt"})
+    og_type = soup.find("meta", attrs={"property": "og:image:type"})
+    twitter_alt = soup.find("meta", attrs={"name": "twitter:image:alt"})
+    check(bool(og_image and str(og_image.get("content", "")).strip()), f"Indexable page lacks og:image: {rel}")
+    check(bool(og_alt and str(og_alt.get("content", "")).strip()), f"Indexable page lacks og:image:alt: {rel}")
+    check(bool(og_type and str(og_type.get("content", "")).startswith("image/")), f"Indexable page lacks og:image:type: {rel}")
+    check(bool(twitter_alt and str(twitter_alt.get("content", "")).strip()), f"Indexable page lacks twitter:image:alt: {rel}")
+
 check(indexable_count >= 150, f"Expected a substantial indexable corpus, found {indexable_count}")
 
 # 2. Home WebSite entity has alternate names for site-name resolution.
@@ -108,7 +132,49 @@ if isinstance(website, dict):
     alternate = website.get("alternateName")
     check(isinstance(alternate, list) and len(alternate) >= 1, "WebSite must expose alternateName")
 
-# 3. Canon preferred-image graph and transparent generated-media provenance.
+# 3. Article hero/image structured-data contract and legacy-alt cleanup.
+article_paths = sorted((DIST / "articles").glob("*/index.html"))
+check(len(article_paths) >= 150, f"Expected article corpus, found {len(article_paths)}")
+for article_path in article_paths:
+    article_id = article_path.parent.name
+    soup = BeautifulSoup(read_html(article_path), "html.parser")
+    nodes = flatten_jsonld(jsonld_objects(soup))
+    article = next((node for node in nodes if node.get("@type") == "Article"), None)
+    check(isinstance(article, dict), f"Article JSON-LD missing: {article_id}")
+    if not isinstance(article, dict):
+        continue
+
+    image = article.get("image")
+    check(isinstance(image, dict), f"Article ImageObject missing: {article_id}")
+    if isinstance(image, dict):
+        content_url = image.get("contentUrl")
+        check(isinstance(content_url, str) and content_url.startswith("https://"), f"Article ImageObject contentUrl invalid: {article_id}")
+        check(isinstance(image.get("width"), int) and image.get("width", 0) > 0, f"Article image width missing: {article_id}")
+        check(isinstance(image.get("height"), int) and image.get("height", 0) > 0, f"Article image height missing: {article_id}")
+        check(bool(image.get("name")), f"Article image name missing: {article_id}")
+        check(bool(image.get("caption")), f"Article image caption missing: {article_id}")
+        check(bool(image.get("creditText")), f"Article image credit missing: {article_id}")
+
+    hero = soup.select_one("article figure img[itemprop='image']")
+    check(hero is not None, f"Article hero image missing: {article_id}")
+    if hero is not None:
+        alt = str(hero.get("alt", "")).strip()
+        check(bool(alt), f"Article hero alt missing: {article_id}")
+        check(not LEGACY_ALT_TEMPLATE_RE.search(alt), f"Legacy keyword-template alt leaked to output: {article_id}")
+        check("(" not in alt[-45:] or "," not in alt[-45:], f"Article hero alt appears to end in a keyword-list tail: {article_id}")
+        og_alt = soup.find("meta", attrs={"property": "og:image:alt"})
+        check(bool(og_alt and str(og_alt.get("content", "")).strip() == alt), f"Article hero/OG alt must share one editorial source: {article_id}")
+
+# Exact generated-media provenance is asserted only where the source metadata
+# itself says the artwork is generated; no provenance is invented for legacy art.
+for canon_article_id in ("genin-tarte-au-citron-canon", "herme-2000-feuilles-canon"):
+    path = DIST / "articles" / canon_article_id / "index.html"
+    soup = BeautifulSoup(read_html(path), "html.parser")
+    article = next((node for node in flatten_jsonld(jsonld_objects(soup)) if node.get("@type") == "Article"), None)
+    image = article.get("image") if isinstance(article, dict) else None
+    check(isinstance(image, dict) and image.get("digitalSourceType") == DIGITAL_SOURCE_TYPE, f"Generated Canon dossier needs AI provenance: {canon_article_id}")
+
+# 4. Canon preferred-image graph and transparent generated-media provenance.
 canon_path = DIST / "canon" / "index.html"
 check(canon_path.is_file(), "Generated /canon/ page is missing")
 canon_soup = BeautifulSoup(read_html(canon_path), "html.parser") if canon_path.is_file() else BeautifulSoup("", "html.parser")
@@ -141,7 +207,7 @@ check(bool(og_image and str(og_image.get("content", "")).startswith(f"{SITE}/ima
 check(bool(og_alt and str(og_alt.get("content", "")).strip()), "Canon OG image requires descriptive alt")
 check("редакционные AI-визуализации" in canon_soup.get_text(" ", strip=True), "Canon must visibly disclose editorial AI visualizations")
 
-# 4. Current Google image-sitemap markup: loc only, Canon discovery, truthful lastmod.
+# 5. Current Google image-sitemap markup: loc only, Canon discovery, truthful lastmod.
 sitemap_path = DIST / "sitemap-0.xml"
 check(sitemap_path.is_file(), "sitemap-0.xml is missing")
 if sitemap_path.is_file():
@@ -169,9 +235,8 @@ if sitemap_path.is_file():
         check(len(canon_locs) == len(set(canon_locs)), "Canon image sitemap URLs must be unique")
         check(all(loc.startswith(f"{SITE}/images/canon-sucre/") for loc in canon_locs), "Canon sitemap images must use dedicated Canon media")
 
-    article_dir = DIST / "articles"
     expected_lastmods: dict[str, str] = {}
-    for article_html in article_dir.glob("*/index.html"):
+    for article_html in article_paths:
         article_soup = BeautifulSoup(read_html(article_html), "html.parser")
         article_nodes = flatten_jsonld(jsonld_objects(article_soup))
         article = next((node for node in article_nodes if node.get("@type") == "Article"), None)
@@ -194,10 +259,41 @@ if sitemap_path.is_file():
         image_locs = [child.text for child in node.findall("image:image/image:loc", ns) if child.text]
         check(len(image_locs) >= 1, f"Article sitemap entry must expose an image:loc: {loc}")
 
+# 6. IndexNow: one root ownership key, copied to dist, post-live-proof deploy hook.
+key_candidates: list[tuple[Path, str]] = []
+for candidate in PUBLIC.glob("*.txt"):
+    stem = candidate.stem
+    value = candidate.read_text(encoding="utf-8").strip()
+    if INDEXNOW_KEY_RE.fullmatch(stem) and value == stem:
+        key_candidates.append((candidate, value))
+check(len(key_candidates) == 1, f"Expected exactly one valid root IndexNow key file, found {len(key_candidates)}")
+if key_candidates:
+    key_path, key = key_candidates[0]
+    dist_key = DIST / key_path.name
+    check(dist_key.is_file(), "IndexNow key file must be copied to dist root")
+    if dist_key.is_file():
+        check(dist_key.read_text(encoding="utf-8").strip() == key, "Dist IndexNow key content mismatch")
+
+notifier = ROOT / "scripts" / "notify_indexnow.mjs"
+deploy = ROOT / ".github" / "workflows" / "deploy.yml"
+check(notifier.is_file(), "IndexNow notifier script is missing")
+check(deploy.is_file(), "Deploy workflow is missing")
+if notifier.is_file():
+    notifier_text = notifier.read_text(encoding="utf-8")
+    check("https://api.indexnow.org/indexnow" in notifier_text, "IndexNow notifier must use the global endpoint")
+    check("10_000" in notifier_text, "IndexNow notifier must enforce the 10,000-URL protocol limit")
+    check("git', ['diff'" in notifier_text, "IndexNow notifier must select URLs from a before/after source diff")
+if deploy.is_file():
+    deploy_text = deploy.read_text(encoding="utf-8")
+    check("needs: live-proof" in deploy_text, "IndexNow deployment job must run only after live proof")
+    check("node scripts/notify_indexnow.mjs" in deploy_text, "Deploy workflow must invoke IndexNow notifier")
+    check("BEFORE_SHA: ${{ github.event.before }}" in deploy_text, "Deploy workflow must supply the previous release SHA")
+    check("CURRENT_SHA: ${{ github.sha }}" in deploy_text, "Deploy workflow must supply the deployed SHA")
+
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)
     for issue in errors:
         print(f" - {issue}", file=sys.stderr)
     raise SystemExit(1)
 
-print(f"SEO audit passed: {checks} checks across {indexable_count} indexable pages")
+print(f"SEO audit passed: {checks} checks across {indexable_count} indexable pages and {len(article_paths)} articles")
