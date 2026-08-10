@@ -105,6 +105,12 @@ jobs:
       EXPECTED_SHA: ${{ github.sha }}
       LIVE_BASE: https://french.milovicake.ru
     steps:
+      - name: Checkout live-proof scripts
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
       - name: Wait for CDN and verify immutable release witness
         shell: bash
         run: |
@@ -131,6 +137,9 @@ jobs:
           status="$(curl -sS -o /tmp/not-found.html -w '%{http_code}' "$LIVE_BASE/__release-proof-missing-page__")"
           test "$status" = "404"
           grep -qi 'noindex, follow' /tmp/not-found.html
+
+      - name: Prove live SEO and image-discovery contracts
+        run: bash scripts/audit_seo_live.sh
 
   indexnow:
     name: Notify IndexNow of changed public URLs
