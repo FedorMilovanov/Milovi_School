@@ -2,11 +2,14 @@
 """Fail-closed SEO/Image-SEO contract for the generated static site.
 
 This audit intentionally checks standards-backed invariants, not folklore:
-- indexable pages permit large image previews;
+- indexable content pages permit large image previews;
 - Canon exposes a preferred image plus 15 credited ImageObjects with AI provenance;
 - image sitemap uses current image:loc-only markup and discovers all Canon media;
 - lastmod appears only where generated Article JSON-LD provides a dateModified;
 - WebSite exposes a stable alternateName fallback.
+
+Raw search-engine ownership verification documents are intentionally excluded from
+page-level SEO requirements. They are challenge-response files, not content pages.
 """
 
 from __future__ import annotations
@@ -42,6 +45,11 @@ def read_html(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def is_ownership_verification(path: Path) -> bool:
+    name = path.name.lower()
+    return name.startswith("google") or name.startswith("yandex_")
+
+
 def jsonld_objects(soup: BeautifulSoup) -> list[object]:
     result: list[object] = []
     for node in soup.find_all("script", attrs={"type": "application/ld+json"}):
@@ -73,9 +81,11 @@ if not DIST.is_dir():
     print("SEO audit failed: dist/ is missing", file=sys.stderr)
     raise SystemExit(1)
 
-# 1. Every indexable HTML page explicitly permits large previews.
+# 1. Every indexable content HTML page explicitly permits large previews.
 indexable_count = 0
 for html_path in DIST.rglob("*.html"):
+    if is_ownership_verification(html_path):
+        continue
     soup = BeautifulSoup(read_html(html_path), "html.parser")
     robots = soup.find("meta", attrs={"name": re.compile(r"^robots$", re.I)})
     robots_value = (robots.get("content", "") if robots else "").lower()
