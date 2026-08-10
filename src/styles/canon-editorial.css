@@ -1,0 +1,47 @@
+/* Le Canon Sucré — editorial density for collection cards.
+ *
+ * The collection should preview the substance behind each route instead of
+ * reducing a researched dossier to one curator sentence and three labels.
+ */
+
+.canon-work-dossier {
+  margin: 1.15rem 0 0 42px;
+  padding: 1rem 0 0;
+  border-top: 1px solid rgba(230, 207, 169, 0.08);
+}
+
+.canon-work-dossier-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  line-height: 1.3;
+  letter-spacing: 0.19em;
+  color: rgba(224, 190, 131, 0.48);
+}
+
+.canon-work-excerpt {
+  max-width: 720px;
+  margin-top: 0.7rem;
+  font-family: var(--font-serif);
+  font-size: clamp(0.96rem, 1.18vw, 1.08rem);
+  line-height: 1.58;
+  color: rgba(241, 232, 216, 0.66);
+}
+
+.canon-work-anchor .canon-work-excerpt {
+  max-width: 860px;
+  font-size: clamp(1rem, 1.26vw, 1.14rem);
+}
+
+@media (max-width: 540px) {
+  .canon-work-dossier {
+    margin-left: 34px;
+  }
+
+  .canon-work-excerpt {
+    font-size: 0.98rem;
+    line-height: 1.56;
+  }
+}
