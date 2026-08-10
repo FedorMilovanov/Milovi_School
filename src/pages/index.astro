@@ -17,6 +17,7 @@ const jsonLdOrg = {
   '@type': 'Organization',
   '@id': `${siteUrl}/#organization`,
   name: 'Patisserie Russe / Milovi School',
+  alternateName: ['Patisserie Russe', 'Milovi School'],
   url: siteUrl,
   logo: {
     '@type': 'ImageObject',
@@ -38,6 +39,7 @@ const jsonLdWebSite = {
   '@type': 'WebSite',
   '@id': `${siteUrl}/#website`,
   name: 'Patisserie Russe',
+  alternateName: ['Milovi School', 'Patisserie Russe by Milovi School'],
   url: siteUrl,
   inLanguage: 'ru',
   publisher: { '@id': `${siteUrl}/#organization` },
@@ -52,6 +54,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u00
   canonicalUrl="https://french.milovicake.ru/"
   ogType="website"
   image="/images/og-preview.webp"
+  imageAlt="Patisserie Russe — библиотека французской кондитерской школы"
   ogImageWidth={1200}
   ogImageHeight={630}
   hidePolicyFooter={true}
