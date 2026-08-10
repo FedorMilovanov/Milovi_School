@@ -2,6 +2,8 @@
 
 Единый production-бриф для изображений коллекции **Le Canon Sucré**. Изображения должны выглядеть как музейная редакционная съёмка французской pâtisserie, а не как рекламный food-shot или декоративная AI-фантазия.
 
+> **Production status (2026-08-10):** финальный pack 15/15 опубликован, и все 15 Canon works имеют реальные article routes. Этот файл определяет visual/media contract, а не publication state. Финальный Product status закреплён в `CLOSEOUT.md`.
+
 ## 1. Технический контракт
 
 - master: **1280×800 px, 16:10**;
@@ -167,7 +169,7 @@
 
 В частности:
 
-- `tarte-au-citron.webp` остаётся точным exhibition asset для Jacques Genin logic, даже пока отдельное dossier не опубликовано;
-- `2000-feuilles.webp` остаётся точным exhibition asset для Pierre Hermé, даже пока отдельное dossier не опубликовано;
+- `tarte-au-citron.webp` — exact exhibition asset для Jacques Genin logic и связан с опубликованным dossier `genin-tarte-au-citron-canon`;
+- `2000-feuilles.webp` — exact exhibition asset для Pierre Hermé и связан с опубликованным dossier `herme-2000-feuilles-canon`;
 - не подменять их Cédric Grolet citron или generic/Conticini/Perret mille-feuille;
 - не копировать Canon pack обратно в `public/images/articles/` без отдельной editorial причины.
