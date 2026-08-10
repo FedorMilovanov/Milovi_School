@@ -8,6 +8,7 @@ import { canonActs, canonWorks } from '../data/canon'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/canon/`
+const generatedMediaSourceType = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia'
 
 const libraryIds = new Set(libraryClientMeta.map((article) => article.id))
 const canonIds = canonWorks.map((work) => work.id)
@@ -88,6 +89,30 @@ if (missingMedia.length > 0) {
   throw new Error(`[canon] Missing public media: ${missingMedia.join(', ')}`)
 }
 
+const canonImageObjects = canonWorks.map((work) => {
+  const contentUrl = `${siteUrl}${work.image}`
+  return {
+    '@type': 'ImageObject',
+    '@id': `${contentUrl}#image`,
+    contentUrl,
+    url: contentUrl,
+    name: `${work.name} — Le Canon Sucré`,
+    caption: work.imageAlt,
+    width: 1280,
+    height: 800,
+    encodingFormat: 'image/webp',
+    creditText: 'Patisserie Russe / Milovi School — редакционная AI-визуализация',
+    creator: {
+      '@type': 'Organization',
+      name: 'Patisserie Russe / Milovi School',
+      url: siteUrl,
+    },
+    digitalSourceType: generatedMediaSourceType,
+  }
+})
+const imageIdByWork = new Map(canonWorks.map((work, index) => [work.id, canonImageObjects[index]['@id']]))
+const primaryImage = canonImageObjects[0]
+
 const itemList = {
   '@context': 'https://schema.org',
   '@type': 'ItemList',
@@ -102,6 +127,7 @@ const itemList = {
     url: work.articleId
       ? `${siteUrl}/articles/${work.articleId}/`
       : `${canonicalUrl}#canon-${work.id}`,
+    image: { '@id': imageIdByWork.get(work.id) },
   })),
 }
 
@@ -110,10 +136,13 @@ const collectionPage = {
   '@type': 'CollectionPage',
   '@id': canonicalUrl,
   url: canonicalUrl,
-  name: 'Le Canon Sucré — Pâtisserie Russe',
+  name: 'Le Canon Sucré — 15 форм французской pâtisserie',
   description: '15 десертов. Три акта. Кураторский маршрут по формам, техникам и переосмыслениям французской pâtisserie.',
   inLanguage: 'ru',
   mainEntity: { '@id': `${canonicalUrl}#collection` },
+  primaryImageOfPage: { '@id': primaryImage['@id'] },
+  image: canonImageObjects.map((image) => ({ '@id': image['@id'] })),
+  associatedMedia: canonImageObjects.map((image) => ({ '@id': image['@id'] })),
 }
 
 const breadcrumbList = {
@@ -135,21 +164,28 @@ const breadcrumbList = {
   ],
 }
 
+const imageGraph = {
+  '@context': 'https://schema.org',
+  '@graph': canonImageObjects,
+}
+
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout
-  title="Le Canon Sucré — Pâtisserie Russe"
+  title="Le Canon Sucré — 15 форм французской pâtisserie | Patisserie Russe"
   description="15 десертов. Три акта. Кураторский маршрут по формам, техникам и переосмыслениям французской pâtisserie."
   canonicalUrl={canonicalUrl}
   ogType="website"
-  image="/images/og-preview.webp"
-  ogImageWidth={1200}
-  ogImageHeight={630}
+  image={canonWorks[0].image}
+  imageAlt={canonWorks[0].imageAlt}
+  ogImageWidth={1280}
+  ogImageHeight={800}
   hidePolicyFooter={true}
 >
   <script is:inline type="application/ld+json" set:html={safeJsonLd(collectionPage)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(itemList)} slot="head" />
   <script is:inline type="application/ld+json" set:html={safeJsonLd(breadcrumbList)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(imageGraph)} slot="head" />
   <CanonPageShell articles={libraryClientMeta} client:load />
 </BaseLayout>
