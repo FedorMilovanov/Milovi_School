@@ -1,515 +1,244 @@
-# AGENTS.md — Milovi School / Patisserie Russe (french.milovicake.ru)
+# AGENTS.md — Milovi School / Patisserie Russe
 
-> **Если ты ИИ-агент — этот файл обязателен к прочтению ДО любого изменения кода.**
+> **Обязателен к прочтению до любого изменения проекта.**
 >
-> Этот проект — **Astro SSG + React/TypeScript**. Стандарты выше, чем у статических сайтов: строгий TypeScript, ESLint, Tailwind 4, SSR-safe код. Тут «смелые» правки разрушают сборку.
+> Production: **https://french.milovicake.ru**  
+> Stack: **Astro 7 SSG + React 18 + TypeScript strict + Tailwind 4**  
+> Updated: **2026-08-10**
 
-**Владелец:** Виктория Милованова (бренд Milovi)
-**Производственный сайт:** https://french.milovicake.ru
-**Дата документа:** 2026-05-20 | **Версия:** AGENTS-r7
+Этот файл содержит protected engineering/product rules. Детальный стандарт для новых крупных разделов и актуальный SEO/release checklist: [`docs/PRODUCTION_SECTION_PLAYBOOK.md`](./docs/PRODUCTION_SECTION_PLAYBOOK.md).
 
----
+## 0. Нельзя делать без отдельной причины и проверки
 
-## 0. TLDR — что СРАЗУ нельзя делать
+1. Не создавать source-файлы React/Astro/TS/CSS вне `src/`.
+2. Не менять `astro.config.mjs`, `tsconfig.json`, `eslint.config.js` или dependency versions «для удобства».
+3. Не импортировать полный article corpus/deep content в client islands.
+4. Не обращаться к `window`, `document`, `localStorage` в SSR/build path без browser guard/helper.
+5. Не удалять Service Worker build-hash/caching safeguards.
+6. Не менять dark-first visual identity автоматически.
+7. Не возвращать Astro `ClientRouter` / View Transitions без отдельного доказанного решения прежней navigation regression.
+8. Не возвращать длинный полный список материалов на главную: `/materials/` — отдельная галерея.
+9. Не заменять navigation links на clickable `div`/`button`, если семантика — переход по URL.
+10. Не делать post-build переписывание generated HTML для исправления source/build проблемы.
+11. Не добавлять fake routes, fake claims, fake schema, fake ratings/license/copyright.
+12. Не расширять закрытый `Le Canon Sucré` под видом случайной «полировки».
+13. После изменения — запускать соответствующие permanent gates; перед release — `npm run validate`.
 
-1. ❌ Создавать компоненты/страницы/hooks/utils вне `src/`. Исходники в корне репозитория запрещены: они ломают `astro check`.
-2. ❌ Менять `astro.config.mjs`, `tsconfig.json`, `eslint.config.js` без согласия.
-3. ❌ Обновлять зависимости в `package.json` (Astro / React / Tailwind / Fuse).
-4. ❌ Импортировать `deepContents.ts` в **client islands** (это 1.1 MB → в браузер не должен попадать).
-5. ❌ Использовать `localStorage` / `window` / `document` **без** обёртки `typeof window !== 'undefined'`.
-6. ❌ Менять Tailwind utility-классы на inline `style=` или CSS-модули.
-7. ❌ Удалять Service Worker (`public/sw.js`) или менять `__BUILD_HASH__` placeholder.
-8. ❌ **Менять дефолт тёмной темы — ЗАПРЕЩЕНО.** Тёмная тема — фирменный стиль бренда. `HomeApp` начинает с `'dark'`, pre-paint скрипт применяет `dark` по умолчанию. Это intentional design. (→ §3.4)
-9. ❌ Возвращать Astro `ClientRouter` / `astro:transitions` запрещено: он уже вызывал зависания при переходах на статьи.
-10. ❌ Возвращать портянку всех статей на главную запрещено: `/materials/` — отдельная галерея, а на главной остаётся поиск.
-11. ❌ Менять reference-hover карточек/цифр/hero без сверки с Drive-референсом запрещено.
-12. ✅ После любой правки — `npm run check && npm run lint && npm run build`.
-13. ✅ Перед коммитом — `npm run validate` (полный пакет проверок).
+## 1. Текущее устройство сайта
 
----
-
-## 1. О проекте
-
-- **Что это:** библиотека статей о французской кондитерской школе (155 статей на 2026-08-03).
-- **Стек:** **Astro 7 + React 18 + TypeScript (strict) + Tailwind 4 + Fuse.js + framer-motion**.
-- **Хостинг:** GitHub Pages (через GitHub Actions).
-- **Node:** требуется `>=22.13.0`, `npm >=10.9.2`.
-- **Поиск:** клиентский (`fuse.js`) — обновляется на каждой сборке.
-
----
-
-## 2. АРХИТЕКТУРА — единственно верная
-
-```
-/
-├── astro.config.mjs                ← Astro + кастомные интеграции (НЕ ТРОГАТЬ)
-├── tsconfig.json                   ← strict TS + path alias @/* → src/*
-├── eslint.config.js                ← ESLint Flat config
-├── package.json                    ← зависимости + scripts (НЕ обновлять без запроса)
-├── .nvmrc                          ← Node 22.13.0
-├── .github/workflows/deploy.yml
-│
-├── src/
-│   ├── pages/                      ← Astro-страницы (= URL)
-│   │   ├── index.astro             ← главная (libraryClientMeta, без content)
-│   │   ├── materials.astro         ← отдельная visual gallery 115 материалов
-│   │   ├── about.astro
-│   │   ├── methodology.astro
-│   │   ├── 404.astro
-│   │   └── articles/
-│   │       └── [id].astro          ← динамический роут (одна статья)
-│   │
-│   ├── layouts/
-│   │   └── BaseLayout.astro        ← общий layout (<head>, meta, SEO)
-│   │
-│   ├── components/                 ← React Islands
-│   │   ├── HomeApp.tsx             ← корневой client island главной
-│   │   ├── ArticleView.tsx, ArticlePageShell.tsx, ArticleActions.tsx
-│   │   ├── Header.tsx, Footer.tsx, Hero.tsx, StaticPageShell.tsx
-│   │   ├── CommandPalette.tsx      ← Ctrl+K поиск (Fuse.js)
-│   │   ├── Categories.tsx, MainCategories.tsx, ArticlesGrid.tsx
-│   │   ├── DashboardBento.tsx, StatsBar.tsx, ContinueReading.tsx
-│   │   ├── Cursor.tsx, LuxuryText.tsx
-│   │   ├── gallery/GalleryApp.tsx   ← `/materials/`, same card-hover as archive
-│   │   ├── ImageWithFade.tsx
-│   │   ├── ScrollProgress.tsx, ScrollReveal.tsx, ScrollToTop.tsx
-│   │   ├── MobileBottomBar.tsx, UpdateNotification.tsx
-│   │   ├── ErrorBoundary.tsx, Toast.tsx, ReadingTime.tsx
-│   │
-│   ├── hooks/                      ← React hooks
-│   │   ├── useScrollDirection.ts
-│   │   └── useScrollProgress.ts
-│   │
-│   ├── data/                       ← ⭐ ЗДЕСЬ ВСЯ ДАННОСТЬ
-│   │   ├── types.ts                ← Article, ArticleMeta, ArticleClientMeta
-│   │   ├── articles.ts             ← сборка + helpers
-│   │   ├── library.ts              ← libraryArticles build-time + libraryClientMeta browser-safe
-│   │   ├── deepContents.ts         ← ⚠️ ~1.1 MB! ТОЛЬКО build-time!
-│   │   ├── categories.ts           ← список категорий
-│   │   ├── french-terms.ts         ← словарь терминов
-│   │   └── articleImageDimensions.ts
-│   │
-│   ├── utils/
-│   │   ├── storage.ts              ← SSR-safe localStorage (ОБЯЗАТЕЛЬНО использовать)
-│   │   ├── search.ts               ← Fuse конфиг (вынесен из HomeApp)
-│   │   ├── navigation.ts           ← native navigation helper для программных переходов
-│   │   ├── highlight.tsx           ← подсветка результатов поиска
-│   │   ├── plural.ts               ← русские плюрализация
-│   │   └── streak.ts               ← логика "стрика" чтения
-│   │
-│   ├── styles/
-│   │   └── global.css              ← один глобальный CSS (Tailwind 4 layers)
-│   │
-│   ├── assets/
-│   │   └── images.ts               ← Astro image imports (build-time)
-│   │
-│   └── vite-env.d.ts               ← Vite типы
-│
-├── public/                         ← статика, копируется в dist/ как есть
-│   ├── sw.js                       ← Service Worker (с __BUILD_HASH__ placeholder)
-│   ├── favicon.svg, images/        ← логотипы, категории, `logo-maskable.png` для PWA
-│   └── google*.html, yandex*.html  ← верификации поисковиков
-│
-├── scripts/                        ← Python build-time скрипты
-│   ├── audit_site.py               ← проверка dist/
-│   ├── audit_content.py            ← проверка контента
-│   └── optimize-hero.ps1
-│
-└── audit/site-audit-report.md      ← последний отчёт аудита (обновляется CI)
+```text
+/                         → homepage
+/materials/                → visual library gallery
+/canon/                    → Le Canon Sucré CollectionPage
+/articles/<id>/            → static article pages
+/privacy/ и policy pages   → static documents
 ```
 
-### 2.1 Корень репозитория — только конфиги и документация
+После Canon closeout опубликовано **157 article routes**. Это snapshot, а не magic constant: проверки нового кода должны сравнивать реальные ID sets / bindings, а не падать только потому, что корпус легитимно вырос.
 
-В корне **не должно быть** React/Astro/CSS/TS source-файлов вроде `ArticleView.tsx`, `HomeApp.tsx`, `about.astro`, `global.css`, `storage.ts`.
+### Data flow
 
-Почему это критично:
-- реальные рабочие файлы лежат в `src/components`, `src/pages`, `src/styles`, `src/utils`;
-- TypeScript/Astro всё равно сканирует source-файлы в корне;
-- дубликаты в корне имеют неправильные относительные импорты (`../data`, `../utils`, `./Toast`) и дают десятки ошибок в `astro check`;
-- если в корне оказался «большой файл с кодом», это почти всегда копия/мусор после upload. Нужные изменения надо переносить в canonical-файл внутри `src/`, а корневой дубль удалять.
+```text
+build-time article corpus
+  → library/build data
+  → Astro page generation
+  → static HTML
 
-Разрешены в корне: `README.md`, `AGENTS.md`, `package.json`, `astro.config.mjs`, `tsconfig.json`, `.gitignore`, `.nvmrc`, workflow/config-файлы. Запрещены в корне: `reference.html`, временные `.py`, `.patch`, `.zip`, локальная `.config/astro/`.
-
----
-
-## 3. PROTECTED — НЕ ТРОГАТЬ
-
-### 3.1 `deepContents.ts` НИКОГДА не в client island (КРИТИЧНО)
-
-`src/data/deepContents.ts` — **~1.1 MB** полного контента статей.
-
-✅ ПРАВИЛЬНО (build-time):
-```astro
-// src/pages/articles/[id].astro
----
-import { getArticleById } from '../../data/library'
-const article = getArticleById(Astro.params.id)
----
-<ArticlePageShell article={article} client:load />
+browser
+  → light client metadata only
+  → React islands / search / interactions
 ```
 
-❌ ЗАПРЕЩЕНО (попадёт в браузер):
-```tsx
-// src/components/AnyComponent.tsx
-import { deepContents } from '../data/deepContents'  // 1.1 MB в браузер!
-```
+Полный content не должен попадать в browser bundle ради поиска, карточек или навигации.
 
-**Правило:**
-- `deepContents.ts` импортируется **только** из `library.ts` / `articles.ts`
-- `library.ts` импортируется **только** из `.astro` файлов (build-time)
-- Client islands импортируют **только** `types.ts`, `categories.ts`, `ArticleClientMeta`
+## 2. Protected architecture
 
-Если нужно передать данные в client island — используй `ArticleClientMeta` (без `content`).
+### 2.1 Client islands
 
-### 3.2 SSR-safe доступ к browser APIs
+Client components импортируют только browser-safe metadata/types. Если объект содержит полный article body или большой research corpus, он должен оставаться build-time до тех пор, пока нет измеренной причины отправлять его клиенту.
 
-В Astro компоненты выполняются и на сервере (build-time SSR), и в браузере. Прямой `localStorage.getItem()` сломает сборку.
+### 2.2 Browser APIs
 
-✅ Использовать helpers из `src/utils/storage.ts`:
-```ts
-import { safeGetItem, safeSetItem, safeRemoveItem } from '../utils/storage'
+Любой browser-only доступ должен быть SSR-safe:
 
-const value = safeGetItem('reading-progress')  // null на сервере, ok в браузере
-```
-
-❌ Запрещено:
-```ts
-const value = localStorage.getItem('x')  // crash на build!
-const w = window.innerWidth              // crash на build!
-```
-
-Если нужен прямой доступ — оборачивай:
 ```ts
 if (typeof window !== 'undefined') {
-  // безопасно для браузера
+  // browser-only work
 }
 ```
 
-### 3.3 Service Worker (`public/sw.js`)
+Предпочитать существующие helpers проекта для storage/state, а не размножать прямые вызовы.
 
-Содержит **placeholder `__BUILD_HASH__`**, который заменяется в `astro.config.mjs` хук'ом `bumpServiceWorkerVersion()` на свежий хеш на каждой сборке.
+### 2.3 Navigation
 
-❌ Запрещено:
-- Удалять `__BUILD_HASH__` из `sw.js`
-- Менять имена `CACHE_VERSION` / `CACHE_NAMES` без проверки `UpdateNotification.tsx`
-- Удалять `trimCache()` логику — без неё кеш растёт бесконтрольно
+Article/navigation URLs должны оставаться настоящими `<a href>`.
 
-### 3.4 Тёмная тема — ОСНОВНАЯ, неизменяемая (intentional design)
+Native MPA navigation — текущая production authority. `ClientRouter` уже вызывал зависания при переходах с тяжёлой главной; не возвращать его как «modernization» без отдельного regression-proof.
 
-> ⛔ **ЗАПРЕЩЕНО менять**: тёмная тема — не «опция», это фирменный стиль бренда Milovi.
-> Любое изменение дефолта (dark → light) является ОШИБКОЙ и должно быть немедленно отменено.
+### 2.4 Generated HTML
 
-**Почему:** Бренд Milovi строится на премиальной эстетике французской кондитерской — тёмные тона золото — это художественный выбор владельца. Светлая тема — вспомогательная альтернатива для тех, кто явно её выбирает.
+Исправлять root cause в source/SSR/build pipeline. Не добавлять скрипт, который после `astro build` массово переписывает HTML ради сокрытия дефекта исходной сборки.
 
-**Правила, которые НЕЛЬЗЯ нарушать:**
-1. `HomeApp.tsx`: начальное состояние темы = `'dark'` (`useState<'light' | 'dark'>('dark')`)
-2. `BaseLayout.astro`: pre-paint скрипт читает `localStorage.getItem('theme')` и по умолчанию применяет `'dark'` если ничего не сохранено
-3. `global.css`: `:root` содержит светлые токены (fallback), `.dark` — тёмные (основные в работе)
-4. Все новые CSS-переменные должны иметь корректные значения в обоих блоках `:root` и `.dark`
+Raw generated artifact и deployed artifact должны быть проверяемыми и предсказуемыми.
 
-В `global.css`:
-```css
-:root {
-  /* Светлая тема — резервный вариант */
-  --bg-main: #fcfaf8;
-}
+### 2.5 Service Worker
 
-.dark {
-  /* ОСНОВНАЯ тема сайта */
-  --bg-main: #10100f;
-}
+`public/sw.js` и build-hash/version wiring являются частью update/caching contract. Не удалять hash placeholder/version logic и cache trimming без полного browser/update audit.
+
+## 3. Protected product/design decisions
+
+### Dark-first
+
+Dark theme — основной фирменный опыт, а не случайный default. Light theme поддерживается, но нельзя автоматически «осветлять» сайт как улучшение.
+
+### Homepage / Materials
+
+- Главная не должна снова превращаться в длинный каталог всех статей.
+- `/materials/` остаётся отдельной visual gallery.
+- Существующие premium hover/reference behaviours не упрощать без визуального сравнения и запроса владельца.
+- Touch/keyboard experience не должен зависеть от hover-only disclosure.
+
+### Le Canon Sucré
+
+`/canon/` — отдельная curated collection, не обычная category.
+
+Current closed scope:
+
+- 15 Canon works;
+- 15 dedicated WebP;
+- 15 real article bindings;
+- documentary Research Timeline;
+- Tatin `LÉGENDE / DOCUMENT` boundary;
+- Technique Index;
+- collection navigation;
+- Canon/Research/browser/SEO permanent gates.
+
+Final contract: [`docs/le-canon-sucre/CLOSEOUT.md`](./docs/le-canon-sucre/CLOSEOUT.md).
+
+**Не считать новым долгом** Atlas, дополнительные effects, historical facsimiles или массовые image derivatives. Это отдельные будущие waves только при новой редакционной/измеримой причине.
+
+## 4. Research / editorial truth rules
+
+Для historical/editorial sections:
+
+- конфликт источников публикуется как конфликт;
+- легенда не повышается до documented fact;
+- transmission/popularization/institution не переименовываются в `ORIGIN`;
+- отсутствие evidence не заполняется правдоподобным вымыслом;
+- source ≠ author;
+- generated editorial image ≠ historical evidence;
+- archive/facsimile publication требует rights review;
+- Product wording должен быть fail-closed.
+
+Если новый сильный источник меняет claim, это отдельная Research correction с обновлением тестов/документов.
+
+## 5. Media rules
+
+Для dedicated section media:
+
+- отдельный media registry — source of truth;
+- descriptive stable filenames/IDs;
+- реальные dimensions/format;
+- semantic image через `<img src>`/`<picture>` с fallback `src`, а не только CSS background;
+- informative image — краткий contextual alt;
+- decorative image — `alt=""`;
+- без keyword stuffing;
+- representative page image согласовать с OG/structured data;
+- generated editorial media маркировать честным provenance, когда это известно.
+
+Canon-specific prompt/media contract: [`docs/le-canon-sucre/IMAGE_PROMPTS.md`](./docs/le-canon-sucre/IMAGE_PROMPTS.md).
+
+## 6. SEO 2026 — permanent principles
+
+SEO требования меняются. Перед новым крупным SEO pass сверяться с **официальной** Search Central/W3C/IndexNow документацией, а не с памятью агента или SEO-блогами.
+
+Текущие production rules:
+
+- indexable page: title, useful description, canonical, H1, crawlable links;
+- large previews разрешены через `max-image-preview:large`;
+- representative `og:image` / image alt;
+- Article/ImageObject/Collection structured data соответствуют visible content;
+- Recipe schema — только настоящий полноценный recipe content;
+- image sitemap использует актуальный `image:loc`;
+- sitemap `lastmod` — только реальная дата значимого изменения;
+- не использовать `priority`/`changefreq` как Google ranking/indexing signals;
+- не добавлять `meta keywords` или keyword-stuffed alt/title;
+- не придумывать AI/GEO/AEO-specific schema: Google не требует специальной разметки для AI Overviews/AI Mode;
+- IndexNow notification выполняется только после успешного live deploy proof.
+
+Внутренние ограничения длины title/description — house style, не «лимит Google».
+
+Детали и официальные ссылки: [`docs/PRODUCTION_SECTION_PLAYBOOK.md`](./docs/PRODUCTION_SECTION_PLAYBOOK.md).
+
+## 7. Новый крупный раздел: обязательный порядок
+
+Не начинать с UI.
+
+```text
+1. exact scope / IDs
+2. Research claims + source trail
+3. real publication/routes model
+4. media identity + provenance/rights
+5. structured-data model
+6. permanent source/build contracts
+7. UI / interactions
+8. generated-site SEO audit
+9. browser/responsive/reduced-motion QA
+10. immutable exact-head release candidate
+11. merge + deploy
+12. live exact-SHA proof
 ```
 
-Был баг: страницы статей принудительно включали тёмную тему даже для light-пользователей. **Исправлено в Мае 2026 — не возвращать!**
+Если development branch продолжает двигаться после принятого visual/evidence SHA, релиз вырезать из проверенного immutable commit, а не считать новый head автоматически эквивалентным.
 
-### 3.5 Парсинг рецептов: `isList` regex
+## 8. Temporary authority lifecycle
 
-В `src/utils/highlight.tsx` есть critically важный regex для `isList()`. Историческая поломка: `\D` (не-цифра) вместо `\S` (не-пробел) превращала списки ингредиентов («150 г муки + 80 г сахара…») в сплошной текст.
+В большой design/research wave допустим `_TEMP_*` authority, если он помогает синхронизировать работу. В closeout он обязан:
 
-**Правило:** не «оптимизировать» regex без полного тест-набора рецептов.
+- либо исчезнуть;
+- либо быть преобразован в короткий permanent doc;
+- а критические правила должны жить в code/tests, не только в Markdown.
 
-### 3.6 Fuse.js конфиг
+Не оставлять временный файл как скрытую вторую систему правды.
 
-`src/utils/search.ts` содержит `ARTICLE_FUSE_OPTIONS`. Был баг с **дублирующимися индексами** подсветки. Исправлен — не возвращать к старому конфигу.
+## 9. Validation
 
-### 3.7 Атрибуция
-
-Все статьи — **переводы и адаптации** из французских источников + проверка ИИ. **Не указывать "Автор: Виктория Милованова"** в статьях. Если нужно — спросить владельца про формат.
-
-### 3.8 Навигация и View Transitions
-
-`src/layouts/BaseLayout.astro` использует нативную MPA-навигацию; Astro ClientRouter отключён из-за подвисаний при переходах на статьи.
-
-Программные переходы из React-islands должны идти через:
-
-```ts
-import { navigateTo } from '../utils/navigation'
-void navigateTo('/articles/example/')
-```
-
-Не использовать `window.location.href = ...` напрямую для внутренних переходов, если нет специальной причины. `navigateTo()` делает **нативную MPA-навигацию** (`window.location.assign/replace`) и специально НЕ использует Astro client router.
-
-Клик по тегу внутри статьи не должен уводить пользователя reload-ом на `/?q=`: правильный паттерн — открыть `CommandPalette` с `initialQuery`.
-
-
-### 3.9 Protected reference effects: главная, статистика, галерея
-
-Эти коэффициенты перенесены из Drive/Arena-референса и считаются зафиксированными. Нельзя «улучшать» их на глаз.
-
-**Hero:**
-- `Французская` и `Pâtisserie` — две строки.
-- `Pâtisserie` всегда синий italic: dark `#6da8e2 → #1a7aef`, light `#4a7eb8 → #003ecf`.
-
-**Stats `#stats`:**
-- motion: `dx * 0.06`, `dy * 0.05`, `dx * 0.025`, `-dy * 0.02`, `scale(1.045)`.
-- CSS: `perspective: 900px`, `transform-style: preserve-3d`.
-- hover colors: light `#c8873e`, dark `#e8b86a`.
-
-**Archive/gallery cards:**
-- один эффект для `MainCategories` и `/materials/`;
-- source image fades to `opacity:0`;
-- blur-copy: `blur(40px) brightness(0.15) contrast(1.2) saturate(1.2)`;
-- overlay hover: `rgba(0,0,0,0.6) 0%`, `rgba(0,0,0,0.85) 45%`, `rgba(0,0,0,0.98) 100%`;
-- luxury card must override old generic `.cat-img-card:hover .cat-img` scale/brightness via `.cat-img-card-lux:hover .cat-card-img-lux { opacity:0; transform:none; filter:none; }`;
-- body: `translateY(-12px)`, title: `scale(1.02) translateY(-6px)`.
-
-**Главная:**
-- НЕ возвращать `ShowcaseSlider.tsx` / «Знаковые творения» / «Иконы современной pâtisserie».
-- НЕ возвращать список всех статей подряд на главную. Главная: hero → stats → archive cards → search/categories → compact blocks → footer/about.
-- `/materials/` — единственное место для общей визуальной галереи всех материалов.
-
-
-### 3.10 Runtime/type alignment and SEO hardening
-
-- Runtime React is 18.x; `@types/react` and `@types/react-dom` must stay on matching 18.x unless the project explicitly migrates to React 19.
-- `/404.html` must keep HTTP status 404 and `robots="noindex, follow"`.
-- Search query duplicates (`?q=` / `&q=`) are blocked in `robots.txt`; do not remove without adding another canonical/noindex strategy.
-- Custom cursor hiding must stay behind the JS-added `html.cursor-effects-enabled` class. Never set global `cursor:none` without JS fallback.
-- CommandPalette should stay lazy-loaded; do not reintroduce a static import into `HomeApp`, `ArticlePageShell` or `GalleryApp`.
-
-
-### 3.11 Gallery premium preview
-
-`/materials/` содержит premium expanded preview для точного мышиного hover карточек. Это намеренная luxury-фича, не заменять на обычный tooltip/popover. Обязательные свойства:
-
-- маленькая карточка остаётся обычной ссылкой на статью;
-- hover с выдержкой открывает или обновляет preview window; обычный keyboard focus ничего сам не раскрывает;
-- preview содержит крупное изображение, категорию, readTime, excerpt, tags, Prev/Next, «Читать материал», «Свернуть»;
-- reference-hover карточек (`cat-img-card-lux`) не менять;
-- preview CSS живёт в `global.css` как `.gallery-preview-*`;
-- reduced-motion должен отключать entrance animations;
-- preview закрывается только по реальному scroll, Escape, потере фокуса окна, уходу мыши или явному клику вне карточки/панели; synthetic wheel без scroll не должен закрывать его;
-- React island SSR использует `experimentalDisableStreaming: true`: это предотвращает повреждение UTF-8 на границах React 18 stream chunks; сгенерированный HTML нельзя переписывать post-build скриптами.
-
-
-### 3.12 Content quality invariants
-
-- `articles.ts` must not generate fallback boilerplate content. Missing `deepContents[id]` should fail the build.
-- `scripts/audit_content.py` must keep confirming 115 unique deep content entries.
-- Article JSON-LD should keep `articleBody` as cleaned plain text, capped to a safe length; do not dump full markdown into structured data.
-
----
-
-## 4. STYLING — Tailwind 4
-
-### 4.1 Один CSS-файл
-
-Весь глобальный CSS — в **`src/styles/global.css`**. Не создавать новых `.css` модулей.
-
-### 4.2 Используй Tailwind утилиты
-
-✅ ПРАВИЛЬНО:
-```tsx
-<div className="flex items-center gap-4 p-6 rounded-2xl bg-amber-50 dark:bg-stone-900">
-```
-
-❌ Запрещено:
-```tsx
-<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-```
-
-### 4.3 Кастомные стили — только если Tailwind не покрывает
-
-Тогда добавляй в `global.css` через `@layer components` (НЕ в `@layer utilities` — это сломает порядок специфичности).
-
-### 4.4 Тёмная тема
-
-Используй Tailwind `dark:` prefix везде, где нужно отличие. Не пиши свой `[data-theme="dark"]` CSS — Tailwind делает это сам.
-
----
-
-## 5. TYPESCRIPT — строгий режим
-
-### 5.1 `tsconfig.json` extends `astro/tsconfigs/strict`
-
-- `strict: true`
-- `noUncheckedIndexedAccess` (вероятно)
-- Никаких `any` без явного `// eslint-disable`
-
-### 5.2 Типы для данных
-
-Все статьи типизированы через `Article`, `ArticleMeta`, `ArticleClientMeta` в `src/data/types.ts`. **Любая правка типа — синхронно во всех 3 интерфейсах**.
-
-### 5.3 Запреты
-
-- ❌ Не использовать `any` (используй `unknown` + type guards)
-- ❌ Не использовать `as Article` без рантайм-проверки
-- ❌ Не отключать ESLint правила без комментария-обоснования
-- ❌ Не игнорировать `astro check` ошибки
-
----
-
-## 6. ASTRO — особенности
-
-### 6.1 Client directives
-
-В Astro компонент React требует **client directive**, иначе он SSR-only:
-
-| Директива | Когда |
-|---|---|
-| `client:load` | При загрузке страницы (interactive ASAP) |
-| `client:idle` | После idle (ScrollProgress, Toast) |
-| `client:visible` | Когда виден (ImageWithFade) |
-| `client:only="react"` | Только в браузере (если SSR ломается) |
-
-**Правило:** не использовать `client:load` на тяжёлых компонентах. Сначала `client:visible` или `client:idle`.
-
-### 6.1.1 StaticPageShell
-
-`src/components/StaticPageShell.tsx` — единственная разрешённая React-обёртка для статических Astro-страниц `/about/` и `/methodology/`. Она подключает общий `Header`/`Footer`, не импортирует `deepContents.ts` и не должна превращаться во второй `HomeApp`. Поиск со статических страниц ведёт на `/?command=1`, где палитра открывается уже внутри основной SPA.
-
-### 6.2 Astro Image оптимизация
-
-Используй `<Image>` из `astro:assets`, не `<img>`, для статей. Это даёт автоматический resize + WebP + AVIF.
-
-### 6.3 Layout
-
-Все страницы используют `BaseLayout.astro` через `<BaseLayout title="..." description="...">`. Не дублировать `<head>` в страницах.
-
----
-
-## 7. ОБЯЗАТЕЛЬНЫЕ ПРОВЕРКИ перед коммитом
+Основная локальная проверка:
 
 ```bash
-# 1. TypeScript + Astro
-npm run check          # astro check
-
-# 2. ESLint
-npm run lint           # eslint .
-
-# 3. Сборка
-npm run build          # astro build (должна пройти без warnings)
-
-# 4. Аудит контента + сайта
-npm run audit:content  # python scripts/audit_content.py
-npm run audit:site     # python scripts/audit_site.py
-
-# 5. Security
-npm run audit:security # npm audit --audit-level=moderate
-
-# 6. ВСЁ вместе одной командой
+npm ci
 npm run validate
 ```
 
-Если хоть одна проверка **не прошла** — НЕ коммитить.
+`validate` включает TypeScript, lint, content/editorial/security checks, build, raw build audit, site/Canon/Research/SEO audits и privacy contract.
 
----
+Для UI/section release дополнительно обязательны соответствующие browser/visual workflows. Для production-closeout доказательство — не только green build, а **exact deployed SHA live witness**.
 
-## 8. ДОБАВЛЕНИЕ НОВОЙ СТАТЬИ
+## 10. Repository hygiene
 
-1. Добавить статью в **`src/data/deepContents.ts`** (или туда, где у тебя контент).
-2. Зарегистрировать в `src/data/library.ts` / `articles.ts`.
-3. Если новая категория — обновить `src/data/categories.ts`.
-4. Добавить размеры изображения в `src/data/articleImageDimensions.ts`.
-5. Положить картинку в `public/images/` (или `src/assets/images/`).
-6. Запустить `npm run build` — статья появится по адресу `/articles/<id>/`.
-7. Прогнать `npm run validate`.
+Запрещено коммитить:
 
----
+- локальные архивы/evidence ZIP как source;
+- temporary payload/patch scripts после завершения переноса;
+- build output/cache;
+- duplicate source files в корне;
+- reference dumps, которые не являются permanent docs;
+- секреты/токены.
 
-## 9. КРАСНЫЕ ФЛАГИ
+История решений хранится в Git/PR. README и AGENTS должны описывать текущую authority, а не накапливать бесконечный changelog старых состояний.
 
-| Если собираешься сделать | Почему стоп |
-|---|---|
-| «Создам новый компонент ArticleAuthor.tsx — модно» | См. §2. У `Header`/`Footer`/`ArticleView` уже всё есть. |
-| «Импортирую deepContents в HomeApp для фичи Recent» | См. §3.1. КРАШ. Используй `library.ts` в Astro page. |
-| «Уберу typeof window — выглядит лишним» | См. §3.2. Это для SSR build. КРАШ при сборке. |
-| «Поменяю стили inline для скорости» | См. §4.2. Tailwind. |
-| «Переключу dark на light по default» | **ЗАПРЕЩЕНО.** Тёмная тема — intentional brand design. §3.4 |
-| «Добавлю светлую тему как основную, а тёмную как опцию» | **ЗАПРЕЩЕНО.** Это инвертирует бренд. §3.4 |
-| «Уберу trimCache() — не нужен» | См. §3.3. Кеш будет расти бесконечно. |
-| «Обновлю Astro на следующий major без миграционного плана» | НЕТ. Major-обновления = отдельная проверяемая миграция. |
-| «Заменю Fuse.js на современный поиск» | См. §3.6. Fuse настроен, не переделывай. |
-| «Верну ClientRouter/ViewTransitions ради красивых переходов» | НЕТ. Уже давал зависания при переходе на статьи. §3.8 |
-| «Верну список всех статей на главную» | НЕТ. Для этого есть `/materials/`; на главной остаётся поиск. §3.9 |
-| «Упрощу hover карточек: scale/brightness вместо blur-copy» | НЕТ. Reference-hover защищён. §3.9 |
-| «Поправлю isList regex — нечитабельный» | См. §3.5. Уже сломали раз, не трогать. |
-| «Сделаю prettier --write src/` — для красоты» | НЕТ. Diff = нечитаем. |
-| «Поменяю Tailwind 4 синтаксис на CSS modules» | НЕТ. Архитектурный выбор. |
+## 11. Definition of Done
 
----
+Изменение/раздел можно считать закрытым только когда:
 
-## 10. История этого документа
+- scope и границы утверждений определены;
+- real routes/media/data согласованы;
+- no placeholders/fake claims;
+- generated artifact проходит permanent audits;
+- accessibility/responsive/browser checks зелёные;
+- SEO/schema соответствует visible content и актуальным правилам;
+- temporary authority удалена;
+- exact release SHA подтверждён на live domain;
+- новые идеи вынесены в отдельную будущую wave.
 
-| Версия | Дата | Что |
-|---|---|---|
-| AGENTS-r8 | 2026-08-03 | Актуализирован стек до Astro 7; preview сделан hover-only без focus side effects; запрещена post-build мутация HTML, закреплён deterministic React SSR. |
-| AGENTS-r7 | 2026-05-20 | Зафиксированы content-quality правила: без fallback boilerplate, missing deepContents валит сборку, Article JSON-LD содержит безопасный `articleBody`. |
-| AGENTS-r6 | 2026-05-20 | Зафиксирована luxury-фича `/materials/`: expanded preview на hover/focus (историческая формулировка; актуальный контракт — hover-only), без поломки маленьких карточек и reference-hover. |
-| AGENTS-r5 | 2026-05-20 | Зафиксированы правила audit-hardening: React 18 types, 404 noindex/status, robots для `?q=`, lazy CommandPalette, JS-safe cursor fallback. |
-| AGENTS-r4 | 2026-05-20 | Зафиксированы правила после index/materials superfix: `/materials/`, запрет ClientRouter, запрет портянки 115 статей на главной, reference-hover карточек/цифр/hero, репо-гигиена `.config`/`reference.html`. |
-| AGENTS-r3 | 2026-05-19 | §3.4 усилен: тёмная тема — запрещённое для изменения требование; добавлен раздел CommandPalette (§11) с описанием багов и архитектуры поиска |
-| AGENTS-r2 | 2026-05-17 | Зафиксированы правила: никаких source-дубликатов в корне, `src/utils/navigation.ts` + нативная MPA-навигация для внутренних переходов, curated audit Markdown можно коммитить. |
-| AGENTS-r1 | 2026-05-17 | Создан на основе аудита (Astro 7 + React 18 + TS strict + Tailwind 4) |
-
----
-
-> Этот проект — **самый строгий из трёх**. Он построен профессионально, и любая «смелая» правка может сломать сборку, кеш-инвалидацию, SEO, типы.
->
-> Если правило кажется глупым — НЕ нарушай. Спроси владельца. Часто правила появились из-за конкретных багов, которые уже были и не должны повториться.
-
----
-
-## 11. CommandPalette — архитектура и правила
-
-`src/components/CommandPalette.tsx` — поиск Ctrl+K. Критически важные архитектурные решения:
-
-### 11.1 Счётчики фильтр-чипов (sectionCounts)
-
-`sectionCounts` **обязан считаться по полному набору**, а не по `baseResults`:
-- Без запроса → итерация по всем `articles` (полный набор)
-- С запросом → `fuse.search(trimmed)` **без лимита**
-
-**Почему критично:** `baseResults` лимитируется (8 недавних или 30 интерливных), поэтому разделы с нулём в выборке отображались как `disabled`. Пользователь не мог выбрать «Техники», «Рецепты» и т.д.
-
-❌ ЗАПРЕЩЕНО возвращать к старой логике:
-```ts
-// НЕПРАВИЛЬНО — sectionCounts только по baseResults:
-const sectionCounts = useMemo(() => {
-  for (const r of baseResults) { ... } // baseResults лимитирован!
-}, [baseResults])
-```
-
-✅ ПРАВИЛЬНО:
-```ts
-const sectionCounts = useMemo(() => {
-  if (query.trim()) {
-    for (const r of fuse.search(trimmed)) { ... } // полный Fuse-скан
-  } else {
-    for (const a of articles) { ... } // все articles
-  }
-}, [articles, fuse, query])
-```
-
-### 11.2 Изображения разделов (SECTION_COVER)
-
-`SECTION_COVER` — карта `sectionId → URL` для предпросмотра в правой панели:
-- 4 дедикатные картинки в `/public/images/cat-*.webp`
-- 2 — лучшие статьи раздела (histoire-culinaire, french-cuisine)
-
-При добавлении новых разделов — добавить сюда же.
-
-### 11.3 QuickAction.sectionId
-
-`QuickAction` имеет поле `sectionId: string` для прямого доступа к разделу без разбора `id.replace('nav-', '')`. Всегда заполнять при создании.
-
+После этого не добавлять случайные изменения только ради ощущения «ещё чуть-чуть дополировать».
