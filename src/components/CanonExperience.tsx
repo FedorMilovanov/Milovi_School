@@ -131,6 +131,7 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleCl
     '--canon-grid-row': work.gridRow,
     '--canon-grid-start': work.gridStart,
     '--canon-grid-span': work.gridSpan,
+    '--canon-media-scale': work.imageScale ?? 1,
   } as CSSProperties
 
   return (
