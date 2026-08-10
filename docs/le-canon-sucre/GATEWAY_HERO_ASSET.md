@@ -1,9 +1,12 @@
 # Canon homepage gateway — final owner-selected master
 
-**Asset:** `/public/images/canon-sucre/canon-gateway-hero.webp`  
+**Asset served by site:** `/public/images/canon-sucre/canon-gateway-hero.webp`  
 **Owner source:** `mona-lisa-1_b_Create_a_single_cont.png`, supplied 2026-08-10  
 **Source dimensions:** 1916×821 (≈21:9)  
-**Production WebP:** 1916×821, quality-preserving optimized export (~120 KB)
+**Production WebP:** 1916×821, quality-preserving q86 export, 77,970 bytes  
+**Production SHA-256:** `a954f979338ba59328cf2d92ea4e848265ce17054b5b6b807ff45fe9a8afd5fc`
+
+The repository connector cannot safely transport this binary in one write, so the production bytes are stored losslessly as seven Base64 source chunks under `assets/canon-gateway-hero/`. `scripts/materialize_canon_gateway_asset.mjs` reconstructs the normal WebP before dev/build and refuses to continue unless byte length and SHA-256 exactly match the accepted derivative. This is a transport representation only; the browser receives the ordinary WebP above.
 
 ## Art-direction contract
 
