@@ -14,7 +14,7 @@ const LIVE_BASE = (process.env.LIVE_BASE ?? 'https://french.milovicake.ru').repl
 const BEFORE_SHA = (process.env.BEFORE_SHA ?? '').trim()
 const CURRENT_SHA = (process.env.CURRENT_SHA ?? '').trim()
 const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow'
-const HOST = new URL(LIVE_BASE).host
+const HOST = new globalThis.URL(LIVE_BASE).host
 
 const isZeroSha = (value) => /^0{40}$/.test(value)
 const isFullSha = (value) => /^[0-9a-f]{40}$/i.test(value)
@@ -46,14 +46,14 @@ function changedFiles() {
       stdio: ['ignore', 'pipe', 'pipe'],
     })
     return output.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
-  } catch (error) {
+  } catch {
     console.warn(`[indexnow] Could not diff ${BEFORE_SHA}..${CURRENT_SHA}; skip notification rather than over-submit.`)
     return null
   }
 }
 
 async function liveCanonicalUrls() {
-  const response = await fetch(`${LIVE_BASE}/sitemap-0.xml`, {
+  const response = await globalThis.fetch(`${LIVE_BASE}/sitemap-0.xml`, {
     headers: { 'user-agent': 'MiloviSchool-IndexNow/1.0' },
   })
   if (!response.ok) throw new Error(`Live sitemap returned HTTP ${response.status}`)
@@ -62,7 +62,7 @@ async function liveCanonicalUrls() {
     .map((match) => match[1])
     .filter((url) => {
       try {
-        const parsed = new URL(url)
+        const parsed = new globalThis.URL(url)
         return parsed.host === HOST && !parsed.pathname.startsWith('/images/')
       } catch {
         return false
@@ -87,7 +87,7 @@ function selectUrls(files, allUrls) {
   }
 
   const selected = new Set()
-  const articles = allUrls.filter((url) => new URL(url).pathname.startsWith('/articles/'))
+  const articles = allUrls.filter((url) => new globalThis.URL(url).pathname.startsWith('/articles/'))
 
   const articleWidePatterns = [
     /^src\/pages\/articles\//,
@@ -106,14 +106,10 @@ function selectUrls(files, allUrls) {
     /^public\/images\/canon-sucre\//,
   ]
   if (files.some((file) => canonPatterns.some((pattern) => pattern.test(file)))) {
-    const canon = allUrls.find((url) => new URL(url).pathname === '/canon/')
+    const canon = allUrls.find((url) => new globalThis.URL(url).pathname === '/canon/')
     if (canon) selected.add(canon)
     // Canon membership/navigation can affect all fifteen mapped article pages.
-    for (const url of articles) {
-      // The sitemap itself cannot tell membership; the set is small enough that
-      // notifying the article corpus is safer than silently missing changed Canon dossiers.
-      selected.add(url)
-    }
+    for (const url of articles) selected.add(url)
   }
 
   const staticRouteMap = new Map([
@@ -129,7 +125,7 @@ function selectUrls(files, allUrls) {
   for (const file of files) {
     const pathname = staticRouteMap.get(file)
     if (!pathname) continue
-    const url = allUrls.find((candidate) => new URL(candidate).pathname === pathname)
+    const url = allUrls.find((candidate) => new globalThis.URL(candidate).pathname === pathname)
     if (url) selected.add(url)
   }
 
@@ -140,7 +136,7 @@ async function postIndexNow(payload) {
   let lastError = null
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const response = await fetch(INDEXNOW_ENDPOINT, {
+      const response = await globalThis.fetch(INDEXNOW_ENDPOINT, {
         method: 'POST',
         headers: {
           'content-type': 'application/json; charset=utf-8',
@@ -158,7 +154,7 @@ async function postIndexNow(payload) {
     } catch (error) {
       lastError = error
     }
-    await new Promise((resolve) => setTimeout(resolve, attempt * 3000))
+    await new Promise((resolve) => globalThis.setTimeout(resolve, attempt * 3000))
   }
   throw lastError ?? new Error('IndexNow request failed')
 }
@@ -185,7 +181,7 @@ async function main() {
 
   const { key, filename } = await discoverKey()
   const keyLocation = `${LIVE_BASE}/${filename}`
-  const keyResponse = await fetch(keyLocation, { headers: { 'user-agent': 'MiloviSchool-IndexNow/1.0' } })
+  const keyResponse = await globalThis.fetch(keyLocation, { headers: { 'user-agent': 'MiloviSchool-IndexNow/1.0' } })
   const liveKey = keyResponse.ok ? (await keyResponse.text()).trim() : ''
   if (liveKey !== key) throw new Error(`Live IndexNow key verification failed at ${keyLocation}`)
 
