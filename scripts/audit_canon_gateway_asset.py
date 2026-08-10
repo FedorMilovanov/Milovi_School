@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import re
+
+ROOT = Path(__file__).resolve().parents[1]
+COMPONENT = ROOT / 'src' / 'components' / 'CanonGateway.tsx'
+CSS = ROOT / 'src' / 'styles' / 'canon-gateway.css'
+ASSET = ROOT / 'public' / 'images' / 'canon-sucre' / 'canon-gateway-hero.webp'
+
+errors: list[str] = []
+
+if not ASSET.exists():
+    errors.append('Missing final owner-selected Canon gateway asset')
+else:
+    size = ASSET.stat().st_size
+    if size <= 0:
+        errors.append('Canon gateway asset is empty')
+    if size > 800_000:
+        errors.append(f'Canon gateway asset is unexpectedly heavy: {size} bytes')
+
+component = COMPONENT.read_text('utf-8') if COMPONENT.exists() else ''
+css = CSS.read_text('utf-8') if CSS.exists() else ''
+
+required_component = [
+    "'/images/canon-sucre/canon-gateway-hero.webp'",
+    'width={1916}',
+    'height={821}',
+]
+for token in required_component:
+    if token not in component:
+        errors.append(f'CanonGateway lost panoramic master contract: {token}')
+
+for retired in ('canon-gateway-media-item', 'GATEWAY_SELECTION'):
+    if retired in component or retired in css:
+        errors.append(f'Retired fragmented gateway construct returned: {retired}')
+
+if 'inset: 0;' not in css:
+    errors.append('Gateway media must remain a full-bleed image plane')
+if 'object-fit: cover;' not in css:
+    errors.append('Gateway requires bounded cover art direction')
+if not re.search(r'object-position:\s*(?:50|5[0-9])%\s+(?:5[0-9])%;', css):
+    errors.append('Desktop gateway crop anchor is missing')
+if 'object-position: 72% 58%;' not in css:
+    errors.append('Mobile gateway crop anchor must focus the pastry lineup')
+
+if errors:
+    print('# Canon gateway asset gate')
+    for error in errors:
+        print(f'- FAIL: {error}')
+    raise SystemExit(1)
+
+print('# Canon gateway asset gate')
+print(f'- PASS: final panoramic asset present ({ASSET.stat().st_size} bytes)')
+print('- PASS: 1916×821 dimensions declared in component')
+print('- PASS: desktop full-bleed and mobile subject-focused art direction protected')
+print('- PASS: retired five-panel gateway constructs absent')
