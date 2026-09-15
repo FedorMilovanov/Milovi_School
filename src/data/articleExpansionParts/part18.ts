@@ -60,8 +60,8 @@ Gougères отсаживают одинаковыми маленькими по�
 ## Французские источники и первичные материалы
 
 - [Gougères — Chef Simon](https://chefsimon.com/recettes/tag/goug%C3%A8res)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tuiles-amandes': `## Тонкость должна быть одинаковой
 
 Tuile хрустит только при равномерном тонком слое. Массу распределяют по шаблону или одинаковой мерной ложкой. Толстый центр остаётся мягким, пока край уже горит. Миндальные лепестки укладывают без больших стопок.
@@ -145,7 +145,7 @@ Bûche часто перевозят и режут на большое числ�
 
 - [Bûches de Noël — Académie du Goût](https://www.academiedugout.fr/recherche?q=b%C3%BBche%20de%20No%C3%ABl)
 - [Bûche au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/buche-de-noel-au-chocolat.html)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)`,
   'recipe-chausson-aux-pommes': `## Компоте должно быть сухим и ароматным
 
 Начинку готовят заранее и полностью охлаждают. Яблоки уваривают до плотной массы без свободного сиропа, но сохраняют фруктовый вкус. Слишком жидкое компоте вытекает через шов и разрушает слои; чрезмерно сухое кажется пастообразным.
@@ -166,5 +166,5 @@ Feuilletage раскатывают равномерно и дают ему от�
 
 - [Chaussons aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/chaussons-aux-pommes--5)
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
 })

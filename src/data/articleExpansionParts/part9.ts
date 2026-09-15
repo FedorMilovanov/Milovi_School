@@ -40,7 +40,7 @@ Insert готовят тонким слоем. Заварную массу не 
 ## Французские источники и первичные материалы
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Ganache montée](https://essentials.valrhona.com/essential/56)
 - [Glaçage prêt à l’emploi](https://www.cacao-barry.com/fr-FR/chocolat-technique/glacage)`,
   'recipe-tarte-citron-grolet': `## Что можно считать подтверждённой техникой
@@ -84,7 +84,7 @@ Insert готовят тонким слоем. Заварную массу не 
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
-- [La Tarte Tropézienne — histoire officielle](https://www.latartetropezienne.fr/fr/?m=aboutus%3Fm%3Daboutus)
+- [La Tarte Tropézienne — histoire officielle](https://www.latartetropezienne.fr/fr/content/10-notre-histoire)
 - [Larousse — Tarte tropézienne](https://www.editions-larousse.fr/recette/tarte-tropezienne/)`,
   'stohrer-1730': `## Дом на rue Montorgueil
 
@@ -133,7 +133,7 @@ Crème pâtissière может использовать кукурузный, п
 ## Французские источники и первичные материалы
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'tech-ganache-types': `## Ganache pâtissière
 
@@ -154,7 +154,7 @@ Crème pâtissière может использовать кукурузный, п
 ## Французские источники и первичные материалы
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Ganache montée](https://essentials.valrhona.com/essential/56)
 - [Ganache pour cadres](https://essentials.valrhona.com/essential/172)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,

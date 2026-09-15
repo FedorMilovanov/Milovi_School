@@ -17,7 +17,7 @@ Appareil — не прибор, а подготовленная смесь; chem
 
 ## Французские источники и первичные материалы
 
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [FERRANDI Paris — Pâtisserie](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Lexique culinaire — Chef Simon](https://chefsimon.com/articles/lexique)`,
   'tech-choux': `## Яйцо вводят по состоянию теста
@@ -38,8 +38,8 @@ Appareil — не прибор, а подготовленная смесь; chem
 
 ## Французские источники и первичные материалы
 
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'mercotte-anglaise': `## Температура — не единственный критерий
 
@@ -61,7 +61,7 @@ Crème anglaise может загустеть в диапазоне около 8
 
 - [Les bases — Mercotte](https://www.mercotte.fr/category/les-bases/)
 - [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_1532_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'mercotte-macarons': `## Итальянская меренга не отменяет контроль влажности
 
 Сироп делает меренгу стабильнее, но оболочка всё равно зависит от сухости миндальной смеси, состояния белка и влажности помещения. Tant-pour-tant просеивают без чрезмерного измельчения: долгий прогон в комбайне нагревает миндаль и выделяет жир, после чего поверхность macaron становится пятнистой.
@@ -144,7 +144,7 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'michalak-religieuse': `## Два choux должны готовиться одинаково
 
@@ -166,5 +166,5 @@ Crème anglaise может загустеть в диапазоне около 8
 
 - [Religieuse caramel beurre salé — Académie du Goût](https://www.academiedugout.fr/recettes/religieuse-caramel-beurre-sale_4463_2)
 - [Christophe Michalak — site officiel](https://christophemichalak.com/)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

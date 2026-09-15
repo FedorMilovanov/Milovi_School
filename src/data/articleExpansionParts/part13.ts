@@ -40,7 +40,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 - [La Pâtisserie Cyril Lignac](https://lapatisseriecyrillignac.com/)
 - [Cyril Lignac — Académie du Goût](https://www.academiedugout.fr/chefs/cyril-lignac_1)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'felder-alsace': `## Региональная линия — это набор технологий
 
 Эльзасская выпечка объединяет дрожжевые изделия, сухофрукты, орехи, пряности и длительное хранение. Kougelhopf требует развитого, но не перегретого теста; linzer — контроля песочной структуры и влажной начинки; streusel — холодного жира и правильного размера крошки. Общая «домашность» не отменяет разных технологических режимов.
@@ -145,7 +145,7 @@ Macaronage сочетает смешивание и контролируемое
 
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
 - [Macarons — Mercotte](https://www.mercotte.fr/recettes/macarons/)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'adam-eclair': `## Цвет должен обещать реальный вкус
 
 Яркая поверхность эклера работает, когда цвет связан с начинкой: зелёный ведёт к фисташке или траве, красный — к ягоде, тёмный блеск — к шоколаду. Декор, не совпадающий с ароматом, повышает ожидание и делает вкус слабее. В серии важно сохранять читаемость даже без подписи на витрине.
@@ -166,5 +166,5 @@ Fondant или шоколадное покрытие используют в у�
 
 - [L’Éclair de Génie](https://leclairdegenie.com/)
 - [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_16)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

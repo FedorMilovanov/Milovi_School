@@ -19,7 +19,7 @@ Saucier ведёт соусы, соте и часто блюда из тушён
 
 - [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [Référentiel MOF Pâtisserie-Confiserie](https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000048572002)`,
   'cuisine-fond-brun': `## Что такое fond brun
 
@@ -46,7 +46,7 @@ Fond brun — несолёная или слабо солёная базовая
 - [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
 - [La Cuisine classique](https://gallica.bnf.fr/services/engine/search/sru?operation=searchRetrieve&version=1.2&query=%28gallica%20all%20%22La%20cuisine%20classique%22%29)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'cuisine-galette': `## Crème d’amande и frangipane
 
 Crème d’amande — масло, сахар, миндальная пудра и яйца, иногда с небольшим количеством крахмала или ароматического алкоголя. Frangipane — более лёгкая смесь миндального крема с crème pâtissière. Во французских домашних рецептах слова часто смешивают, но для технологии разница существенна: frangipane содержит больше воды и требует особенно хорошо пропечённого слоёного теста.

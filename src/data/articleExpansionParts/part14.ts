@@ -18,8 +18,8 @@ export const articleExpansionPart14: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Tempérage du chocolat — Valrhona](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/le-temperage-du-chocolat)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'tech-entremets-assembly': `## Сборку проектируют от разреза
 
 Перед приготовлением полезно нарисовать вертикальный разрез entremets с толщиной каждого слоя. Так видно, не занимает ли insert половину изделия, не слишком ли близок хруст к влажному compotée и остаётся ли место для мусса вокруг краёв. Масса компонентов затем рассчитывается по объёму формы, а не на глаз.
@@ -38,9 +38,9 @@ Croustillant или sablé размещают рядом с более сухи�
 
 ## Французские источники и первичные материалы
 
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tarte-citron-meringuee': `## Песочная основа должна быть полностью сухой
 
 Лимонный крем быстро передаёт влагу тесту. Корзину выпекают до уверенного золотистого цвета, охлаждают и при необходимости покрывают тонким слоем шоколада или какао-масла. Бледное дно размокает даже при идеальном креме.
@@ -82,7 +82,7 @@ Crème pâtissière и масло должны иметь близкую тем�
 
 - [Paris-Brest — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/paris-brest--4)
 - [Paris-Brest 2009 — Académie du Goût](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
   'mercotte-tarte-citron': `## Кислота оценивается после охлаждения
 
 Горячий лимонный крем кажется ярче и менее плотным, чем готовый. Решение о количестве сахара и масла принимают после полного созревания в холодильнике. Цедру снимают без белой части и настаивают в соке или сахаре, чтобы получить аромат без лишней горечи.
@@ -123,7 +123,7 @@ Entremets планируют от времени подачи. Сначала о
 ## Французские источники и первичные материалы
 
 - [Mercotte — entremets](https://www.mercotte.fr/category/entremets/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)`,
   'genin-caramel-philosophy': `## Горечь имеет предел
 
@@ -145,7 +145,7 @@ Fleur de sel и мелкая соль ведут себя по-разному. �
 
 - [Jacques Genin — univers](https://jacquesgenin.fr/univers)
 - [Caramel tendre — Académie du Goût](https://www.academiedugout.fr/recherche?q=caramel%20tendre)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'ansel-cronut': `## После одного хита важна система
 
 Карьера после Cronut показывает, способен ли шеф повторять инновацию без копирования собственной формулы. Новые продукты Анселя часто строятся вокруг времени: изменение формы при подаче, сочетание горячего и холодного, ограниченное окно хруста или участие гостя. Это требует не только идеи, но и сценария производства.

@@ -32,9 +32,19 @@ __pycache__/
 *.py[cod]
 
 # Generated audit reports and temporary diagnostics
+# CONTRADICTION, owner decision required — docs/CONTENT_QUALITY_WAVES.md §Wave 1 п.1.4:
+# audit/ is ignored here, yet audit/site-audit-report.md is tracked in git and is
+# rewritten by scripts/audit_site.py on every run. The committed copy is stale
+# (says 181 images / 155 article pages / 159 sitemap URLs; the real build produces
+# 197 / 157 / 166). So every local audit run dirties the tree and the tracked
+# snapshot misreports the site. AGENTS.md §10 forbids committing generated output.
 audit/
+artifacts/
 *_DIAGNOSTIC.txt
 *_DIAGNOSTIC.json
+
+# Local Python tooling for generated-site audits
+.venv/
 
 # Deterministically materialized owner-selected Canon gateway derivative
 /public/images/canon-sucre/canon-gateway-hero.webp

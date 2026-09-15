@@ -10,8 +10,8 @@ export const articleExpansionPart16: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [FERRANDI Paris — Pâtisserie, recettes et techniques](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Cacao Barry — The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
-- [Valrhona — Les Essentiels](https://essentials.valrhona.com/)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
+- [Valrhona — Les Essentiels: Biscuits, Pâtries & Bases](https://essentials.valrhona.com/category/1)`,
   'recipe-millefeuille-inverser': `## Почему feuilletage inversé удобен для мильфея
 
 В инвертированном тесте détrempe заключена в beurre manié. Внешняя жировая фаза делает раскатку особенно пластичной и помогает получить тонкие регулярные слои. Но тёплое масло быстро липнет к столу, поэтому работа требует холода, муки в минимальном количестве и полноценного отдыха.
@@ -137,7 +137,7 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 
 - [Saint-Honoré — Académie du Goût](https://www.academiedugout.fr/recherche?q=saint-honor%C3%A9)
 - [Saint-Honoré — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/saint-honore.html)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
   'recipe-croquembouche': `## Башню проектируют до варки карамели
 
 Количество choux, диаметр основания и высоту рассчитывают заранее. Заготовки сортируют по размеру и раскладывают по рядам. Попытка импровизировать с горячей карамелью приводит к перекосу и ожогам.
@@ -158,5 +158,5 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 
 - [Pièce montée en choux — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/piece-montee-choux.html)
 - [Croquembouche — Académie du Goût](https://www.academiedugout.fr/recherche?q=croquembouche)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

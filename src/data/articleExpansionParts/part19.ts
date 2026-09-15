@@ -19,7 +19,7 @@ export const articleExpansionPart19: Readonly<Record<string, string>> = Object.f
 
 - [Pain au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/pain-au-chocolat-facile.html)
 - [Croissant — Maison Kayser](https://maison-kayser.com/cours/la-recette-du-croissant/)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-nougat-montelimar': `## Белая нуга — это управляемая пена
 
 Структуру создают взбитые белки, горячий медово-сахарный сироп и большое количество орехов. Масса должна оставаться воздушной, но достаточно концентрированной для нарезки. Недоваренный сироп даёт липкую текучую нугу, переваренный — ломкую и сухую.

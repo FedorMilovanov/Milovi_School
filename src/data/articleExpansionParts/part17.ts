@@ -18,8 +18,8 @@ export const articleExpansionPart17: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Les profiteroles — Académie du Goût](https://www.academiedugout.fr/articles/les-profiteroles_2303)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)
+- [Valrhona — Les Essentiels: Creamy Textures](https://essentials.valrhona.com/category/2)`,
   'recipe-mont-blanc': `## Каштановая масса должна быть пластичной
 
 Crème de marrons, pâte de marrons и purée de marrons различаются содержанием сахара и воды. Их нельзя заменять один к одному. Для нитей Mont-Blanc масса должна проходить через насадку без разрыва, сохранять рельеф и не быть приторной. Плотность регулируют сливками или пюре, а не бесконечным сахаром.
@@ -81,7 +81,7 @@ Dacquoise хорошо принимает сироп и крем, но быст�
 ## Французские источники и первичные материалы
 
 - [Dacquoise — Académie du Goût](https://www.academiedugout.fr/recherche?q=dacquoise)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Biscuits, Pâtries & Bases](https://essentials.valrhona.com/category/1)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-palmiers': `## Два ингредиента не означают простую технику
 
@@ -103,7 +103,7 @@ Palmiers пекут до карамелизации нижней стороны,
 
 - [Petits palmiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/petits-palmiers)
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-brioche': `## Клейковину развивают до масла
 
 Большое количество жира мешает муке связывать воду и строить сеть. Поэтому тесто сначала вымешивают до заметной эластичности, затем вводят мягкое масло небольшими порциями. Каждая следующая порция добавляется после поглощения предыдущей.
@@ -124,7 +124,7 @@ Palmiers пекут до карамелизации нижней стороны,
 
 - [Mercotte — conseils pour les brioches](https://www.mercotte.fr/quelques-conseils-utiles-pour-les-pates-levees-surtout-les-brioches/)
 - [Brioche — Académie du Goût](https://www.academiedugout.fr/recherche?q=brioche)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tarte-aux-pommes': `## Два состояния яблока
 
 Классический французский тарт часто сочетает compote и тонкие дольки. Компоте даёт влажность и концентрированный вкус, верхний веер — форму и свежую фруктовую текстуру. Если обе части слишком водянистые, дно размокает; если компоте пересушено, начинка отделяется от теста.
@@ -166,5 +166,5 @@ Sablés готовы при золотистом крае и пропечённ�
 
 - [Sablés diamant — Mercotte](https://www.mercotte.fr/2021/09/19/sables-diamant-a-la-noisette-et-aux-eclats-de-noisettes-caramelises/)
 - [Sablés — Académie du Goût](https://www.academiedugout.fr/recherche?q=sabl%C3%A9s)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
 })

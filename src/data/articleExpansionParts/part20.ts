@@ -18,8 +18,8 @@ Mousse au chocolat может строиться на белках, сливка
 ## Французские источники и первичные материалы
 
 - [Mousse chocolat noir — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/mousse-chocolat-noir)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'recipe-fondant-chocolat': `## Жидкий центр зависит от размера и времени
 
 Fondant нельзя описать одной универсальной минутой. Диаметр формы, материал, температура теста и печи меняют границу между жидким центром и сырой массой. Для своего оборудования проводят серию выпечек с интервалом в одну минуту и фиксируют разрез после одинакового отдыха.
@@ -40,7 +40,7 @@ Fondant нельзя описать одной универсальной мин
 
 - [Fondant au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=fondant%20au%20chocolat)
 - [Fondant au chocolat — Chef Simon](https://chefsimon.com/recettes/tag/fondant%20au%20chocolat)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'recipe-pain-perdu': `## Чёрствый хлеб удобен, но не любой
 
 Pain perdu использует хлеб, который потерял часть влаги, но не имеет постороннего запаха или плесени. Слишком свежий мякиш распадается после замачивания, полностью высохший толстый кусок остаётся сухим в центре. Brioche даёт более богатую версию, обычный pain de mie — более нейтральную.
@@ -82,7 +82,7 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 
 - [Pâte à choux et éclairs — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pate-a-choux-et-eclairs)
 - [Chantilly — Académie du Goût](https://www.academiedugout.fr/recherche?q=chantilly)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-savarin': `## Тесто должно впитать сироп и не распасться
 
 Savarin готовят из дрожжевого теста с развитой сетью. Слишком слабый замес расползается после пропитки, пересушенная выпечка впитывает неравномерно. Форма-кольцо помогает получить большую площадь контакта с сиропом.
@@ -145,7 +145,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 - [Beignets — Chef Simon](https://chefsimon.com/recettes/tag/beignets)
 - [Beignets — Académie du Goût](https://www.academiedugout.fr/recherche?q=beignets)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-gaufres': `## Брюссельская и льежская вафли требуют разных тестов
 
 Брюссельская gaufre лёгкая, воздушная и хрустящая, часто на дрожжах и взбитых белках. Льежская строится на плотном бриошном тесте с жемчужным сахаром. Нельзя заменить одно тесто другим и ожидать одинаковой формы, времени выпечки и подачи.

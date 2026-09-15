@@ -130,7 +130,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 - [Nicolas Paciello — site officiel](https://nicolaspaciello.com/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Paris-Brest](https://philippeconticini.fr/pages/paris-brest)
 - [Paris-Brest 2009](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)`,
   'paris-brest-race-dessert': `## Гонка и форма колеса
@@ -181,7 +181,7 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 - [Le Ménagier de Paris](https://fr.wikisource.org/wiki/Le_M%C3%A9nagier_de_Paris)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Patrimoine gourmand numérisé](https://www.bnf.fr/fr/mediatheque/la-table-de-gallica-le-patrimoine-gourmand-numerise)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'perret-madeleine': `## Beurre noisette
 
 Подрумяненное масло даёт ореховый аромат, но содержит тёмные молочные частицы, которые легко сжечь. Его снимают с огня после янтарной стадии, процеживают по выбранной рецептуре и охлаждают перед введением. Горячее масло разрушит эмульсию теста.

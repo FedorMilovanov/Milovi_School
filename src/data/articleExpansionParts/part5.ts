@@ -44,7 +44,7 @@ export const articleExpansionPart5: Readonly<Record<string, string>> = Object.fr
 - [Rencontre avec Claire Heitzler](https://www.valrhona-collection.com/blogs/news/rencontre-cheffe-claire-heitzler)
 - [Le bon et le beau, c’est la pureté](https://www.cultures-sucre.com/actualites/claire-heitzler-en-patisserie-le-bon-et-le-beau-cest-la-purete-/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'heitzler-seasonality': `## Сезон — это не одна дата
 
 Французская клубника поступает из разных регионов и сортов, поэтому календарь растянут от весны до начала осени. Ранние тепличные партии, Gariguette, Ciflorette и поздние сорта имеют разные окна. Формулировка «клубника бывает только в июне» так же неточна, как круглогодичная витрина: профессионал смотрит на происхождение, сорт, дату сбора и фактический аромат.

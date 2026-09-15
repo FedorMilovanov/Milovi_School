@@ -81,7 +81,7 @@ Equinoxe строится на трёх понятных осях: ваниль,
 
 - [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'lignac-far-breton': `## Что такое far
 
 Far breton относится к семейству запечённых яично-молочных десертов. Его структура ближе к плотному flan, чем к cake: яйца и мука удерживают молочную фазу, а длительная выпечка создаёт тёмную корку и кремовую середину.

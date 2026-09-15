@@ -847,7 +847,7 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-tarte-tropezienne.webp',
     tags: ['тропезьен', 'тарт тропезьен', 'бриошь', 'крем мусселин', 'Сен-Тропе', 'французская выпечка'],
     date: '2026-07-08',
-    sourceUrl: 'https://www.latartetropezienne.fr/fr/?m=aboutus%3Fm%3Daboutus',
+    sourceUrl: 'https://www.latartetropezienne.fr/fr/content/10-notre-histoire',
     sourceLabel: 'La Tarte Tropézienne — histoire officielle',
     recipeData: {
       prepTime: 'PT2H', cookTime: 'PT30M', yield: '1 тарт 22 см / 8 порций',

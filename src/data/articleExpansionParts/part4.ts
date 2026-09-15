@@ -154,7 +154,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 ## Французские источники и первичные материалы
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Pâte sucrée](https://www.academiedugout.fr/recettes/les-pates_13716_2)`,
   'heitzler-ethical-pastry': `## Закупка как часть рецепта
 

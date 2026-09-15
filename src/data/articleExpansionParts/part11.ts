@@ -14,7 +14,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)`,
   'perret-softness-volume': `## Мягкость как результат точной структуры
 
@@ -57,7 +57,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 - [Yann Couvreur — La Pâtisserie](https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur)
 - [FERRANDI Paris — Pâtisserie](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'felder-fundamentals': `## Книга как последовательность навыков
 
 Работать по Фельдеру полезнее не подряд по страницам, а блоками. Сначала осваивают взвешивание, песочные теста и простые кремы, затем pâte à choux и бисквиты, после этого — слоёное тесто, муссы и сборные entremets. Каждая новая группа должна опираться на уже устойчивую базу, иначе ошибка сложного десерта остаётся неразличимой.
@@ -78,7 +78,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 - [Christophe Felder — École de pâtisserie](https://www.christophe-felder.com/)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'grolet-fruits-full': `## От формы к вкусовой идентичности
 
 У серии Fruits внешний реализм работает только тогда, когда внутренний профиль узнаётся без подсказки. Груша должна отличаться от яблока не красителем, а сочетанием аромата, зернистости, кислотности и степени спелости. Поэтому разработку начинают с дегустации сырья и таблицы его состояний: свежий сок, confit, compotée, цукат, инфузия и сырая мякоть.
@@ -99,7 +99,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
 - [Cédric Grolet Opéra](https://cedric-grolet.com/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)`,
   'michalak-chocolate-salt': `## Соль как настройка, а не эффект
 
 Соль в шоколадном десерте должна усиливать обжаренные, карамельные и фруктовые ноты, но не оставаться отдельным солёным вкусом. Её дозировку проверяют в готовой композиции: холод, сахар и жир меняют восприятие. Крупные кристаллы на поверхности дают короткие вспышки, мелкая соль в массе распределяет эффект равномерно — это два разных инструмента.
@@ -119,8 +119,8 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Christophe Michalak — site officiel](https://christophemichalak.com/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'conticini-praline': `## Обжарка до карамели
 
 Даже точный сироп не спасёт бледные или пережжённые орехи. Фундук и миндаль обжаривают отдельно, потому что их размер, кожица и влажность различаются. После печи орех должен пахнуть глубоко, но не давать горечь. Карамель затем усиливает уже созданный аромат, а не заменяет его.
@@ -162,5 +162,5 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 - [Nina Métayer — Délicatisserie](https://delicatisserie.com/)
 - [Nina Métayer — portrait](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/portraits-de-chefs)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Finishing Touches](https://essentials.valrhona.com/category/9)`,
 })
