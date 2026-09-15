@@ -1031,7 +1031,7 @@ export const articles: Article[] = [
   {
     id: 'recipe-calisson',
     title: 'Калиссоны из Экса: рецепт и история прованской сладости',
-    excerpt: 'Калиссоны Экс-ан-Прованса (calissons d\'Aix): паста из цукатов дыни и миндаля на облатке под королевской глазурью. История, состав, IGP и пошаговый рецепт.',
+    excerpt: 'Калиссоны Экс-ан-Прованса (calissons d\'Aix): паста из цукатов дыни и миндаля на облатке под королевской глазурью. История, состав, реальный статус названия и пошаговый рецепт.',
     content: body('Калиссоны из Экса: рецепт и история пров', 'recipe-calisson'),
     category: 'recipes',
     author: 'Mercotte, Chef Simon, Union des Fabricants de Calisson d\'Aix, Le Roy René',
@@ -1039,6 +1039,9 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-calisson.webp',
     tags: ['калиссоны', 'прованская кухня', 'цукаты дыни', 'миндаль', 'глазурь рояль', 'IGP'],
     date: '2026-07-01',
+    // Research correction 2026-09-16: снято ложное утверждение «защищено IGP с 2002 года».
+    // На эту дату IGP calisson d'Aix не зарегистрирована — досье незавершено.
+    updatedAt: '2026-09-16',
     sourceUrl: 'https://www.mercotte.fr/2010/01/13/les-calissons-d-aix-maison/',
     sourceLabel: 'Mercotte',
     recipeData: {

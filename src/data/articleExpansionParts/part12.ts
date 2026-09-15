@@ -102,7 +102,7 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
-- [La Cuisine classique — Gallica](https://gallica.bnf.fr/services/engine/search/sru?operation=searchRetrieve&version=1.2&query=%28gallica%20all%20%22La%20cuisine%20classique%22%29)
+- [La Cuisine classique — Urbain Dubois et Émile Bernard, éd. Dentu 1868, t. 1 (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k6209316c)
 - [Pâtisserie et cuisine — FERRANDI Paris](https://www.ferrandi-paris.com/fr)`,
   'paciello-childhood': `## Вкус детства без буквальной копии
 

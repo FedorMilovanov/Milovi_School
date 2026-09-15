@@ -39,7 +39,9 @@ export const articleExpansionPart19: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Nougat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/nougat.html)
-- [Nougat de Montélimar — IGP](https://www.inao.gouv.fr/)
+- [INAO — «Nougat de Montélimar» enregistrée en IGP, règlement publié au JOUE le 26 novembre 2024](https://www.inao.gouv.fr/igp-nougat-de-montelimar)
+- [INAO — cahier des charges Nougat de Montélimar (fiche produit)](https://www.inao.gouv.fr/produit/nougat-de-montelimar-4392)
+- [Légifrance — arrêté du 17 août 2023 homologuant le cahier des charges « Nougat de Montélimar » (NOR AGRT2320415A, JORF n° 0194 du 23 août 2023)](https://www.legifrance.gouv.fr/eli/arrete/2023/8/17/AGRT2320415A/jo/texte)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-calisson': `## Дыня, миндаль и апельсин должны стать одной пастой
 
@@ -57,11 +59,31 @@ export const articleExpansionPart19: Readonly<Record<string, string>> = Object.f
 
 Калиссоны сушат при мягкой температуре или в сухом помещении, не запекая миндальную пасту. После стабилизации их хранят герметично, защищая и от высыхания, и от влажности. Аромат цукатов лучше раскрывается после короткого созревания.
 
+## Как отличить проект защиты от состоявшейся регистрации
+
+Статус названия — проверяемый факт, а не вопрос формулировок. Французская процедура регистрации IGP двухступенчатая, и ошибка рождается именно там, где первую ступень принимают за вторую.
+
+Первая ступень — национальная. INAO одобряет cahier des charges и plan de contrôle, после чего министры подписывают arrêté об homologation, опубликованный в Journal officiel. Сам по себе такой arrêté защиты не создаёт: в его статье 2 прямо сказано, что право пользоваться наименованием и упоминать «indication géographique protégée» возникает лишь с даты вступления в силу исполнительного регламента Европейской комиссии, зарегистрировавшего наименование, и что эта дата доводится до сведения публики отдельным avis.
+
+Вторая ступень — европейская: règlement d'exécution, опубликованный в Journal officiel de l'Union européenne. Только он превращает досье в действующую защиту.
+
+Полная цепочка на примере Nougat de Montélimar читается по документам так: заключение национального комитета INAO по IGP, Label rouge и STG от 23–24 мая 2023 года; письмо INAO от 11 июля 2023 года о том, что plan de contrôle пригоден к утверждению; arrêté от 17 августа 2023 года (NOR AGRT2320415A, JORF n° 0194 от 23 августа 2023 года, texte n° 14) об homologation cahier des charges; и, наконец, règlement d'exécution (UE) 2024/2921 от 19 ноября 2024 года, опубликованный в JO L, 2024/2921 от 26 ноября 2024 года.
+
+Правовое основание arrêté — действовавший тогда règlement (UE) n° 1151/2012 и статьи L. 641-11, R. 641-17 и R. 641-19 Code rural et de la pêche maritime. Саму регистрацию оформил уже другой текст: règlement d'exécution (UE) 2024/2921 принят в применение règlement (UE) 2024/1143, который с 2024 года задаёт правила для знаков происхождения и качества. Ссылка на 1151/2012 в старом arrêté — не признак ошибки, а следствие смены регулирования в середине процедуры: досье нуги шло к регистрации больше тридцати лет.
+
+Тот же тест, применённый к calisson d'Aix, не проходит ни одну ступень: нет arrêté об homologation, нет règlement d'exécution в JOUE, нет записи о продукте в официальном реестре INAO. Формулировка «защищено IGP с 2002 года» рассыпается на обеих ступенях одновременно — и это удобный способ объяснять её несостоятельность без спора о вкусах и традициях.
+
+Проверить любое наименование можно за минуту в реестре INAO «Rechercher un produit». Фильтрами служат сами знаки — AOP, IGP, STG, Label rouge, IG, AOC, — и отдельно статус PNT (protection nationale transitoire), которым помечают продукты, находящиеся в процессе европейской регистрации. Наличие записи означает наличие зарегистрированного cahier des charges. Отсутствие записи означает отсутствие защиты, каким бы давним и уверенным ни был пересказ.
+
+Для кондитерской разница не академическая. Пока европейской регистрации нет, нельзя выносить аббревиатуру IGP на этикетку и на витрину, а спорить с подражателями за рубежом приходится не правом на наименование, а национальным товарным знаком INPI, который за пределами Франции не действует. Именно эта граница и сделала возможным конфликт вокруг транслитерации «Kalisong».
+
 ## Французские источники и первичные материалы
 
-- [Calissons d’Aix — Mercotte](https://www.mercotte.fr/2010/01/13/les-calissons-d-aix-maison/)
+- [Calissons d’Aix — Mercotte](https://www.mercotte.fr/2010-01-13/les-calissons-d-aix-maison/)
 - [Calisson d’Aix — Confiserie du Roy René](https://www.calisson.com/)
-- [INAO — signes officiels de qualité](https://www.inao.gouv.fr/)`,
+- [UFCA — Projet IGP «Calissons d’Aix-en-Provence»](https://www.aixcalisson.fr/projet-igp/)
+- [INAO — реестр продуктов под SIQO: проверка наличия cahier des charges](https://www.inao.gouv.fr/rechercher-un-produit)
+- [Sénat — question orale n° 1572S, défense de l’appellation «calisson d’Aix-en-Provence»](https://www.senat.fr/questions/base/2016/qSEQ16111572S.html)`,
   'recipe-tarte-normande': `## Нормандская логика — яблоко, сливки и спирт
 
 Tarte normande отличается от простого яблочного тарта appareil на яйцах и сливках, часто с Calvados. Эта жидкая часть должна связаться вокруг яблок, не превратив дно в мокрое тесто. Поэтому корзину формуют ровно и при необходимости предварительно подсушивают.

@@ -68,6 +68,17 @@ const normalizeImageAlt = (article: Article): string => {
   return article.title.trim()
 }
 
+/**
+ * Wave dates record when a corpus-wide editorial pass really touched every
+ * article. A later per-article correction must win, otherwise the published
+ * /corrections/ promise ("a substantive change updates the article date")
+ * cannot be honoured at all: `dateModified` and the sitemap `lastmod` would keep
+ * reporting the old wave date for an article that has since been corrected.
+ * ISO-8601 dates sort lexicographically, so the latest value comes last.
+ */
+const resolveUpdatedAt = (own: string | undefined, wave: string): string | undefined =>
+  [own, wave].filter((value): value is string => Boolean(value)).sort().pop()
+
 const enrichArticle = (article: Article): Article => {
   const expansion = articleExpansions[article.id]
   const appendix = canonArticleAppendices[article.id]
@@ -81,7 +92,10 @@ const enrichArticle = (article: Article): Article => {
     content,
     imageAlt: normalizeImageAlt(merged),
     readTime: Math.max(article.readTime, estimateReadTime(content)),
-    updatedAt: appendix ? CANON_EDITORIAL_DATE : expansion ? CONTENT_EXPANSION_DATE : article.updatedAt,
+    updatedAt: resolveUpdatedAt(
+      merged.updatedAt,
+      appendix ? CANON_EDITORIAL_DATE : expansion ? CONTENT_EXPANSION_DATE : '',
+    ),
   }
 }
 
@@ -93,7 +107,7 @@ const normalizeStandaloneArticle = (article: Article): Article => {
     content,
     imageAlt: normalizeImageAlt(article),
     readTime: Math.max(article.readTime, estimateReadTime(content)),
-    updatedAt: appendix ? CANON_EDITORIAL_DATE : article.updatedAt,
+    updatedAt: resolveUpdatedAt(article.updatedAt, appendix ? CANON_EDITORIAL_DATE : ''),
   }
 }
 

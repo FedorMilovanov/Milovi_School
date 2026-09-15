@@ -82,7 +82,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 - [CinqSens Paris](https://cinqsensparis.com/)
 - [Nicolas Paciello — profil](https://frenchefs.fr/nicolas-paciello)
-- [INAO — signes officiels de qualité](https://www.inao.gouv.fr/)`,
+- [INAO — Indication géographique protégée: définition, Code rural L641-11, Règlement (UE) 2024/1143](https://www.inao.gouv.fr/igp-indication-geographique-protegee)`,
   'ansel-cronut-origin': `## Изобретение как длинный производственный тест
 
 Гибрид круассана и пончика сложен не названием, а несовместимыми требованиями. Слоёное тесто должно удержать разделение масла, пройти ферментацию и одновременно выдержать фритюр без сырого центра и тяжёлой жирности. Поэтому разработка оценивает не только вкус первой минуты, но и структуру после наполнения и глазирования.

@@ -43,6 +43,9 @@ TRUSTED_DOMAINS = {
     "poilane.com", "latartetropezienne.fr", "editions-larousse.fr",
     "theworlds50best.com", "jamesbeard.org", "bbc.com",
     "cuisineactuelle.fr", "cultures-sucre.com", "visit.alsace",
+    # Официальные первоисточники статуса наименований: вопрос Сената и сайт
+    # союза производителей calisson (UFCA) — держателя проекта cahier des charges.
+    "senat.fr", "aixcalisson.fr",
 }
 
 GENERIC_PATHS = {

@@ -44,7 +44,12 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 
 # Frozen ratchet. Lower it as weak citations are replaced by real documents.
 # Measured on the 2026-09-15 corpus: 73 weak citations out of 554.
-MAX_WEAK_CITATIONS = 73
+# Lowered 2026-09-16: Gallica SRU search URLs and bare inao.gouv.fr roots were
+# replaced with real documents (ark:/12148/bpt6k6209316c, igp-nougat-de-montelimar,
+# produit/nougat-de-montelimar-4392, igp-indication-geographique-protegee);
+# calisson gained UFCA projet-igp, the INAO product registry and Sénat n° 1572S.
+# Re-measured on the 2026-09-16 corpus: 68 weak citations out of 558.
+MAX_WEAK_CITATIONS = 68
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
