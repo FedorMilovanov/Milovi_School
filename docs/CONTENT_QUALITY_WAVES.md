@@ -514,3 +514,62 @@ règlement d'exécution (UE) 2024/2921, JO L 2024/2921 от 26.11.2024.
   `artifacts/scan_status_claims.py`, из них закрыты calisson, canelé, Stohrer,
   Genin, Hermé, Conticini.
 - **Wave 3–5 плана (добор французского материала)** не начинались.
+
+### 7.4 Wave 4 — замена поисковых выдач конкретными документами — `6c54e54`, `800ab55`
+
+Рэтчет `MAX_WEAK_CITATIONS`: **65 → 58 → 53** (из 559 цитат).
+
+**Batch 1 (7 замен).** Голый корень `ferrandi-paris.com/fr` в `cuisine-sauces`
+заменён на первоисточник, который он подменял: `Le guide culinaire` Огюста
+Эскофье (1903), глава I «Sauces», на Wikisource со статусом 100%-й выверенности
+текста. Пять поисковых выдач ADG заменены на именные страницы рецептов:
+`pate-a-crepes_5386_2` (Поль Бокюз, Best of Bocuse), `chantilly-vanille_4467_2`
+(Кристоф Мишалак), `tarte-tatin-aux-deux-prunes_12842_2` (с пометкой «recette
+offerte» — то есть метод открыт без подписки), `creme-brulee_1019_2` (Ален
+Дюкасс, Grand Livre de Cuisine Bistrot), `saint-honore-a-la-vanille-jimmy-mornet_16398_2`
+(Джимми Морне, Le Paris des pâtisseries), `baba-au-rhum-vanille-bourbon-et-truffe-noire_12293_2`
+(Джессика Преолато).
+
+**Batch 2 (5 замен) — осознанный выбор Meilleur du Chef вместо ADG.** MdC уже
+входит в `TRUSTED_DOMAINS`, не закрыт подпиской и публикует полные «phases
+techniques»; значительная часть ADG — Premium, то есть такая цитата стала бы
+логин-стеной по §4. Замены: `canneles-bordelais-facile.html` (включая culottage
+медных форм и правила ухода — ровно то, о чём спорит статья), `kouglof.html`
+(изюм Коринфа от 1 часа, порядок закладки, замес крюком 15–20 минут, расстойка
+не выше 28 °C), `financier-chocolat.html` (база финансье), `tuiles-dentelles.html`
+(pâte à tuiles на рубленом миндале с полной пропорцией), `pain-perdu-caramel-beurre-sale.html`.
+
+**Правило датировки, применённое здесь впервые явно.** Замена ссылки, не
+меняющая ни одного утверждения в теле статьи, — редакционная, а не содержательная
+правка, поэтому `lastmod` не двигается. Политика `/corrections/` запрещает
+выдавать мелкую правку за содержательное обновление; это работает в обе стороны.
+Содержательные правки (Wave 2 calisson, Wave 3 шесть статей) дату получили.
+
+### 7.5 Очередь Wave 4 (не закрыто)
+
+Осталось **53 слабых цитаты** при цели 0:
+
+- **~23 поисковые выдачи ADG** — те же темы, что и закрытые: fantastik, caramel
+  tendre, soufflé chocolat, madeleine, feuilletage inversé, charlotte aux
+  fraises, bourdaloue, gâteau basque, croquembouche, mont-blanc, œufs à la neige,
+  dacquoise, brioche, tarte aux pommes, sablés, quatre-quarts, crêpes Suzette
+  (закрыта), bûche de Noël, tarte normande, blanc-manger, marrons glacés, crème
+  caramel, fondant au chocolat, tarte au sucre, beignets, gaufres.
+  Рабочий метод уже отлажен: `site:meilleurduchef.com/fr/recette <блюдо>`
+  отдаёт прямой URL с полным текстом техники.
+- **1 поисковая выдача Mercotte** — `mercotte.fr/?s=charlotte` в
+  `recipe-charlotte-fraises` (в той же статье вторая слабая цитата).
+- **~22 голых корня maison-сайтов** — крупнейшие пачки:
+  `jacquesgenin.fr/univers` ×5 (страница содержательная, но гейт считает
+  `/univers` generic — нужны более глубокие URL), `christophemichalak.com` ×3,
+  `christophe-felder.com` ×2, `cinqsensparis.com` ×2, `visit.alsace` ×2,
+  `dominiqueansel.com` ×2, затем по одному: `cedric-grolet.com`,
+  `delicatisserie.com`, `lapatisseriecyrillignac.com`, `leclairdegenie.com`,
+  `baillardran.com`, `legateaubasque.com`, `calisson.com`, `clementfaugier.fr`,
+  `nicolaspaciello.com`.
+- **Рэтчет редиректов на главную** (§7.2) всё ещё в режиме наблюдения:
+  `MAX_ROOT_REDIRECTS = None`. Нужно снять базовое число из CI-прогона и
+  зафиксировать его как бюджет.
+
+Из 53 находок сканера статусных утверждений закрыты 6 (calisson, canelé, Stohrer,
+Genin, Hermé, Conticini); остальные требуют такой же проверки по первоисточникам.
