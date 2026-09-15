@@ -60,7 +60,7 @@ Croustillant или sablé размещают рядом с более сухи�
 ## Французские источники и первичные материалы
 
 - [Tartelette citron meringuée — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
-- [Tarte au citron — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20citron)
+- [Tartelettes citron meringuées — Meilleur du Chef: полная пропорция крема (3 яйца, 150 г сахара, сок 3 жёлтых или 6 зелёных лимонов, 1–2 цеста, 45 г масла), варка на умеренном огне при непрерывном помешивании, итальянская меренга и приём против вздутия донышка — прокол ножом в начале выпечки](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-paris-brest-classique': `## Венец должен пропечься внутри
 

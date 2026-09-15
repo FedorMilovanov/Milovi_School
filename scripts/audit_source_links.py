@@ -85,7 +85,14 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # madeleine-coeur-fondant (the 12-hour cold rest), souffle-chocolat-griotte,
 # the complete dacquoise amande ratio and buche-marron-chocolat.
 # Re-measured after wave 4 batch 5: 37 weak citations out of 560.
-MAX_WEAK_CITATIONS = 37
+# Lowered again (wave 4, batch 6): four more ADG search pages replaced with
+# Meilleur du Chef pages carrying complete ratios — tarte-sucre (the yeast dough
+# plus the 50 g butter / 30 g cassonade finish that names the tart), ile-flottante
+# (both elements quantified separately), tartelette-citron-meringuee (lemon cream
+# ratio and the anti-blistering pierce) and croquembouche, where a second
+# citation was added for the assembly caramel built on glucose and fondant blanc.
+# Re-measured after wave 4 batch 6: 33 weak citations out of 561.
+MAX_WEAK_CITATIONS = 33
 
 # Root-redirect ratchet, in OBSERVE mode.
 #

@@ -59,7 +59,7 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 
 ## Французские источники и первичные материалы
 
-- [Œufs à la neige — Académie du Goût](https://www.academiedugout.fr/recherche?q=oeufs%20%C3%A0%20la%20neige)
+- [Île flottante aux éclats de pistaches — Meilleur du Chef: полная разбивка на два элемента — 4 белка и 50 г сахара для «острова», crème anglaise на 1/4 л молока, 3 желтка, 50 г сахара и полстручка ванили; белки взбиваются и serrés, соус протирается через chinois étamine](https://www.meilleurduchef.com/fr/recette/ile-flottante-eclats-pistaches.html)
 - [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_1532_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-dacquoise': `## Dacquoise — не просто «ореховый бисквит»

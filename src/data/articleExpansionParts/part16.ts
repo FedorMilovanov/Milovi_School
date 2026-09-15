@@ -158,6 +158,7 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 ## Французские источники и первичные материалы
 
 - [Pièce montée en choux — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/piece-montee-choux.html)
-- [Croquembouche — Académie du Goût](https://www.academiedugout.fr/recherche?q=croquembouche)
+- [Croquembouche — Meilleur du Chef: panade как основа pâte à choux, сушка декора на воздухе, погружение шу на 3/4 в карамель и сборка pièce montée, включая dentelle из изомальта](https://www.meilleurduchef.com/fr/recette/croquembouche-20-ans-mdc.html)
+- [Croquembouche chiffre à la nougatine — Meilleur du Chef: состав карамели для склеивания (sirop de glucose и fondant blanc), текстура теста проверяется по следу от лопатки, который должен закрываться медленно](https://www.meilleurduchef.com/fr/recette/croquembouche-chiffre-nougatine.html)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

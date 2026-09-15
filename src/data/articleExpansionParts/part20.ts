@@ -122,7 +122,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 ## Французские источники и первичные материалы
 
-- [Tarte au sucre — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20au%20sucre)
+- [Tarte au sucre — Meilleur du Chef: тесто на пекарских дрожжах (250 г муки T45, 8 г свежих дрожжей, 40 г сахара, 3 яйца, 120 г масла, 5 г соли) и финиш, который и даёт название: 50 г масла и 30 г кассонада по поверхности перед выпечкой](https://www.meilleurduchef.com/fr/recette/tarte-sucre.html)
 - [Tarte au sucre — Chef Simon](https://chefsimon.com/recettes/tag/tarte%20au%20sucre)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-beignets': `## Семейство beignets шире одного пончика
