@@ -545,16 +545,49 @@ techniques»; значительная часть ADG — Premium, то есть
 выдавать мелкую правку за содержательное обновление; это работает в обе стороны.
 Содержательные правки (Wave 2 calisson, Wave 3 шесть статей) дату получили.
 
+### 7.4.1 Wave 4, batch 3–4 — `b88f236`, `f1eaeae`
+
+Рэтчет: **53 → 47 → 43** (из 560 цитат).
+
+**Batch 3 (6 замен), все — Meilleur du Chef с полной техникой:**
+`quatre-quarts.html` (канонические четыре равные части: 250 г яиц / сахара /
+размягчённого масла / муки T55 — название десерта и есть рецепт);
+`mouler-brioche.html` (формовка, а не ещё одно тесто: деление на четыре части с
+пропорцией 1/4–3/4 для brioche à tête, расстойка около 27 °C, дорюр без осаживания
+теста, 180 °C); `creme-renversee-caramel.html` (crème renversée — французское имя
+крем-карамели: 130 г сахара на 5 cl воды и прямое предупреждение, что тёмная
+карамель даёт горечь); `pate-gaufres.html` (профессиональная пропорция с
+флёрдоранжем, гофрьер 180 °C); `beignet-sucre-dessert.html` (farine de Gruau T45,
+свежие дрожжи, молоко строго не выше 40 °C, выпечка без фритюра);
+`comme-mont-blanc-chocolat-marron.html` — в подписи честно помечен как авторская
+версия, чтобы реинтерпретация не выдавалась за классику.
+
+**Batch 4 (4 замены):** `pate-feuilletee-inverse.html` — не近似 замена, а буквально
+feuilletage inversé (détrempe, tour double, затем tour simple, раскатка 1 см,
+отдых 30 минут); в пару дана `croute-bouchee-carree.html` с полной пропорцией,
+которой нет на первой странице: 300 г муки T45, 150 г воды, 5 г соли, 300 г масла,
+100 г муки — то есть масло и мука в равном весе, что и делает тесто обратным.
+Далее `tarte-normande.html` (400 г слоёного теста, 1 kg Royal Gala, 10 cl
+crème fraîche épaisse, белки serrés 80 г сахара, желтки в тёплый компот —
+нормандский порядок сборки), `tartelette-pommes.html` (полная пропорция
+feuilletée, компот из Golden, nappage blond) и `sables.html` (масло с сахаром на
+насадке feuille, tant pour tant, отдых от часа до суток, 170 °C).
+
+Принцип отбора во всех батчах один: замена обязана нести тот параметр, вокруг
+которого построено тело статьи, а не просто совпадать с названием блюда.
+
 ### 7.5 Очередь Wave 4 (не закрыто)
 
-Осталось **53 слабых цитаты** при цели 0:
+Осталось **43 слабые цитаты** при цели 0:
 
-- **~23 поисковые выдачи ADG** — те же темы, что и закрытые: fantastik, caramel
-  tendre, soufflé chocolat, madeleine, feuilletage inversé, charlotte aux
-  fraises, bourdaloue, gâteau basque, croquembouche, mont-blanc, œufs à la neige,
-  dacquoise, brioche, tarte aux pommes, sablés, quatre-quarts, crêpes Suzette
-  (закрыта), bûche de Noël, tarte normande, blanc-manger, marrons glacés, crème
-  caramel, fondant au chocolat, tarte au sucre, beignets, gaufres.
+- **~16 поисковых выдач ADG**: fantastik, caramel tendre, soufflé chocolat,
+  madeleine, charlotte aux fraises, bourdaloue, gâteau basque, croquembouche,
+  œufs à la neige, dacquoise, crêpes Suzette
+  (закрыта), bûche de Noël, blanc-manger, marrons glacés, fondant au chocolat,
+  tarte au sucre. Уже закрыты в batch 1–4: tarte tatin, crème brûlée,
+  saint-honoré, baba au rhum, chantilly, crêpes, cannelé, kouglof, financier,
+  tuiles, pain perdu, brioche, quatre-quarts, gaufres, beignets, crème caramel,
+  mont-blanc, feuilletage inversé, tarte normande, tarte aux pommes, sablés.
   Рабочий метод уже отлажен: `site:meilleurduchef.com/fr/recette <блюдо>`
   отдаёт прямой URL с полным текстом техники.
 - **1 поисковая выдача Mercotte** — `mercotte.fr/?s=charlotte` в
