@@ -562,7 +562,7 @@ techniques»; значительная часть ADG — Premium, то есть
 `comme-mont-blanc-chocolat-marron.html` — в подписи честно помечен как авторская
 версия, чтобы реинтерпретация не выдавалась за классику.
 
-**Batch 4 (4 замены):** `pate-feuilletee-inverse.html` — не近似 замена, а буквально
+**Batch 4 (4 замены):** `pate-feuilletee-inverse.html` — не приблизительная замена, а буквально
 feuilletage inversé (détrempe, tour double, затем tour simple, раскатка 1 см,
 отдых 30 минут); в пару дана `croute-bouchee-carree.html` с полной пропорцией,
 которой нет на первой странице: 300 г муки T45, 150 г воды, 5 г соли, 300 г масла,
