@@ -17,8 +17,8 @@ Merveilleux соединяет меренгу, взбитые сливки и с
 
 ## Французские источники и первичные материалы
 
-- [Merveilleux — Académie du Goût](https://www.academiedugout.fr/recherche?q=merveilleux)
-- [Meringue française — Académie du Goût](https://www.academiedugout.fr/recherche?q=meringue%20fran%C3%A7aise)
+- [Académie du Goût — Meringues, Alain Ducasse (recette offerte: база меренги для мервейё)](https://www.academiedugout.fr/recettes/meringues_11465_2)
+- [Mémorial historique et géographique de la pâtisserie (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-quatre-quarts': `## Равные части считаются по массе яиц
 

@@ -64,7 +64,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 - [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
 - [Académie du Goût — Jacques Genin](https://www.academiedugout.fr/chefs/jacques-genin_204374)
-- [Jacques Genin — site officiel](https://jacquesgenin.fr/)`,
+- [Bon Appétit — городской гид по Парижу, карточка Jacques Genin](https://www.bonappetit.com/city-guides/paris/venue/jacques-genin)`,
   'genin-ganache-craft': `## Сначала эмульсия, потом терруар
 
 Хорошая ганаш начинается с физики: водная фаза должна быть равномерно распределена в жире шоколада. Жидкость вводят частями, формируя блестящее ядро, затем доводят до нужной температуры и только после этого добавляют масло или ароматические компоненты.

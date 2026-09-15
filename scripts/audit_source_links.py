@@ -49,7 +49,12 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # produit/nougat-de-montelimar-4392, igp-indication-geographique-protegee);
 # calisson gained UFCA projet-igp, the INAO product registry and Sénat n° 1572S.
 # Re-measured on the 2026-09-16 corpus: 68 weak citations out of 558.
-MAX_WEAK_CITATIONS = 68
+# Lowered again the same day (wave 3): two Académie du Goût search-result URLs and a
+# bare jacquesgenin.fr root were replaced with a free ADG recipe page, a Gallica ark
+# and the Bon Appétit Paris city-guide entry; stohrer.fr/pages/notre-histoire (a
+# redirect to the homepage, invisible to generic_path) now points at /notre-maison/.
+# Re-measured on the 2026-09-16 corpus after wave 3: 65 weak citations out of 559.
+MAX_WEAK_CITATIONS = 65
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")

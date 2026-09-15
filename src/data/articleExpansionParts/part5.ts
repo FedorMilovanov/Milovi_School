@@ -143,7 +143,8 @@ Mogador соединяет маракуйю и молочный шоколад, 
 - [Macaron Mogador](https://www.academiedugout.fr/recettes/macaron-mogador_1121_2)
 - [Ispahan](https://www.academiedugout.fr/recettes/ispahan_1111_2)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)
-- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)`,
+- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
+- [SoSoir / Le Soir, 19.09.2024 — интервью Пьера Эрме: «Paradis» в Fauchon, переработка в Ladurée, имя Ispahan и первая бутика 2001 года](https://sosoir.lesoir.be/623713/article/2024-09-19/lispahan-de-pierre-herme-pourquoi-son-dessert-star-failli-ne-jamais-voir-le-jour)`,
   'herme-ispahan-deep': `## Coque
 
 Macaronную оболочку ароматизируют и окрашивают умеренно: роза должна приходить из всей композиции, а не только из сильного экстракта. Оболочка после выпечки созревает с кремом и становится нежной внутри.

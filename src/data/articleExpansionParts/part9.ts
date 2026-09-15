@@ -110,7 +110,7 @@ Stohrer заявляет Николя Сторера изобретателем 
 
 ## Французские источники и первичные материалы
 
-- [Maison Stohrer — histoire](https://stohrer.fr/pages/notre-histoire)
+- [Maison Stohrer — «La plus ancienne pâtisserie de Paris», fondée en 1730](https://stohrer.fr/notre-maison/)
 - [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)`,
