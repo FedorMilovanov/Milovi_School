@@ -56,6 +56,17 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # Re-measured on the 2026-09-16 corpus after wave 3: 65 weak citations out of 559.
 MAX_WEAK_CITATIONS = 65
 
+# Root-redirect ratchet, in OBSERVE mode.
+#
+# A citation whose specific URL 302s to the site root is dead in substance but
+# invisible to both the status check and generic_path(). Detection is implemented
+# above and reported here, but deliberately not enforced yet: the count can only
+# be measured on a networked run, and guessing a budget would either break CI or
+# hide real cases. Promotion path is the same one MAX_WEAK_CITATIONS followed —
+# read the number CI publishes in artifacts/source-links-report/report.md, set it
+# here, then lower it as each case is fixed.
+MAX_ROOT_REDIRECTS: int | None = None
+
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
 BARE_URL_RE = re.compile(r"(?<![(\[])https?://[^\s<>'\"`)\]]+")
@@ -98,6 +109,30 @@ def generic_path(url: str) -> bool:
     if re.search(r"(?:\?|&)(?:q|s|query|search|keywords?)=", parsed.query, flags=re.I):
         return True
     return False
+
+
+def registrable(netloc: str) -> str:
+    """Host without credentials, port and www — enough to compare two URLs' sites."""
+    return netloc.lower().split("@")[-1].split(":")[0].removeprefix("www.")
+
+
+def root_redirect(cited: str, final: str) -> bool:
+    """A specific citation that silently lands on a site root or an index/search page.
+
+    This is a dead citation wearing a 200 response: the page moved or never existed,
+    the server answers with the homepage, the title is not a soft-404 marker, and
+    ``generic_path()`` only ever sees the cited string. Found in the wild on
+    ``stohrer.fr/pages/notre-histoire`` -> ``stohrer.fr/``.
+
+    Deliberately narrow, so cross-domain canonicalisation and http->https or
+    trailing-slash hops are never flagged: the cited path must be specific, the
+    final path must be generic, and both must sit on the same site.
+    """
+    if not final or final == cited:
+        return False
+    if generic_path(cited) or not generic_path(final):
+        return False
+    return registrable(urlsplit(cited).netloc) == registrable(urlsplit(final).netloc)
 
 
 def collect_citations() -> list[dict[str, str]]:
@@ -144,24 +179,26 @@ def probe(url: str) -> dict[str, object]:
                 lowered = title.lower()
                 if any(marker in lowered for marker in SOFT_404_MARKERS):
                     return {"url": url, "status": status, "title": title, "verdict": "dead",
-                            "reason": f"soft-404 title: {title!r}"}
+                            "reason": f"soft-404 title: {title!r}", "rootRedirect": False}
             if status >= 400:
                 return {"url": url, "status": status, "title": title, "verdict": "dead",
-                        "reason": f"HTTP {status}"}
+                        "reason": f"HTTP {status}", "rootRedirect": False}
             return {"url": url, "status": status, "finalUrl": final_url, "title": title,
-                    "verdict": "weak" if generic_path(url) else "ok", "reason": ""}
+                    "verdict": "weak" if generic_path(url) else "ok", "reason": "",
+                    "rootRedirect": root_redirect(url, final_url)}
         except urllib.error.HTTPError as error:
             if error.code in {403, 405, 429, 503} and attempt < RETRIES:
                 last_error = f"HTTP {error.code}"
                 time.sleep(1.5 * (attempt + 1))
                 continue
             return {"url": url, "status": error.code, "title": "", "verdict": "dead",
-                    "reason": f"HTTP {error.code}"}
+                    "reason": f"HTTP {error.code}", "rootRedirect": False}
         except Exception as error:  # noqa: BLE001 — network faults are data here
             last_error = f"{type(error).__name__}: {error}"
             if attempt < RETRIES:
                 time.sleep(1.5 * (attempt + 1))
-    return {"url": url, "status": 0, "title": "", "verdict": "dead", "reason": last_error}
+    return {"url": url, "status": 0, "title": "", "verdict": "dead", "reason": last_error,
+            "rootRedirect": False}
 
 
 def network_available() -> bool:
@@ -210,6 +247,7 @@ def main() -> int:
 
     dead_urls = [item for item in results if item["verdict"] == "dead"]
     weak_citations = [c for c in citations if verdict[c["url"]]["verdict"] == "weak"]
+    root_redirects = [c for c in citations if verdict[c["url"]].get("rootRedirect")]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     summary = {
@@ -218,6 +256,8 @@ def main() -> int:
         "deadUrls": len(dead_urls),
         "weakCitations": len(weak_citations),
         "weakBudget": MAX_WEAK_CITATIONS,
+        "rootRedirectCitations": len(root_redirects),
+        "rootRedirectBudget": MAX_ROOT_REDIRECTS,
         "domains": len({urlsplit(u).netloc.lower().removeprefix("www.") for u in unique_urls}),
         "statusCounts": dict(Counter(str(item["status"]) for item in results)),
     }
@@ -235,6 +275,9 @@ def main() -> int:
         f"- Мёртвых URL: {summary['deadUrls']}",
         f"- Слабых цитат (корень/поиск): {summary['weakCitations']} "
         f"(бюджет {MAX_WEAK_CITATIONS})",
+        f"- Редиректов на главную (мёртвая ссылка под маской 200): {summary['rootRedirectCitations']}"
+        + (" (бюджет не задан, режим наблюдения)" if MAX_ROOT_REDIRECTS is None
+           else f" (бюджет {MAX_ROOT_REDIRECTS})"),
         "",
     ]
     if dead_urls:
@@ -246,7 +289,16 @@ def main() -> int:
                   "| Статья | URL |", "|---|---|"]
         lines += [f"| `{c['articleId']}` | {c['url']} |" for c in weak_citations]
         lines.append("")
-    if not dead_urls and not weak_citations:
+    if root_redirects:
+        lines += ["## Редирект на главную вместо цитируемого документа", "",
+                  "Ответ 200, заголовок не soft-404, путь исходной строки конкретный — "
+                  "гейт живости такое пропускал. Цитату нужно заменить на страницу, "
+                  "которая действительно несёт утверждение.", "",
+                  "| Статья | Цитируемый URL | Фактически открывается |", "|---|---|---|"]
+        lines += [f"| `{c['articleId']}` | {c['url']} | {verdict[c['url']].get('finalUrl', '')} |"
+                  for c in root_redirects]
+        lines.append("")
+    if not dead_urls and not weak_citations and not root_redirects:
         lines.append("Все цитируемые источники доступны и являются конкретными документами.")
     (OUTPUT_DIR / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -255,6 +307,8 @@ def main() -> int:
     print(f"- citations: {summary['citations']}")
     print(f"- dead urls: {summary['deadUrls']}")
     print(f"- weak citations: {summary['weakCitations']} (budget {MAX_WEAK_CITATIONS})")
+    print(f"- root-redirect citations: {summary['rootRedirectCitations']} "
+          f"(budget {'observe-only' if MAX_ROOT_REDIRECTS is None else MAX_ROOT_REDIRECTS})")
     print(f"- report: {OUTPUT_DIR.relative_to(ROOT) / 'report.md'}")
 
     if dead_urls:
@@ -263,6 +317,13 @@ def main() -> int:
             print(f"  [{item['reason']}] {item['url']}", file=sys.stderr)
         for article_id, entries in sorted(by_article.items()):
             print(f"  article {article_id}: {entries}", file=sys.stderr)
+        return 1
+    if MAX_ROOT_REDIRECTS is not None and len(root_redirects) > MAX_ROOT_REDIRECTS:
+        print(f"\nRoot-redirect ratchet exceeded: {len(root_redirects)} > {MAX_ROOT_REDIRECTS}.",
+              file=sys.stderr)
+        for item in root_redirects:
+            print(f"  [{item['articleId']}] {item['url']} -> "
+                  f"{verdict[item['url']].get('finalUrl', '')}", file=sys.stderr)
         return 1
     if len(weak_citations) > MAX_WEAK_CITATIONS:
         print(f"\nWeak-citation ratchet exceeded: {len(weak_citations)} > {MAX_WEAK_CITATIONS}. "
