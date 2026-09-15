@@ -30,7 +30,8 @@ export const articleExpansionPart16: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Feuilletage inversé — Académie du Goût](https://www.academiedugout.fr/recherche?q=feuilletage%20invers%C3%A9)
+- [Pâte feuilletée inversée — Meilleur du Chef: détrempe, tour double, затем tour simple, раскатка до 1 см и отдых 30 минут в холоде — это буквально feuilletage inversé](https://www.meilleurduchef.com/fr/recette/pate-feuilletee-inverse.html)
+- [Croûte à bouchée carrée — Meilleur du Chef: полная пропорция обратного слоёного теста (300 г муки T45, 150 г воды, 5 г соли, 300 г масла, 100 г муки)](https://www.meilleurduchef.com/fr/recette/croute-bouchee-carree.html)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-charlotte-fraises': `## Бисквит задаёт форму, но не должен доминировать

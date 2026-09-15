@@ -103,7 +103,7 @@ Tarte normande отличается от простого яблочного т�
 ## Французские источники и первичные материалы
 
 - [Tarte normande — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tarte-normande--3)
-- [Tarte normande — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20normande)
+- [Tarte normande aux pommes — Meilleur du Chef: 400 г слоёного теста, 1 кг Royal Gala, 2 яйца, 10 cl густой crème fraîche épaisse, меренга из белков, serrés 80 г сахара, и желтки, введённые в тёплый компот](https://www.meilleurduchef.com/fr/recette/tarte-normande.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-blanc-manger': `## Название охватывает несколько исторических форм
 

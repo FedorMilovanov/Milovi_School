@@ -144,7 +144,7 @@ Pâte brisée, sucrée или feuilletage выбирают осознанно. �
 ## Французские источники и первичные материалы
 
 - [Tarte fine aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tarte-fine-aux-pommes--13)
-- [Tarte aux pommes — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20aux%20pommes)
+- [Tartelettes aux pommes — Meilleur du Chef: полная пропорция слоёного теста (200 г муки T55, 100 г воды, 150 г beurre de tourage), компот из Golden с ванилью и nappage blond для финиша](https://www.meilleurduchef.com/fr/recette/tartelette-pommes.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-sables-diamant': `## «Алмаз» создаёт не сахарная пыль, а ровная геометрия
 
@@ -165,6 +165,6 @@ Sablés готовы при золотистом крае и пропечённ�
 ## Французские источники и первичные материалы
 
 - [Sablés diamant — Mercotte](https://www.mercotte.fr/2021/09/19/sables-diamant-a-la-noisette-et-aux-eclats-de-noisettes-caramelises/)
-- [Sablés — Académie du Goût](https://www.academiedugout.fr/recherche?q=sabl%C3%A9s)
+- [Petits sablés — Meilleur du Chef: масло с сахаром взбиты насадкой feuille, tant pour tant, отдых теста от часа до суток, дорюр из желтка с водой и выпечка при 170 °C на конвекции](https://www.meilleurduchef.com/fr/recette/sables.html)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
 })

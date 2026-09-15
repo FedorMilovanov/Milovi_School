@@ -73,7 +73,12 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # caramel (130 g sugar / 5 cl water, plus the bitterness warning) and a labelled
 # author's Mont Blanc with complete marron glacé ice-cream and mousse ratios.
 # Re-measured after wave 4 batch 3: 47 weak citations out of 559.
-MAX_WEAK_CITATIONS = 47
+# Lowered again (wave 4, batch 4): four more ADG search pages replaced —
+# pate-feuilletee-inverse (literally the feuilletage inversé the article teaches,
+# plus the full ratio from croute-bouchee-carree), tarte-normande, tartelette-
+# pommes and petits sables.
+# Re-measured after wave 4 batch 4: 43 weak citations out of 560.
+MAX_WEAK_CITATIONS = 43
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
