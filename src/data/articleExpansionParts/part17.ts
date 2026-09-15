@@ -80,7 +80,7 @@ Dacquoise хорошо принимает сироп и крем, но быст�
 
 ## Французские источники и первичные материалы
 
-- [Dacquoise — Académie du Goût](https://www.academiedugout.fr/recherche?q=dacquoise)
+- [Dacquoise amande — Meilleur du Chef (в составе bûche façon cheese cake): полная пропорция (50 г миндальной муки, 55 г сахарной пудры, 20 г сахара, 80 г белков, 12 г Maïzena, 30 г миндальных обломков), отсадка параллельными линиями по шаблону, пудра перед выпечкой и переворот ещё горячего бисквита](https://www.meilleurduchef.com/fr/recette/buche-cream-cheese-fruits-rouges-amande.html)
 - [Valrhona — Les Essentiels: Biscuits, Pâtries & Bases](https://essentials.valrhona.com/category/1)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-palmiers': `## Два ингредиента не означают простую технику

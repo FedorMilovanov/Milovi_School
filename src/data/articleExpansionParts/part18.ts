@@ -143,7 +143,7 @@ Bûche часто перевозят и режут на большое числ�
 
 ## Французские источники и первичные материалы
 
-- [Bûches de Noël — Académie du Goût](https://www.academiedugout.fr/recherche?q=b%C3%BBche%20de%20No%C3%ABl)
+- [Bûche de Noël marron/chocolat — Meilleur du Chef: мацерация каштанов (200 г marrons glacés, 100 г Grand-Marnier, 200 г сиропа 30° Baumé), insert aux marrons и велюровый спрей perlé velours, который работает только по замороженной поверхности](https://www.meilleurduchef.com/fr/recette/buche-marron-chocolat.html)
 - [Bûche au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/buche-de-noel-au-chocolat.html)
 - [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)`,
   'recipe-chausson-aux-pommes': `## Компоте должно быть сухим и ароматным

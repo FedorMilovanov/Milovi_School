@@ -78,7 +78,14 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # plus the full ratio from croute-bouchee-carree), tarte-normande, tartelette-
 # pommes and petits sables.
 # Re-measured after wave 4 batch 4: 43 weak citations out of 560.
-MAX_WEAK_CITATIONS = 43
+# Lowered again (wave 4, batch 5): the last two search-result pages in
+# recipe-charlotte-fraises (an ADG query and a mercotte.fr/?s= query) are gone,
+# replaced by charlotte-fraise (full crème mousseline ratio and the 118 °C Italian
+# meringue) and charlotte-tutti-frutti (chemisage and dacquoise assembly); plus
+# madeleine-coeur-fondant (the 12-hour cold rest), souffle-chocolat-griotte,
+# the complete dacquoise amande ratio and buche-marron-chocolat.
+# Re-measured after wave 4 batch 5: 37 weak citations out of 560.
+MAX_WEAK_CITATIONS = 37
 
 # Root-redirect ratchet, in OBSERVE mode.
 #

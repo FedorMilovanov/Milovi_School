@@ -101,7 +101,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Soufflé au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=souffl%C3%A9%20chocolat)
+- [Soufflé au chocolat et aux griottes — Meilleur du Chef: шоколад растоплен на водяной бане, затем масло, разделение яиц, белки взбиты и serrés — базовая механика суфле](https://www.meilleurduchef.com/fr/recette/souffle-chocolat-griotte.html)
 - [Soufflé au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/souffle-chocolat.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-madeleines': `## Горб создаёт разница состояний
@@ -122,7 +122,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Madeleines — Académie du Goût](https://www.academiedugout.fr/recherche?q=madeleine)
+- [Madeleine cœur fondant — Meilleur du Chef: 20 мадлен, 30 минут работы и 12 часов отдыха теста в холоде — именно холод решает, будет ли бугорок; версия с начинкой из пралине](https://www.meilleurduchef.com/fr/recette/madeleine-coeur-fondant.html)
 - [François Perret — Ritz Paris Le Comptoir](https://www.ritzparislecomptoir.com/fr/francois-perret)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'chiffres-education-mof': `## Показатели, которые меняются

@@ -52,8 +52,8 @@ Crème anglaise загущают желатином, охлаждают до п�
 
 ## Французские источники и первичные материалы
 
-- [Charlotte aux fraises — Académie du Goût](https://www.academiedugout.fr/recherche?q=charlotte%20aux%20fraises)
-- [Mercotte — charlottes](https://www.mercotte.fr/?s=charlotte)
+- [Charlotte aux fraises — Meilleur du Chef: 14 бискюи à la cuillère, диск женуаза, crème mousseline (140 г сахара, 50 г воды, 3 желтка, 180 г масла, 150 г крема патисьер) и итальянская меренга с сиропом, доведённым до 118 °C](https://www.meilleurduchef.com/fr/recette/charlotte-fraise.html)
+- [Charlotte Tutti-Frutti — Meilleur du Chef: chemiser форму бискюи à la cuillère и biscuit dacquoise на белках, взбитых и serrés сахаром, — порядок сборки шарлотты](https://www.meilleurduchef.com/fr/recette/charlotte-tutti-frutti.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-bourdaloue': `## Груша и миндальный крем готовятся вместе
 
