@@ -187,6 +187,6 @@ Pâte sucrée полностью выпекают и охлаждают. Тон�
 ## Французские источники и первичные материалы
 
 - [Crème renversée au caramel — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/creme-renversee-au-caramel--5)
-- [Crème caramel — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%A8me%20caramel)
+- [Crème renversée au caramel (flan aux œufs) — Meilleur du Chef: карамель из 130 г сахара и 5 cl воды и прямое предупреждение, что слишком тёмная карамель даёт горечь](https://www.meilleurduchef.com/fr/recette/creme-renversee-caramel.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
 })

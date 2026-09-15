@@ -39,7 +39,7 @@ Quatre-quarts становится ровнее после нескольких 
 ## Французские источники и первичные материалы
 
 - [Quatre-quarts — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/quatre-quarts.html)
-- [Quatre-quarts — Académie du Goût](https://www.academiedugout.fr/recherche?q=quatre-quarts)
+- [Quatre-quarts — Meilleur du Chef: каноническая пропорция четырёх равных частей (250 г яиц, 250 г сахара, 250 г размягчённого масла, 250 г муки T55, щепотка соли)](https://www.meilleurduchef.com/fr/recette/quatre-quarts.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-gougeres': `## Сыр меняет баланс pâte à choux
 

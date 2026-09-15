@@ -66,7 +66,14 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # domain, is free, and publishes the full «phases techniques», while much of ADG
 # is Premium-walled and would be a login-wall citation under AGENTS.md §4.
 # Re-measured after wave 4 batch 2: 53 weak citations out of 559.
-MAX_WEAK_CITATIONS = 53
+# Lowered again (wave 4, batch 3): six more ADG search pages replaced with
+# Meilleur du Chef pages carrying the full technique — mouler-brioche (27 °C
+# proof, 1/4-3/4 tête division), quatre-quarts (the canonical four equal parts),
+# pate-gaufres, beignet (Gruau T45, milk never above 40 °C), creme-renversee-
+# caramel (130 g sugar / 5 cl water, plus the bitterness warning) and a labelled
+# author's Mont Blanc with complete marron glacé ice-cream and mousse ratios.
+# Re-measured after wave 4 batch 3: 47 weak citations out of 559.
+MAX_WEAK_CITATIONS = 47
 
 # Root-redirect ratchet, in OBSERVE mode.
 #

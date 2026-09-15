@@ -39,7 +39,7 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 ## Французские источники и первичные материалы
 
 - [Angelina Paris — savoir-faire](https://www.angelina-paris.fr/notre-savoir-faire)
-- [Mont-Blanc — Académie du Goût](https://www.academiedugout.fr/recherche?q=mont-blanc)
+- [Comme un Mont Blanc, chocolat-marron-pruneaux-armagnac — Meilleur du Chef: авторская версия с полными пропорциями glace и mousse marron glacé (310 г и 200 г крема из каштанов на 35-процентных сливках)](https://www.meilleurduchef.com/fr/recette/comme-mont-blanc-chocolat-marron.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-ile-flottante': `## Œufs à la neige и île flottante
 
@@ -123,7 +123,7 @@ Palmiers пекут до карамелизации нижней стороны,
 ## Французские источники и первичные материалы
 
 - [Mercotte — conseils pour les brioches](https://www.mercotte.fr/quelques-conseils-utiles-pour-les-pates-levees-surtout-les-brioches/)
-- [Brioche — Académie du Goût](https://www.academiedugout.fr/recherche?q=brioche)
+- [Mouler et cuire une brioche — Meilleur du Chef: деление теста на четыре части (1/4 и 3/4 для brioche à tête), расстойка около 27 °C примерно час, дорюр желтком, выпечка при 180 °C](https://www.meilleurduchef.com/fr/recette/mouler-brioche.html)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tarte-aux-pommes': `## Два состояния яблока
 

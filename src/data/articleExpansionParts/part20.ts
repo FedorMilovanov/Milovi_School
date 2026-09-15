@@ -144,7 +144,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 ## Французские источники и первичные материалы
 
 - [Beignets — Chef Simon](https://chefsimon.com/recettes/tag/beignets)
-- [Beignets — Académie du Goût](https://www.academiedugout.fr/recherche?q=beignets)
+- [Beignet — Meilleur du Chef: pâte à beignets на farine de Gruau T45 (120 г цельного молока, 320 г муки, 14 г свежих пекарских дрожжей, 1 яйцо), нагрев строго не выше 40 °C, выпечка без фритюра](https://www.meilleurduchef.com/fr/recette/dessert/beignet-sucre-dessert.html)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-gaufres': `## Брюссельская и льежская вафли требуют разных тестов
 
@@ -165,6 +165,6 @@ Tarte au sucre на севере Франции и в Бельгии может 
 ## Французские источники и первичные материалы
 
 - [Gaufres — Chef Simon](https://chefsimon.com/recettes/tag/gaufre)
-- [Gaufres — Académie du Goût](https://www.academiedugout.fr/recherche?q=gaufres)
+- [Pâte à gaufres — Meilleur du Chef: профессиональная пропорция (300 г воды, 350 г молока, 375 г муки, 100 г растопленного масла, 200 г сахарной пудры, 1 желток, 4 г соли, ваниль и флёрдоранж), гофрьер 180 °C](https://www.meilleurduchef.com/fr/recette/pate-gaufres.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
 })
