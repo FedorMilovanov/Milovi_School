@@ -135,7 +135,7 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 
 ## Французские источники и первичные материалы
 
-- [Saint-Honoré — Académie du Goût](https://www.academiedugout.fr/recherche?q=saint-honor%C3%A9)
+- [Saint-honoré à la vanille — Jimmy Mornet, Académie du Goût (из книги Le Paris des pâtisseries, Éditions Alain Ducasse): крем на bois de vanille, шантийи с маскарпоне, карамель для шу](https://www.academiedugout.fr/recettes/saint-honore-a-la-vanille-jimmy-mornet_16398_2)
 - [Saint-Honoré — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/saint-honore.html)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
   'recipe-croquembouche': `## Башню проектируют до варки карамели

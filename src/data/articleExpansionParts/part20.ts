@@ -81,7 +81,7 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 ## Французские источники и первичные материалы
 
 - [Pâte à choux et éclairs — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pate-a-choux-et-eclairs)
-- [Chantilly — Académie du Goût](https://www.academiedugout.fr/recherche?q=chantilly)
+- [Chantilly vanille — Christophe Michalak, Académie du Goût (база: сливки 30 % MG, 80 г сахара на 1 л, холодная чаша и венчик)](https://www.academiedugout.fr/recettes/chantilly-vanille_4467_2)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-savarin': `## Тесто должно впитать сироп и не распасться
 
@@ -102,7 +102,7 @@ Savarin готовят из дрожжевого теста с развитой 
 ## Французские источники и первичные материалы
 
 - [Savarin et baba — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/savarin-et-baba)
-- [Baba au rhum — Académie du Goût](https://www.academiedugout.fr/recherche?q=baba%20au%20rhum)
+- [Baba au rhum, vanille bourbon et truffe noire — Jessica Préalpato, Académie du Goût: pâte à baba и сироп для пропитки](https://www.academiedugout.fr/recettes/baba-au-rhum-vanille-bourbon-et-truffe-noire_12293_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-au-sucre': `## Региональные версии различаются
 

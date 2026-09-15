@@ -103,7 +103,7 @@ Crème anglaise может загустеть в диапазоне около 8
 
 - [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
 - [La Cuisine classique — Urbain Dubois et Émile Bernard, éd. Dentu 1868, t. 1 (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k6209316c)
-- [Pâtisserie et cuisine — FERRANDI Paris](https://www.ferrandi-paris.com/fr)`,
+- [Le guide culinaire, Auguste Escoffier, 1903 — chapitre I «Sauces» (grandes et petites sauces chaudes, sauces froides, beurres composés, marinades, gelées); texte intégral validé à 100 %](https://fr.wikisource.org/wiki/Le_guide_culinaire/Sauces)`,
   'paciello-childhood': `## Вкус детства без буквальной копии
 
 Когда Николя Пачелло обращается к marbré, flan или goûter, задача не состоит в увеличении сахара и декора. Детское воспоминание обычно связано с простым ароматом, температурой и текстурой. Современная версия сохраняет узнаваемое ядро, но уточняет влажность, обжарку, качество ванили и чистоту среза.

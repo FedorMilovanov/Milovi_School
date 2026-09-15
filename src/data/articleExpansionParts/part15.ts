@@ -60,7 +60,7 @@ Pâte brisée или feuilletage раскатывают немного шире 
 ## Французские источники и первичные материалы
 
 - [Tarte Tatin — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-tatin.html)
-- [Tarte Tatin — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20tatin)
+- [Tarte tatin aux deux prunes — Académie du Goût, recette offerte: карамель в форме, укладка фруктов и горячий деโมляж](https://www.academiedugout.fr/recettes/tarte-tatin-aux-deux-prunes_12842_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-creme-brulee': `## Мелкая форма важнее эффектной толщины
 
@@ -80,7 +80,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Crème brûlée — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%A8me%20br%C3%BBl%C3%A9e)
+- [Crème brûlée — Alain Ducasse, Académie du Goût (из книги Grand Livre de Cuisine Bistrot, Éditions Alain Ducasse): инфузия ванили 30 минут, выпечка при 100 °C](https://www.academiedugout.fr/recettes/creme-brulee_1019_2)
 - [Crème brûlée — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/creme-brulee.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-souffle-chocolat': `## Рамекен направляет подъём

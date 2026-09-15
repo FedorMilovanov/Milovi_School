@@ -101,7 +101,7 @@ Beurre Suzette соединяет сахар, масло, апельсиновы
 
 ## Французские источники и первичные материалы
 
-- [Crêpes Suzette — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%AApes%20Suzette)
+- [Pâte à crêpes — Paul Bocuse, Académie du Goût (из книги Best of Bocuse, Éditions Alain Ducasse): 250 г муки, 3 яйца, 50 cl молока, отдых теста 1 час — база, на которой строится Suzette](https://www.academiedugout.fr/recettes/pate-a-crepes_5386_2)
 - [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
 - [Crêpes — Chef Simon](https://chefsimon.com/recettes/tag/cr%C3%AApes)`,
   'recipe-financiers': `## Beurre noisette задаёт характер

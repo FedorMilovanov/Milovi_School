@@ -54,7 +54,12 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # and the Bon Appétit Paris city-guide entry; stohrer.fr/pages/notre-histoire (a
 # redirect to the homepage, invisible to generic_path) now points at /notre-maison/.
 # Re-measured on the 2026-09-16 corpus after wave 3: 65 weak citations out of 559.
-MAX_WEAK_CITATIONS = 65
+# Lowered again the same day (wave 4, batch 1): seven Académie du Goût search-result
+# pages and a bare ferrandi-paris.com/fr root were replaced with concrete documents —
+# five named ADG recipe pages (Bocuse, Ducasse, Michalak, Mornet, Préalpato) and the
+# fully validated 1903 Wikisource text of Le guide culinaire, chapter I "Sauces".
+# Re-measured after wave 4 batch 1: 58 weak citations out of 559.
+MAX_WEAK_CITATIONS = 58
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
