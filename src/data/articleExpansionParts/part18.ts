@@ -81,7 +81,7 @@ Tuile снимают горячей и сразу изгибают на скал
 ## Французские источники и первичные материалы
 
 - [Tuiles aux amandes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tuiles-aux-amandes--8)
-- [Tuiles — Académie du Goût](https://www.academiedugout.fr/recherche?q=tuiles%20aux%20amandes)
+- [Tuiles dentelles — Meilleur du Chef: pâte à tuiles на рубленом миндале (125 г миндаля, 250 г сахара, 60 г муки T55, 100 г апельсинового сока, 125 г растопленного масла)](https://www.meilleurduchef.com/fr/recette/tuiles-dentelles.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-crepes-suzette': `## Соус строится на эмульсии масла и цитруса
 
@@ -123,7 +123,7 @@ Financier должен иметь влажную плотную крошку, а
 ## Французские источники и первичные материалы
 
 - [Financiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/financiers--14)
-- [Financier — Académie du Goût](https://www.academiedugout.fr/recherche?q=financier)
+- [Financier — Meilleur du Chef: база финансье (poudre d'amandes в смеси с sucre glace и мукой, сырые белки в два приёма, холодное растопленное масло, 180 °C 10–12 минут)](https://www.meilleurduchef.com/fr/recette/financier-chocolat.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-buche-noel': `## Рулет и entremets — две разные системы
 

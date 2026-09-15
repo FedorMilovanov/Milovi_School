@@ -59,7 +59,14 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # five named ADG recipe pages (Bocuse, Ducasse, Michalak, Mornet, Préalpato) and the
 # fully validated 1903 Wikisource text of Le guide culinaire, chapter I "Sauces".
 # Re-measured after wave 4 batch 1: 58 weak citations out of 559.
-MAX_WEAK_CITATIONS = 58
+# Lowered again (wave 4, batch 2): five more ADG search pages replaced with
+# Meilleur du Chef recipe pages — cannelés bordelais (with the copper-mould
+# culottage rules the article argues about), kouglof, financier, tuiles dentelles
+# and pain perdu. MdC is preferred over ADG here because it is already a trusted
+# domain, is free, and publishes the full «phases techniques», while much of ADG
+# is Premium-walled and would be a login-wall citation under AGENTS.md §4.
+# Re-measured after wave 4 batch 2: 53 weak citations out of 559.
+MAX_WEAK_CITATIONS = 53
 
 # Root-redirect ratchet, in OBSERVE mode.
 #

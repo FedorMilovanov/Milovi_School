@@ -60,7 +60,7 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 ## Французские источники и первичные материалы
 
 - [Pain perdu — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pain-perdu--10)
-- [Pain perdu — Académie du Goût](https://www.academiedugout.fr/recherche?q=pain%20perdu)
+- [Pain perdu au caramel beurre salé — Meilleur du Chef: пропитка, карамель на солёном масле и формовка](https://www.meilleurduchef.com/fr/recette/pain-perdu-caramel-beurre-sale.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-chou-chantilly': `## Простота усиливает требования к choux
 

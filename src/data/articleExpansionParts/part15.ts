@@ -39,7 +39,7 @@ Insert praliné замораживают или охлаждают до сост
 ## Французские источники и первичные материалы
 
 - [Canelé — Baillardran](https://www.baillardran.com/)
-- [Cannelés bordelais — Académie du Goût](https://www.academiedugout.fr/recherche?q=cannel%C3%A9)
+- [Cannelés bordelais — Meilleur du Chef: infusion ванили в молоке, beurre noisette, а главное — culottage медных форм и правила ухода (без моющего средства, полоскание горячей водой, немедленная просушка, лёгкое смазывание перед каждой закладкой)](https://www.meilleurduchef.com/fr/recette/canneles-bordelais-facile.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-tatin': `## Яблоко должно выдержать двойное приготовление
 

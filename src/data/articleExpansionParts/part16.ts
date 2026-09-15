@@ -115,7 +115,7 @@ Kouglof вынимают после короткой стабилизации и
 ## Французские источники и первичные материалы
 
 - [Kougelhopf — Tourisme Alsace](https://www.visit.alsace/)
-- [Kouglof — Académie du Goût](https://www.academiedugout.fr/recherche?q=kouglof)
+- [Kouglof — Meilleur du Chef: hydrater изюм Коринфа от 1 часа, дрожжи в тёплом молоке, строгий порядок закладки, замес крюком 15–20 минут, beurre pommade, расстойка не выше 28 °C, выпечка 180 °C 30–35 минут](https://www.meilleurduchef.com/fr/recette/kouglof.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-saint-honore': `## Несколько техник должны закончиться одновременно
 
