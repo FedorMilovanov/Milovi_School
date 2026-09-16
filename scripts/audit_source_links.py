@@ -363,8 +363,32 @@ def main() -> int:
               "KNOWN_DEAD_URLS.", file=sys.stderr)
         return 1
 
+    # Weak-citation ratchet, enforced WITHOUT network.
+    #
+    # This used to live only inside the networked branch below, which made the
+    # ratchet dead code in any offline environment: the gate printed SKIPPED and
+    # returned 0, so a budget breach passed unnoticed and was caught only by an
+    # ad-hoc recount. That was a bug, not a limitation. probe() derives its "weak"
+    # verdict solely from generic_path(url) - a pure string predicate that never
+    # consults the response - so the weak set is fully computable offline and the
+    # budget can and must be enforced here. The networked branch still recomputes
+    # the same set from probe results for the report artifact; the two agree by
+    # construction.
+    offline_weak = [c for c in citations if generic_path(c["url"])]
+    print(f"- weak citations (offline, generic_path): {len(offline_weak)} "
+          f"of {len(citations)} (budget {MAX_WEAK_CITATIONS})")
+    if len(offline_weak) > MAX_WEAK_CITATIONS:
+        print(f"\nWeak-citation ratchet exceeded: {len(offline_weak)} > "
+              f"{MAX_WEAK_CITATIONS}. Replace index/search citations with concrete "
+              "documents, or lower the budget deliberately — never raise it "
+              "silently.", file=sys.stderr)
+        for item in sorted({(c["articleId"], c["url"]) for c in offline_weak}):
+            print(f"  [{item[0]}] {item[1]}", file=sys.stderr)
+        return 1
+
     if not network_available():
-        message = ("Source-link gate SKIPPED: no network egress. "
+        message = ("Source-link gate: offline checks passed (known-dead registry, "
+                   "weak-citation ratchet). Network probing SKIPPED - no egress. "
                    "Live CI runs this with --require-network.")
         if args.require_network:
             print(message, file=sys.stderr)

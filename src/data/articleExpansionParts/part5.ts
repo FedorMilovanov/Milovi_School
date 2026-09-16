@@ -116,6 +116,9 @@ Ispahan показывает работу с устойчивой вкусово
 Формулу о «дерзости» следует оставлять только с прямым интервью и датой. Даже без неё биография показывает проверяемый риск: собственный люксовый дом сначала открылся не в Париже, а в Токио, а macaron превратился из изделия витрины в носитель сезонной коллекции.
 
 ## Французские источники и первичные материалы
+- [Pierre Hermé — World's Best Pastry Chef by the World's 50 Best Restaurants Academy (16 июня 2016): церемония в Нью-Йорке, академия из 972 экспертов с пяти континентов, тайное голосование по 7 ресторанам из 27 регионов; предыдущие лауреаты — Жорди Рока (El Celler de Can Roca) 2014 и Альбер Адриа (Tickets, Барселона) 2015](https://www.francothaicc.com/actualites/past-events/n/news/pierre-herme-receives-the-title-of-worlds-best-pastry-chef-by-the-worlds-50-best-restaurants-acade.html)
+- [Pierre Hermé — Wikipedia: биографическая канва, по которой сверялись годы, — родился 20 ноября 1961 года, ученичество у Гастона Ленотра с 14 лет, титул World's Best Pastry Chef 2016 от The World's 50 Best Restaurants, Chevalier de la Légion d'honneur от Жака Ширака в мае 2007 года, звание самого молодого Pastry Chef of the Year во Франции и единственный кондитер — Chevalier des Arts et des Lettres](https://en.wikipedia.org/wiki/Pierre_Herm%C3%A9)
+- [The World's Best Pastry Chef Award — список лауреатов The World's 50 Best Restaurants: Пьер Эрме 2016, Доминик Ансель 2017, Седрик Гроле 2018, Джессика Пральпато 2019, Уилл Голдфарб 2021, Максим Фредерик 2025 — документ, показывающий, что в 2011 году такой номинации не существовало](https://www.the50.com/restaurants/best-in-the-world/awards/best-pastry-chef.html)
 
 - [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
