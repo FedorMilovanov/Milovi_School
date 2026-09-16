@@ -167,7 +167,7 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # Both targets were checked against generic_path() before use, not assumed.
 # Re-measured after wave 4 batch 13: 5 weak citations out of 565, of which 1 is a
 # search-result page (caramel tendre).
-MAX_WEAK_CITATIONS = 5
+MAX_WEAK_CITATIONS = 0
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
@@ -199,7 +199,7 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
 BARE_URL_RE = re.compile(r"(?<![(\[])https?://[^\s<>'\"`)\]]+")
-SOURCE_URL_FIELD_RE = re.compile(r"(?m)^\s*sourceUrl\s*:\s*'([^']+)'")
+SOURCE_URL_FIELD_RE = re.compile(r"\bsourceUrl\s*:\s*'([^']+)'")
 
 # A page whose visible title/heading says this is a soft-404 even on HTTP 200.
 SOFT_404_MARKERS = (

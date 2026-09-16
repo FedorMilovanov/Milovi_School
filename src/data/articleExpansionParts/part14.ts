@@ -144,7 +144,7 @@ Fleur de sel и мелкая соль ведут себя по-разному. �
 ## Французские источники и первичные материалы
 
 - [Mosaïque — Jacques Genin: декларация состава от самого дома, где карамель названа прямо — сахар, масло, сливки, глюкоза и fleur de sel, а по ассортименту мёд каштана, ваниль Таити, кофе, фёва тонка, лакрица; рядом pâte de fruits (фрукты по сезону, сахар, глюкоза, яблочный пектин) и нуга (каштановый мёд, миндаль Marcona, фисташка Bronte, сахарная пудра, яичный белок, безглютеновая азимная облатка). Всё — без ароматизаторов и консервантов](https://jacquesgenin.fr/product/mosaique-500)
-- [Caramel tendre — Académie du Goût](https://www.academiedugout.fr/recherche?q=caramel%20tendre)
+- [Caramel tendre au beurre salé — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-chocolat-caramel.html)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'ansel-cronut': `## После одного хита важна система
 

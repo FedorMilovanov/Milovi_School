@@ -111,7 +111,6 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)`,
   'grolet-raspberry-rose': `## Как собрать правдоподобную малину

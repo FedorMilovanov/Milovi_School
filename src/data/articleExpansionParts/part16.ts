@@ -94,7 +94,7 @@ Gâteau basque встречается с crème pâtissière и с вишнёв�
 
 ## Французские источники и первичные материалы
 
-- [Musée du Gâteau Basque](https://www.legateaubasque.com/)
+- [Musée du Gâteau Basque — recette traditionnelle](https://www.legateaubasque.com/la-recette-du-gateau-basque-traditionnel/)
 - [Gâteau basque à la confiture de cerises noires et au piment d'Espelette — Meilleur du Chef: полная пропорция теста (300 г муки T55, 200 г сахара, 40 г tant pour tant, 1 яйцо и 1 желток, 120 г beurre pommade, мелкая соль, ~8 г разрыхлителя, 2 кл Pernod, капля amande amère), масло с сахаром blanchir насадкой «feuille», раскатка 4–5 мм, дорюр из желтка с водой и basque-крест на крышке](https://www.meilleurduchef.com/fr/recette/gateau-basque-cerise.html)
 - [Gâteau basque à la crème — Meilleur du Chef: кремовая версия того же теста; крем варят несколько минут на умеренном огне, мешая без остановки и следя, чтобы он не пристал ко дну, а дорюр наносят по краю в пропорции 1 желток на 1 ст. ложку холодной воды](https://www.meilleurduchef.com/fr/recette/gateau-basque.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,

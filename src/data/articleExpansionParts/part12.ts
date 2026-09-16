@@ -123,7 +123,6 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Nicolas Paciello — portrait](https://www.journaldesfemmes.fr/cuisine/chefs-et-gastronomie/2676605-nicolas-paciello-star-patissier-tres-discrete/)
-- [CinqSens Paris](https://cinqsensparis.com/)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'tech-feuilletage': `## Пластичность важнее одинаковой температуры
 
