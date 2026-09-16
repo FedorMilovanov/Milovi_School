@@ -17,7 +17,7 @@ export const articleExpansionPart14: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/le-temperage-du-chocolat)
+- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/fr-FR/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/temperage-du-chocolat)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'tech-entremets-assembly': `## Сборку проектируют от разреза
@@ -166,5 +166,5 @@ Fleur de sel и мелкая соль ведут себя по-разному. �
 
 - [Chef — Dominique Ansel: первоисточник происхождения Cronut от самого автора — лауреат James Beard Award; Cronut назван журналом TIME в числе «25 лучших изобретений 2013 года»; запущен в мае 2013 года в его собственной пекарне в Нью-Йорке и стал первой в мире «вирусной» выпечкой; на доводку ушло два месяца и более десяти различных рецептур; это не просто обжаренное круассанное тесто — ламинированное тесто напоминает круассан, но сделано по собственной рецептуре, сначала расстаивается, затем обжаривается в виноградном масле при конкретной температуре; после жарки каждый Cronut 1) обваливают в сахаре, 2) наполняют кремом и 3) покрывают глазурью, и весь процесс занимает три дня; продаётся только в Dominique Ansel Bakery в Нью-Йорке, Лондоне и Лос-Анджелесе, вкус меняется каждый месяц и никогда не повторяется; рядом — DKA (Dominique's Kouign Amann), madeleines по заказу и Dominique Ansel Workshop, открытый в июле 2021 года как круассанная стойка внутри его кухонь в Flatiron](https://www.dominiqueansel.com/chef/)
 - [Dominique Ansel — books](https://www.dominiqueansel.com/books/)
-- [Dominique Ansel — tutorials](https://www.dominiqueansel.com/video-tutorials/)`,
+- [Dominique Ansel — tutorials](https://www.dominiqueansel.com/technique-and-recipes/)`,
 })
