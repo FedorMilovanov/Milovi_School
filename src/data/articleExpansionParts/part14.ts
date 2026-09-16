@@ -17,7 +17,7 @@ export const articleExpansionPart14: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/fr-FR/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/temperage-du-chocolat)
+- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/en/l-ecole-valrhona/discover-l-ecole-valrhona/chocolate-terminology/tempering-chocolate)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'tech-entremets-assembly': `## Сборку проектируют от разреза
