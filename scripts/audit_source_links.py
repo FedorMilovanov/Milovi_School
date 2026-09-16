@@ -169,17 +169,13 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # Both targets were checked against generic_path() before use, not assumed.
 # Re-measured after wave 4 batch 13: 5 weak citations out of 565, of which 1 is a
 # search-result page (caramel tendre).
+# Pre-merge closeout: the five remaining known weak citations were removed/replaced;
+# fixing SOURCE_URL_FIELD_RE exposed two additional inline metadata roots, which were
+# also replaced. The permanent ratchet is now zero.
 MAX_WEAK_CITATIONS = 0
 
-# Root-redirect ratchet, in OBSERVE mode.
-#
-# A citation whose specific URL 302s to the site root is dead in substance but
-# invisible to both the status check and generic_path(). Detection is implemented
-# above and reported here, but deliberately not enforced yet: the count can only
-# be measured on a networked run, and guessing a budget would either break CI or
-# hide real cases. Promotion path is the same one MAX_WEAK_CITATIONS followed —
-# read the number CI publishes in artifacts/source-links-report/report.md, set it
-# here, then lower it as each case is fixed.
+# Root redirects are hard failures too. Once the full strict probe reported zero,
+# the former observe-only ratchet was promoted to a permanent zero budget.
 MAX_ROOT_REDIRECTS: int | None = 0
 
 # CI cannot prove reachability for sites that intentionally block bots or suffer
@@ -197,9 +193,42 @@ MAX_BLOCKED_URLS: int | None = None
 # and in CI alike. Grow it whenever a fetch proves a cited URL dead; never remove
 # an entry without a live re-verification.
 KNOWN_DEAD_URLS: frozenset[str] = frozenset({
-    # Fetched 2026-09-16: returns Meilleur du Chef's soft-404 page
-    # ("Nous n'avons pas trouve cette page") despite HTTP 200-style rendering.
-    # Cited by recipe-tarte-bourdaloue until wave 4 batch 7.
+    # Definitive 404/soft-404 verdicts observed by the strict 2026-09-16 probe.
+    # They stay here after replacement so a future copy/paste cannot silently
+    # reintroduce a source already proven dead.
+    "https://chefsimon.com/articles/lexique",
+    "https://chefsimon.com/recettes/tag/gaufre",
+    "https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique",
+    "https://fr.gaultmillau.com/en/chefs/yann-couvreur",
+    "https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie",
+    "https://fr.wikisource.org/wiki/Le_M%C3%A9nagier_de_Paris",
+    "https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/antonin-careme-1783-1833",
+    "https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935",
+    "https://gallica.bnf.fr/selections/fr/html/litteratures/classiques-de-la-litterature-francaise-acces-par-ordre-alphabetique-dauteur-0",
+    "https://labeteapain.com/histoire-de-la-patisserie/",
+    "https://lapatisseriecyrillignac.com/produit/equinoxe/",
+    "https://lapatisseriecyrillignac.com/produit/kouign-amann/",
+    "https://stohrer.fr/pages/notre-histoire",
+    "https://www.academiedugout.fr/chefs/christophe-adam_16",
+    "https://www.academiedugout.fr/recettes/creme-anglaise_1532_2",
+    "https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2",
+    "https://www.academiedugout.fr/recettes/tarte-citron-vert-a-lhuile-dolive_13674_2",
+    "https://www.academiedugout.fr/recettes/tartelettes-citron-jaune_13671_2",
+    "https://www.baillardran.com/en/canele",
+    "https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf",
+    "https://www.cacao-barry.com/fr-FR/chocolate-mousses-bulletin-download-part-2",
+    "https://www.christophemichalak.com/patisserie/glace-tarte-chocolat-caramel-fleur-de-sel",
+    "https://www.christophemichalak.com/religieuse-caramel-6-pers",
+    "https://www.cuisineactuelle.fr/recettes/recettes-de-chefs/far-breton-au-pruneaux-de-cyril-lignac-53044",
+    "https://www.dalloyau.fr/opera.html",
+    "https://www.dominiqueansel.com/video-tutorials/",
+    "https://www.escoffier.edu/blog/baking-pastry/a-brief-history-of-french-pastry/",
+    "https://www.euronews.com/culture/2023-10-27/historic-win-for-women-nina-metayer-claims-title-of-worlds-best-pastry-chef-2023",
+    "https://www.ice.edu/blog/creme-brulee-history",
+    "https://www.ice.edu/blog/history-of-paris-brest",
+    "https://www.pierreherme.com/fr/macarons/coffrets-collection/coffret-de-24-macarons.html",
+    "https://www.theworlds50best.com/stories/News/nina-metayer-worlds-best-pastry-chef-2023.html",
+    "https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/le-temperage-du-chocolat",
     "https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html",
 })
 
