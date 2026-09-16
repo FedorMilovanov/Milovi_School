@@ -17,7 +17,7 @@ Dalloyau связывает создание Opéra с Сириаком Гави
 
 ## Французские источники и первичные материалы
 
-- [L’Opéra](https://www.dalloyau.fr/opera.html)
+- [L’Opéra](https://www.dalloyau.fr/img/st-menu/11.pdf)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Crème au beurre](https://www.academiedugout.fr/recettes/creme-au-beurre_327_2)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,
@@ -61,8 +61,8 @@ Insert готовят тонким слоем. Заварную массу не 
 
 ## Французские источники и первичные материалы
 
-- [Tartelettes citron jaune](https://www.academiedugout.fr/recettes/tartelettes-citron-jaune_13671_2)
-- [Tarte citron vert à l’huile d’olive](https://www.academiedugout.fr/recettes/tarte-citron-vert-a-lhuile-dolive_13674_2)
+- [Tartelettes citron jaune](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
+- [Tarte citron vert à l’huile d’olive](https://www.valrhona.com/fr/vous-inspirer/cahiers-de-tendances/tous-nos-cahiers-de-tendances/techniques-et-astuces-de-patisserie-le-chocolat)
 - [Pâte sucrée](https://www.academiedugout.fr/recettes/les-pates_13716_2)`,
   'recipe-tarte-tropezienne': `## Brioche
 
@@ -111,7 +111,7 @@ Stohrer заявляет Николя Сторера изобретателем 
 ## Французские источники и первичные материалы
 
 - [Maison Stohrer — «La plus ancienne pâtisserie de Paris», fondée en 1730](https://stohrer.fr/notre-maison/)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)`,
   'tech-creme-pat': `## Крахмал и нагрев
