@@ -15,10 +15,11 @@ Two severity tiers:
   frozen at ``MAX_WEAK_CITATIONS`` and may only ever be lowered. Raising it
   requires an explicit editorial decision, not a silent regression.
 
-Network behaviour: CI has egress, local sandboxes often do not. A control probe
-decides which mode applies. Without egress the gate reports ``skipped`` and exits
-0 so that offline ``npm run validate`` stays meaningful; the live workflows run it
-with ``--require-network`` so a silent skip can never pass as green.
+Network behaviour: local sandboxes often do not have egress, so non-strict runs
+use a control probe and may report ``skipped`` after all offline invariants pass.
+Strict CI does **not** trust the control probe: ``--require-network`` probes every
+cited URL directly, so a flaky control endpoint can never turn real verification
+into a false global "no egress" failure or a silent green.
 """
 from __future__ import annotations
 
@@ -462,13 +463,15 @@ def main() -> int:
             print(f"  [{item[0]}] {item[1]}", file=sys.stderr)
         return 1
 
-    if not network_available():
+    # Offline local runs may skip network probing, but strict CI must never let a
+    # flaky control URL veto the actual corpus probe. We observed exactly that:
+    # W3C HEAD failed while dependency downloads in the same runner succeeded.
+    # In --require-network mode probe the cited URLs directly; transport failures
+    # then become explicit per-URL evidence instead of a false global "no egress".
+    if not args.require_network and not network_available():
         message = ("Source-link gate: offline checks passed (known-dead registry, "
                    "weak-citation ratchet). Network probing SKIPPED - no egress. "
-                   "Live CI runs this with --require-network.")
-        if args.require_network:
-            print(message, file=sys.stderr)
-            return 1
+                   "Strict CI probes the corpus directly.")
         print(message)
         return 0
 
