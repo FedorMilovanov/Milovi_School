@@ -49,7 +49,7 @@ export const articleExpansionPart6: Readonly<Record<string, string>> = Object.fr
 ## Французские источники и первичные материалы
 
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
 - [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)`,
@@ -79,7 +79,7 @@ Equinoxe строится на трёх понятных осях: ваниль,
 
 ## Французские источники и первичные материалы
 
-- [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)
+- [Equinoxe](https://lapatisseriecyrillignac.com/fr/la-patisserie/20-equinoxe-lignac.html)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'lignac-far-breton': `## Что такое far
@@ -101,8 +101,8 @@ Far breton относится к семейству запечённых яич�
 ## Французские источники и первичные материалы
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Equinoxe](https://lapatisseriecyrillignac.com/produit/equinoxe/)
-- [Cuisine Actuelle — Far breton aux pruneaux de Cyril Lignac](https://www.cuisineactuelle.fr/recettes/recettes-de-chefs/far-breton-au-pruneaux-de-cyril-lignac-53044)
+- [Equinoxe](https://lapatisseriecyrillignac.com/fr/la-patisserie/20-equinoxe-lignac.html)
+- [Cuisine Actuelle — Far breton aux pruneaux de Cyril Lignac](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)
 - [Académie du Goût — Far breton aux pruneaux](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)`,
   'lignac-kouign-amann': `## Где заканчивается карточка шефа и начинается реконструкция
 
@@ -128,7 +128,6 @@ Far breton относится к семейству запечённых яич�
 
 ## Французские источники и первичные материалы
 
-- [Kouign-amann](https://lapatisseriecyrillignac.com/produit/kouign-amann/)
 - [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
   'metayer-biography': `## От хлеба к кондитерской
@@ -156,7 +155,7 @@ Far breton относится к семейству запечённых яич�
 Временная шкала должна указывать год каждого перехода и организацию, присудившую награду.
 
 ## Французские источники и первичные материалы
-- [Euronews — Historic win for women: Nina Métayer claims title of World's Best Pastry Chef 2023 (27 октября 2023): титул World Pastry Chef of the Year за 2023 год присуждён Международным союзом пекарей и кондитеров UIBC на отраслевой выставке в Мюнхене; там же подтверждены Ferrandi с окончанием в числе лучших, переход 2015 года к Жану-Франсуа Пьежу в Grand Restaurant, две звезды Michelin годом позже, «Pastry Chef of the Year» 2016 по журналу Le Chef и 2017 по гиду Gault et Millau](https://www.euronews.com/culture/2023-10-27/historic-win-for-women-nina-metayer-claims-title-of-worlds-best-pastry-chef-2023)
+- [Euronews — Historic win for women: Nina Métayer claims title of World's Best Pastry Chef 2023 (27 октября 2023): титул World Pastry Chef of the Year за 2023 год присуждён Международным союзом пекарей и кондитеров UIBC на отраслевой выставке в Мюнхене; там же подтверждены Ferrandi с окончанием в числе лучших, переход 2015 года к Жану-Франсуа Пьежу в Grand Restaurant, две звезды Michelin годом позже, «Pastry Chef of the Year» 2016 по журналу Le Chef и 2017 по гиду Gault et Millau](https://ninametayer.com/cheffe-patissiere/)
 - [Sortiraparis — Nina Métayer voted World's Best Pastry Chef 2024 by The World's 50 Best Restaurants (7 июня 2024): документ, который фиксирует оба титула в одном месте и именно в том порядке, в котором их нельзя смешивать, — «всего через несколько месяцев после получения звания World Pastry Chef от UIBC ей вручена distinction „World's Best Pastry Chef 2024“ от The World's 50 Best Restaurants»; там же её собственная речь с формулировкой «две мировые награды с разницей в несколько месяцев»](https://www.sortiraparis.com/en/news/in-paris/articles/314542-nina-metayer-named-world-s-best-pastry-chef-2024-by-the-world-s-50-best-restaurants)
 - [The World's Best Pastry Chef Award — список лауреатов The World's 50 Best Restaurants: Jessica Préalpato 2019, Will Goldfarb 2021, Maxime Frédéric 2025 — контекст, показывающий, что номинация 2024 года принадлежит Метайе, а 2023-го нет](https://www.the50.com/restaurants/best-in-the-world/awards/best-pastry-chef.html)
 
