@@ -36,7 +36,7 @@ export const articleExpansionPart10: Readonly<Record<string, string>> = Object.f
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
-- [Mousses au chocolat — bulletin scientifique](https://www.cacao-barry.com/fr-FR/chocolate-mousses-bulletin-download-part-2)
+- [Mousses au chocolat — bulletin scientifique](https://www.cacao-barry.com/fr-FR/chocolat-recette/1671/mousse-au-chocolat)
 - [Mousse à base de ganache](https://www.cacao-barry.com/fr-FR/chocolat-recette/2209/mousse-a-base-ganache)
 - [Mousse à base de crème anglaise](https://www.cacao-barry.com/fr-FR/chocolat-recette/2207/mousse-a-base-de-creme-anglaise)`,
   'tech-sugar-work': `## Cuisson и сатинаж
