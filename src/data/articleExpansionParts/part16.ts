@@ -116,7 +116,7 @@ Kouglof вынимают после короткой стабилизации и
 
 ## Французские источники и первичные материалы
 
-- [Kougelhopf — Tourisme Alsace](https://www.visit.alsace/)
+- [Kougelhopf sucré aux raisins — Christophe Felder: полная рецептура эльзасской короны — levain из 10 г свежих дрожжей, 35 г воды и 50 г муки T45 поднимается 30 минут под слоем муки, затем тесто (225 г T45, 1 яйцо, 125 г молока, 40 г сахара, 1 ч. ложка соли, 65 г мягкого масла) вымешивается крюком ~10 минут до отлипания от стенок; 50 г изюма, мацерированного в тёмном роме; расстойка 1 ч 30 мин и ещё 2 часа в форме, по одному миндалю на каждое ребро формы, 170 °C конвекция 20–25 минут, выход — 2 кугопфа по 12 см (600 г теста)](http://www.christophe-felder.com/recettes/index.php?id=120)
 - [Kouglof — Meilleur du Chef: hydrater изюм Коринфа от 1 часа, дрожжи в тёплом молоке, строгий порядок закладки, замес крюком 15–20 минут, beurre pommade, расстойка не выше 28 °C, выпечка 180 °C 30–35 минут](https://www.meilleurduchef.com/fr/recette/kouglof.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-saint-honore': `## Несколько техник должны закончиться одновременно

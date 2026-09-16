@@ -62,7 +62,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
+- [Barres fines — Jacques Genin: собственная формулировка его метода на примере плиток — чёрный шоколад минимум 64 % какао, тонко хрустящий, в паре с пралине из фундука с кофе, а рядом пралине с каперсами с острова Пантеллерия, «чтобы отважиться на неизведанное»](https://jacquesgenin.fr/product/barres-fines)
 - [Académie du Goût — Jacques Genin](https://www.academiedugout.fr/chefs/jacques-genin_204374)
 - [Bon Appétit — городской гид по Парижу, карточка Jacques Genin](https://www.bonappetit.com/city-guides/paris/venue/jacques-genin)`,
   'genin-ganache-craft': `## Сначала эмульсия, потом терруар
@@ -83,7 +83,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
+- [Écrin ganaches & pralinés — Jacques Genin: декларация состава от самого дома — 36 штук, 240 г, две трети чёрных и треть молочных; ганаш на чёрном шоколаде минимум 64 % какао или молочном минимум 33 % со сливками, пралине на карамелизованных орехах с маслом (миндаль, фундук, фисташка Bronte, пекан, какао-бобы, жасмин, розмарин, feuilletine, fleur de sel, шафран, цедры); покрытие — чёрное 64 % или молочное 33 %; всё натуральное, без ароматизаторов и консервантов; хранение в сухом месте между 14 °C и 20 °C и употребление в течение двух недель после покупки](https://jacquesgenin.fr/product/ecrin-ganaches-pralines-36)
 - [Ganache montée](https://essentials.valrhona.com/essential/56)
 - [Ganache pour cadres](https://essentials.valrhona.com/essential/172)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,

@@ -109,7 +109,17 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # with an off-topic page, since a wrong citation is worse than a weak one.
 # Re-measured after wave 4 batch 8: 23 weak citations out of 562, of which 2 are
 # search-result pages (caramel tendre, marrons glaces).
-MAX_WEAK_CITATIONS = 23
+# Lowered again (wave 4, batch 9): recipe-kouglof now cites Felder's own
+# kougelhopf instead of a regional portal root; felder-fraisier trades the generic
+# /recettes/ index for two Meilleur du Chef documents that teach the assembly and
+# the creme mousseline troubleshooting, one of which states the kirsch-to-vanilla
+# history that bears directly on Felder's kirsch syrup; and two Genin articles move
+# from the /univers section page to the house's own ingredient declarations for
+# ganaches/pralines and for the barres fines. The Genin millefeuille and lemon tart
+# articles keep /univers on purpose - no verified deep page exists for them, and a
+# wrong citation is worse than a weak one.
+# Re-measured after wave 4 batch 9: 19 weak citations out of 563.
+MAX_WEAK_CITATIONS = 19
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
