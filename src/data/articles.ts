@@ -442,8 +442,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-tarte-bourdaloue.webp',
     tags: ['тарт бурдалу', 'груши', 'миндальный крем', 'песочное тесто', 'франжипан', 'французская выпечка'],
     date: '2026-07-04',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Tarte_Bourdaloue',
-    sourceLabel: 'Meilleur du Chef',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/tarte-poire-chocolat.html',
+    sourceLabel: 'Meilleur du Chef — Tarte aux poires',
     recipeData: {
       prepTime: 'PT45M', cookTime: 'PT30M', yield: '1 тарт 22 см / 8 порций',
       ingredients: ['Мука — 200 г', 'Сливочное масло — 100 г для теста плюс 70 г для крема', 'Сахарная пудра — 80 г', 'Яйцо — 40 г для теста плюс 70 г для крема', 'Миндальная мука — 70 г', 'Сахар — 70 г', 'Груши (половинки в сиропе) — 3-4 шт', 'Стручок ванили — 1 шт', 'Миндальные лепестки — 30 г', 'Абрикосовый нап. для глазировки', 'Ром (по желанию) — 1 ст. л.']
@@ -466,8 +466,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-gateau-basque.webp',
     tags: ['гато баск', 'gâteau basque', 'страна басков', 'заварной крем', 'чёрная вишня итксасу', 'песочное тесто'],
     date: '2026-07-07',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Gateau_basque',
-    sourceLabel: 'Meilleur du Chef',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/gateau-basque.html',
+    sourceLabel: 'Meilleur du Chef — Gâteau basque',
     recipeData: {
       prepTime: 'PT45M', cookTime: 'PT40M', yield: '1 пирог 22 см / 8 порций',
       ingredients: ['Мука Т55 — 300 г', 'Сахарный песок — 200 г', 'Мягкое сливочное масло — 120 г', 'Яйцо — 1 шт плюс 1 желток', 'Тан-пур-тан (миндаль/сахар) — 40 г', 'Разрыхлитель — 8 г', 'Молоко — 250 мл', 'Стручок ванили — 1 шт', 'Тёмный ром — 1 ст. л.', 'Конфитюр из чёрной вишни Итксасу — 200 г']
@@ -490,8 +490,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-kouglof.webp',
     tags: ['кугельхопф', 'kouglof', 'эльзас', 'дрожжевое тесто', 'изюм в кирше', 'бриошь'],
     date: '2026-07-10',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Kougelhopf',
-    sourceLabel: 'Meilleur du Chef',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/kouglof.html',
+    sourceLabel: 'Meilleur du Chef — Kouglof',
     recipeData: {
       prepTime: 'PT40M', cookTime: 'PT45M', yield: '1 кугельхопф на 8 порций',
       ingredients: ['Мука — 500 г', 'Мягкое сливочное масло — 180 г', 'Сахар — 75 г', 'Яйцо — 2 шт', 'Тёплое молоко — 250 мл', 'Свежие дрожжи — 20 г', 'Изюм — 100 г', 'Кирш — 3 ст. л.', 'Целый миндаль — 12–16 шт', 'Соль — щепотка', 'Сахарная пудра — для отделки']
@@ -610,8 +610,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-ile-flottante.webp',
     tags: ['île flottante', 'плавающий остров', 'œufs à la neige', 'крем англез', 'французские десерты', 'карамель'],
     date: '2026-06-23',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/%C5%92ufs_%C3%A0_la_neige',
-    sourceLabel: 'Meilleur du Chef',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/ile-flottante-eclats-pistaches.html',
+    sourceLabel: 'Meilleur du Chef — Île flottante',
     recipeData: {
       prepTime: 'PT30M', cookTime: 'PT15M', yield: '4 порции',
       ingredients: ['Молоко цельное 500 мл', 'Стручок ванили 1 шт', 'Яичные желтки 6 шт', 'Сахар для англеза 75 г', 'Яичные белки 6 шт', 'Сахар для белков 50 г', 'Щепотка соли', 'Сахар для карамели 80 г', 'Вода 30 мл', 'Миндальные лепестки 30 г']
@@ -826,8 +826,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-gougeres.webp',
     tags: ['гужеры', 'gougères', 'пат-а-шу', 'бургундская кухня', 'закуска к вину', 'заварное тесто'],
     date: '2026-07-05',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Gougère',
-    sourceLabel: 'Chef Simon',
+    sourceUrl: 'https://chefsimon.com/recettes/tag/goug%C3%A8res',
+    sourceLabel: 'Chef Simon — Gougères',
     recipeData: {
       prepTime: 'PT30M', cookTime: 'PT25M', yield: '25-30 гужер (или 1 корона)',
       ingredients: ['Вода 250 мл', 'Сливочное масло 90 г', 'Мука 150 г', 'Яйца 4 шт', 'Комте или грюйер тёртый 150 г', 'Соль 1 щепотка', 'Мускатный орех щепотка', 'Яичный желток для смазки 1 шт']
@@ -1309,8 +1309,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-tarte-au-sucre.webp',
     tags: ['тарт о сюкр', 'tarte au sucre', 'сахарный тарт', 'вержуаза', 'кухня Севера Франции', 'бриошное тесто'],
     date: '2026-07-02',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Tarte_au_sucre',
-    sourceLabel: 'Chef Simon',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/tarte-sucre.html',
+    sourceLabel: 'Meilleur du Chef — Tarte au sucre',
     recipeData: {
       prepTime: 'PT40M', cookTime: 'PT25M', yield: '1 тарт 26-28 см (6-8 порций)',
       ingredients: ['Мука 250 г', 'Молоко тёплое 100 мл', 'Сливочное масло мягкое 50 г', 'Яйцо 1 шт', 'Сахар 20 г', 'Пекарские дрожжи 1 пакетик (или 12 г свежих)', 'Соль 1 щепотка', 'Вержуаза бурая 120 г', 'Сливки жирные 100 мл', 'Яйцо для заливки 1 шт', 'Масло для верха 30 г']
@@ -1333,8 +1333,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-beignets.webp',
     tags: ['бенье', 'beignets', 'французские пончики', 'марди гра', 'бунь', 'пончики во фритюре'],
     date: '2026-07-05',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Beignet',
-    sourceLabel: 'Chef Simon',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/dessert/beignet-sucre-dessert.html',
+    sourceLabel: 'Meilleur du Chef — Beignet',
     recipeData: {
       prepTime: 'PT30M', cookTime: 'PT15M', yield: 'около 20 пончиков',
       ingredients: ['Мука 500 г', 'Молоко тёплое 250 мл', 'Сливочное масло мягкое 60 г', 'Яйца 2 шт', 'Сахар 70 г', 'Дрожжи свежие 20 г (или 7 г сухих)', 'Соль 1 щепотка', 'Вода флёрдоранж 1 ст. л.', 'Масло для фритюра 1-1,5 л', 'Сахарная пудра для посыпки']
