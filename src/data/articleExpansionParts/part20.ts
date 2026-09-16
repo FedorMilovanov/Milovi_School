@@ -164,7 +164,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 ## Французские источники и первичные материалы
 
-- [Gaufres — Chef Simon](https://chefsimon.com/recettes/tag/gaufre)
+- [Gaufres — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/gaufres--5)
 - [Pâte à gaufres — Meilleur du Chef: профессиональная пропорция (300 г воды, 350 г молока, 375 г муки, 100 г растопленного масла, 200 г сахарной пудры, 1 желток, 4 г соли, ваниль и флёрдоранж), гофрьер 180 °C](https://www.meilleurduchef.com/fr/recette/pate-gaufres.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
 })
