@@ -69,13 +69,53 @@ ATTR_RES = (
 
 URL_RE = re.compile(r"https?://[^\s\)\"'`\]]+")
 
+# Граница элемента списка. В разделе ИСТОЧНИКИ каждая строка устроена как
+# «Автор — «Название»», и окно атрибуции после цитаты захватывало автора
+# СЛЕДУЮЩЕГО пункта: так заголовок материала Университета Льежа
+# «Le blanc-manger, une histoire entre goût et médecine» был приписан Julie
+# Andrieu, которая на самом деле автор соседней строки. Атрибуция обязана
+# оставаться в пределах своего элемента списка или абзаца; markdown-цитирование
+# «\n> Подпись» при этом разрешено — это законная подпись под цитатой.
+LIST_BREAK_RE = re.compile(r"\n\s*(?:[-*•]|\n)")
+
+
+def trim_window(text: str, allow_blockquote: bool = True) -> str:
+    """Обрезает окно по границе элемента списка или абзаца."""
+    out = []
+    i = 0
+    while i < len(text):
+        m = LIST_BREAK_RE.match(text, i)
+        if m:
+            rest = text[m.end():m.end() + 2]
+            if allow_blockquote and rest.startswith(">"):
+                i = m.end()
+                continue
+            break
+        out.append(text[i])
+        i += 1
+    return "".join(out)
+
+
 # Атрибуция, стоящая ПЕРЕД цитатой. Русская конструкция «сам Эрме называет свой
 # принцип просто: «…»» первым прогоном не находилась вовсе: сканер смотрел только
 # в окно после закрывающей кавычки. Это отдельный класс пропуска, а не редкость.
+# Порядок «глагол + имя»: «говорит Эрме: «…»»
 PRE_ATTR_RE = re.compile(
     r"(?:говорит|называет|пишет|отмечает|формулирует|объясняет|признаётся|заявляет|"
     r"подчёркивает|утверждает|рассказывает|по словам|как сказал[аи]?)\s+"
-    r"([A-ZА-ЯЁ][\w'’\-À-ÿ]{2,}(?:\s+[A-ZА-ЯЁ][\w'’\-À-ÿ]{2,})?)\s*[^«»]{0,60}?«",
+    r"([A-ZА-ЯЁ][\w'’\-À-ÿ]{2,}(?:\s+[A-ZА-ЯЁ][\w'’\-À-ÿ]{2,})?)\s*[^«»]{0,60}?$",
+    re.I,
+)
+
+# Порядок «имя + глагол»: «сам Пьер Эрме называет свой принцип просто: «…»».
+# Без этой ветки сканер пропускал ровно ту конструкцию, которая стояла в корпусе
+# (статья herme-biography), — и её нашли только чтением текста вручную.
+# Самопроверочный тест зафиксировал пропуск, что и было его назначением.
+VERBS = (r"говорит|называет|пишет|отмечает|формулирует|объясняет|признаётся|заявляет|"
+         r"подчёркивает|утверждает|рассказывает|сказал[аи]?|добавля[ею]т|счита[ею]т")
+PRE_ATTR_NAME_FIRST_RE = re.compile(
+    r"(?:сам[аи]?\s+)?([A-ZА-ЯЁ][\w'’\-À-ÿ]{2,}(?:\s+[A-ZА-ЯЁ][\w'’\-À-ÿ]{2,})?)"
+    r"\s+(?:" + VERBS + r")\b[^«»]{0,80}?$",
     re.I,
 )
 
@@ -83,6 +123,12 @@ PRE_ATTR_RE = re.compile(
 # fail-closed: проект не выдаёт это за собственный факт.
 HEDGE_RE = re.compile(
     r"по данным|согласно|по словам|как писал|как пишет|в интервью|в книге|в своей книге|"
+    # Письменная ссылка на конкретный документ принципиально отличается от устной
+    # речи: «Lebovitz пишет, что …» и «Le Petit Journal пишет: …» указывают на
+    # проверяемый текст, тогда как «Эрме говорит: …» не указывает ни на что.
+    # Первая версия списка содержала только «как пишет», из-за чего оба случая с
+    # письменной атрибуцией попадали в at-risk наравне с выдуманными цитатами.
+    r"(?:\w+)\s+пиш[ее]т[,\s:]|пиш[ее]т[,\s:]+\s*(?:что|это)?|в\s+(?:колонке|блоге|статье\s+для)|"
     r"по версии|по легенде|легенда гласит|утверждает|заявляет|подчёркивает|отмечает|"
     r"рассказал|рассказывает|цитиру|пересказ|изда(ние|тельств)о сообщает|"
     r"selon|d'après|explique|raconte|affirme|déclare",
@@ -141,6 +187,26 @@ SELFTEST_POSITIVE = [
     "Своим жиром миндаль его обволакивает",
     "Придумал я это в 2011 году",
 ]
+# Отрицательные примеры для ПАРИНГА атрибуции, а не только для первого лица:
+# заголовок материала не должен наследовать автора следующей строки списка.
+SELFTEST_PAIR_NEGATIVE = [
+    "- Université de Liège (Culture) — «Le blanc-manger, une histoire entre goût et "
+    "médecine: от средневековой диеты до миндального крема в современной кондитерской»\n"
+    "- Julie Andrieu — «Blanc-manger aux amandes de Jeanne»\n"
+    "- Ptitchef — «Blanc-manger au lait d'amande et coulis de fruits rouges»",
+]
+# Фикстуры обязаны быть не короче MIN_QUOTE, иначе проверяется не паринг
+# атрибуции, а порог длины. Первая версия этого теста была написана короткими
+# строками и провалилась 0/3 именно по этой причине — тест проверял не то.
+SELFTEST_PAIR_POSITIVE = [
+    "«Ревень — вкус моего детства. Здесь он идёт мармеладом, припущенным и сырым», "
+    "— говорит Эйцлер.",
+    "«Опера — это не просто торт, это геометрия вкуса. Толщина бисквита выверена "
+    "до миллиметра.»\n> Дом Dalloyau (Париж)",
+    "сам Пьер Эрме называет свой главный принцип просто: «Работай так, как будто тебя "
+    "никто не смотрит. Только тогда ты честен с продуктом».",
+]
+
 SELFTEST_NEGATIVE = [
     "Мороженое готовят из желтков и молока",
     "Момент охлаждения критичен",
@@ -151,28 +217,31 @@ SELFTEST_NEGATIVE = [
 ]
 
 
-def selftest() -> tuple[int, int]:
-    """Возвращает (число провалов на положительных, число на отрицательных)."""
+def selftest() -> tuple[list, list, list, list]:
+    """Провалы на положительных и отрицательных примерах обоих детекторов."""
     bad_pos = [s for s in SELFTEST_POSITIVE if not FIRST_PERSON_RE.search(s)]
     bad_neg = [s for s in SELFTEST_NEGATIVE if FIRST_PERSON_RE.search(s)]
-    return bad_pos, bad_neg
+    bad_pair_pos = [s for s in SELFTEST_PAIR_POSITIVE if not find_attributed(s)]
+    bad_pair_neg = [s for s in SELFTEST_PAIR_NEGATIVE
+                    if any(q["person"].lower().startswith("julie") for q in find_attributed(s))]
+    return bad_pos, bad_neg, bad_pair_pos, bad_pair_neg
 
 
 def looks_like_heading(name: str) -> bool:
-    """Отсеивает подписи, которые на деле — заголовки разделов в капслоке."""
+    """Отсеивает подписи, которые на деле — заголовки разделов в капслоке.
+
+    Единственный содержательный признак — доля заглавных букв: «ЛИЧИ», «БРЮЛЕ»,
+    «DÉTREMPE» набраны капслоком, а «Пьер Эрме» и «Эрме» — нет. Первая версия
+    функции содержала две дополнительные ветки «на всякий случай», и одна из них
+    браковала любое имя из двух слов, потому что пробелы из строки к тому моменту
+    уже были удалены. Лишние условия в фильтре не повышают точность, а ломают её.
+    """
     core = re.sub(r"[^\wÀ-ÿА-ЯЁа-яё'’\-]", "", name)
-    if not core:
+    letters = [c for c in core if c.isalpha()]
+    if not letters:
         return True
-    upper = sum(1 for c in core if c.isupper())
-    letters = sum(1 for c in core if c.isalpha())
-    if letters and upper / letters > 0.8:          # ЛИЧИ, БРЮЛЕ, DÉTREMPE
-        return True
-    if " " not in core and not any(c.islower() for c in core[:1]):
-        return False
-    # одно слово с заглавной буквы без фамилии — скорее заголовок, чем персона
-    if " " not in core.strip() and len(core) < 12 and not core[0].isupper():
-        return True
-    return False
+    upper = sum(1 for c in letters if c.isupper())
+    return upper / len(letters) > 0.8
 
 
 def article_ids() -> list[str]:
@@ -253,11 +322,15 @@ def find_attributed(text: str) -> list[dict]:
     res = []
     for m in QUOTE_RE.finditer(text):
         quote, end = m.group(1), m.end()
-        after = text[end:end + ATTR_WINDOW]
-        before = text[max(0, m.start() - ATTR_WINDOW):m.start()]
+        after = trim_window(text[end:end + ATTR_WINDOW])
+        # для окна ПЕРЕД цитатой граница ищется в обратном порядке: берём последний
+        # элемент списка/абзац перед открывающей кавычкой
+        raw_before = text[max(0, m.start() - ATTR_WINDOW):m.start()]
+        cuts = [mm.end() for mm in re.finditer(r"(?:\n\s*[-*•]\s*|\n\n)", raw_before)]
+        before = raw_before[cuts[-1]:] if cuts else raw_before
 
         who = None
-        pre = PRE_ATTR_RE.search(before)
+        pre = PRE_ATTR_RE.search(before) or PRE_ATTR_NAME_FIRST_RE.search(before)
         if pre:
             cand = pre.group(1).strip().rstrip(",.:;")
             if cand and not NON_PERSON_RE.match(cand) and len(cand) > 2:
@@ -317,15 +390,24 @@ def main() -> int:
     a = ap.parse_args()
 
     if a.selftest:
-        bad_pos, bad_neg = selftest()
+        bad_pos, bad_neg, bad_pair_pos, bad_pair_neg = selftest()
         for s in bad_pos:
-            print(f"НЕ распознано как 1-е лицо: {s}")
+            print(f"НЕ распознано как 1-е лицо: {s[:70]}")
         for s in bad_neg:
-            print(f"ложно распознано как 1-е лицо: {s}")
-        print(f"самопроверка: {len(SELFTEST_POSITIVE) - len(bad_pos)}/{len(SELFTEST_POSITIVE)} "
-              f"положительных, {len(SELFTEST_NEGATIVE) - len(bad_neg)}/{len(SELFTEST_NEGATIVE)} "
-              f"отрицательных")
-        return 1 if (bad_pos or bad_neg) else 0
+            print(f"ложно распознано как 1-е лицо: {s[:70]}")
+        for s in bad_pair_pos:
+            print(f"НЕ найдена атрибуция: {s[:70]}")
+        for s in bad_pair_neg:
+            print(f"атрибуция перескочила на следующий пункт списка: {s[:70]}")
+        ok1 = len(SELFTEST_POSITIVE) - len(bad_pos)
+        ok2 = len(SELFTEST_NEGATIVE) - len(bad_neg)
+        ok3 = len(SELFTEST_PAIR_POSITIVE) - len(bad_pair_pos)
+        ok4 = len(SELFTEST_PAIR_NEGATIVE) - len(bad_pair_neg)
+        print(f"самопроверка: 1-е лицо {ok1}/{len(SELFTEST_POSITIVE)} + "
+              f"{ok2}/{len(SELFTEST_NEGATIVE)}; "
+              f"атрибуция {ok3}/{len(SELFTEST_PAIR_POSITIVE)} + "
+              f"{ok4}/{len(SELFTEST_PAIR_NEGATIVE)}")
+        return 1 if (bad_pos or bad_neg or bad_pair_pos or bad_pair_neg) else 0
 
     ids = set(article_ids())
     if a.id:
