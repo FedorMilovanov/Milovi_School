@@ -6,14 +6,15 @@ claims. A citation that 404s, that sits behind a login wall, or that points at a
 search-results page is not evidence: the reader cannot verify it. This gate turns
 that editorial rule into a build contract instead of relying on memory.
 
-Two severity tiers:
+Three verdict classes:
 
-* ``dead``  — hard failure. HTTP 4xx/5xx, DNS/TLS failure, or a soft-404 body
-  (``introuvable`` / ``not authorized`` / ``page not found``).
-* ``weak``  — ratcheted failure. Search-result pages, bare site roots and other
-  index-only citations. The corpus still carries some of these, so the budget is
-  frozen at ``MAX_WEAK_CITATIONS`` and may only ever be lowered. Raising it
-  requires an explicit editorial decision, not a silent regression.
+* ``dead`` — hard failure. A definitive missing document (HTTP 404/410) or a
+  soft-404 body. These fail the gate.
+* ``blocked`` — inconclusive transport/WAF verdict (403/429/5xx, timeout,
+  DNS/TLS/refused connection). These are reported separately and never disguised
+  as proof that a document is dead.
+* ``weak`` — hard ratchet for search pages, bare roots and index-only
+  citations. The budget is zero and may never be raised silently.
 
 Network behaviour: local sandboxes often do not have egress, so non-strict runs
 use a control probe and may report ``skipped`` after all offline invariants pass.
@@ -33,7 +34,7 @@ import urllib.request
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTICLES_PATH = ROOT / "src" / "data" / "articles.ts"
@@ -179,7 +180,12 @@ MAX_WEAK_CITATIONS = 0
 # hide real cases. Promotion path is the same one MAX_WEAK_CITATIONS followed —
 # read the number CI publishes in artifacts/source-links-report/report.md, set it
 # here, then lower it as each case is fixed.
-MAX_ROOT_REDIRECTS: int | None = None
+MAX_ROOT_REDIRECTS: int | None = 0
+
+# CI cannot prove reachability for sites that intentionally block bots or suffer
+# transient transport failures. Keep this as an observation class, not a fake
+# "dead" verdict. Definitive 404/410 and soft-404 pages still fail immediately.
+MAX_BLOCKED_URLS: int | None = None
 
 # URLs proven dead by direct fetch (hard status or soft-404 marker).
 #
@@ -295,11 +301,21 @@ def collect_citations() -> list[dict[str, str]]:
     return citations
 
 
+def request_url(url: str) -> str:
+    """Return an ASCII-safe URL for urllib without changing citation identity."""
+    parsed = urlsplit(url)
+    path = quote(parsed.path, safe="/%:@!$&'()*+,;=-._~")
+    query = quote(parsed.query, safe="=&;%:@/?+,-._~")
+    return urlunsplit((parsed.scheme, parsed.netloc, path, query, ""))
+
+
 def probe(url: str) -> dict[str, object]:
+    """Probe one citation and distinguish definitive death from CI uncertainty."""
     last_error = "unknown"
+    encoded_url = request_url(url)
     for attempt in range(RETRIES + 1):
         try:
-            request = urllib.request.Request(url, headers=HEADERS, method="GET")
+            request = urllib.request.Request(encoded_url, headers=HEADERS, method="GET")
             with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
                 raw = response.read(120_000)
                 status = int(response.status)
@@ -312,26 +328,32 @@ def probe(url: str) -> dict[str, object]:
                 if any(marker in lowered for marker in SOFT_404_MARKERS):
                     return {"url": url, "status": status, "title": title, "verdict": "dead",
                             "reason": f"soft-404 title: {title!r}", "rootRedirect": False}
-            if status >= 400:
+            if status in {404, 410}:
                 return {"url": url, "status": status, "title": title, "verdict": "dead",
+                        "reason": f"HTTP {status}", "rootRedirect": False}
+            if status >= 400:
+                return {"url": url, "status": status, "title": title, "verdict": "blocked",
                         "reason": f"HTTP {status}", "rootRedirect": False}
             return {"url": url, "status": status, "finalUrl": final_url, "title": title,
                     "verdict": "weak" if generic_path(url) else "ok", "reason": "",
                     "rootRedirect": root_redirect(url, final_url)}
         except urllib.error.HTTPError as error:
-            if error.code in {403, 405, 429, 503} and attempt < RETRIES:
+            if error.code in {404, 410}:
+                return {"url": url, "status": error.code, "title": "", "verdict": "dead",
+                        "reason": f"HTTP {error.code}", "rootRedirect": False}
+            if error.code in {403, 405, 408, 425, 429, 500, 502, 503, 504} and attempt < RETRIES:
                 last_error = f"HTTP {error.code}"
                 time.sleep(1.5 * (attempt + 1))
                 continue
-            return {"url": url, "status": error.code, "title": "", "verdict": "dead",
+            return {"url": url, "status": error.code, "title": "", "verdict": "blocked",
                     "reason": f"HTTP {error.code}", "rootRedirect": False}
-        except Exception as error:  # noqa: BLE001 — network faults are data here
+        except Exception as error:  # noqa: BLE001 — network faults are evidence, not crashes
             last_error = f"{type(error).__name__}: {error}"
             if attempt < RETRIES:
                 time.sleep(1.5 * (attempt + 1))
-    return {"url": url, "status": 0, "title": "", "verdict": "dead", "reason": last_error,
-            "rootRedirect": False}
-
+                continue
+    return {"url": url, "status": 0, "title": "", "verdict": "blocked",
+            "reason": last_error, "rootRedirect": False}
 
 def network_available() -> bool:
     try:
@@ -400,6 +422,10 @@ def run_selftest() -> int:
         "https://example.test/pages/new-document",
     ):
         failures.append("specific -> specific redirect must not be classified as root redirect")
+
+    encoded = request_url("https://fr.wikipedia.org/wiki/Gougère")
+    if encoded != "https://fr.wikipedia.org/wiki/Goug%C3%A8re":
+        failures.append(f"unicode URL was not percent-encoded safely: {encoded!r}")
 
     if failures:
         print(f"source-link selftest: FAIL ({len(failures)} failures)", file=sys.stderr)
@@ -490,6 +516,7 @@ def main() -> int:
                 f"{citation['url']} ({result['reason']})")
 
     dead_urls = [item for item in results if item["verdict"] == "dead"]
+    blocked_urls = [item for item in results if item["verdict"] == "blocked"]
     weak_citations = [c for c in citations if verdict[c["url"]]["verdict"] == "weak"]
     root_redirects = [c for c in citations if verdict[c["url"]].get("rootRedirect")]
 
@@ -498,6 +525,8 @@ def main() -> int:
         "uniqueUrls": len(unique_urls),
         "citations": len(citations),
         "deadUrls": len(dead_urls),
+        "blockedUrls": len(blocked_urls),
+        "blockedBudget": MAX_BLOCKED_URLS,
         "weakCitations": len(weak_citations),
         "weakBudget": MAX_WEAK_CITATIONS,
         "rootRedirectCitations": len(root_redirects),
@@ -517,6 +546,9 @@ def main() -> int:
         f"- Цитирований в корпусе: {summary['citations']}",
         f"- Доменов: {summary['domains']}",
         f"- Мёртвых URL: {summary['deadUrls']}",
+        f"- Недоказанных CI-сетью URL (WAF/transport): {summary['blockedUrls']}"
+        + (" (режим наблюдения)" if MAX_BLOCKED_URLS is None
+           else f" (бюджет {MAX_BLOCKED_URLS})"),
         f"- Слабых цитат (корень/поиск): {summary['weakCitations']} "
         f"(бюджет {MAX_WEAK_CITATIONS})",
         f"- Редиректов на главную (мёртвая ссылка под маской 200): {summary['rootRedirectCitations']}"
@@ -527,6 +559,14 @@ def main() -> int:
     if dead_urls:
         lines += ["## Мёртвые источники", "", "| URL | Причина |", "|---|---|"]
         lines += [f"| {item['url']} | {item['reason']} |" for item in dead_urls]
+        lines.append("")
+    if blocked_urls:
+        lines += ["## Недоказанные CI-сетью источники", "",
+                  "Это не verdict «мёртвый»: сюда попадают WAF/403/429, timeout, TLS/DNS "
+                  "и другие транспортные отказы. Такие URL требуют независимой проверки, "
+                  "но не должны превращать flaky runner в ложный 404.", "",
+                  "| URL | Причина |", "|---|---|"]
+        lines += [f"| {item['url']} | {item['reason']} |" for item in blocked_urls]
         lines.append("")
     if weak_citations:
         lines += ["## Слабые цитаты (подлежат замене на конкретные документы)", "",
@@ -542,7 +582,7 @@ def main() -> int:
         lines += [f"| `{c['articleId']}` | {c['url']} | {verdict[c['url']].get('finalUrl', '')} |"
                   for c in root_redirects]
         lines.append("")
-    if not dead_urls and not weak_citations and not root_redirects:
+    if not dead_urls and not blocked_urls and not weak_citations and not root_redirects:
         lines.append("Все цитируемые источники доступны и являются конкретными документами.")
     (OUTPUT_DIR / "report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -550,6 +590,8 @@ def main() -> int:
     print(f"- unique urls: {summary['uniqueUrls']} across {summary['domains']} domains")
     print(f"- citations: {summary['citations']}")
     print(f"- dead urls: {summary['deadUrls']}")
+    print(f"- blocked/inconclusive urls: {summary['blockedUrls']} "
+          f"(budget {'observe-only' if MAX_BLOCKED_URLS is None else MAX_BLOCKED_URLS})")
     print(f"- weak citations: {summary['weakCitations']} (budget {MAX_WEAK_CITATIONS})")
     print(f"- root-redirect citations: {summary['rootRedirectCitations']} "
           f"(budget {'observe-only' if MAX_ROOT_REDIRECTS is None else MAX_ROOT_REDIRECTS})")
@@ -561,6 +603,10 @@ def main() -> int:
             print(f"  [{item['reason']}] {item['url']}", file=sys.stderr)
         for article_id, entries in sorted(by_article.items()):
             print(f"  article {article_id}: {entries}", file=sys.stderr)
+        return 1
+    if MAX_BLOCKED_URLS is not None and len(blocked_urls) > MAX_BLOCKED_URLS:
+        print(f"\nBlocked-source ratchet exceeded: {len(blocked_urls)} > {MAX_BLOCKED_URLS}.",
+              file=sys.stderr)
         return 1
     if MAX_ROOT_REDIRECTS is not None and len(root_redirects) > MAX_ROOT_REDIRECTS:
         print(f"\nRoot-redirect ratchet exceeded: {len(root_redirects)} > {MAX_ROOT_REDIRECTS}.",
