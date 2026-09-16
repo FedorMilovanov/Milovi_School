@@ -80,7 +80,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [CinqSens Paris](https://cinqsensparis.com/)
+- [Paris-Brest au praliné noisette maison — CinqSens / Николя Пачелло: описание конструкции от самого магазина — pâte à choux, наполненная нежным кремом на фундучном пралине, с текучим сердцем из домашнего praliné noisette и кусочками обжаренного фундука; 28,00 €, страница несёт собственную продуктовую JSON-LD-разметку продавца CinqSens](https://cinqsensparis.com/products/Paris-Brest-au-praline-noisette-maison-p602602224)
 - [Nicolas Paciello — profil](https://frenchefs.fr/nicolas-paciello)
 - [INAO — Indication géographique protégée: définition, Code rural L641-11, Règlement (UE) 2024/1143](https://www.inao.gouv.fr/igp-indication-geographique-protegee)`,
   'ansel-cronut-origin': `## Изобретение как длинный производственный тест
@@ -101,7 +101,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [Dominique Ansel Bakery](https://www.dominiqueansel.com/)
+- [Chef — Dominique Ansel: первоисточник происхождения Cronut от самого автора — лауреат James Beard Award; Cronut назван журналом TIME в числе «25 лучших изобретений 2013 года»; запущен в мае 2013 года в его собственной пекарне в Нью-Йорке и стал первой в мире «вирусной» выпечкой; на доводку ушло два месяца и более десяти различных рецептур; это не просто обжаренное круассанное тесто — ламинированное тесто напоминает круассан, но сделано по собственной рецептуре, сначала расстаивается, затем обжаривается в виноградном масле при конкретной температуре; после жарки каждый Cronut 1) обваливают в сахаре, 2) наполняют кремом и 3) покрывают глазурью, и весь процесс занимает три дня; продаётся только в Dominique Ansel Bakery в Нью-Йорке, Лондоне и Лос-Анджелесе, вкус меняется каждый месяц и никогда не повторяется; рядом — DKA (Dominique's Kouign Amann), madeleines по заказу и Dominique Ansel Workshop, открытый в июле 2021 года как круассанная стойка внутри его кухонь в Flatiron](https://www.dominiqueansel.com/chef/)
 - [Dominique Ansel — books and tutorials](https://www.dominiqueansel.com/books/)
 - [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)`,
   'michalak-fantastik': `## Низкий профиль меняет вкус

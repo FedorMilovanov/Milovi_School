@@ -128,7 +128,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Nicolas Paciello — site officiel](https://nicolaspaciello.com/)
+- [Paris-Brest au praliné noisette maison — CinqSens / Николя Пачелло: описание конструкции от самого магазина — pâte à choux, наполненная нежным кремом на фундучном пралине, с текучим сердцем из домашнего praliné noisette и кусочками обжаренного фундука; 28,00 €, страница несёт собственную продуктовую JSON-LD-разметку продавца CinqSens](https://cinqsensparis.com/products/Paris-Brest-au-praline-noisette-maison-p602602224)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Paris-Brest](https://philippeconticini.fr/pages/paris-brest)

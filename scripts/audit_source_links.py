@@ -119,7 +119,19 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # articles keep /univers on purpose - no verified deep page exists for them, and a
 # wrong citation is worse than a weak one.
 # Re-measured after wave 4 batch 9: 19 weak citations out of 563.
-MAX_WEAK_CITATIONS = 19
+# Lowered again (wave 4, batch 10): the two Ansel articles move off the site root
+# onto dominiqueansel.com/chef/, which is the primary account of the Cronut in the
+# author's own words - two months and more than ten recipes to perfect it, laminated
+# dough on a proprietary recipe rather than fried croissant dough, proofed then
+# fried in grapeseed oil at a specific temperature, rolled in sugar, filled and
+# glazed, three days end to end, flavour changing monthly and never repeating - and
+# also covers the post-Cronut line (DKA, made-to-order madeleines, the July 2021
+# Workshop). The two Paciello articles move off nicolaspaciello.com and the
+# CinqSens root onto the shop's own Paris-Brest product page, which states the
+# praline construction: choux pastry, hazelnut praline cream, a flowing homemade
+# praline heart and pieces of roasted hazelnut.
+# Re-measured after wave 4 batch 10: 15 weak citations out of 563.
+MAX_WEAK_CITATIONS = 15
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
