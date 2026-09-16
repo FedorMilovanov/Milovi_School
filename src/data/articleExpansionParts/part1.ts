@@ -181,6 +181,6 @@ Macaron является скоропортящимся продуктом. Ук
 
 - [Maison Pierre Hermé Paris — histoire et positionnement](https://www.pierreherme.com/fr/univers-maison-pierre-herme-paris)
 - [Pierre Hermé — coffret de 12 macarons](https://www.pierreherme.com/fr/macarons/coffrets-collection/coffret-de-12-macarons.html)
-- [Pierre Hermé — coffret de 24 macarons](https://www.pierreherme.com/fr/macarons.html)
+- [Pierre Hermé — catalogue macarons, coffret de 24 listé](https://www.pierreherme.com/fr/macarons.html)
 - [Maison Ladurée — collection de macarons](https://www.laduree.fr/l-ete-chez-laduree.html)`,
 })

@@ -17,7 +17,7 @@ Dalloyau связывает создание Opéra с Сириаком Гави
 
 ## Французские источники и первичные материалы
 
-- [L’Opéra](https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf)
+- [Dalloyau — L’Opéra 1955, catalogue professionnel](https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Crème au beurre](https://www.academiedugout.fr/recettes/creme-au-beurre_327_2)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,
