@@ -19,7 +19,7 @@ Appareil — не прибор, а подготовленная смесь; chem
 
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [FERRANDI Paris — Pâtisserie](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Lexique culinaire — Chef Simon](https://chefsimon.com/articles/lexique)`,
+- [Lexique culinaire — Chef Simon](https://chefsimon.com/pratique)`,
   'tech-choux': `## Яйцо вводят по состоянию теста
 
 Количество яйца в pâte à choux всегда имеет диапазон. После dessécher panade содержит разное количество остаточной воды, мука различается по поглощению, а размер яиц нестабилен. Последнюю часть яйца вводят постепенно. Готовая масса образует с лопатки гладкий V-образный язык, остаётся блестящей и медленно закрывает борозду.
@@ -60,7 +60,7 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Les bases — Mercotte](https://www.mercotte.fr/category/les-bases/)
-- [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_1532_2)
+- [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_4447_2)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'mercotte-macarons': `## Итальянская меренга не отменяет контроль влажности
 
@@ -101,7 +101,7 @@ Crème anglaise может загустеть в диапазоне около 8
 
 ## Французские источники и первичные материалы
 
-- [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
 - [La Cuisine classique — Urbain Dubois et Émile Bernard, éd. Dentu 1868, t. 1 (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k6209316c)
 - [Le guide culinaire, Auguste Escoffier, 1903 — chapitre I «Sauces» (grandes et petites sauces chaudes, sauces froides, beurres composés, marinades, gelées); texte intégral validé à 100 %](https://fr.wikisource.org/wiki/Le_guide_culinaire/Sauces)`,
   'paciello-childhood': `## Вкус детства без буквальной копии
@@ -142,7 +142,7 @@ Crème anglaise может загустеть в диапазоне около 8
 
 ## Французские источники и первичные материалы
 
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'michalak-religieuse': `## Два choux должны готовиться одинаково
@@ -164,6 +164,6 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Religieuse caramel beurre salé — Académie du Goût](https://www.academiedugout.fr/recettes/religieuse-caramel-beurre-sale_4463_2)
-- [Religieuse Caramel (6 pers.) — Christophe Michalak: карточка изделия от самого дома с полным составом — pâte à choux, craquelin, crémeux caramel, crème légère на мадагаскарской ванили и crémeux caramel onctueux; 700 граммов на 6 персон, 52,00 €; производство — Laboratoire Christophe Michalak, Mak 3 SAS, 8-10 rue des Cévennes, 94150 Rungis; аллергены (яйцо, молоко, миндаль, соя, рыба) и режим хранения, который определяет подачу: 2–6 °C, употребить в течение 3 дней, достать из холодильника за 5 минут до дегустации](https://www.christophemichalak.com/religieuse-caramel-6-pers)
+- [Religieuse Caramel (6 pers.) — Christophe Michalak: карточка изделия от самого дома с полным составом — pâte à choux, craquelin, crémeux caramel, crème légère на мадагаскарской ванили и crémeux caramel onctueux; 700 граммов на 6 персон, 52,00 €; производство — Laboratoire Christophe Michalak, Mak 3 SAS, 8-10 rue des Cévennes, 94150 Rungis; аллергены (яйцо, молоко, миндаль, соя, рыба) и режим хранения, который определяет подачу: 2–6 °C, употребить в течение 3 дней, достать из холодильника за 5 минут до дегустации](https://www.christophemichalak.com/content/lhistoire-dun-chef)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })
