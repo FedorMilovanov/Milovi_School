@@ -183,6 +183,12 @@ MAX_ROOT_REDIRECTS: int | None = 0
 # "dead" verdict. Definitive 404/410 and soft-404 pages still fail immediately.
 MAX_BLOCKED_URLS: int | None = None
 
+# A strict run must produce enough actual network evidence to mean anything.
+# Individual WAF/transport failures are not "dead", but a runner where most URLs
+# are blocked is not a valid liveness witness either. The first full pass was
+# ~13% blocked, so 35% leaves wide anti-bot headroom while failing systemic egress.
+MAX_BLOCKED_FRACTION_FOR_STRICT = 0.35
+
 # URLs proven dead by direct fetch (hard status or soft-404 marker).
 #
 # This list exists because the probe below cannot run without egress: main()
@@ -387,6 +393,13 @@ def probe(url: str) -> dict[str, object]:
     return {"url": url, "status": 0, "title": "", "verdict": "blocked",
             "reason": last_error, "rootRedirect": False}
 
+def strict_network_coverage_sufficient(total: int, blocked: int) -> bool:
+    """Require strict CI to obtain conclusive evidence for most of the corpus."""
+    if total <= 0:
+        return False
+    return (blocked / total) <= MAX_BLOCKED_FRACTION_FOR_STRICT
+
+
 def network_available() -> bool:
     try:
         request = urllib.request.Request(CONTROL_URL, headers=HEADERS, method="HEAD")
@@ -458,6 +471,13 @@ def run_selftest() -> int:
     encoded = request_url("https://fr.wikipedia.org/wiki/Gougère")
     if encoded != "https://fr.wikipedia.org/wiki/Goug%C3%A8re":
         failures.append(f"unicode URL was not percent-encoded safely: {encoded!r}")
+
+    if not strict_network_coverage_sufficient(330, 44):
+        failures.append("observed 44/330 blocked corpus should retain sufficient evidence")
+    if strict_network_coverage_sufficient(330, 200):
+        failures.append("systemic 200/330 blocked corpus must fail strict evidence coverage")
+    if strict_network_coverage_sufficient(0, 0):
+        failures.append("empty strict probe must not count as sufficient network evidence")
 
     if failures:
         print(f"source-link selftest: FAIL ({len(failures)} failures)", file=sys.stderr)
@@ -559,6 +579,8 @@ def main() -> int:
         "deadUrls": len(dead_urls),
         "blockedUrls": len(blocked_urls),
         "blockedBudget": MAX_BLOCKED_URLS,
+        "blockedFraction": (len(blocked_urls) / len(unique_urls)) if unique_urls else 1.0,
+        "strictBlockedFractionLimit": MAX_BLOCKED_FRACTION_FOR_STRICT,
         "weakCitations": len(weak_citations),
         "weakBudget": MAX_WEAK_CITATIONS,
         "rootRedirectCitations": len(root_redirects),
@@ -581,6 +603,8 @@ def main() -> int:
         f"- Недоказанных CI-сетью URL (WAF/transport): {summary['blockedUrls']}"
         + (" (режим наблюдения)" if MAX_BLOCKED_URLS is None
            else f" (бюджет {MAX_BLOCKED_URLS})"),
+        f"- Доля blocked: {summary['blockedFraction']:.1%}; "
+        f"strict-предел достаточности сети: {MAX_BLOCKED_FRACTION_FOR_STRICT:.0%}",
         f"- Слабых цитат (корень/поиск): {summary['weakCitations']} "
         f"(бюджет {MAX_WEAK_CITATIONS})",
         f"- Редиректов на главную (мёртвая ссылка под маской 200): {summary['rootRedirectCitations']}"
@@ -624,6 +648,8 @@ def main() -> int:
     print(f"- dead urls: {summary['deadUrls']}")
     print(f"- blocked/inconclusive urls: {summary['blockedUrls']} "
           f"(budget {'observe-only' if MAX_BLOCKED_URLS is None else MAX_BLOCKED_URLS})")
+    print(f"- blocked fraction: {summary['blockedFraction']:.1%} "
+          f"(strict network-evidence limit {MAX_BLOCKED_FRACTION_FOR_STRICT:.0%})")
     print(f"- weak citations: {summary['weakCitations']} (budget {MAX_WEAK_CITATIONS})")
     print(f"- root-redirect citations: {summary['rootRedirectCitations']} "
           f"(budget {'observe-only' if MAX_ROOT_REDIRECTS is None else MAX_ROOT_REDIRECTS})")
@@ -635,6 +661,17 @@ def main() -> int:
             print(f"  [{item['reason']}] {item['url']}", file=sys.stderr)
         for article_id, entries in sorted(by_article.items()):
             print(f"  article {article_id}: {entries}", file=sys.stderr)
+        return 1
+    if args.require_network and not strict_network_coverage_sufficient(
+        len(unique_urls), len(blocked_urls)
+    ):
+        print(
+            f"\nStrict network evidence insufficient: {len(blocked_urls)}/{len(unique_urls)} "
+            f"URLs blocked/inconclusive ({summary['blockedFraction']:.1%}) exceeds "
+            f"{MAX_BLOCKED_FRACTION_FOR_STRICT:.0%}. This is a runner/egress failure, "
+            "not a content verdict; rerun only after network evidence is meaningful.",
+            file=sys.stderr,
+        )
         return 1
     if MAX_BLOCKED_URLS is not None and len(blocked_urls) > MAX_BLOCKED_URLS:
         print(f"\nBlocked-source ratchet exceeded: {len(blocked_urls)} > {MAX_BLOCKED_URLS}.",
