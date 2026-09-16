@@ -161,7 +161,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Nina Métayer — Délicatisserie](https://delicatisserie.com/)
+- [Boutique — Délicatisserie / Nina Métayer: структурированный репертуар дома по коллекциям, по которому видно, что именно она печёт, — «Créations de saison» (Fraisier, тарт с клубникой и мятой, Inspiration Sobacha, тарт с малиной и цветком красного перца, Tropézienne), «Les intemporelles» (Saint-Honoré, чизкейк, тарт лимонный меренговый, шоколадный тарт, flan на компанию, дегустационный набор из четырёх деликатесов), «Gâteaux de voyage» (moelleux с красными ягодами и умэбоси-кунжутом, Tigré, мармурный кекс, палье с корицей, Petit galopin, Brookie, печенье с фисташкой и с фундуком) и «Chocolat & bonbons» (Capucine, Coquelicot, Chocolate Daisy, Hollyhock, леденцы, кремовая карамель с fleur de sel, намазка пралине-фисташка, хрустящая намазка, набор из трёх банок, фундук и миндаль в шоколаде, хрустящий батончик с карамелизованным фундуком)](https://delicatisserie.com/en/shop/)
 - [Nina Métayer — portrait](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/portraits-de-chefs)
 - [Valrhona — Les Essentiels: Finishing Touches](https://essentials.valrhona.com/category/9)`,
 })

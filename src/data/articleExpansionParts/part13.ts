@@ -38,7 +38,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [La Pâtisserie Cyril Lignac](https://lapatisseriecyrillignac.com/)
+- [Shops — La Pâtisserie Cyril Lignac: полный перечень точек дома с адресами, телефонами и часами, то есть документальное подтверждение «соседского» масштаба, о котором статья, — La Pâtisserie Chaillot (2 rue de Chaillot, 75016 Paris, хлеб, выпечка и шоколад, маршмеллоу-мишки и пралиновые мишки на составление), La Chocolaterie (25 rue Chanzy, 75011 Paris, с зоной дегустации), Galeries Lafayette Le Gourmet (35 boulevard Haussmann, 75009 Paris) и точка на 55 boulevard Pasteur, 75015 Paris, плюс La Pâtisserie Saint-Tropez (66 Route des Plages, 83990) и Saint-Tropez Village (1 rue de l'Annonciade); часы различаются по точкам — от 7:00–21:00 ежедневно до 10:00–19:30 со вторника по пятницу, с указанием дат августовского закрытия](https://lapatisseriecyrillignac.com/en/shops)
 - [Cyril Lignac — Académie du Goût](https://www.academiedugout.fr/chefs/cyril-lignac_1)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'felder-alsace': `## Региональная линия — это набор технологий

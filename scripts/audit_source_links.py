@@ -157,7 +157,17 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # technique at all.
 # Re-measured after wave 4 batch 12: 7 weak citations out of 565, of which 1 is a
 # search-result page (caramel tendre).
-MAX_WEAK_CITATIONS = 7
+# Lowered again (wave 4, batch 13): the last two roots that had a genuinely apt
+# deep page. lignac-patisserie-shop takes the house's own Shops page, which lists
+# every outlet with address, phone and differing opening hours - the documentary
+# evidence for the "neighbourhood scale" the article argues - rather than the site
+# root. metayer-secrets takes the Boutique page, which structures Nina Metayer's
+# repertoire by collection (seasonal, timeless, travel cakes, chocolate and
+# candies) and names the actual pastries, instead of a bare domain.
+# Both targets were checked against generic_path() before use, not assumed.
+# Re-measured after wave 4 batch 13: 5 weak citations out of 565, of which 1 is a
+# search-result page (caramel tendre).
+MAX_WEAK_CITATIONS = 5
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
