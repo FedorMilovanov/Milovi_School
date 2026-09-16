@@ -43,6 +43,12 @@ TRUSTED_DOMAINS = {
     "poilane.com", "latartetropezienne.fr", "editions-larousse.fr",
     "theworlds50best.com", "jamesbeard.org", "bbc.com",
     "cuisineactuelle.fr", "cultures-sucre.com", "visit.alsace",
+    # Первоисточник прямой речи: интервью Пьера Эрме в Notre Temps (декабрь 2022),
+    # данное по случаю выхода его автобиографии в Buchet-Chastel. Пресса в списке
+    # уже представлена (bbc.com, cuisineactuelle.fr), поэтому это не размывание
+    # критерия, а его продолжение: интервью в крупном издании — документированная
+    # прямая речь человека, то есть именно то, чем заменяются непроверяемые цитаты.
+    "notretemps.com",
     # Официальные первоисточники статуса наименований: вопрос Сената и сайт
     # союза производителей calisson (UFCA) — держателя проекта cahier des charges.
     "senat.fr", "aixcalisson.fr",

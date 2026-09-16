@@ -94,6 +94,7 @@ Mogador соединяет молочный шоколад и маракуйю: 
 Такая карта позволяет сравнить авторские изделия без субъективного «вкусно»: видно, какой компонент открывает композицию, какой удерживает середину и какой завершает её.
 
 ## Французские источники и первичные материалы
+- [Pierre Hermé: «Je ne fais aucune concession au plaisir» — Notre Temps (11 декабря 2022): интервью по случаю выхода автобиографии «Toutes les saveurs de la vie, l'odyssée d'un pâtissier de génie» (Buchet-Chastel); единственный найденный первоисточник с прямой речью Эрме о его правиле удовольствия и о том, что «la pâtisserie évolue en même temps que la société»](https://www.notretemps.com/vie-pratique/cuisine/pierre-herme-je-ne-fais-aucune-concession-au-plaisir-59523)
 
 - [Macaron Mogador](https://www.academiedugout.fr/recettes/macaron-mogador_1121_2)
 - [Ispahan](https://www.academiedugout.fr/recettes/ispahan_1111_2)
@@ -119,6 +120,7 @@ Ispahan показывает работу с устойчивой вкусово
 - [Pierre Hermé — World's Best Pastry Chef by the World's 50 Best Restaurants Academy (16 июня 2016): церемония в Нью-Йорке, академия из 972 экспертов с пяти континентов, тайное голосование по 7 ресторанам из 27 регионов; предыдущие лауреаты — Жорди Рока (El Celler de Can Roca) 2014 и Альбер Адриа (Tickets, Барселона) 2015](https://www.francothaicc.com/actualites/past-events/n/news/pierre-herme-receives-the-title-of-worlds-best-pastry-chef-by-the-worlds-50-best-restaurants-acade.html)
 - [Pierre Hermé — Wikipedia: биографическая канва, по которой сверялись годы, — родился 20 ноября 1961 года, ученичество у Гастона Ленотра с 14 лет, титул World's Best Pastry Chef 2016 от The World's 50 Best Restaurants, Chevalier de la Légion d'honneur от Жака Ширака в мае 2007 года, звание самого молодого Pastry Chef of the Year во Франции и единственный кондитер — Chevalier des Arts et des Lettres](https://en.wikipedia.org/wiki/Pierre_Herm%C3%A9)
 - [The World's Best Pastry Chef Award — список лауреатов The World's 50 Best Restaurants: Пьер Эрме 2016, Доминик Ансель 2017, Седрик Гроле 2018, Джессика Пральпато 2019, Уилл Голдфарб 2021, Максим Фредерик 2025 — документ, показывающий, что в 2011 году такой номинации не существовало](https://www.the50.com/restaurants/best-in-the-world/awards/best-pastry-chef.html)
+- [Pierre Hermé: «Je ne fais aucune concession au plaisir» — Notre Temps (11 декабря 2022): интервью по случаю выхода автобиографии «Toutes les saveurs de la vie, l'odyssée d'un pâtissier de génie» (Buchet-Chastel); единственный найденный первоисточник с прямой речью Эрме о его правиле удовольствия и о том, что «la pâtisserie évolue en même temps que la société»](https://www.notretemps.com/vie-pratique/cuisine/pierre-herme-je-ne-fais-aucune-concession-au-plaisir-59523)
 
 - [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
