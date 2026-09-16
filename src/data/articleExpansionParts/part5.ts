@@ -198,7 +198,7 @@ Tarte Bourdaloue связывают с парижской улицей и кон
 
 - [BnF — Antonin Carême, L’art de la cuisine française au XIXe siècle](https://catalogue.bnf.fr/ark:/12148/cb357291124)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
-- [Le Ménagier de Paris](https://gallica.bnf.fr/selections/fr/html/litteratures/les-classiques-de-la-litterature-du-moyen-age)
+- [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
 })

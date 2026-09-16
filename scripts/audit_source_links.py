@@ -230,6 +230,9 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
     "https://www.theworlds50best.com/stories/News/nina-metayer-worlds-best-pastry-chef-2023.html",
     "https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/le-temperage-du-chocolat",
     "https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html",
+    "https://gallica.bnf.fr/selections/fr/html/litteratures/les-classiques-de-la-litterature-du-moyen-age",
+    "https://www.dalloyau.fr/img/st-menu/11.pdf",
+    "https://www.pierreherme.com/fr/coffret-de-24-macarons.html",
 })
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")

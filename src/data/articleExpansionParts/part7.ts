@@ -82,7 +82,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [L’Opéra](https://www.dalloyau.fr/img/st-menu/11.pdf)
+- [L’Opéra](https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
@@ -178,7 +178,7 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 ## Французские источники и первичные материалы
 
-- [Le Ménagier de Paris](https://gallica.bnf.fr/selections/fr/html/litteratures/les-classiques-de-la-litterature-du-moyen-age)
+- [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Patrimoine gourmand numérisé](https://www.bnf.fr/fr/mediatheque/la-table-de-gallica-le-patrimoine-gourmand-numerise)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
