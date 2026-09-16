@@ -165,6 +165,6 @@ Crème anglaise может загустеть в диапазоне около 8
 ## Французские источники и первичные материалы
 
 - [Religieuse caramel beurre salé — Académie du Goût](https://www.academiedugout.fr/recettes/religieuse-caramel-beurre-sale_4463_2)
-- [Christophe Michalak — site officiel](https://christophemichalak.com/)
+- [Religieuse Caramel (6 pers.) — Christophe Michalak: карточка изделия от самого дома с полным составом — pâte à choux, craquelin, crémeux caramel, crème légère на мадагаскарской ванили и crémeux caramel onctueux; 700 граммов на 6 персон, 52,00 €; производство — Laboratoire Christophe Michalak, Mak 3 SAS, 8-10 rue des Cévennes, 94150 Rungis; аллергены (яйцо, молоко, миндаль, соя, рыба) и режим хранения, который определяет подачу: 2–6 °C, употребить в течение 3 дней, достать из холодильника за 5 минут до дегустации](https://www.christophemichalak.com/religieuse-caramel-6-pers)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

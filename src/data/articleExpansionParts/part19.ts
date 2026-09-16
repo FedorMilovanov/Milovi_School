@@ -80,7 +80,7 @@ export const articleExpansionPart19: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Calissons d’Aix — Mercotte](https://www.mercotte.fr/2010-01-13/les-calissons-d-aix-maison/)
-- [Calisson d’Aix — Confiserie du Roy René](https://www.calisson.com/)
+- [L'origine du calisson d'Aix : légendes et histoire — Confiserie du Roy René: развёрнутый первоисточник дома, который эту историю и рассказывает, — силуэт удлинённого ромба, blond-паста из миндаля и засахаренной дыни, белоснежная glace royale; две соперничающие легенды (свадьба короля Рене Анжуйского с Жанной де Лаваль в 1454 году и этимология «Venez au calice»); средиземноморные корни и критские kalitsounia как дальний родственник; Экс как столица калиссона минимум с XIX века и место в 13 провансальских рождественских десертах между белой и чёрной нугой; и главное — «формула третей»: треть миндаля, треть засахаренной дыни, треть сахарного сиропа, паста на тонком листе hostie и glace royale на яичном белке, гладкая и матовая; калиссонье Roy René работают с 1920 года](https://www.calisson.com/blog/lorigine-du-calisson-daix-legendes-et-histoire/)
 - [UFCA — Projet IGP «Calissons d’Aix-en-Provence»](https://www.aixcalisson.fr/projet-igp/)
 - [INAO — реестр продуктов под SIQO: проверка наличия cahier des charges](https://www.inao.gouv.fr/rechercher-un-produit)
 - [Sénat — question orale n° 1572S, défense de l’appellation «calisson d’Aix-en-Provence»](https://www.senat.fr/questions/base/2016/qSEQ16111572S.html)`,
@@ -144,8 +144,8 @@ Marron glacé нельзя получить одной сильной варко
 
 ## Французские источники и первичные материалы
 
-- [Marrons glacés — Académie du Goût](https://www.academiedugout.fr/recherche?q=marrons%20glac%C3%A9s)
-- [Clément Faugier](https://www.clementfaugier.fr/)
+- [Marrons Glacés Gros Cassés Frais — Clément Faugier: продуктовая страница дома, который и есть первоисточник темы, — «уже более 140 лет дом Clément Faugier прославляет ардешский каштан в своей знаменитой crème de marrons и в своих marrons glacés»; ballotin 300 г](https://www.clementfaugier.fr/fr/detail_produit?produit=20)
+- [Marrons Confits Brisés au Sirop — Clément Faugier: документ, описывающий ровно ту стадию, на которой конфисаж отделён от глазуровки, — после вскрытия коробки неиспользованные обломки каштанов держат в сиропе, где они сохраняются в холодильнике несколько недель, и глазируют позже, по мере надобности; металлическая коробка 700 г](https://www.clementfaugier.fr/fr/detail_produit?produit=60)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-au-chocolat': `## Ганаш должен соответствовать толщине тарта
 

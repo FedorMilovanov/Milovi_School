@@ -143,7 +143,21 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # click-and-collect page, which lists the layer-by-layer construction of each
 # sculpted fruit, and a single-fruit card that names the fruit's origin.
 # Re-measured after wave 4 batch 11: 12 weak citations out of 565.
-MAX_WEAK_CITATIONS = 12
+# Lowered again (wave 4, batch 12): Michalak's religieuse and chocolate/salt
+# articles move onto the maison's own product cards (the Religieuse Caramel card
+# gives the full composition, the 700 g weight, the Rungis laboratory address and
+# the 2-6C / 3-day / 5-minute service rule); recipe-calisson gains the Roy Rene
+# house history with the "formule des tiers" and the 1454 and 1920 dates; and
+# recipe-marrons-glaces closes BOTH of its weak citations with two distinct
+# Clement Faugier documents - the marrons glaces product card stating 140 years of
+# the Ardeche chestnut, and the marrons confits au sirop card, which is the only
+# source in the corpus that separates the confisage stage from the glacage stage
+# and says the pieces are kept in syrup for weeks and glazed later. That also
+# removes the last search-result page for a topic where Meilleur du Chef has no
+# technique at all.
+# Re-measured after wave 4 batch 12: 7 weak citations out of 565, of which 1 is a
+# search-result page (caramel tendre).
+MAX_WEAK_CITATIONS = 7
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
