@@ -98,7 +98,8 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
-- [Cédric Grolet Opéra](https://cedric-grolet.com/)
+- [Cédric Grolet Le Meurice — Click & Collect: послойная конструкция каждой скульптурной фигуры в его собственной редакции, то есть ровно то, из чего статья складывает «правдоподобие», — Fresh Mango (манговое желе, взбитые сливки с ванилью, конфи из манго на ванили, бисквит с манго), Red Apple (текучее сердце из красного яблока с ванилью, ванилевое пралине-крустийан на бретонском сабле, ванилевый мусс), Cocoa Pod (текучее сердце какао-ваниль, кремо какао-ваниль, пралине-крустийан с fleur de sel), Mango Tart (песочная основа, миндальный крем, жареное манго, джем манго-ваниль, текучее сердце, мусс из манго) и Mix Nuts — три ореха в одной схеме: кешью, миндаль и фисташка, каждый с ванилевой карамелью, пралине-крустийаном и муссом](https://cedric-grolet.com/meurice/en/)
+- [Fruit de la Passion — Cédric Grolet Le Meurice: карточка отдельного плода с указанием происхождения, — текучее сердце из маракуйи, домашнее желе на соке, ваниль с табаско и семена маракуйи, мусс из маракуйи; происхождение плода названо прямо: Бразилия; цена 17,00 € при заказе минимум за 24 часа](https://cedric-grolet.com/meurice/en/product/passion-fruit-2023)
 - [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)`,
   'michalak-chocolate-salt': `## Соль как настройка, а не эффект
 

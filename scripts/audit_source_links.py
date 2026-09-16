@@ -131,7 +131,19 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # praline construction: choux pastry, hazelnut praline cream, a flowing homemade
 # praline heart and pieces of roasted hazelnut.
 # Re-measured after wave 4 batch 10: 15 weak citations out of 563.
-MAX_WEAK_CITATIONS = 15
+# Lowered again (wave 4, batch 11): three maison roots become substantive
+# documents. recipe-canele gains the Baillardran house history (Annonciades
+# convent in the 18th century, Philippe Baillardran founding the maison in 1988,
+# the Confrerie des Caneles de Bordeaux) and, separately, the specification of the
+# tinned copper mould the article is about - 60 g capacity, 5.5 cm diameter,
+# 4.5-5 cm height - plus the house's own re-crisping method (200C for 5 minutes,
+# then 15 minutes at room temperature). adam-eclair gains the house's biographical
+# page with the dates and the awards (concept launched 2012, Pudlo 2014, Relais
+# Desserts 2015, Vanity Fair 2017). grolet-fruits-full gains the Le Meurice
+# click-and-collect page, which lists the layer-by-layer construction of each
+# sculpted fruit, and a single-fruit card that names the fruit's origin.
+# Re-measured after wave 4 batch 11: 12 weak citations out of 565.
+MAX_WEAK_CITATIONS = 12
 
 # Root-redirect ratchet, in OBSERVE mode.
 #

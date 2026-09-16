@@ -38,7 +38,8 @@ Insert praliné замораживают или охлаждают до сост
 
 ## Французские источники и первичные материалы
 
-- [Canelé — Baillardran](https://www.baillardran.com/)
+- [D'où vient le canelé traditionnel de Bordeaux ? — Maison Baillardran: история канеле от бордоского дома, который её и хранит, — происхождение в XVIII веке и связь с монахинями Couvent des Annonciades, Филипп Байяран основал Maison Canelés Baillardran в 1988 году, Confrérie des Canelés de Bordeaux долго охраняла рецепт, характерная форма с карамелизованной хрустящей «робой» и мягкой сердцевиной на ванили и роме; там же FAQ о вариантах — классический, безалкогольный и с начинками вроде шоколада](https://www.baillardran.com/fr/actualites/d-ou-vient-le-canele-traditionnel-de-bordeaux--n3)
+- [Canelés de Bordeaux — Maison Baillardran: спецификация медной формы, которой посвящена статья, — лужёная медь, вместимость 60 г, диаметр 5,5 см, высота 4,5–5 см, цена 9,20 €, производство в Европе; и приём возврата хруста: канеле ставят на 5 минут в печь при 200 °C, затем дают постоять 15 минут при комнатной температуре](https://www.baillardran.com/fr/actualites/caneles-de-bordeaux-une-douce-idee-pour-votre-repas-de-saint-valentin-n27)
 - [Cannelés bordelais — Meilleur du Chef: infusion ванили в молоке, beurre noisette, а главное — culottage медных форм и правила ухода (без моющего средства, полоскание горячей водой, немедленная просушка, лёгкое смазывание перед каждой закладкой)](https://www.meilleurduchef.com/fr/recette/canneles-bordelais-facile.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-tatin': `## Яблоко должно выдержать двойное приготовление

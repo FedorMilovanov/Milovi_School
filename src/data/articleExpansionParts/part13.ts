@@ -164,7 +164,7 @@ Fondant или шоколадное покрытие используют в у�
 
 ## Французские источники и первичные материалы
 
-- [L’Éclair de Génie](https://leclairdegenie.com/)
+- [Son histoire — L'Éclair de Génie: биографическая страница дома, где названы даты и награды, — Кристоф Адам запускает L'Éclair de Génie в 2012 году как концепцию, целиком посвящённую эклеру, его фирменной выпечке; десерты он «оттачивает» в своих парижских лабораториях; «Meilleur Pâtissier de l'année» 2014 по гиду Pudlo и «Meilleur pâtissier 2015» по Relais Desserts; в 2017 году Vanity Fair ставит его на 40-е место в списке 50 самых влиятельных французов мира](https://leclairdegenie.com/portfolio/son-histoire/)
 - [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_16)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })
