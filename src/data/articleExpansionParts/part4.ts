@@ -17,9 +17,9 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'french-classics-origins': `## Пять историй — пять уровней уверенности
 
@@ -39,11 +39,11 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
-- [Maison Stohrer — histoire](https://stohrer.fr/pages/notre-histoire)`,
+- [Maison Stohrer — histoire](https://stohrer.fr/notre-maison/)`,
   'genin-autodidact': `## Что означает «самоучка»
 
 Отсутствие классического диплома не означает отсутствие обучения. Ремесленник осваивает производство через работу, наблюдение, повторение, поставщиков и собственные ошибки. Для Жака Жени этот путь следует описывать только по прямому профилю или интервью.
