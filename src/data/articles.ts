@@ -322,6 +322,7 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-eclairs-adam.webp',
     tags: ['эклеры', 'заварное тесто', 'кракелин', 'Christophe Adam'],
     date: '2026-05-10',
+    updatedAt: '2026-09-16',
     recipeData: {
       prepTime: 'PT45M', cookTime: 'PT40M', yield: '15 эклеров',
       ingredients: ['125г воды', '125г молока', '110г сливочного масла', '150г муки T55', '250г яиц', '100г масла для кракелина', '120г коричневого сахара']

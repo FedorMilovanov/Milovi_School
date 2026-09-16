@@ -128,6 +128,7 @@ Baba требует более сильного вымешивания, чем �
 Ненаполненные сухие корпуса можно кратко хранить герметично и восстановить в печи. Наполненный эклер лучше продавать в день сборки. Холод защищает крем, но постепенно делает оболочку мягкой; поэтому длительный срок витрины несовместим с идеальным контрастом.
 
 ## Французские источники и первичные материалы
+- [Christophe Adam, l'éclair de génie de la pâtisserie — Vanity Fair France (1 мая 2014): первоисточник с прямой речью Адама об эклере — «En pleine guerre des macarons pastels, j'imposais ma patte funky et colorée»; там же — более ста рецептов на одну тему к дате публикации и превращение «pain de la duchesse» в ультрамодерную gourmandise](https://www.vanityfair.fr/savoir-vivre/articles/christophe-adam-l-eclair-de-genie/13889)
 
 - [Éclair vanille–pécan](https://www.academiedugout.fr/recettes/eclair-vanille-de-madagascar-et-noix-de-pecan-caramelisees-2012_7197_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
