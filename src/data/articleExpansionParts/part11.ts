@@ -12,6 +12,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 Перед большой партией делают три изделия: одно размораживают по стандартному графику, второе держат дольше, третье подают раньше. Сравнивают текучесть центра, интенсивность аромата, конденсат и поведение велюра. В технологической карте фиксируют температуру морозильника, массу insert, массу ганаша и фактическое время размораживания.
 
 ## Французские источники и первичные материалы
+- [The World's Best Pastry Chef Award — официальная страница награды The World's 50 Best Restaurants: полный перечень лауреатов (Альбер Адриа 2015, Пьер Эрме 2016, Доминик Ансель 2017, Седрик Гроле 2018, Жессика Преальпато 2019) — первоисточник для датировки титула](https://www.theworlds50best.com/awards/best-pastry-chef.html)
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
 - [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)

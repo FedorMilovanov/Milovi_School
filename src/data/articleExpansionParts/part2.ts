@@ -166,7 +166,7 @@ Paris-Brest лучше темперировать несколько минут:
 
 - [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Croissant par Thomas Marie, MOF](https://www.academiedugout.fr/recettes/croissant_16818_2)
+- [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
   'crookie-conticini': `## Кто создал crookie
 

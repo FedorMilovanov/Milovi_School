@@ -129,7 +129,7 @@ Far breton относится к семейству запечённых яич�
 ## Французские источники и первичные материалы
 
 - [Kouign-amann](https://lapatisseriecyrillignac.com/produit/kouign-amann/)
-- [Croissant par Thomas Marie, MOF](https://www.academiedugout.fr/recettes/croissant_16818_2)
+- [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
   'metayer-biography': `## От хлеба к кондитерской
 

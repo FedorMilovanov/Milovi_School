@@ -12,7 +12,7 @@ const body = (_topic: string, _id?: string) => {
 }
 
 export const articles: Article[] = [
-  { id: 'grolet-lemon-yuzu', title: 'Рецепт знаменитого «Лимона» Седрика Гроле: Пошаговая техника иллюзорного десерта', excerpt: 'Техническая карта по культовому лимону: как сохранить кислоту, сделать тонкое покрытие и избежать вкуса варенья.', content: body('Седрик Гроле и лимон', 'grolet-lemon-yuzu'), category: 'cedric-grolet', author: 'PastryClass, Cedric Grolet references', readTime: 6, image: '/images/articles/grolet-lemon-yuzu.webp', tags: ['лимон', 'юдзу', 'yuzu', 'ганаш', 'обманка'], sourceUrl: 'https://reportergourmet.com/en/news/7740-cedric-grolet-and-the-recipe-for-stuffed-lemon-it-looks-like-fruit-but-it-s-a-dessert', date: '2025-01-15', sourceLabel: 'Reporter Gourmet' },
+  { id: 'grolet-lemon-yuzu', title: 'Рецепт знаменитого «Лимона» Седрика Гроле: Пошаговая техника иллюзорного десерта', excerpt: 'Техническая карта по культовому лимону: как сохранить кислоту, сделать тонкое покрытие и избежать вкуса варенья.', content: body('Седрик Гроле и лимон', 'grolet-lemon-yuzu'), category: 'cedric-grolet', author: 'PastryClass, Cedric Grolet references', readTime: 6, image: '/images/articles/grolet-lemon-yuzu.webp', tags: ['лимон', 'юдзу', 'yuzu', 'ганаш', 'обманка'], sourceUrl: 'https://reportergourmet.com/en/news/7740-cedric-grolet-and-the-recipe-for-stuffed-lemon-it-looks-like-fruit-but-it-s-a-dessert', date: '2025-01-15', updatedAt: '2026-09-16', sourceLabel: 'Reporter Gourmet' },
   { id: 'herme-ispahan-deep', title: 'Десерт Испахан от Пьера Эрме: Рецепт архитектуры вкуса (роза, личи и малина)', excerpt: 'Полный учебный разбор культового десерта: кислота малины, цветочный верх розы, сочная середина личи.', content: body('Испахан Пьера Эрме', 'herme-ispahan-deep'), category: 'pierre-herme', author: 'PH10, Traveling Foodies, PastryClass', readTime: 5, image: '/images/articles/herme-ispahan-deep.webp', tags: ['Испахан', 'роза', 'личи', 'малина'], sourceUrl: 'https://travellingfoodies.wordpress.com/2011/03/25/pierre-hermes-ispahan/', date: '2025-01-22', sourceLabel: 'Traveling Foodies' },
   { id: 'perret-softness-volume', title: 'Перре: объем, мягкость, воздушность и хрупкость как язык десерта', excerpt: 'Проверенный разбор стиля François Perret: мягкость, объём, лёгкость и десерты Ritz Paris без неподтверждённых цитат.', content: body('Франсуа Перре', 'perret-softness-volume'), category: 'francois-perret', author: 'Ritz Paris, So Good Magazine, Books for Chefs', readTime: 5, image: '/images/articles/perret-softness-volume.webp', tags: ['мягкость', 'Ritz', 'сахар', 'текстура'], sourceUrl: 'https://www.ritzparislecomptoir.com/en/francois-perret', date: '2025-02-01', sourceLabel: 'Ritz Paris Le Comptoir' },
   { id: 'heitzler-ethical-pastry', title: 'Клер Эйцлер: сезонность, фермеры и этичная выпечка', excerpt: 'Глубокий материал по интервью Chefs for Impact, Valrhona и Pastry Arts: почему клубника зимой меняет профессию.', content: body('Клер Эйцлер', 'heitzler-ethical-pastry'), category: 'claire-heitzler', author: 'Chefs for Impact, Valrhona, Pastry Arts Magazine', readTime: 4, image: '/images/articles/heitzler-ethical-pastry.webp', tags: ['этичная выпечка', 'сезонность', 'фермеры'], sourceUrl: 'https://www.chefs4impact.org/post/meet-claire-heitzler', date: '2025-02-10', sourceLabel: 'Chefs for Impact' },
@@ -103,7 +103,7 @@ export const articles: Article[] = [
 
   { id: 'eclair-histoire-complete', title: 'L\'Éclair: от «pain à la duchesse» до L\'Éclair de Génie — полная история', excerpt: 'В 1742 году его звали «картушем». Карем дал ему начинку. Лионская douille — форму. Кристоф Адам в 2012-м — концепцию. История одного пирожного за 280 лет.', content: body('Эклер история французская кухня', 'eclair-histoire-complete'), category: 'histoire-culinaire', author: 'France Bleu, Inside Lyon, La Bonne Vague, Le Chef, Horsdoeuvre.fr', readTime: 8, image: '/images/articles/eclair-histoire-complete.webp', tags: ['éclair', 'Карем', 'история', 'Fauchon', 'Кристоф Адам', 'pâte à choux', 'XIX век'], sourceUrl: 'https://www.francebleu.fr/emissions/coup-de-fourchette/l-histoire-des-eclairs-et-des-religieuses-des-patisseries-emblematiques-6218775', date: '2024-08-01', sourceLabel: 'France Bleu' },
 
-  { id: 'millefeuille-histoire', title: 'Мильфей: 729 слоёв, миф о Наполеоне и Seugnot 1867', excerpt: 'Ла Варен описал его в 1651-м. Руже опубликовал рецепт в 1806-м — и его забыли. Только Seugnot в 1867-м превратил его в парижский феномен. А «Наполеон» — просто ложная легенда.', content: body('Мильфей история Наполеон французская пâтиссери', 'millefeuille-histoire'), category: 'histoire-culinaire', author: 'BoulangerieNet, Luxury Place, france.fr, La Bête à Pain', readTime: 4, image: '/images/articles/millefeuille-histoire.webp', tags: ['мильфей', 'Наполеон', 'история', 'Seugnot', 'pâte feuilletée', 'XVII век'], sourceUrl: 'https://www.boulangerienet.fr/bn/viewtopic.php?t=47393', date: '2026-01-10', sourceLabel: 'BoulangerieNet' },
+  { id: 'millefeuille-histoire', title: 'Мильфей: 729 слоёв, миф о Наполеоне и Seugnot 1867', excerpt: 'Ла Варен описал его в 1651-м. Руже опубликовал рецепт в 1806-м — и его забыли. Только Seugnot в 1867-м превратил его в парижский феномен. А «Наполеон» — просто ложная легенда.', content: body('Мильфей история Наполеон французская патиссери', 'millefeuille-histoire'), category: 'histoire-culinaire', author: 'BoulangerieNet, Luxury Place, france.fr, La Bête à Pain', readTime: 4, image: '/images/articles/millefeuille-histoire.webp', tags: ['мильфей', 'Наполеон', 'история', 'Seugnot', 'pâte feuilletée', 'XVII век'], sourceUrl: 'https://www.boulangerienet.fr/bn/viewtopic.php?t=47393', date: '2026-01-10', sourceLabel: 'BoulangerieNet' },
 
   { id: 'opera-gateau-histoire', title: 'Гато Опера: Dalloyau против Lenôtre — 30 лет войны за прямоугольник', excerpt: 'В 1955-м Сириак Гавийон создал прямоугольный торт без алкоголя и с минимумом сахара. Жена назвала его «Опера» в честь балерин. Через пять лет Гастон Лёнотр заявил, что изобрёл его сам. Le Monde рассудил в 1988-м.', content: body('Гато Опера история Dalloyau Lenôtre спор', 'opera-gateau-histoire'), category: 'histoire-culinaire', author: 'Europe1, Sortir à Paris, Wikipedia, Les Noces de Jeannette', readTime: 4, image: '/images/articles/opera-gateau-histoire.webp', tags: ['Опера', 'Dalloyau', 'Lenôtre', 'история', 'Гавийон', 'бисквит Жоконд'], sourceUrl: 'https://www.sortiraparis.com/en/where-to-eat-in-paris/brunch-cafe-tea-time/articles/260130-history-of-french-pastry-opera', date: '2026-01-20', sourceLabel: 'Sortir à Paris' },
 
@@ -121,7 +121,7 @@ export const articles: Article[] = [
 
   {
     id: 'recipe-tarte-citron-meringuee',
-    title: 'Тарт о ситрон мерингé — тарт с лимонным кремом и итальянской меренгой',
+    title: 'Тарт о ситрон меренге — тарт с лимонным кремом и итальянской меренгой',
     excerpt: 'Классика французской кондитерской из Meilleur du Chef: хрустящее миндальное тесто, крем из лимона на 82°C и шёлковая меренга, приготовленная при 118°C. Точные пропорции и диагностика ошибок.',
     category: 'recipes',
     author: 'Meilleur du Chef, Chef Philippe',
@@ -131,7 +131,7 @@ export const articles: Article[] = [
     sourceUrl: 'https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html',
     sourceLabel: 'Meilleur du Chef',
     date: '2025-08-15',
-    content: body('Тарт о ситрон мерингé — тарт с лимонным кремом и итальянской', 'recipe-tarte-citron-meringuee')
+    content: body('Тарт о ситрон меренге — тарт с лимонным кремом и итальянской', 'recipe-tarte-citron-meringuee')
   },
 
   {
@@ -722,7 +722,7 @@ export const articles: Article[] = [
   {
     id: 'recipe-tarte-aux-pommes',
     title: 'Тарт с яблоками: французская классика с компоте и веером',
-    excerpt: 'Классический французский тарт с яблоками: песочное тесто, слой компоте, яблоки веером и абрикосовый нáппаж. Пошаговый рецепт, выбор сортов и типичные ошибки.',
+    excerpt: 'Классический французский тарт с яблоками: песочное тесто, слой компоте, яблоки веером и абрикосовый наппаж. Пошаговый рецепт, выбор сортов и типичные ошибки.',
     content: body('Тарт с яблоками: французская классика с ', 'recipe-tarte-aux-pommes'),
     category: 'recipes',
     author: 'Chef Simon, Meilleur du Chef, Académie du Goût, 750g',
@@ -734,7 +734,7 @@ export const articles: Article[] = [
     sourceLabel: 'Chef Simon',
     recipeData: {
       prepTime: 'PT40M', cookTime: 'PT45M', yield: '1 тарт 26 см (8 порций)',
-      ingredients: ['Пшеничная мука T55 — 250 г', 'Сливочное масло в тесто — 125 г', 'Желток — 1 шт', 'Сахарная пудра — 12 г', 'Холодная вода — 50 мл', 'Яблоки (рен, голден) — 900 г', 'Сахар (компоте и посыпка) — 60 г', 'Стручок ванили — 1 шт', 'Абрикосовый конфитюр для нáппажа — 3 ст. л.', 'Масло для карамелизации — 20 г', 'Соль — 1 щепотка']
+      ingredients: ['Пшеничная мука T55 — 250 г', 'Сливочное масло в тесто — 125 г', 'Желток — 1 шт', 'Сахарная пудра — 12 г', 'Холодная вода — 50 мл', 'Яблоки (рен, голден) — 900 г', 'Сахар (компоте и посыпка) — 60 г', 'Стручок ванили — 1 шт', 'Абрикосовый конфитюр для наппажа — 3 ст. л.', 'Масло для карамелизации — 20 г', 'Соль — 1 щепотка']
     },
     faq: [
       { question: 'Какие яблоки лучше для тарта с яблоками?', answer: 'Ароматные сорта, которые держат форму при выпечке: рен де ренет (reine des reinettes), бель де боскоп, гренни смит. Голден универсальна и доступна круглый год. Идеально сочетать сладкий сорт с более кислым.' },
@@ -858,7 +858,7 @@ export const articles: Article[] = [
     },
     faq: [
       { question: 'Кто придумал тарт тропезьен?', answer: 'Кондитер польского происхождения Александр Мика в Сен-Тропе в середине 1950-х. По легенде, имя десерту предложила Брижит Бардо на съёмках фильма «И Бог создал женщину». Марка зарегистрирована в 1973 году.' },
-      { question: 'Какой крем настоящий — мусселин или дипломат?', answer: 'У Мика это смесь заварного крема и крема на масле. Сегодня чаще берут crème mousseline (пâтissière плюс масло) или более лёгкий crème diplomate (пâтissière плюс взбитые сливки).' },
+      { question: 'Какой крем настоящий — мусселин или дипломат?', answer: 'У Мика это смесь заварного крема и крема на масле. Сегодня чаще берут crème mousseline (pâtissière плюс масло) или более лёгкий crème diplomate (pâtissière плюс взбитые сливки).' },
       { question: 'Почему бриошь плохо поднимается?', answer: 'Обычно молоко было слишком горячим и убило дрожжи либо в тесте оказалось много муки. Дайте медленную расстойку в тепле до 30°C с мисочкой воды для влажности.' }
     ]
   },
@@ -1073,7 +1073,7 @@ export const articles: Article[] = [
     sourceLabel: 'Chef Simon',
     recipeData: {
       prepTime: 'PT30M', cookTime: 'PT40M', yield: '1 тарт 26 см / 8 порций',
-      ingredients: ['тесто пâte brisée 1 форма', 'яблоки Reine des Reinettes 4-5 шт', 'яйца 3 шт', 'густой крем-фреш 200 г', 'сахар 100 г', 'миндальная мука 60 г', 'кальвадос 2 ст. л.', 'ванильный сахар 1 пакетик', 'миндальные лепестки 30 г']
+      ingredients: ['тесто pâte brisée 1 форма', 'яблоки Reine des Reinettes 4-5 шт', 'яйца 3 шт', 'густой крем-фреш 200 г', 'сахар 100 г', 'миндальная мука 60 г', 'кальвадос 2 ст. л.', 'ванильный сахар 1 пакетик', 'миндальные лепестки 30 г']
     },
     faq: [
       { question: 'Чем тарт норманд отличается от обычного яблочного тарта?', answer: 'В классическом яблочном тарте — компот и тонкие ломтики яблок без крема. В нормандском поверх яблок заливают appareil (migaine) из яиц, крем-фреша и сахара с кальвадосом, часто с миндальной мукой, поэтому начинка получается кремовой и нежной.' },
@@ -1277,7 +1277,7 @@ export const articles: Article[] = [
   {
     id: 'recipe-savarin',
     title: 'Саварен: французский ромовый торт-корона с сиропом',
-    excerpt: 'Классический французский саварен (savarin): дрожжевая пâte levée, пропитка сиропом с ромом или кирш, шантийи и фрукты. История братьев Жюльен, техника и ошибки.',
+    excerpt: 'Классический французский саварен (savarin): дрожжевая pâte levée, пропитка сиропом с ромом или кирш, шантийи и фрукты. История братьев Жюльен, техника и ошибки.',
     content: body('Саварен: французский ромовый торт-корона', 'recipe-savarin'),
     category: 'recipes',
     author: 'Chef Simon, Meilleur du Chef, Academie du Gout, Alain Ducasse',

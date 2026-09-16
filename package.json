@@ -24,11 +24,12 @@
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py && npm run audit:canon-articles && npm run audit:source-links && npm run audit:attributed-quotes",
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py && npm run audit:canon-articles && npm run audit:source-links && npm run audit:attributed-quotes && npm run audit:mixed-script",
     "audit:source-links": "node scripts/run-python-script.mjs scripts/audit_source_links.py",
     "audit:source-links:strict": "node scripts/run-python-script.mjs scripts/audit_source_links.py --require-network",
     "audit:attributed-quotes:selftest": "node scripts/run-python-script.mjs scripts/audit_attributed_quotes.py --selftest",
-    "audit:attributed-quotes": "npm run audit:attributed-quotes:selftest && node scripts/run-python-script.mjs scripts/audit_attributed_quotes.py --strict"
+    "audit:attributed-quotes": "npm run audit:attributed-quotes:selftest && node scripts/run-python-script.mjs scripts/audit_attributed_quotes.py --strict",
+    "audit:mixed-script": "node scripts/run-python-script.mjs scripts/audit_mixed_script.py --strict"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
