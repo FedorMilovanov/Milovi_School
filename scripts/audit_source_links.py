@@ -339,12 +339,85 @@ def network_available() -> bool:
         return False
 
 
+
+def run_selftest() -> int:
+    """Positive/negative fixtures for URL collection and classification.
+
+    The source gate is itself a publication contract. A false-green parser is
+    worse than no parser, so exercise the exact regressions that have occurred:
+    inline metadata sourceUrl fields, generic/search URLs and root redirects.
+    """
+    failures: list[str] = []
+
+    metadata_fixture = """
+    { id: 'inline', sourceUrl: 'https://example.test/deep/document', sourceLabel: 'x' },
+    {
+      id: 'multiline',
+      sourceUrl: 'https://example.test/second/document',
+    },
+    """
+    parsed = SOURCE_URL_FIELD_RE.findall(metadata_fixture)
+    expected = [
+        "https://example.test/deep/document",
+        "https://example.test/second/document",
+    ]
+    if parsed != expected:
+        failures.append(f"metadata parser mismatch: expected={expected!r}, got={parsed!r}")
+
+    generic_positive = (
+        "https://example.test/",
+        "https://example.test/recherche?q=caramel",
+        "https://example.test/search/results",
+    )
+    generic_negative = (
+        "https://example.test/recettes/tarte-citron",
+        "https://example.test/magasins",
+        "https://example.test/articles/history?id=42",
+    )
+    for url in generic_positive:
+        if not generic_path(url):
+            failures.append(f"expected generic URL: {url}")
+    for url in generic_negative:
+        if generic_path(url):
+            failures.append(f"unexpected generic URL: {url}")
+
+    if not root_redirect(
+        "https://example.test/pages/old-document",
+        "https://example.test/",
+    ):
+        failures.append("same-site specific -> root redirect must be detected")
+    if root_redirect(
+        "https://example.test/pages/document",
+        "https://other.test/",
+    ):
+        failures.append("cross-domain redirect must not be classified as same-site root redirect")
+    if root_redirect(
+        "https://example.test/pages/document",
+        "https://example.test/pages/new-document",
+    ):
+        failures.append("specific -> specific redirect must not be classified as root redirect")
+
+    if failures:
+        print(f"source-link selftest: FAIL ({len(failures)} failures)", file=sys.stderr)
+        for failure in failures:
+            print(f"  - {failure}", file=sys.stderr)
+        return 1
+
+    print("source-link selftest: OK (metadata parser, generic-path and root-redirect fixtures)")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--require-network", action="store_true",
                         help="fail instead of skipping when egress is unavailable")
     parser.add_argument("--max-workers", type=int, default=8)
+    parser.add_argument("--selftest", action="store_true",
+                        help="run parser/classification fixtures and exit")
     args = parser.parse_args()
+
+    if args.selftest:
+        return run_selftest()
 
     citations = collect_citations()
     if not citations:
