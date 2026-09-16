@@ -19,7 +19,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 - [Yann Couvreur — La Pâtisserie](https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)`,
   'lignac-patisserie-shop': `## Соседская pâtisserie не означает упрощённую технологию
 
 Формат районного магазина требует изделий, которые выдерживают ежедневный поток, транспортировку и понятный выбор гостя. Высокая точность переносится из ресторана в производство: одинаковая масса круассана, стабильный флан, предсказуемое размораживание entremets и чёткое окно продажи.
@@ -103,7 +103,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 - [Chef — Dominique Ansel: первоисточник происхождения Cronut от самого автора — лауреат James Beard Award; Cronut назван журналом TIME в числе «25 лучших изобретений 2013 года»; запущен в мае 2013 года в его собственной пекарне в Нью-Йорке и стал первой в мире «вирусной» выпечкой; на доводку ушло два месяца и более десяти различных рецептур; это не просто обжаренное круассанное тесто — ламинированное тесто напоминает круассан, но сделано по собственной рецептуре, сначала расстаивается, затем обжаривается в виноградном масле при конкретной температуре; после жарки каждый Cronut 1) обваливают в сахаре, 2) наполняют кремом и 3) покрывают глазурью, и весь процесс занимает три дня; продаётся только в Dominique Ansel Bakery в Нью-Йорке, Лондоне и Лос-Анджелесе, вкус меняется каждый месяц и никогда не повторяется; рядом — DKA (Dominique's Kouign Amann), madeleines по заказу и Dominique Ansel Workshop, открытый в июле 2021 года как круассанная стойка внутри его кухонь в Flatiron](https://www.dominiqueansel.com/chef/)
 - [Dominique Ansel — books and tutorials](https://www.dominiqueansel.com/books/)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)`,
   'michalak-fantastik': `## Низкий профиль меняет вкус
 
 Fantastik собирается как плоская композиция, поэтому ложка или вилка захватывает несколько элементов одновременно. Высота ограничена не ради красивой цифры, а ради удобства укуса. Если кремовые купола слишком высоки, они отделяются от основы и нарушают задуманное сочетание.
@@ -167,6 +167,6 @@ Fondant или шоколадное покрытие используют в у�
 - [Christophe Adam, «Éclairs : 20 ans de création» — La Martinière, 12 ноября 2020, 512 страниц, EAN 9782732494197, соавтор Sarah Vasseghi, фотограф Laurent Fau: 200 рецептов эклеров, история пирожного и свидетельства 15 личностей, значимых для кондитерского мира (Gilles Marchal, Christophe Felder, Sébastien Gaudard, Benoît Couvrand, Benoît Castel, Isabelle Capron) — издательские данные, подтверждающие заявленное в тексте число рецептов и состав свидетельств](https://www.lettreetmerveilles.fr/livre/17384098-eclairs-20-ans-de-creation-christophe-adam-la-martiniere)
 
 - [Son histoire — L'Éclair de Génie: биографическая страница дома, где названы даты и награды, — Кристоф Адам запускает L'Éclair de Génie в 2012 году как концепцию, целиком посвящённую эклеру, его фирменной выпечке; десерты он «оттачивает» в своих парижских лабораториях; «Meilleur Pâtissier de l'année» 2014 по гиду Pudlo и «Meilleur pâtissier 2015» по Relais Desserts; в 2017 году Vanity Fair ставит его на 40-е место в списке 50 самых влиятельных французов мира](https://leclairdegenie.com/portfolio/son-histoire/)
-- [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_16)
+- [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_2991)
 - [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })
