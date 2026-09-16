@@ -123,7 +123,7 @@ Blanc-manger существовал как средневековое блюдо
 
 ## Французские источники и первичные материалы
 
-- [Blanc-manger — Académie du Goût](https://www.academiedugout.fr/recherche?q=blanc-manger)
+- [Blanc-manger aux amandes — Meilleur du Chef: точная пропорция на 3 порции — 15 кл молока, 60 г миндальной пудры, 50 г сахара, 2 листа желатина и 150 г взбитых сливок 35 %; отжатый желатин вводят в тёплое молоко, молоко выливают на миндаль с сахаром, охлаждают до комнатной температуры и только затем добавляют сливки; формовка в кольцах 6 см диаметром и 4,5 см высотой, 2 часа в холоде. Замена для вегетарианской версии: 1 лист желатина 2 г = 0,6 г агар-агара. Рядом — croustillants aux amandes: 80 г сахарной пудры, 60 г жареного миндаля, 20 г муки T55, 30 г мягкого масла, 2 ст. ложки апельсинового сока и цедра половины апельсина, 180 °C около 10 минут, треугольники режут сразу и формуют на plaque à tuiles](https://www.meilleurduchef.com/fr/recette/blanc-manger-amandes.html)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-marrons-glaces': `## Конфирование — обмен сиропа и воды

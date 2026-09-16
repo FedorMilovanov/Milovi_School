@@ -92,7 +92,12 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # ratio and the anti-blistering pierce) and croquembouche, where a second
 # citation was added for the assembly caramel built on glucose and fondant blanc.
 # Re-measured after wave 4 batch 6: 33 weak citations out of 561.
-MAX_WEAK_CITATIONS = 33
+# Lowered again (wave 4, batch 7): blanc-manger, fondant au chocolat and gateau
+# basque get real documents with complete ratios, and tarte bourdaloue loses both
+# of its bad citations at once - the search page and a Meilleur du Chef URL that
+# turned out to be a soft-404 (now recorded in KNOWN_DEAD_URLS so it can never
+# come back). Re-measured after wave 4 batch 7: 29 weak citations out of 562.
+MAX_WEAK_CITATIONS = 29
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
@@ -104,6 +109,22 @@ MAX_WEAK_CITATIONS = 33
 # read the number CI publishes in artifacts/source-links-report/report.md, set it
 # here, then lower it as each case is fixed.
 MAX_ROOT_REDIRECTS: int | None = None
+
+# URLs proven dead by direct fetch (hard status or soft-404 marker).
+#
+# This list exists because the probe below cannot run without egress: main()
+# returns 0 before probing when network_available() is false, so a dead citation
+# is invisible in any offline environment and only caught by CI. Recording a
+# verified verdict here makes it permanent and universal - the check runs before
+# the network branch, so re-introducing a known-dead URL fails locally, in review
+# and in CI alike. Grow it whenever a fetch proves a cited URL dead; never remove
+# an entry without a live re-verification.
+KNOWN_DEAD_URLS: frozenset[str] = frozenset({
+    # Fetched 2026-09-16: returns Meilleur du Chef's soft-404 page
+    # ("Nous n'avons pas trouve cette page") despite HTTP 200-style rendering.
+    # Cited by recipe-tarte-bourdaloue until wave 4 batch 7.
+    "https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html",
+})
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
@@ -258,6 +279,18 @@ def main() -> int:
     citations = collect_citations()
     if not citations:
         print("Source-link gate parsed no citations — parser regression", file=sys.stderr)
+        return 1
+
+    # Runs before the network branch on purpose: these verdicts were established
+    # by direct fetch and must not depend on egress being available right now.
+    known_dead = [c for c in citations if c["url"] in KNOWN_DEAD_URLS]
+    if known_dead:
+        print(f"\nKnown-dead citations present: {len(known_dead)}", file=sys.stderr)
+        for item in sorted({(c["articleId"], c["url"]) for c in known_dead}):
+            print(f"  [{item[0]}] {item[1]}", file=sys.stderr)
+        print("  These URLs were verified dead by direct fetch. Replace them with a "
+              "live concrete document, or re-verify and drop the entry from "
+              "KNOWN_DEAD_URLS.", file=sys.stderr)
         return 1
 
     if not network_available():

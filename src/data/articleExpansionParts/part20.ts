@@ -38,7 +38,7 @@ Fondant нельзя описать одной универсальной мин
 
 ## Французские источники и первичные материалы
 
-- [Fondant au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=fondant%20au%20chocolat)
+- [Fondant au chocolat — Meilleur du Chef: пропорция на 8 человек — 200 г чёрной couverture Équateur 76 %, 100 г масла, 100 г сахара, 5 яиц, 4 ст. ложки без горки муки T55; шоколад с маслом топят на очень слабом огне, яйца разделяют, сахар вводят в желтки, затем просеянную муку и только потом шоколад с маслом; холодные белки со щепоткой мелкой соли взбивают очень плотно и соединяют maryse; форма à manqué Ø 28 см, 180 °C 20–25 минут на конвекции и на средней решётке, вынимают осторожно, охлаждают, сахарная пудра и crème anglaise. Автор прямо отвечает читателю: испечённый накануне fondant неизбежно подсохнет](https://www.meilleurduchef.com/fr/recette/fondant-chocolat.html)
 - [Fondant au chocolat — Chef Simon](https://chefsimon.com/recettes/tag/fondant%20au%20chocolat)
 - [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'recipe-pain-perdu': `## Чёрствый хлеб удобен, но не любой

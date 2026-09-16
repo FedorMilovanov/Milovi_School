@@ -73,8 +73,8 @@ Pâte sucrée раскатывают равномерно и дают ей от�
 
 ## Французские источники и первичные материалы
 
-- [Tarte Bourdaloue — Académie du Goût](https://www.academiedugout.fr/recherche?q=bourdaloue)
-- [Tarte Bourdaloue — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html)
+- [Tarte aux poires chocolatée — Meilleur du Chef: сборка по той же схеме, что и у bourdaloue, — crème d'amandes в донышко, испечённое à blanc 15 минут при 170 °C, затем груши и ещё 20–25 минут; автор отдельно требует, чтобы бордюр крема между грушей и кремом остался светлым, иначе середина перестанет быть moelleux](https://www.meilleurduchef.com/fr/recette/tarte-poire-chocolat.html)
+- [Tarte aux fruits frais — Meilleur du Chef: выпечка донышка à blanc под грузом (бумага и белые бобы, лист снимают на середине выпечки, чтобы центр допёкся) и финальная глазуровка nappage blond, растопленный на очень слабом огне с 1–2 ст. ложками воды](https://www.meilleurduchef.com/fr/recette/tarte-fruits.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-gateau-basque': `## Два классических центра
 
@@ -95,7 +95,8 @@ Gâteau basque встречается с crème pâtissière и с вишнёв�
 ## Французские источники и первичные материалы
 
 - [Musée du Gâteau Basque](https://www.legateaubasque.com/)
-- [Gâteau basque — Académie du Goût](https://www.academiedugout.fr/recherche?q=g%C3%A2teau%20basque)
+- [Gâteau basque à la confiture de cerises noires et au piment d'Espelette — Meilleur du Chef: полная пропорция теста (300 г муки T55, 200 г сахара, 40 г tant pour tant, 1 яйцо и 1 желток, 120 г beurre pommade, мелкая соль, ~8 г разрыхлителя, 2 кл Pernod, капля amande amère), масло с сахаром blanchir насадкой «feuille», раскатка 4–5 мм, дорюр из желтка с водой и basque-крест на крышке](https://www.meilleurduchef.com/fr/recette/gateau-basque-cerise.html)
+- [Gâteau basque à la crème — Meilleur du Chef: кремовая версия того же теста; крем варят несколько минут на умеренном огне, мешая без остановки и следя, чтобы он не пристал ко дну, а дорюр наносят по краю в пропорции 1 желток на 1 ст. ложку холодной воды](https://www.meilleurduchef.com/fr/recette/gateau-basque.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-kouglof': `## Форма — часть технологии
 
