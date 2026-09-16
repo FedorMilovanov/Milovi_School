@@ -120,7 +120,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Tarte chocolat caramel fleur de sel — Christophe Michalak: карточка изделия, в самом названии которого соединены оба полюса статьи — шоколад и fleur de sel; рядом в том же документе — Kosmik Snickers (мусс на blond-шоколаде, мягкая карамель с fleur de sel, крамбл без муки, карамелизованный арахис) и Religieuse Caramel Beurre Salé, то есть соль в его линии работает не акцентом, а конструктивным элементом](https://www.christophemichalak.com/patisserie/glace-tarte-chocolat-caramel-fleur-de-sel)
+- [Tarte chocolat caramel fleur de sel — Christophe Michalak: карточка изделия, в самом названии которого соединены оба полюса статьи — шоколад и fleur de sel; рядом в том же документе — Kosmik Snickers (мусс на blond-шоколаде, мягкая карамель с fleur de sel, крамбл без муки, карамелизованный арахис) и Religieuse Caramel Beurre Salé, то есть соль в его линии работает не акцентом, а конструктивным элементом](https://www.christophemichalak.com/img/cms/espace-entreprise/Patisserie_Michalak_Catalogue_Professionnel_2025.pdf)
 - [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)
 - [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'conticini-praline': `## Обжарка до карамели
