@@ -62,7 +62,7 @@ Insert готовят тонким слоем. Заварную массу не 
 ## Французские источники и первичные материалы
 
 - [Tartelettes citron jaune](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
-- [Tarte citron vert à l’huile d’olive](https://www.valrhona.com/fr/vous-inspirer/cahiers-de-tendances/tous-nos-cahiers-de-tendances/techniques-et-astuces-de-patisserie-le-chocolat)
+- [Tartelettes citron vert huile d’olive — Cédric Grolet](https://www.academiedugout.fr/recettes/tartelettes-citron-vert-huile-dolive_13635_2)
 - [Pâte sucrée](https://www.academiedugout.fr/recettes/les-pates_13716_2)`,
   'recipe-tarte-tropezienne': `## Brioche
 
