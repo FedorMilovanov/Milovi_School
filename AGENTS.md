@@ -129,8 +129,11 @@ Final contract: [`docs/le-canon-sucre/CLOSEOUT.md`](./docs/le-canon-sucre/CLOSEO
 - generated editorial image ≠ historical evidence;
 - archive/facsimile publication требует rights review;
 - Product wording должен быть fail-closed;
-- каждый цитируемый источник обязан быть живым конкретным документом: 404,
-  логин-стена, soft-404 и страница поисковой выдачи не являются source trail.
+- каждый цитируемый источник обязан быть живым конкретным документом: 404/410,
+  логин-стена, soft-404 и страница поисковой выдачи не являются source trail;
+- 403/429, timeout, DNS/TLS/WAF и иные transport failures сами по себе не доказывают,
+  что документ мёртв: source gate классифицирует их отдельно как `blocked`, чтобы
+  сетевое поведение CI не превращалось в ложное фактологическое утверждение.
   Контракт зашит в `scripts/audit_source_links.py`.
 
 Если новый сильный источник меняет claim, это отдельная Research correction с обновлением тестов/документов.
