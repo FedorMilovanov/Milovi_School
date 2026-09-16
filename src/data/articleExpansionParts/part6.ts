@@ -96,17 +96,16 @@ Far breton относится к семейству запечённых яич�
 
 ## Атрибуция
 
-Открытая публикация Cuisine Actuelle связывает эту версию far breton с Cyril Lignac, однако профессиональные признаки остаются общими для жанра: гладкий appareil, равномерное распределение pruneaux и контролируемая коагуляция. Имя шефа не превращает базовую бретонскую технику в недоступный «секрет».
+Исходная страница Cuisine Actuelle больше не доступна по прежнему URL. Её архивная карточка, сохранённая Samsung Food с явной пометой «By cuisineactuelle.fr», фиксирует название «Far breton aux pruneaux façon Cyril Lignac» и пропорции 120 г муки, 50 cl молока, 100 г сахара, 4 яйца, 250 г чернослива и 15 г масла. Это позволяет сохранить атрибуцию как архивно подтверждённую, но не выдавать зеркало за первичный сайт. Технологические выводы ниже опираются отдельно на профессиональные источники.
 
 ## Французские источники и первичные материалы
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Equinoxe](https://lapatisseriecyrillignac.com/fr/la-patisserie/20-equinoxe-lignac.html)
-- [Cuisine Actuelle — Far breton aux pruneaux de Cyril Lignac](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)
-- [Académie du Goût — Far breton aux pruneaux](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)`,
-  'lignac-kouign-amann': `## Где заканчивается карточка шефа и начинается реконструкция
+- [Académie du Goût — Far breton aux pruneaux](https://www.academiedugout.fr/recettes/far-breton-aux-pruneaux_13999_2)
+- [Архив Cuisine Actuelle — Far breton aux pruneaux façon Cyril Lignac (Samsung Food)](https://app.samsungfood.com/recipes/101d76a937ad60d50ed436929a21fabd0ced42235aa)`,
+  'lignac-kouign-amann': `## Что именно подтверждает Линьяк
 
-Официальный продукт Сириля Линьяка подтверждает вкус и позиционирование, но не обязательно раскрывает полную производственную формулу. Поэтому технологию корректнее описывать как профессиональную реконструкцию kouign-amann, а не как дословный «секретный рецепт». Базу дают открытые демонстрации MOF и французских пекарей: дрожжевое тесто, пластичное масло, туры, сахар на финальных стадиях и выпечка в форме.
+В выпуске Le Meilleur Pâtissier «100% Bretagne» от 16 октября 2025 года M6 формулирует критерий Кирилла Линьяка для kouign-amann прямо: pâte levée feuilletée должна оставаться хрустящей, карамелизация — выраженной, а выпечка — контролируемой. Это не опубликованная авторская формула в граммах, поэтому ниже разобраны именно эти проверяемые технологические критерии, а не выдуманный «секретный рецепт» шефа.
 
 ## Слои и сахар
 
@@ -128,6 +127,7 @@ Far breton относится к семейству запечённых яич�
 
 ## Французские источники и первичные материалы
 
+- [M6 — Le Meilleur Pâtissier 100% Bretagne: критерии Cyril Lignac для kouign-amann](https://actu.m6.fr/divertissement/le-meilleur-patissier-100-bretagne-tout-savoir-sur-lemission-diffusee-ce-jeudi-16-octobre-2025-m6)
 - [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
   'metayer-biography': `## От хлеба к кондитерской
@@ -155,7 +155,7 @@ Far breton относится к семейству запечённых яич�
 Временная шкала должна указывать год каждого перехода и организацию, присудившую награду.
 
 ## Французские источники и первичные материалы
-- [Euronews — Historic win for women: Nina Métayer claims title of World's Best Pastry Chef 2023 (27 октября 2023): титул World Pastry Chef of the Year за 2023 год присуждён Международным союзом пекарей и кондитеров UIBC на отраслевой выставке в Мюнхене; там же подтверждены Ferrandi с окончанием в числе лучших, переход 2015 года к Жану-Франсуа Пьежу в Grand Restaurant, две звезды Michelin годом позже, «Pastry Chef of the Year» 2016 по журналу Le Chef и 2017 по гиду Gault et Millau](https://ninametayer.com/cheffe-patissiere/)
+- [Nina Métayer — официальная биография и награды: World Pastry Chef 2023 (UIBC), World's Best Pastry Chef 2024 (50 Best), FERRANDI и профессиональная хронология](https://ninametayer.com/cheffe-patissiere/)
 - [Sortiraparis — Nina Métayer voted World's Best Pastry Chef 2024 by The World's 50 Best Restaurants (7 июня 2024): документ, который фиксирует оба титула в одном месте и именно в том порядке, в котором их нельзя смешивать, — «всего через несколько месяцев после получения звания World Pastry Chef от UIBC ей вручена distinction „World's Best Pastry Chef 2024“ от The World's 50 Best Restaurants»; там же её собственная речь с формулировкой «две мировые награды с разницей в несколько месяцев»](https://www.sortiraparis.com/en/news/in-paris/articles/314542-nina-metayer-named-world-s-best-pastry-chef-2024-by-the-world-s-50-best-restaurants)
 - [The World's Best Pastry Chef Award — список лауреатов The World's 50 Best Restaurants: Jessica Préalpato 2019, Will Goldfarb 2021, Maxime Frédéric 2025 — контекст, показывающий, что номинация 2024 года принадлежит Метайе, а 2023-го нет](https://www.the50.com/restaurants/best-in-the-world/awards/best-pastry-chef.html)
 
