@@ -418,8 +418,8 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-charlotte-fraises.webp',
     tags: ['шарлотт', 'клубника', 'баваруаз', 'бисквит а-ля кюйер', 'французская выпечка', 'Антонен Карем'],
     date: '2026-07-01',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Charlotte_(dessert',
-    sourceLabel: 'Mercotte',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/charlotte-fraise.html',
+    sourceLabel: 'Meilleur du Chef',
     recipeData: {
       prepTime: 'PT1H', cookTime: 'PT20M', yield: '1 шарлотт 18 см / 6-8 порций',
       ingredients: ['Бисквиты а-ля кюйер или будуары — 24 шт', 'Клубника — 500 г', 'Молоко цельное — 150 мл', 'Желтки — 4 шт', 'Сахар — 90 г', 'Стручок ванили — 1 шт', 'Желатин листовой — 3 листа (6 г)', 'Сливки 30-35% — 450 мл', 'Сироп для пропитки (вода плюс сахар) — 100 мл']
@@ -514,7 +514,7 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-saint-honore.webp',
     tags: ['сент-оноре', 'крем шибуст', 'заварное тесто', 'слоёное тесто', 'французские десерты', 'карамель'],
     date: '2026-06-03',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Saint-honor%C3%A9_(p%C3%A2tisserie',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/gateau-st-honore.html',
     sourceLabel: 'Meilleur du Chef',
     recipeData: {
       prepTime: 'PT2H', cookTime: 'PT1H10M', yield: '1 торт 20 см / 8 порций',
@@ -634,7 +634,7 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-dacquoise.webp',
     tags: ['дакуаз', 'dacquoise', 'бисквит дакуаз', 'tant pour tant', 'антреме', 'французские десерты'],
     date: '2026-06-28',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Dacquoise_(p%C3%A2tisserie',
+    sourceUrl: 'https://www.meilleurduchef.com/fr/recette/gateau-noumea.html',
     sourceLabel: 'Meilleur du Chef',
     recipeData: {
       prepTime: 'PT25M', cookTime: 'PT16M', yield: '2 диска 20 см',
@@ -778,7 +778,7 @@ export const articles: Article[] = [
     image: '/images/articles/recipe-merveilleux.webp',
     tags: ['мервейё', 'merveilleux', 'французская меренга', 'взбитые сливки', 'шоколадная стружка', 'aux merveilleux de fred'],
     date: '2026-06-30', updatedAt: '2026-09-16',
-    sourceUrl: 'https://fr.wikipedia.org/wiki/Merveilleux_(g%C3%A2teau',
+    sourceUrl: 'https://chefsimon.com/gourmets/chef-simon/recettes/merveilleux',
     sourceLabel: 'Chef Simon',
     recipeData: {
       prepTime: 'PT40M', cookTime: 'PT90M', yield: '8 пирожных',
