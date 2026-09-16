@@ -59,9 +59,9 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [Christophe Felder — site officiel](https://www.christophe-felder.com/)
+- [Kougelhopf sucré aux raisins — Christophe Felder: полная рецептура эльзасской короны — levain из 10 г свежих дрожжей, 35 г воды и 50 г муки T45 поднимается 30 минут под слоем муки, затем тесто (225 г T45, 1 яйцо, 125 г молока, 40 г сахара, 1 ч. ложка соли, 65 г мягкого масла) вымешивается крюком ~10 минут до отлипания от стенок; 50 г изюма, мацерированного в тёмном роме; расстойка 1 ч 30 мин и ещё 2 часа в форме, по одному миндалю на каждую «ребро» формы, 170 °C конвекция 20–25 минут, выход — 2 кугопфа по 12 см (600 г теста)](http://www.christophe-felder.com/recettes/index.php?id=120)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Tourisme Alsace — gastronomie](https://www.visit.alsace/)`,
+- [Kouglof Chocolat façon Cake — Christophe Felder: шоколадная версия той же формы — 120 г мягкого масла и 120 г сахара взбивают, яйца темпераментированные до 20 °C, 95 г муки, 25 г горького какао и 2 г разрыхлителя просеянные вместе, апельсиновые цукаты и изюм (70 г блонд-изюма, 10 г пихтового мёда, сок ½ лимона, корица, мацерация 5 минут), оба шоколада рубленые кубиком 5 мм; 180 °C 40 минут, проверка тонким ножом, глазурь из темперированного чёрного 55 %, в который погружают основание и переворачивают на бумагу, — автор предупреждает, что темперированный шоколад должен застыть естественно, без избыточного холода, иначе потеряет блеск; финиш — трафарет и сахарная пудра](http://www.christophe-felder.com/recettes/index.php?id=118)`,
   'paciello-cinqsens': `## Иммерсивность начинается не с интерьера
 
 Магазин, посвящённый пяти чувствам, убедителен только тогда, когда продукт действительно меняется по аромату, температуре, звуку и текстуре. Свет и упаковка могут подготовить восприятие, но не должны подменять вкус. Для каждого изделия полезно формулировать главный сенсорный жест: треск оболочки, аромат при разрезе, текучий центр или контраст тёплого и холодного.
@@ -122,8 +122,8 @@ Sablé breton, biscuit или croustillant принимают вес кремо�
 
 ## Французские источники и первичные материалы
 
-- [Christophe Michalak — site officiel](https://christophemichalak.com/)
-- [Fantastik — Académie du Goût](https://www.academiedugout.fr/recherche?q=fantastik)
+- [L'histoire d'un Chef — Christophe Michalak: собственное определение Fantastik домом — mi-entremets / mi-tarte, круглый торт высотой 3 см, из сезонных продуктов, без заморозки, с рецептурой, которая менялась ежедневно; более 700 уникальных созданий за два года, линия Michalak Take-away и Kosmik, Koonie, Klassik](https://www.christophemichalak.com/content/lhistoire-dun-chef)
+- [Visitandine framboise litchi — Christophe Michalak: полный рецепт в его стандартной конструкции — visitandine (beurre noisette 180 г, сахарная пудра 140 г, poudre d'amande brute 70 г, кокосовая пудра 70 г, сырые белки 20 г; 190 °C 25 минут), crémeux framboise, нагретый до 83 °C с 4 г желатина и 85 г холодного масла, затем crème légère и монтаж](https://www.christophemichalak.com/recettes/visitandine-framboise-litchi)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'tech-macaronage': `## Масса теряет воздух неравномерно
 

@@ -76,7 +76,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Christophe Felder — École de pâtisserie](https://www.christophe-felder.com/)
+- [Brioche — Christophe Felder: базовое тесто в полной пропорции — 250 г муки, 25 г сахара, 3 яйца, 10 г пекарских дрожжей, 8 г соли, 150 г масла; вымешивают крюком на медленной скорости до отлипания от стенок, затем вводят масло и снова ждут отлипания, подъём 1 час при комнатной температуре до удвоения, обязательная обминка (rabattre) ладонями для удаления углекислого газа, 2 часа в холоде, разделка на 12 равных шаров подкаткой на столе, 180 °C](http://www.christophe-felder.com/recettes/rech.php?act=rech&libelle=27&cle=+&fiche=49)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'grolet-fruits-full': `## От формы к вкусовой идентичности

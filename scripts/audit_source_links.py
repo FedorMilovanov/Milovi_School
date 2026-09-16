@@ -97,7 +97,19 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # of its bad citations at once - the search page and a Meilleur du Chef URL that
 # turned out to be a soft-404 (now recorded in KNOWN_DEAD_URLS so it can never
 # come back). Re-measured after wave 4 batch 7: 29 weak citations out of 562.
-MAX_WEAK_CITATIONS = 29
+# Lowered again (wave 4, batch 8): six bare roots replaced with deep documents from
+# the maisons' own sites. Michalak's own page states what the Fantastik is - round,
+# 3 cm high, seasonal, never frozen, recipe changed daily, 700+ creations in two
+# years - and a complete visitandine gives his standard construction with ratios;
+# the article about Felder's Alsatian line now cites his kougelhopf and chocolate
+# kouglof instead of a regional portal root; his brioche covers the fundamentals
+# article; and Genin's own ingredient declaration states the caramel composition in
+# his words (sugar, butter, cream, glucose, fleur de sel) for the caramel article.
+# Only apt substitutions were made: remaining roots were left rather than filled
+# with an off-topic page, since a wrong citation is worse than a weak one.
+# Re-measured after wave 4 batch 8: 23 weak citations out of 562, of which 2 are
+# search-result pages (caramel tendre, marrons glaces).
+MAX_WEAK_CITATIONS = 23
 
 # Root-redirect ratchet, in OBSERVE mode.
 #
