@@ -235,7 +235,9 @@ def generic_path(url: str) -> bool:
         return True
     if re.search(r"(?:^|/)(?:recherche|search|results)(?:/|$)", path, flags=re.I):
         return True
-    if re.search(r"(?:\?|&)(?:q|s|query|search|keywords?)=", parsed.query, flags=re.I):
+    # urlsplit().query does not include the leading "?", so match the
+    # first key at ^ and subsequent keys after "&".
+    if re.search(r"(?:^|&)(?:q|s|query|search|keywords?)=", parsed.query, flags=re.I):
         return True
     return False
 
@@ -368,6 +370,7 @@ def run_selftest() -> int:
         "https://example.test/",
         "https://example.test/recherche?q=caramel",
         "https://example.test/search/results",
+        "https://example.test/catalog?q=caramel",
     )
     generic_negative = (
         "https://example.test/recettes/tarte-citron",
