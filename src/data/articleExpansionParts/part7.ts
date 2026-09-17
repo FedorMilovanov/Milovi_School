@@ -82,7 +82,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Dalloyau — L’Opéra 1955, catalogue professionnel](https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf)
+- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,

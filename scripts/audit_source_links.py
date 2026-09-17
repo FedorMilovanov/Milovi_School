@@ -238,6 +238,7 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
     "https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html",
     "https://gallica.bnf.fr/selections/fr/html/litteratures/les-classiques-de-la-litterature-du-moyen-age",
     "https://www.dalloyau.fr/img/st-menu/11.pdf",
+    "https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf",
     "https://www.pierreherme.com/fr/coffret-de-24-macarons.html",
 })
 
