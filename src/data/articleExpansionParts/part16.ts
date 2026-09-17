@@ -10,8 +10,8 @@ export const articleExpansionPart16: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [FERRANDI Paris — Pâtisserie, recettes et techniques](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Cacao Barry — The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
-- [Valrhona — Les Essentiels](https://essentials.valrhona.com/)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
+- [Valrhona — Les Essentiels: Biscuits, Pâtries & Bases](https://essentials.valrhona.com/category/1)`,
   'recipe-millefeuille-inverser': `## Почему feuilletage inversé удобен для мильфея
 
 В инвертированном тесте détrempe заключена в beurre manié. Внешняя жировая фаза делает раскатку особенно пластичной и помогает получить тонкие регулярные слои. Но тёплое масло быстро липнет к столу, поэтому работа требует холода, муки в минимальном количестве и полноценного отдыха.
@@ -30,7 +30,8 @@ export const articleExpansionPart16: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Feuilletage inversé — Académie du Goût](https://www.academiedugout.fr/recherche?q=feuilletage%20invers%C3%A9)
+- [Pâte feuilletée inversée — Meilleur du Chef: détrempe, tour double, затем tour simple, раскатка до 1 см и отдых 30 минут в холоде — это буквально feuilletage inversé](https://www.meilleurduchef.com/fr/recette/pate-feuilletee-inverse.html)
+- [Croûte à bouchée carrée — Meilleur du Chef: полная пропорция обратного слоёного теста (300 г муки T45, 150 г воды, 5 г соли, 300 г масла, 100 г муки)](https://www.meilleurduchef.com/fr/recette/croute-bouchee-carree.html)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-charlotte-fraises': `## Бисквит задаёт форму, но не должен доминировать
@@ -51,8 +52,8 @@ Crème anglaise загущают желатином, охлаждают до п�
 
 ## Французские источники и первичные материалы
 
-- [Charlotte aux fraises — Académie du Goût](https://www.academiedugout.fr/recherche?q=charlotte%20aux%20fraises)
-- [Mercotte — charlottes](https://www.mercotte.fr/?s=charlotte)
+- [Charlotte aux fraises — Meilleur du Chef: 14 бискюи à la cuillère, диск женуаза, crème mousseline (140 г сахара, 50 г воды, 3 желтка, 180 г масла, 150 г крема патисьер) и итальянская меренга с сиропом, доведённым до 118 °C](https://www.meilleurduchef.com/fr/recette/charlotte-fraise.html)
+- [Charlotte Tutti-Frutti — Meilleur du Chef: chemiser форму бискюи à la cuillère и biscuit dacquoise на белках, взбитых и serrés сахаром, — порядок сборки шарлотты](https://www.meilleurduchef.com/fr/recette/charlotte-tutti-frutti.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-bourdaloue': `## Груша и миндальный крем готовятся вместе
 
@@ -72,8 +73,8 @@ Pâte sucrée раскатывают равномерно и дают ей от�
 
 ## Французские источники и первичные материалы
 
-- [Tarte Bourdaloue — Académie du Goût](https://www.academiedugout.fr/recherche?q=bourdaloue)
-- [Tarte Bourdaloue — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-bourdaloue.html)
+- [Tarte aux poires chocolatée — Meilleur du Chef: сборка по той же схеме, что и у bourdaloue, — crème d'amandes в донышко, испечённое à blanc 15 минут при 170 °C, затем груши и ещё 20–25 минут; автор отдельно требует, чтобы бордюр крема между грушей и кремом остался светлым, иначе середина перестанет быть moelleux](https://www.meilleurduchef.com/fr/recette/tarte-poire-chocolat.html)
+- [Tarte aux fruits frais — Meilleur du Chef: выпечка донышка à blanc под грузом (бумага и белые бобы, лист снимают на середине выпечки, чтобы центр допёкся) и финальная глазуровка nappage blond, растопленный на очень слабом огне с 1–2 ст. ложками воды](https://www.meilleurduchef.com/fr/recette/tarte-fruits.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-gateau-basque': `## Два классических центра
 
@@ -93,8 +94,9 @@ Gâteau basque встречается с crème pâtissière и с вишнёв�
 
 ## Французские источники и первичные материалы
 
-- [Musée du Gâteau Basque](https://www.legateaubasque.com/)
-- [Gâteau basque — Académie du Goût](https://www.academiedugout.fr/recherche?q=g%C3%A2teau%20basque)
+- [Musée du Gâteau Basque — recette traditionnelle](https://www.legateaubasque.com/la-recette-du-gateau-basque-traditionnel/)
+- [Gâteau basque à la confiture de cerises noires et au piment d'Espelette — Meilleur du Chef: полная пропорция теста (300 г муки T55, 200 г сахара, 40 г tant pour tant, 1 яйцо и 1 желток, 120 г beurre pommade, мелкая соль, ~8 г разрыхлителя, 2 кл Pernod, капля amande amère), масло с сахаром blanchir насадкой «feuille», раскатка 4–5 мм, дорюр из желтка с водой и basque-крест на крышке](https://www.meilleurduchef.com/fr/recette/gateau-basque-cerise.html)
+- [Gâteau basque à la crème — Meilleur du Chef: кремовая версия того же теста; крем варят несколько минут на умеренном огне, мешая без остановки и следя, чтобы он не пристал ко дну, а дорюр наносят по краю в пропорции 1 желток на 1 ст. ложку холодной воды](https://www.meilleurduchef.com/fr/recette/gateau-basque.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-kouglof': `## Форма — часть технологии
 
@@ -114,8 +116,8 @@ Kouglof вынимают после короткой стабилизации и
 
 ## Французские источники и первичные материалы
 
-- [Kougelhopf — Tourisme Alsace](https://www.visit.alsace/)
-- [Kouglof — Académie du Goût](https://www.academiedugout.fr/recherche?q=kouglof)
+- [Kougelhopf sucré aux raisins — Christophe Felder: полная рецептура эльзасской короны — levain из 10 г свежих дрожжей, 35 г воды и 50 г муки T45 поднимается 30 минут под слоем муки, затем тесто (225 г T45, 1 яйцо, 125 г молока, 40 г сахара, 1 ч. ложка соли, 65 г мягкого масла) вымешивается крюком ~10 минут до отлипания от стенок; 50 г изюма, мацерированного в тёмном роме; расстойка 1 ч 30 мин и ещё 2 часа в форме, по одному миндалю на каждое ребро формы, 170 °C конвекция 20–25 минут, выход — 2 кугопфа по 12 см (600 г теста)](http://www.christophe-felder.com/recettes/index.php?id=120)
+- [Kouglof — Meilleur du Chef: hydrater изюм Коринфа от 1 часа, дрожжи в тёплом молоке, строгий порядок закладки, замес крюком 15–20 минут, beurre pommade, расстойка не выше 28 °C, выпечка 180 °C 30–35 минут](https://www.meilleurduchef.com/fr/recette/kouglof.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-saint-honore': `## Несколько техник должны закончиться одновременно
 
@@ -135,9 +137,9 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 
 ## Французские источники и первичные материалы
 
-- [Saint-Honoré — Académie du Goût](https://www.academiedugout.fr/recherche?q=saint-honor%C3%A9)
+- [Saint-honoré à la vanille — Jimmy Mornet, Académie du Goût (из книги Le Paris des pâtisseries, Éditions Alain Ducasse): крем на bois de vanille, шантийи с маскарпоне, карамель для шу](https://www.academiedugout.fr/recettes/saint-honore-a-la-vanille-jimmy-mornet_16398_2)
 - [Saint-Honoré — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/saint-honore.html)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
   'recipe-croquembouche': `## Башню проектируют до варки карамели
 
 Количество choux, диаметр основания и высоту рассчитывают заранее. Заготовки сортируют по размеру и раскладывают по рядам. Попытка импровизировать с горячей карамелью приводит к перекосу и ожогам.
@@ -157,6 +159,7 @@ Saint-Honoré объединяет основу, choux, карамель и кр
 ## Французские источники и первичные материалы
 
 - [Pièce montée en choux — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/piece-montee-choux.html)
-- [Croquembouche — Académie du Goût](https://www.academiedugout.fr/recherche?q=croquembouche)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Croquembouche — Meilleur du Chef: panade как основа pâte à choux, сушка декора на воздухе, погружение шу на 3/4 в карамель и сборка pièce montée, включая dentelle из изомальта](https://www.meilleurduchef.com/fr/recette/croquembouche-20-ans-mdc.html)
+- [Croquembouche chiffre à la nougatine — Meilleur du Chef: состав карамели для склеивания (sirop de glucose и fondant blanc), текстура теста проверяется по следу от лопатки, который должен закрываться медленно](https://www.meilleurduchef.com/fr/recette/croquembouche-chiffre-nougatine.html)
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

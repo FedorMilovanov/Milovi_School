@@ -17,8 +17,8 @@ Merveilleux соединяет меренгу, взбитые сливки и с
 
 ## Французские источники и первичные материалы
 
-- [Merveilleux — Académie du Goût](https://www.academiedugout.fr/recherche?q=merveilleux)
-- [Meringue française — Académie du Goût](https://www.academiedugout.fr/recherche?q=meringue%20fran%C3%A7aise)
+- [Académie du Goût — Meringues, Alain Ducasse (recette offerte: база меренги для мервейё)](https://www.academiedugout.fr/recettes/meringues_11465_2)
+- [Mémorial historique et géographique de la pâtisserie (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-quatre-quarts': `## Равные части считаются по массе яиц
 
@@ -39,7 +39,7 @@ Quatre-quarts становится ровнее после нескольких 
 ## Французские источники и первичные материалы
 
 - [Quatre-quarts — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/quatre-quarts.html)
-- [Quatre-quarts — Académie du Goût](https://www.academiedugout.fr/recherche?q=quatre-quarts)
+- [Quatre-quarts — Meilleur du Chef: каноническая пропорция четырёх равных частей (250 г яиц, 250 г сахара, 250 г размягчённого масла, 250 г муки T55, щепотка соли)](https://www.meilleurduchef.com/fr/recette/quatre-quarts.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-gougeres': `## Сыр меняет баланс pâte à choux
 
@@ -60,8 +60,8 @@ Gougères отсаживают одинаковыми маленькими по�
 ## Французские источники и первичные материалы
 
 - [Gougères — Chef Simon](https://chefsimon.com/recettes/tag/goug%C3%A8res)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tuiles-amandes': `## Тонкость должна быть одинаковой
 
 Tuile хрустит только при равномерном тонком слое. Массу распределяют по шаблону или одинаковой мерной ложкой. Толстый центр остаётся мягким, пока край уже горит. Миндальные лепестки укладывают без больших стопок.
@@ -81,7 +81,7 @@ Tuile снимают горячей и сразу изгибают на скал
 ## Французские источники и первичные материалы
 
 - [Tuiles aux amandes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tuiles-aux-amandes--8)
-- [Tuiles — Académie du Goût](https://www.academiedugout.fr/recherche?q=tuiles%20aux%20amandes)
+- [Tuiles dentelles — Meilleur du Chef: pâte à tuiles на рубленом миндале (125 г миндаля, 250 г сахара, 60 г муки T55, 100 г апельсинового сока, 125 г растопленного масла)](https://www.meilleurduchef.com/fr/recette/tuiles-dentelles.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-crepes-suzette': `## Соус строится на эмульсии масла и цитруса
 
@@ -101,8 +101,8 @@ Beurre Suzette соединяет сахар, масло, апельсиновы
 
 ## Французские источники и первичные материалы
 
-- [Crêpes Suzette — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%AApes%20Suzette)
-- [Auguste Escoffier — Gallica](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
+- [Pâte à crêpes — Paul Bocuse, Académie du Goût (из книги Best of Bocuse, Éditions Alain Ducasse): 250 г муки, 3 яйца, 50 cl молока, отдых теста 1 час — база, на которой строится Suzette](https://www.academiedugout.fr/recettes/pate-a-crepes_5386_2)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
 - [Crêpes — Chef Simon](https://chefsimon.com/recettes/tag/cr%C3%AApes)`,
   'recipe-financiers': `## Beurre noisette задаёт характер
 
@@ -123,7 +123,7 @@ Financier должен иметь влажную плотную крошку, а
 ## Французские источники и первичные материалы
 
 - [Financiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/financiers--14)
-- [Financier — Académie du Goût](https://www.academiedugout.fr/recherche?q=financier)
+- [Financier — Meilleur du Chef: база финансье (poudre d'amandes в смеси с sucre glace и мукой, сырые белки в два приёма, холодное растопленное масло, 180 °C 10–12 минут)](https://www.meilleurduchef.com/fr/recette/financier-chocolat.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-buche-noel': `## Рулет и entremets — две разные системы
 
@@ -143,9 +143,9 @@ Bûche часто перевозят и режут на большое числ�
 
 ## Французские источники и первичные материалы
 
-- [Bûches de Noël — Académie du Goût](https://www.academiedugout.fr/recherche?q=b%C3%BBche%20de%20No%C3%ABl)
+- [Bûche de Noël marron/chocolat — Meilleur du Chef: мацерация каштанов (200 г marrons glacés, 100 г Grand-Marnier, 200 г сиропа 30° Baumé), insert aux marrons и велюровый спрей perlé velours, который работает только по замороженной поверхности](https://www.meilleurduchef.com/fr/recette/buche-marron-chocolat.html)
 - [Bûche au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/buche-de-noel-au-chocolat.html)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)`,
   'recipe-chausson-aux-pommes': `## Компоте должно быть сухим и ароматным
 
 Начинку готовят заранее и полностью охлаждают. Яблоки уваривают до плотной массы без свободного сиропа, но сохраняют фруктовый вкус. Слишком жидкое компоте вытекает через шов и разрушает слои; чрезмерно сухое кажется пастообразным.
@@ -165,6 +165,6 @@ Feuilletage раскатывают равномерно и дают ему от�
 ## Французские источники и первичные материалы
 
 - [Chaussons aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/chaussons-aux-pommes--5)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
 })

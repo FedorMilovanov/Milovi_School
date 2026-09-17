@@ -141,7 +141,7 @@ Paris-Brest лучше темперировать несколько минут:
 
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
 - [Nouveau traité de la cuisine (1739)](https://catalogue.bnf.fr/rechercher.do?motRecherche=Nouveau+trait%C3%A9+de+la+cuisine+Menon)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)`,
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)`,
   'croissant-history': `## Kipferl не был современным круассаном
 
 Австрийский kipferl — изогнутая выпечка с более древней историей, но обычно без французской ламинации. Легенда о победе над османами в 1683 году популярна, однако поздние пересказы не заменяют датированный рецепт.
@@ -164,9 +164,9 @@ Paris-Brest лучше темперировать несколько минут:
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Croissant par Thomas Marie, MOF](https://www.academiedugout.fr/recettes/croissant_16818_2)
+- [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
   'crookie-conticini': `## Кто создал crookie
 

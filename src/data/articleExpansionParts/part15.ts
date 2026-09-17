@@ -38,8 +38,9 @@ Insert praliné замораживают или охлаждают до сост
 
 ## Французские источники и первичные материалы
 
-- [Canelé — Baillardran](https://www.baillardran.com/)
-- [Cannelés bordelais — Académie du Goût](https://www.academiedugout.fr/recherche?q=cannel%C3%A9)
+- [D'où vient le canelé traditionnel de Bordeaux ? — Maison Baillardran: история канеле от бордоского дома, который её и хранит, — происхождение в XVIII веке и связь с монахинями Couvent des Annonciades, Филипп Байяран основал Maison Canelés Baillardran в 1988 году, Confrérie des Canelés de Bordeaux долго охраняла рецепт, характерная форма с карамелизованной хрустящей «робой» и мягкой сердцевиной на ванили и роме; там же FAQ о вариантах — классический, безалкогольный и с начинками вроде шоколада](https://www.baillardran.com/fr/actualites/d-ou-vient-le-canele-traditionnel-de-bordeaux--n3)
+- [Canelés de Bordeaux — Maison Baillardran: спецификация медной формы, которой посвящена статья, — лужёная медь, вместимость 60 г, диаметр 5,5 см, высота 4,5–5 см, цена 9,20 €, производство в Европе; и приём возврата хруста: канеле ставят на 5 минут в печь при 200 °C, затем дают постоять 15 минут при комнатной температуре](https://www.baillardran.com/fr/actualites/caneles-de-bordeaux-une-douce-idee-pour-votre-repas-de-saint-valentin-n27)
+- [Cannelés bordelais — Meilleur du Chef: infusion ванили в молоке, beurre noisette, а главное — culottage медных форм и правила ухода (без моющего средства, полоскание горячей водой, немедленная просушка, лёгкое смазывание перед каждой закладкой)](https://www.meilleurduchef.com/fr/recette/canneles-bordelais-facile.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-tatin': `## Яблоко должно выдержать двойное приготовление
 
@@ -60,7 +61,7 @@ Pâte brisée или feuilletage раскатывают немного шире 
 ## Французские источники и первичные материалы
 
 - [Tarte Tatin — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-tatin.html)
-- [Tarte Tatin — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20tatin)
+- [Tarte tatin aux deux prunes — Académie du Goût, recette offerte: карамель в форме, укладка фруктов и горячий деโมляж](https://www.academiedugout.fr/recettes/tarte-tatin-aux-deux-prunes_12842_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-creme-brulee': `## Мелкая форма важнее эффектной толщины
 
@@ -80,7 +81,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Crème brûlée — Académie du Goût](https://www.academiedugout.fr/recherche?q=cr%C3%A8me%20br%C3%BBl%C3%A9e)
+- [Crème brûlée — Alain Ducasse, Académie du Goût (из книги Grand Livre de Cuisine Bistrot, Éditions Alain Ducasse): инфузия ванили 30 минут, выпечка при 100 °C](https://www.academiedugout.fr/recettes/creme-brulee_1019_2)
 - [Crème brûlée — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/creme-brulee.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-souffle-chocolat': `## Рамекен направляет подъём
@@ -101,7 +102,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Soufflé au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=souffl%C3%A9%20chocolat)
+- [Soufflé au chocolat et aux griottes — Meilleur du Chef: шоколад растоплен на водяной бане, затем масло, разделение яиц, белки взбиты и serrés — базовая механика суфле](https://www.meilleurduchef.com/fr/recette/souffle-chocolat-griotte.html)
 - [Soufflé au chocolat — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/souffle-chocolat.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-madeleines': `## Горб создаёт разница состояний
@@ -122,7 +123,7 @@ Crème brûlée готовится равномернее в широком не
 
 ## Французские источники и первичные материалы
 
-- [Madeleines — Académie du Goût](https://www.academiedugout.fr/recherche?q=madeleine)
+- [Madeleine cœur fondant — Meilleur du Chef: 20 мадлен, 30 минут работы и 12 часов отдыха теста в холоде — именно холод решает, будет ли бугорок; версия с начинкой из пралине](https://www.meilleurduchef.com/fr/recette/madeleine-coeur-fondant.html)
 - [François Perret — Ritz Paris Le Comptoir](https://www.ritzparislecomptoir.com/fr/francois-perret)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'chiffres-education-mof': `## Показатели, которые меняются

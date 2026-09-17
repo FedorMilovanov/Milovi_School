@@ -54,7 +54,7 @@ Le Canon Sucré поэтому не присваивает жанр одному
 ## Французские источники и первичные материалы
 
 - [Éditions Alternatives — Jacques Genin & Ingrid Astier, Le meilleur de la tarte au citron](https://www.editionsalternatives.com/site.php?id=991&type=P)
-- [Jacques Genin — официальный univers Maison](https://jacquesgenin.fr/univers)
+- [Jacques Genin — magasins officiels (pâtisseries sur commande)](https://jacquesgenin.fr/magasins)
 - [Le Monde — sélection des tartes au citron, 2021](https://www.lemonde.fr/le-monde-passe-a-table/article/2021/06/29/on-s-y-presse-notre-selection-des-15-meilleures-tartes-au-citron_6086237_6082232.html)
 - [Le Monde — Jacques Genin et sa chocolaterie, 3 avril 2009](https://www.lemonde.fr/vous/article/2009/04/03/jacques-genin-et-sa-chocolaterie_1176278_3238.html)
 - [Georgia Historic Newspapers — Common Lemon Tartlets, 16 August 1850](https://gahistoricnewspapers.galileo.usg.edu/lccn/sn83026608/1850-08-16/ed-1/seq-4/)

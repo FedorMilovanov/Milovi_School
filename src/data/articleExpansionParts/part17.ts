@@ -18,8 +18,8 @@ export const articleExpansionPart17: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Les profiteroles — Académie du Goût](https://www.academiedugout.fr/articles/les-profiteroles_2303)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)
+- [Valrhona — Les Essentiels: Creamy Textures](https://essentials.valrhona.com/category/2)`,
   'recipe-mont-blanc': `## Каштановая масса должна быть пластичной
 
 Crème de marrons, pâte de marrons и purée de marrons различаются содержанием сахара и воды. Их нельзя заменять один к одному. Для нитей Mont-Blanc масса должна проходить через насадку без разрыва, сохранять рельеф и не быть приторной. Плотность регулируют сливками или пюре, а не бесконечным сахаром.
@@ -39,7 +39,7 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 ## Французские источники и первичные материалы
 
 - [Angelina Paris — savoir-faire](https://www.angelina-paris.fr/notre-savoir-faire)
-- [Mont-Blanc — Académie du Goût](https://www.academiedugout.fr/recherche?q=mont-blanc)
+- [Comme un Mont Blanc, chocolat-marron-pruneaux-armagnac — Meilleur du Chef: авторская версия с полными пропорциями glace и mousse marron glacé (310 г и 200 г крема из каштанов на 35-процентных сливках)](https://www.meilleurduchef.com/fr/recette/comme-mont-blanc-chocolat-marron.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-ile-flottante': `## Œufs à la neige и île flottante
 
@@ -59,8 +59,8 @@ Mont-Blanc собирают близко к подаче. Каштановые �
 
 ## Французские источники и первичные материалы
 
-- [Œufs à la neige — Académie du Goût](https://www.academiedugout.fr/recherche?q=oeufs%20%C3%A0%20la%20neige)
-- [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_1532_2)
+- [Île flottante aux éclats de pistaches — Meilleur du Chef: полная разбивка на два элемента — 4 белка и 50 г сахара для «острова», crème anglaise на 1/4 л молока, 3 желтка, 50 г сахара и полстручка ванили; белки взбиваются и serrés, соус протирается через chinois étamine](https://www.meilleurduchef.com/fr/recette/ile-flottante-eclats-pistaches.html)
+- [Crème anglaise — Académie du Goût](https://www.academiedugout.fr/recettes/creme-anglaise_4447_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-dacquoise': `## Dacquoise — не просто «ореховый бисквит»
 
@@ -80,8 +80,8 @@ Dacquoise хорошо принимает сироп и крем, но быст�
 
 ## Французские источники и первичные материалы
 
-- [Dacquoise — Académie du Goût](https://www.academiedugout.fr/recherche?q=dacquoise)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Dacquoise amande — Meilleur du Chef (в составе bûche façon cheese cake): полная пропорция (50 г миндальной муки, 55 г сахарной пудры, 20 г сахара, 80 г белков, 12 г Maïzena, 30 г миндальных обломков), отсадка параллельными линиями по шаблону, пудра перед выпечкой и переворот ещё горячего бисквита](https://www.meilleurduchef.com/fr/recette/buche-cream-cheese-fruits-rouges-amande.html)
+- [Valrhona — Les Essentiels: Biscuits, Pâtries & Bases](https://essentials.valrhona.com/category/1)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-palmiers': `## Два ингредиента не означают простую технику
 
@@ -102,8 +102,8 @@ Palmiers пекут до карамелизации нижней стороны,
 ## Французские источники и первичные материалы
 
 - [Petits palmiers — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/petits-palmiers)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-brioche': `## Клейковину развивают до масла
 
 Большое количество жира мешает муке связывать воду и строить сеть. Поэтому тесто сначала вымешивают до заметной эластичности, затем вводят мягкое масло небольшими порциями. Каждая следующая порция добавляется после поглощения предыдущей.
@@ -123,8 +123,8 @@ Palmiers пекут до карамелизации нижней стороны,
 ## Французские источники и первичные материалы
 
 - [Mercotte — conseils pour les brioches](https://www.mercotte.fr/quelques-conseils-utiles-pour-les-pates-levees-surtout-les-brioches/)
-- [Brioche — Académie du Goût](https://www.academiedugout.fr/recherche?q=brioche)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Mouler et cuire une brioche — Meilleur du Chef: деление теста на четыре части (1/4 и 3/4 для brioche à tête), расстойка около 27 °C примерно час, дорюр желтком, выпечка при 180 °C](https://www.meilleurduchef.com/fr/recette/mouler-brioche.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tarte-aux-pommes': `## Два состояния яблока
 
 Классический французский тарт часто сочетает compote и тонкие дольки. Компоте даёт влажность и концентрированный вкус, верхний веер — форму и свежую фруктовую текстуру. Если обе части слишком водянистые, дно размокает; если компоте пересушено, начинка отделяется от теста.
@@ -144,7 +144,7 @@ Pâte brisée, sucrée или feuilletage выбирают осознанно. �
 ## Французские источники и первичные материалы
 
 - [Tarte fine aux pommes — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/tarte-fine-aux-pommes--13)
-- [Tarte aux pommes — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20aux%20pommes)
+- [Tartelettes aux pommes — Meilleur du Chef: полная пропорция слоёного теста (200 г муки T55, 100 г воды, 150 г beurre de tourage), компот из Golden с ванилью и nappage blond для финиша](https://www.meilleurduchef.com/fr/recette/tartelette-pommes.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-sables-diamant': `## «Алмаз» создаёт не сахарная пыль, а ровная геометрия
 
@@ -165,6 +165,6 @@ Sablés готовы при золотистом крае и пропечённ�
 ## Французские источники и первичные материалы
 
 - [Sablés diamant — Mercotte](https://www.mercotte.fr/2021/09/19/sables-diamant-a-la-noisette-et-aux-eclats-de-noisettes-caramelises/)
-- [Sablés — Académie du Goût](https://www.academiedugout.fr/recherche?q=sabl%C3%A9s)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Petits sablés — Meilleur du Chef: масло с сахаром взбиты насадкой feuille, tant pour tant, отдых теста от часа до суток, дорюр из желтка с водой и выпечка при 170 °C на конвекции](https://www.meilleurduchef.com/fr/recette/sables.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
 })

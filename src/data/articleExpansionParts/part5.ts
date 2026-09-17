@@ -44,7 +44,7 @@ export const articleExpansionPart5: Readonly<Record<string, string>> = Object.fr
 - [Rencontre avec Claire Heitzler](https://www.valrhona-collection.com/blogs/news/rencontre-cheffe-claire-heitzler)
 - [Le bon et le beau, c’est la pureté](https://www.cultures-sucre.com/actualites/claire-heitzler-en-patisserie-le-bon-et-le-beau-cest-la-purete-/)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'heitzler-seasonality': `## Сезон — это не одна дата
 
 Французская клубника поступает из разных регионов и сортов, поэтому календарь растянут от весны до начала осени. Ранние тепличные партии, Gariguette, Ciflorette и поздние сорта имеют разные окна. Формулировка «клубника бывает только в июне» так же неточна, как круглогодичная витрина: профессионал смотрит на происхождение, сорт, дату сбора и фактический аромат.
@@ -94,6 +94,7 @@ Mogador соединяет молочный шоколад и маракуйю: 
 Такая карта позволяет сравнить авторские изделия без субъективного «вкусно»: видно, какой компонент открывает композицию, какой удерживает середину и какой завершает её.
 
 ## Французские источники и первичные материалы
+- [Pierre Hermé: «Je ne fais aucune concession au plaisir» — Notre Temps (11 декабря 2022): интервью по случаю выхода автобиографии «Toutes les saveurs de la vie, l'odyssée d'un pâtissier de génie» (Buchet-Chastel); единственный найденный первоисточник с прямой речью Эрме о его правиле удовольствия и о том, что «la pâtisserie évolue en même temps que la société»](https://www.notretemps.com/vie-pratique/cuisine/pierre-herme-je-ne-fais-aucune-concession-au-plaisir-59523)
 
 - [Macaron Mogador](https://www.academiedugout.fr/recettes/macaron-mogador_1121_2)
 - [Ispahan](https://www.academiedugout.fr/recettes/ispahan_1111_2)
@@ -116,6 +117,10 @@ Ispahan показывает работу с устойчивой вкусово
 Формулу о «дерзости» следует оставлять только с прямым интервью и датой. Даже без неё биография показывает проверяемый риск: собственный люксовый дом сначала открылся не в Париже, а в Токио, а macaron превратился из изделия витрины в носитель сезонной коллекции.
 
 ## Французские источники и первичные материалы
+- [Pierre Hermé — World's Best Pastry Chef by the World's 50 Best Restaurants Academy (16 июня 2016): церемония в Нью-Йорке, академия из 972 экспертов с пяти континентов, тайное голосование по 7 ресторанам из 27 регионов; предыдущие лауреаты — Жорди Рока (El Celler de Can Roca) 2014 и Альбер Адриа (Tickets, Барселона) 2015](https://www.francothaicc.com/actualites/past-events/n/news/pierre-herme-receives-the-title-of-worlds-best-pastry-chef-by-the-worlds-50-best-restaurants-acade.html)
+- [Pierre Hermé — Wikipedia: биографическая канва, по которой сверялись годы, — родился 20 ноября 1961 года, ученичество у Гастона Ленотра с 14 лет, титул World's Best Pastry Chef 2016 от The World's 50 Best Restaurants, Chevalier de la Légion d'honneur от Жака Ширака в мае 2007 года, звание самого молодого Pastry Chef of the Year во Франции и единственный кондитер — Chevalier des Arts et des Lettres](https://en.wikipedia.org/wiki/Pierre_Herm%C3%A9)
+- [The World's Best Pastry Chef Award — список лауреатов The World's 50 Best Restaurants: Пьер Эрме 2016, Доминик Ансель 2017, Седрик Гроле 2018, Джессика Пральпато 2019, Уилл Голдфарб 2021, Максим Фредерик 2025 — документ, показывающий, что в 2011 году такой номинации не существовало](https://www.the50.com/restaurants/best-in-the-world/awards/best-pastry-chef.html)
+- [Pierre Hermé: «Je ne fais aucune concession au plaisir» — Notre Temps (11 декабря 2022): интервью по случаю выхода автобиографии «Toutes les saveurs de la vie, l'odyssée d'un pâtissier de génie» (Buchet-Chastel); единственный найденный первоисточник с прямой речью Эрме о его правиле удовольствия и о том, что «la pâtisserie évolue en même temps que la société»](https://www.notretemps.com/vie-pratique/cuisine/pierre-herme-je-ne-fais-aucune-concession-au-plaisir-59523)
 
 - [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
@@ -143,10 +148,11 @@ Mogador соединяет маракуйю и молочный шоколад, 
 - [Macaron Mogador](https://www.academiedugout.fr/recettes/macaron-mogador_1121_2)
 - [Ispahan](https://www.academiedugout.fr/recettes/ispahan_1111_2)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)
-- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)`,
+- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
+- [SoSoir / Le Soir, 19.09.2024 — интервью Пьера Эрме: «Paradis» в Fauchon, переработка в Ladurée, имя Ispahan и первая бутика 2001 года](https://sosoir.lesoir.be/623713/article/2024-09-19/lispahan-de-pierre-herme-pourquoi-son-dessert-star-failli-ne-jamais-voir-le-jour)`,
   'herme-ispahan-deep': `## Coque
 
-Macaronную оболочку ароматизируют и окрашивают умеренно: роза должна приходить из всей композиции, а не только из сильного экстракта. Оболочка после выпечки созревает с кремом и становится нежной внутри.
+Макаронную оболочку ароматизируют и окрашивают умеренно: роза должна приходить из всей композиции, а не только из сильного экстракта. Оболочка после выпечки созревает с кремом и становится нежной внутри.
 
 ## Crème à la rose
 
@@ -190,9 +196,9 @@ Tarte Bourdaloue связывают с парижской улицей и кон
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Antonin Carême (1783–1833)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/antonin-careme-1783-1833)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
-- [Le Ménagier de Paris](https://fr.wikisource.org/wiki/Le_M%C3%A9nagier_de_Paris)
+- [BnF — Antonin Carême, L’art de la cuisine française au XIXe siècle](https://catalogue.bnf.fr/ark:/12148/cb357291124)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
+- [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
 })

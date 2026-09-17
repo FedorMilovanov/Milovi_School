@@ -18,8 +18,8 @@ Mousse au chocolat может строиться на белках, сливка
 ## Французские источники и первичные материалы
 
 - [Mousse chocolat noir — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/mousse-chocolat-noir)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'recipe-fondant-chocolat': `## Жидкий центр зависит от размера и времени
 
 Fondant нельзя описать одной универсальной минутой. Диаметр формы, материал, температура теста и печи меняют границу между жидким центром и сырой массой. Для своего оборудования проводят серию выпечек с интервалом в одну минуту и фиксируют разрез после одинакового отдыха.
@@ -38,9 +38,9 @@ Fondant нельзя описать одной универсальной мин
 
 ## Французские источники и первичные материалы
 
-- [Fondant au chocolat — Académie du Goût](https://www.academiedugout.fr/recherche?q=fondant%20au%20chocolat)
+- [Fondant au chocolat — Meilleur du Chef: пропорция на 8 человек — 200 г чёрной couverture Équateur 76 %, 100 г масла, 100 г сахара, 5 яиц, 4 ст. ложки без горки муки T55; шоколад с маслом топят на очень слабом огне, яйца разделяют, сахар вводят в желтки, затем просеянную муку и только потом шоколад с маслом; холодные белки со щепоткой мелкой соли взбивают очень плотно и соединяют maryse; форма à manqué Ø 28 см, 180 °C 20–25 минут на конвекции и на средней решётке, вынимают осторожно, охлаждают, сахарная пудра и crème anglaise. Автор прямо отвечает читателю: испечённый накануне fondant неизбежно подсохнет](https://www.meilleurduchef.com/fr/recette/fondant-chocolat.html)
 - [Fondant au chocolat — Chef Simon](https://chefsimon.com/recettes/tag/fondant%20au%20chocolat)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'recipe-pain-perdu': `## Чёрствый хлеб удобен, но не любой
 
 Pain perdu использует хлеб, который потерял часть влаги, но не имеет постороннего запаха или плесени. Слишком свежий мякиш распадается после замачивания, полностью высохший толстый кусок остаётся сухим в центре. Brioche даёт более богатую версию, обычный pain de mie — более нейтральную.
@@ -60,7 +60,7 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 ## Французские источники и первичные материалы
 
 - [Pain perdu — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pain-perdu--10)
-- [Pain perdu — Académie du Goût](https://www.academiedugout.fr/recherche?q=pain%20perdu)
+- [Pain perdu au caramel beurre salé — Meilleur du Chef: пропитка, карамель на солёном масле и формовка](https://www.meilleurduchef.com/fr/recette/pain-perdu-caramel-beurre-sale.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-chou-chantilly': `## Простота усиливает требования к choux
 
@@ -81,8 +81,8 @@ Pain perdu хорош сразу, пока край слегка хрустит.
 ## Французские источники и первичные материалы
 
 - [Pâte à choux et éclairs — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/pate-a-choux-et-eclairs)
-- [Chantilly — Académie du Goût](https://www.academiedugout.fr/recherche?q=chantilly)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Chantilly vanille — Christophe Michalak, Académie du Goût (база: сливки 30 % MG, 80 г сахара на 1 л, холодная чаша и венчик)](https://www.academiedugout.fr/recettes/chantilly-vanille_4467_2)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-savarin': `## Тесто должно впитать сироп и не распасться
 
 Savarin готовят из дрожжевого теста с развитой сетью. Слишком слабый замес расползается после пропитки, пересушенная выпечка впитывает неравномерно. Форма-кольцо помогает получить большую площадь контакта с сиропом.
@@ -102,7 +102,7 @@ Savarin готовят из дрожжевого теста с развитой 
 ## Французские источники и первичные материалы
 
 - [Savarin et baba — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/savarin-et-baba)
-- [Baba au rhum — Académie du Goût](https://www.academiedugout.fr/recherche?q=baba%20au%20rhum)
+- [Baba au rhum, vanille bourbon et truffe noire — Jessica Préalpato, Académie du Goût: pâte à baba и сироп для пропитки](https://www.academiedugout.fr/recettes/baba-au-rhum-vanille-bourbon-et-truffe-noire_12293_2)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-tarte-au-sucre': `## Региональные версии различаются
 
@@ -122,7 +122,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 ## Французские источники и первичные материалы
 
-- [Tarte au sucre — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20au%20sucre)
+- [Tarte au sucre — Meilleur du Chef: тесто на пекарских дрожжах (250 г муки T45, 8 г свежих дрожжей, 40 г сахара, 3 яйца, 120 г масла, 5 г соли) и финиш, который и даёт название: 50 г масла и 30 г кассонада по поверхности перед выпечкой](https://www.meilleurduchef.com/fr/recette/tarte-sucre.html)
 - [Tarte au sucre — Chef Simon](https://chefsimon.com/recettes/tag/tarte%20au%20sucre)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-beignets': `## Семейство beignets шире одного пончика
@@ -144,8 +144,8 @@ Tarte au sucre на севере Франции и в Бельгии может 
 ## Французские источники и первичные материалы
 
 - [Beignets — Chef Simon](https://chefsimon.com/recettes/tag/beignets)
-- [Beignets — Académie du Goût](https://www.academiedugout.fr/recherche?q=beignets)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Beignet — Meilleur du Chef: pâte à beignets на farine de Gruau T45 (120 г цельного молока, 320 г муки, 14 г свежих пекарских дрожжей, 1 яйцо), нагрев строго не выше 40 °C, выпечка без фритюра](https://www.meilleurduchef.com/fr/recette/dessert/beignet-sucre-dessert.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-gaufres': `## Брюссельская и льежская вафли требуют разных тестов
 
 Брюссельская gaufre лёгкая, воздушная и хрустящая, часто на дрожжах и взбитых белках. Льежская строится на плотном бриошном тесте с жемчужным сахаром. Нельзя заменить одно тесто другим и ожидать одинаковой формы, времени выпечки и подачи.
@@ -164,7 +164,7 @@ Tarte au sucre на севере Франции и в Бельгии может 
 
 ## Французские источники и первичные материалы
 
-- [Gaufres — Chef Simon](https://chefsimon.com/recettes/tag/gaufre)
-- [Gaufres — Académie du Goût](https://www.academiedugout.fr/recherche?q=gaufres)
+- [Gaufres — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/gaufres--5)
+- [Pâte à gaufres — Meilleur du Chef: профессиональная пропорция (300 г воды, 350 г молока, 375 г муки, 100 г растопленного масла, 200 г сахарной пудры, 1 желток, 4 г соли, ваниль и флёрдоранж), гофрьер 180 °C](https://www.meilleurduchef.com/fr/recette/pate-gaufres.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
 })

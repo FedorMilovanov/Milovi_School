@@ -19,7 +19,7 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 - [Yann Couvreur — La Pâtisserie](https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)`,
   'lignac-patisserie-shop': `## Соседская pâtisserie не означает упрощённую технологию
 
 Формат районного магазина требует изделий, которые выдерживают ежедневный поток, транспортировку и понятный выбор гостя. Высокая точность переносится из ресторана в производство: одинаковая масса круассана, стабильный флан, предсказуемое размораживание entremets и чёткое окно продажи.
@@ -38,9 +38,9 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [La Pâtisserie Cyril Lignac](https://lapatisseriecyrillignac.com/)
+- [Shops — La Pâtisserie Cyril Lignac: полный перечень точек дома с адресами, телефонами и часами, то есть документальное подтверждение «соседского» масштаба, о котором статья, — La Pâtisserie Chaillot (2 rue de Chaillot, 75016 Paris, хлеб, выпечка и шоколад, маршмеллоу-мишки и пралиновые мишки на составление), La Chocolaterie (25 rue Chanzy, 75011 Paris, с зоной дегустации), Galeries Lafayette Le Gourmet (35 boulevard Haussmann, 75009 Paris) и точка на 55 boulevard Pasteur, 75015 Paris, плюс La Pâtisserie Saint-Tropez (66 Route des Plages, 83990) и Saint-Tropez Village (1 rue de l'Annonciade); часы различаются по точкам — от 7:00–21:00 ежедневно до 10:00–19:30 со вторника по пятницу, с указанием дат августовского закрытия](https://lapatisseriecyrillignac.com/en/shops)
 - [Cyril Lignac — Académie du Goût](https://www.academiedugout.fr/chefs/cyril-lignac_1)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'felder-alsace': `## Региональная линия — это набор технологий
 
 Эльзасская выпечка объединяет дрожжевые изделия, сухофрукты, орехи, пряности и длительное хранение. Kougelhopf требует развитого, но не перегретого теста; linzer — контроля песочной структуры и влажной начинки; streusel — холодного жира и правильного размера крошки. Общая «домашность» не отменяет разных технологических режимов.
@@ -59,9 +59,9 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [Christophe Felder — site officiel](https://www.christophe-felder.com/)
+- [Kougelhopf sucré aux raisins — Christophe Felder: полная рецептура эльзасской короны — levain из 10 г свежих дрожжей, 35 г воды и 50 г муки T45 поднимается 30 минут под слоем муки, затем тесто (225 г T45, 1 яйцо, 125 г молока, 40 г сахара, 1 ч. ложка соли, 65 г мягкого масла) вымешивается крюком ~10 минут до отлипания от стенок; 50 г изюма, мацерированного в тёмном роме; расстойка 1 ч 30 мин и ещё 2 часа в форме, по одному миндалю на каждую «ребро» формы, 170 °C конвекция 20–25 минут, выход — 2 кугопфа по 12 см (600 г теста)](http://www.christophe-felder.com/recettes/index.php?id=120)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Tourisme Alsace — gastronomie](https://www.visit.alsace/)`,
+- [Kouglof Chocolat façon Cake — Christophe Felder: шоколадная версия той же формы — 120 г мягкого масла и 120 г сахара взбивают, яйца темпераментированные до 20 °C, 95 г муки, 25 г горького какао и 2 г разрыхлителя просеянные вместе, апельсиновые цукаты и изюм (70 г блонд-изюма, 10 г пихтового мёда, сок ½ лимона, корица, мацерация 5 минут), оба шоколада рубленые кубиком 5 мм; 180 °C 40 минут, проверка тонким ножом, глазурь из темперированного чёрного 55 %, в который погружают основание и переворачивают на бумагу, — автор предупреждает, что темперированный шоколад должен застыть естественно, без избыточного холода, иначе потеряет блеск; финиш — трафарет и сахарная пудра](http://www.christophe-felder.com/recettes/index.php?id=118)`,
   'paciello-cinqsens': `## Иммерсивность начинается не с интерьера
 
 Магазин, посвящённый пяти чувствам, убедителен только тогда, когда продукт действительно меняется по аромату, температуре, звуку и текстуре. Свет и упаковка могут подготовить восприятие, но не должны подменять вкус. Для каждого изделия полезно формулировать главный сенсорный жест: треск оболочки, аромат при разрезе, текучий центр или контраст тёплого и холодного.
@@ -80,9 +80,9 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [CinqSens Paris](https://cinqsensparis.com/)
+- [Paris-Brest au praliné noisette maison — CinqSens / Николя Пачелло: описание конструкции от самого магазина — pâte à choux, наполненная нежным кремом на фундучном пралине, с текучим сердцем из домашнего praliné noisette и кусочками обжаренного фундука; 28,00 €, страница несёт собственную продуктовую JSON-LD-разметку продавца CinqSens](https://cinqsensparis.com/products/Paris-Brest-au-praline-noisette-maison-p602602224)
 - [Nicolas Paciello — profil](https://frenchefs.fr/nicolas-paciello)
-- [INAO — signes officiels de qualité](https://www.inao.gouv.fr/)`,
+- [INAO — Indication géographique protégée: définition, Code rural L641-11, Règlement (UE) 2024/1143](https://www.inao.gouv.fr/igp-indication-geographique-protegee)`,
   'ansel-cronut-origin': `## Изобретение как длинный производственный тест
 
 Гибрид круассана и пончика сложен не названием, а несовместимыми требованиями. Слоёное тесто должно удержать разделение масла, пройти ферментацию и одновременно выдержать фритюр без сырого центра и тяжёлой жирности. Поэтому разработка оценивает не только вкус первой минуты, но и структуру после наполнения и глазирования.
@@ -101,9 +101,9 @@ Feuilletage выпекают до глубокой сухости, часто м
 
 ## Французские источники и первичные материалы
 
-- [Dominique Ansel Bakery](https://www.dominiqueansel.com/)
+- [Chef — Dominique Ansel: первоисточник происхождения Cronut от самого автора — лауреат James Beard Award; Cronut назван журналом TIME в числе «25 лучших изобретений 2013 года»; запущен в мае 2013 года в его собственной пекарне в Нью-Йорке и стал первой в мире «вирусной» выпечкой; на доводку ушло два месяца и более десяти различных рецептур; это не просто обжаренное круассанное тесто — ламинированное тесто напоминает круассан, но сделано по собственной рецептуре, сначала расстаивается, затем обжаривается в виноградном масле при конкретной температуре; после жарки каждый Cronut 1) обваливают в сахаре, 2) наполняют кремом и 3) покрывают глазурью, и весь процесс занимает три дня; продаётся только в Dominique Ansel Bakery в Нью-Йорке, Лондоне и Лос-Анджелесе, вкус меняется каждый месяц и никогда не повторяется; рядом — DKA (Dominique's Kouign Amann), madeleines по заказу и Dominique Ansel Workshop, открытый в июле 2021 года как круассанная стойка внутри его кухонь в Flatiron](https://www.dominiqueansel.com/chef/)
 - [Dominique Ansel — books and tutorials](https://www.dominiqueansel.com/books/)
-- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/pate-feuilletee_1762_2)`,
+- [Pâte feuilletée — Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-feuilletee_5264_2)`,
   'michalak-fantastik': `## Низкий профиль меняет вкус
 
 Fantastik собирается как плоская композиция, поэтому ложка или вилка захватывает несколько элементов одновременно. Высота ограничена не ради красивой цифры, а ради удобства укуса. Если кремовые купола слишком высоки, они отделяются от основы и нарушают задуманное сочетание.
@@ -122,8 +122,8 @@ Sablé breton, biscuit или croustillant принимают вес кремо�
 
 ## Французские источники и первичные материалы
 
-- [Christophe Michalak — site officiel](https://christophemichalak.com/)
-- [Fantastik — Académie du Goût](https://www.academiedugout.fr/recherche?q=fantastik)
+- [L'histoire d'un Chef — Christophe Michalak: собственное определение Fantastik домом — mi-entremets / mi-tarte, круглый торт высотой 3 см, из сезонных продуктов, без заморозки, с рецептурой, которая менялась ежедневно; более 700 уникальных созданий за два года, линия Michalak Take-away и Kosmik, Koonie, Klassik](https://www.christophemichalak.com/content/lhistoire-dun-chef)
+- [Visitandine framboise litchi — Christophe Michalak: полный рецепт в его стандартной конструкции — visitandine (beurre noisette 180 г, сахарная пудра 140 г, poudre d'amande brute 70 г, кокосовая пудра 70 г, сырые белки 20 г; 190 °C 25 минут), crémeux framboise, нагретый до 83 °C с 4 г желатина и 85 г холодного масла, затем crème légère и монтаж](https://www.christophemichalak.com/recettes/visitandine-framboise-litchi)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'tech-macaronage': `## Масса теряет воздух неравномерно
 
@@ -145,7 +145,7 @@ Macaronage сочетает смешивание и контролируемое
 
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
 - [Macarons — Mercotte](https://www.mercotte.fr/recettes/macarons/)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'adam-eclair': `## Цвет должен обещать реальный вкус
 
 Яркая поверхность эклера работает, когда цвет связан с начинкой: зелёный ведёт к фисташке или траве, красный — к ягоде, тёмный блеск — к шоколаду. Декор, не совпадающий с ароматом, повышает ожидание и делает вкус слабее. В серии важно сохранять читаемость даже без подписи на витрине.
@@ -163,8 +163,10 @@ Fondant или шоколадное покрытие используют в у�
 Большое число вкусов требует общей производственной системы. Базы группируют по типу крема и покрытию, но аллергены, маркировка и сроки остаются отдельными для каждого вкуса. Авторский ассортимент устойчив только тогда, когда команда может воспроизвести цвет, массу и текстуру без присутствия шефа.
 
 ## Французские источники и первичные материалы
+- [Christophe Adam, l'éclair de génie de la pâtisserie — Vanity Fair France (1 мая 2014): первоисточник с прямой речью Адама об эклере — «En pleine guerre des macarons pastels, j'imposais ma patte funky et colorée»; там же — более ста рецептов на одну тему к дате публикации и превращение «pain de la duchesse» в ультрамодерную gourmandise](https://www.vanityfair.fr/savoir-vivre/articles/christophe-adam-l-eclair-de-genie/13889)
+- [Christophe Adam, «Éclairs : 20 ans de création» — La Martinière, 12 ноября 2020, 512 страниц, EAN 9782732494197, соавтор Sarah Vasseghi, фотограф Laurent Fau: 200 рецептов эклеров, история пирожного и свидетельства 15 личностей, значимых для кондитерского мира (Gilles Marchal, Christophe Felder, Sébastien Gaudard, Benoît Couvrand, Benoît Castel, Isabelle Capron) — издательские данные, подтверждающие заявленное в тексте число рецептов и состав свидетельств](https://www.lettreetmerveilles.fr/livre/17384098-eclairs-20-ans-de-creation-christophe-adam-la-martiniere)
 
-- [L’Éclair de Génie](https://leclairdegenie.com/)
-- [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_16)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Son histoire — L'Éclair de Génie: биографическая страница дома, где названы даты и награды, — Кристоф Адам запускает L'Éclair de Génie в 2012 году как концепцию, целиком посвящённую эклеру, его фирменной выпечке; десерты он «оттачивает» в своих парижских лабораториях; «Meilleur Pâtissier de l'année» 2014 по гиду Pudlo и «Meilleur pâtissier 2015» по Relais Desserts; в 2017 году Vanity Fair ставит его на 40-е место в списке 50 самых влиятельных французов мира](https://leclairdegenie.com/portfolio/son-histoire/)
+- [Christophe Adam — Académie du Goût](https://www.academiedugout.fr/chefs/christophe-adam_2991)
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
 })

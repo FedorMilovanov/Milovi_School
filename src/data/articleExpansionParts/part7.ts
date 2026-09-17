@@ -54,7 +54,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)`,
@@ -82,10 +82,10 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [L’Opéra](https://www.dalloyau.fr/opera.html)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'paciello-flan-parisien': `## Appareil как контролируемый заварной крем
 
 Парижский флан кажется простым, но в нём нечем скрыть ошибку. Молочную фазу нагревают с ароматикой; яйца и сахар соединяют с крахмалом без лишнего воздуха. Горячее молоко вводят постепенно, затем массу возвращают на нагрев и доводят до полноценного загущения. Крахмалу недостаточно просто «стать густым»: короткое кипение устраняет мучнистый вкус и формирует устойчивую сетку.
@@ -128,9 +128,9 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Nicolas Paciello — site officiel](https://nicolaspaciello.com/)
+- [Paris-Brest au praliné noisette maison — CinqSens / Николя Пачелло: описание конструкции от самого магазина — pâte à choux, наполненная нежным кремом на фундучном пралине, с текучим сердцем из домашнего praliné noisette и кусочками обжаренного фундука; 28,00 €, страница несёт собственную продуктовую JSON-LD-разметку продавца CinqSens](https://cinqsensparis.com/products/Paris-Brest-au-praline-noisette-maison-p602602224)
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Paris-Brest](https://philippeconticini.fr/pages/paris-brest)
 - [Paris-Brest 2009](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)`,
   'paris-brest-race-dessert': `## Гонка и форма колеса
@@ -178,10 +178,10 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 ## Французские источники и первичные материалы
 
-- [Le Ménagier de Paris](https://fr.wikisource.org/wiki/Le_M%C3%A9nagier_de_Paris)
+- [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Patrimoine gourmand numérisé](https://www.bnf.fr/fr/mediatheque/la-table-de-gallica-le-patrimoine-gourmand-numerise)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'perret-madeleine': `## Beurre noisette
 
 Подрумяненное масло даёт ореховый аромат, но содержит тёмные молочные частицы, которые легко сжечь. Его снимают с огня после янтарной стадии, процеживают по выбранной рецептуре и охлаждают перед введением. Горячее масло разрушит эмульсию теста.

@@ -128,7 +128,13 @@ Final contract: [`docs/le-canon-sucre/CLOSEOUT.md`](./docs/le-canon-sucre/CLOSEO
 - source ≠ author;
 - generated editorial image ≠ historical evidence;
 - archive/facsimile publication требует rights review;
-- Product wording должен быть fail-closed.
+- Product wording должен быть fail-closed;
+- каждый цитируемый источник обязан быть живым конкретным документом: 404/410,
+  логин-стена, soft-404 и страница поисковой выдачи не являются source trail;
+- 403/429, timeout, DNS/TLS/WAF и иные transport failures сами по себе не доказывают,
+  что документ мёртв: source gate классифицирует их отдельно как `blocked`, чтобы
+  сетевое поведение CI не превращалось в ложное фактологическое утверждение.
+  Контракт зашит в `scripts/audit_source_links.py`.
 
 Если новый сильный источник меняет claim, это отдельная Research correction с обновлением тестов/документов.
 
@@ -211,6 +217,8 @@ npm run validate
 ```
 
 `validate` включает TypeScript, lint, content/editorial/security checks, build, raw build audit, site/Canon/Research/SEO audits и privacy contract.
+
+В `audit:content` входит гейт живости французских источников (`npm run audit:source-links`). Без сетевого egress он честно печатает `SKIPPED` и не блокирует локальный прогон; в CI отдельный шаг `npm run audit:source-links:strict` запускает его с `--require-network`, поэтому тихий пропуск не может сойти за зелёный. Слабые цитаты (корень сайта, индекс, поисковая выдача) ограничены замороженным ratchet `MAX_WEAK_CITATIONS`, который можно только снижать.
 
 Для UI/section release дополнительно обязательны соответствующие browser/visual workflows. Для production-closeout доказательство — не только green build, а **exact deployed SHA live witness**.
 

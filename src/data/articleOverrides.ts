@@ -147,7 +147,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   }),
   'recipe-tarte-citron-grolet': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/recettes/tartelettes-citron-jaune_13671_2', sourceLabel: 'Tartelettes citron jaune' }),
   'recipe-tarte-tropezienne': Object.freeze({
-    sourceUrl: 'https://www.latartetropezienne.fr/fr/?m=aboutus%3Fm%3Daboutus',
+    sourceUrl: 'https://www.latartetropezienne.fr/fr/content/10-notre-histoire',
     sourceLabel: 'La Tarte Tropézienne — histoire officielle',
   }),
   'stohrer-1730': Object.freeze({ sourceUrl: 'https://stohrer.fr/pages/notre-histoire', sourceLabel: 'Maison Stohrer — histoire' }),

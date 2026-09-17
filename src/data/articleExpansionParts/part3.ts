@@ -17,9 +17,9 @@ Saucier ведёт соусы, соте и часто блюда из тушён
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [Référentiel MOF Pâtisserie-Confiserie](https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000048572002)`,
   'cuisine-fond-brun': `## Что такое fond brun
 
@@ -43,10 +43,10 @@ Fond brun — несолёная или слабо солёная базовая
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
-- [La Cuisine classique](https://gallica.bnf.fr/services/engine/search/sru?operation=searchRetrieve&version=1.2&query=%28gallica%20all%20%22La%20cuisine%20classique%22%29)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
+- [La Cuisine classique — Urbain Dubois et Émile Bernard, éd. Dentu 1868, t. 1 (Gallica/BnF)](https://gallica.bnf.fr/ark:/12148/bpt6k6209316c)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'cuisine-galette': `## Crème d’amande и frangipane
 
 Crème d’amande — масло, сахар, миндальная пудра и яйца, иногда с небольшим количеством крахмала или ароматического алкоголя. Frangipane — более лёгкая смесь миндального крема с crème pâtissière. Во французских домашних рецептах слова часто смешивают, но для технологии разница существенна: frangipane содержит больше воды и требует особенно хорошо пропечённого слоёного теста.
@@ -72,7 +72,7 @@ Fève и бумажная корона относятся к ритуалу Épi
 - [Galette Notre-Dame](https://www.academiedugout.fr/recettes/galette-des-rois-notre-dame_15371_2)
 - [Galette des rois](https://www.academiedugout.fr/recettes/galette-des-rois_5197_2)
 - [Le roi boit ! La galette au XIXe siècle](https://www.bnf.fr/fr/les-sciences-et-les-techniques-dans-gallica)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)`,
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)`,
   'cuisine-sauces-history': `## La Varenne: переход от средневековой кухни
 
 В «Le Cuisinier françois» 1651 года Франсуа Пьер де Ла Варенн фиксирует кухню, которая постепенно отказывается от тяжёлой маскировки продукта специями. Соусы всё чаще строятся на собственном соке, бульоне, масле, муке, травах и кислоте. Roux ещё не превращён в универсальную школьную схему, но сама идея связывать вкус блюда с его cuisson уже различима. Это важнее легенды о единственном «изобретателе французского соуса».
@@ -100,8 +100,8 @@ Fève и бумажная корона относятся к ритуалу Épi
 - [Le Cuisinier françois (1651)](https://catalogue.bnf.fr/ark:/12148/cb30754438c)
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
 - [Nouveau traité de la cuisine (1739)](https://catalogue.bnf.fr/rechercher.do?motRecherche=Nouveau+trait%C3%A9+de+la+cuisine+Menon)
-- [Gallica — Antonin Carême (1783–1833)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/antonin-careme-1783-1833)
-- [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)`,
+- [BnF — Antonin Carême, L’art de la cuisine française au XIXe siècle](https://catalogue.bnf.fr/ark:/12148/cb357291124)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)`,
   'eclair-histoire-complete': `## Ранние названия
 
 До закрепления слова éclair французские книги описывают вытянутые изделия из pâte à choux под названиями, связанными с pain à la duchesse. Историк должен сравнивать рецепт, форму и начинку, а не считать любое вытянутое choux современным эклером.
@@ -124,8 +124,8 @@ Christophe Adam превратил éclair в коллекционный фор�
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Éclair vanille–pécan](https://www.academiedugout.fr/recettes/eclair-vanille-de-madagascar-et-noix-de-pecan-caramelisees-2012_7197_2)`,
   'escoffier-biography': `## От Ниццы к великим гостиницам
@@ -152,9 +152,9 @@ Christophe Adam превратил éclair в коллекционный фор�
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Auguste Escoffier (1846–1935)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/auguste-escoffier-1846-1935)
+- [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
 - [Gallica — коллекции меню](https://gallica.bnf.fr/selections/fr/html/menus)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'felder-biscuit-joconde': `## Что такое tant-pour-tant
 
 В классическом biscuit Joconde основа строится на tant-pour-tant — равных частях миндальной пудры и сахарной пудры. Эта смесь даёт вкус, удерживает влагу и ограничивает развитие жёсткой клейковины. Целые яйца взбивают с миндальной смесью до светлой объёмной массы; отдельно приготовленные белки отвечают за дополнительную лёгкость. Небольшая доля муки укрепляет пласт, а растопленный жир делает его гибким после охлаждения.
@@ -175,7 +175,7 @@ Joconde отсаживают тонким ровным пластом. Слиш�
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Crème au beurre](https://www.academiedugout.fr/recettes/creme-au-beurre_327_2)
-- [L’Opéra](https://www.dalloyau.fr/opera.html)`,
+- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)`,
   'felder-fraisier': `## Génoise
 
 Бисквит должен быть тонким, гибким и равномерно пропитанным. Слишком воздушная сухая génoise забирает влагу у крема, а перепропитанная не держит срез.
@@ -195,6 +195,7 @@ Mousseline соединяет crème pâtissière и масло. Обе част
 ## Французские источники и первичные материалы
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Christophe Felder — recettes officielles](https://www.christophe-felder.com/recettes/)
+- [Mon fraisier — Meilleur du Chef: механика сборки, которую нужно довести до автоматизма, — crème mousseline vanille на 500 г цельного молока, 120 г сахара, 2 стручка ванили, 100 г желтков и 50 г poudre à crème, масло вводят в два приёма (40 г в горячий крем и 80 г при взбивании); половинки клубники ставят плоской стороной наружу и строго вертикально, крем отсаживают шнуром в контакт с ягодами и вжимают мини-лопаткой, чтобы не осталось видимых пузырей воздуха; диск бисквита Joconde с фисташкой вырезают кольцом Ø 20 см; минимум 1 час в холоде, а лучше 3–4 часа до подачи, лента PVC облегчает распалубку](https://www.meilleurduchef.com/fr/recette/mon-fraisier.html)
+- [Fraisier sans gluten — Meilleur du Chef: crème mousseline vanillée в точной пропорции (420 г молока, 105 г сахара, 120 г желтков, 22 г муки из цельного риса, 22 г Maïzena, 2 стручка ванили, 300 г beurre pommade) и главное правило против «зерна» — масло и остывший крем патисьер должны быть одинаковой комнатной температуры, а если масло всё же свернулось, стенки дежи слегка прогревают кулинарной горелкой. Там же историческая ремарка, прямо относящаяся к версии Фельдера с киршевым сиропом: раньше crème mousseline для fraisier ароматизировали киршем, сегодня её оставляют на ванили, и два стручка дают больше вкуса, чем алкоголь](https://www.meilleurduchef.com/fr/recette/fraisier-sans-gluten.html)
 - [École Christophe Felder — fraisier contemporain](https://www.christophe-felder.com/cours/detail.php?id=542)`,
 })

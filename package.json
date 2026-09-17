@@ -24,7 +24,14 @@
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py && npm run audit:canon-articles"
+    "audit:content": "node scripts/run-python-script.mjs scripts/audit_content.py && node scripts/run-python-script.mjs scripts/audit_article_depth.py && node scripts/run-python-script.mjs scripts/audit_editorial_quality.py && npm run audit:canon-articles && npm run audit:source-links && npm run audit:attributed-quotes && npm run audit:mixed-script",
+    "audit:source-links:selftest": "node scripts/run-python-script.mjs scripts/audit_source_links.py --selftest",
+    "audit:source-links": "npm run audit:source-links:selftest && node scripts/run-python-script.mjs scripts/audit_source_links.py",
+    "audit:source-links:strict": "npm run audit:source-links:selftest && node scripts/run-python-script.mjs scripts/audit_source_links.py --require-network",
+    "audit:attributed-quotes:selftest": "node scripts/run-python-script.mjs scripts/audit_attributed_quotes.py --selftest",
+    "audit:attributed-quotes": "npm run audit:attributed-quotes:selftest && node scripts/run-python-script.mjs scripts/audit_attributed_quotes.py --strict",
+    "audit:mixed-script:selftest": "node scripts/run-python-script.mjs scripts/audit_mixed_script.py --selftest",
+    "audit:mixed-script": "npm run audit:mixed-script:selftest && node scripts/run-python-script.mjs scripts/audit_mixed_script.py --strict"
   },
   "dependencies": {
     "framer-motion": "^12.38.0",
@@ -41,7 +48,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.29",
     "@types/react-dom": "^18.3.7",
-    "astro": "7.1.5",
+    "astro": "7.3.2",
     "eslint": "10.8.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "playwright": "1.62.0",

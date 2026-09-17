@@ -73,8 +73,8 @@ DKA сохраняет бретонскую логику масла, слоёв 
 
 ## Французские источники и первичные материалы
 
-- [Physiologie du goût (1826)](https://gallica.bnf.fr/selections/fr/html/litteratures/classiques-de-la-litterature-francaise-acces-par-ordre-alphabetique-dauteur-0)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Physiologie du goût (1826)](https://catalogue.bnf.fr/ark:/12148/cb30161672j)
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'buche-noel-histoire': `## Обрядовое полено
 
 До появления пирожного рождественское полено было частью зимнего домашнего ритуала. Большой кусок дерева торжественно помещали в очаг, связывая огонь с домом, защитой и продолжительностью праздника. Обычай различался по регионам; нельзя говорить об одной неизменной «языческой церемонии» для всей Франции.
@@ -101,7 +101,7 @@ Bûche XX века часто строится на тонком biscuit roulé 
 
 - [Bûche de Noël et crêpes (1954)](https://catalogue.ina.fr/doc/TV-RADIO/DA_CPF86650566/buche-de-noel-et-crepes)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)`,
   'canele-bordeaux-histoire': `## Название и форма
 
@@ -123,7 +123,7 @@ Lacam, региональные архивы и коллекции BnF позв�
 
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'careme-first-celebrity-chef': `## Ранний путь
 
 Мари-Антуан Карем вышел из бедной парижской среды и обучался у мастеров, давших ему доступ к рисунку, архитектурным альбомам и большому производству. Его карьера развивалась через дома аристократии и дипломатов, а не через современный ресторанный бренд.
@@ -142,8 +142,8 @@ Lacam, региональные архивы и коллекции BnF позв�
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Antonin Carême (1783–1833)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/antonin-careme-1783-1833)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [BnF — Antonin Carême, L’art de la cuisine française au XIXe siècle](https://catalogue.bnf.fr/ark:/12148/cb357291124)
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'carnaval-culinaire-histoire': `## Карем и архитектура
 
 Антонен Карем изучал архитектурные альбомы и переносил их язык в pièces montées. Сахар, пастиллаж и тесто становились колоннами, павильонами и руинами. Эти конструкции демонстрировали не только мастерство, но и богатство заказчика.
@@ -166,9 +166,9 @@ Lacam, региональные архивы и коллекции BnF позв�
 
 ## Французские источники и первичные материалы
 
-- [Gallica — Antonin Carême (1783–1833)](https://gallica.bnf.fr/selections/fr/html/arts-loisirs-sports/antonin-careme-1783-1833)
+- [BnF — Antonin Carême, L’art de la cuisine française au XIXe siècle](https://catalogue.bnf.fr/ark:/12148/cb357291124)
 - [Gallica — коллекции меню](https://gallica.bnf.fr/selections/fr/html/menus)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2023-10/biblio_gastronomie_xixe.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
   'chiffres-macarons-laduree-herme': `## Цена коробки как датированный снимок
 
 Официальные магазины обновляют коллекции и прайс. Поэтому цены приводятся вместе с размером набора и датой доступа. Они подтверждают позиционирование, но не раскрывают прибыль и объём продаж.
@@ -181,6 +181,6 @@ Macaron является скоропортящимся продуктом. Ук
 
 - [Maison Pierre Hermé Paris — histoire et positionnement](https://www.pierreherme.com/fr/univers-maison-pierre-herme-paris)
 - [Pierre Hermé — coffret de 12 macarons](https://www.pierreherme.com/fr/macarons/coffrets-collection/coffret-de-12-macarons.html)
-- [Pierre Hermé — coffret de 24 macarons](https://www.pierreherme.com/fr/macarons/coffrets-collection/coffret-de-24-macarons.html)
+- [Pierre Hermé — catalogue macarons, coffret de 24 listé](https://www.pierreherme.com/fr/macarons.html)
 - [Maison Ladurée — collection de macarons](https://www.laduree.fr/l-ete-chez-laduree.html)`,
 })

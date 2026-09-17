@@ -48,6 +48,9 @@ jobs:
       - name: Audit content
         run: npm run audit:content
 
+      - name: Verify every cited French source is reachable
+        run: npm run audit:source-links:strict
+
       - name: Audit dependencies at high severity
         run: npm run audit:security
 

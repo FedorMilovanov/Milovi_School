@@ -12,9 +12,10 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 Перед большой партией делают три изделия: одно размораживают по стандартному графику, второе держат дольше, третье подают раньше. Сравнивают текучесть центра, интенсивность аромата, конденсат и поведение велюра. В технологической карте фиксируют температуру морозильника, массу insert, массу ганаша и фактическое время размораживания.
 
 ## Французские источники и первичные материалы
+- [The World's Best Pastry Chef Award — официальная страница награды The World's 50 Best Restaurants: полный перечень лауреатов (Альбер Адриа 2015, Пьер Эрме 2016, Доминик Ансель 2017, Седрик Гроле 2018, Жессика Преальпато 2019) — первоисточник для датировки титула](https://www.theworlds50best.com/awards/best-pastry-chef.html)
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)`,
   'perret-softness-volume': `## Мягкость как результат точной структуры
 
@@ -57,7 +58,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 - [Yann Couvreur — La Pâtisserie](https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur)
 - [FERRANDI Paris — Pâtisserie](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'felder-fundamentals': `## Книга как последовательность навыков
 
 Работать по Фельдеру полезнее не подряд по страницам, а блоками. Сначала осваивают взвешивание, песочные теста и простые кремы, затем pâte à choux и бисквиты, после этого — слоёное тесто, муссы и сборные entremets. Каждая новая группа должна опираться на уже устойчивую базу, иначе ошибка сложного десерта остаётся неразличимой.
@@ -76,9 +77,9 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Christophe Felder — École de pâtisserie](https://www.christophe-felder.com/)
+- [Brioche — Christophe Felder: базовое тесто в полной пропорции — 250 г муки, 25 г сахара, 3 яйца, 10 г пекарских дрожжей, 8 г соли, 150 г масла; вымешивают крюком на медленной скорости до отлипания от стенок, затем вводят масло и снова ждут отлипания, подъём 1 час при комнатной температуре до удвоения, обязательная обминка (rabattre) ладонями для удаления углекислого газа, 2 часа в холоде, разделка на 12 равных шаров подкаткой на столе, 180 °C](http://www.christophe-felder.com/recettes/rech.php?act=rech&libelle=27&cle=+&fiche=49)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'grolet-fruits-full': `## От формы к вкусовой идентичности
 
 У серии Fruits внешний реализм работает только тогда, когда внутренний профиль узнаётся без подсказки. Груша должна отличаться от яблока не красителем, а сочетанием аромата, зернистости, кислотности и степени спелости. Поэтому разработку начинают с дегустации сырья и таблицы его состояний: свежий сок, confit, compotée, цукат, инфузия и сырая мякоть.
@@ -98,8 +99,9 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 ## Французские источники и первичные материалы
 
 - [Cédric Grolet — Fruits](https://www.ducasse-edition.com/livre/fruits/)
-- [Cédric Grolet Opéra](https://cedric-grolet.com/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Cédric Grolet Le Meurice — Click & Collect: послойная конструкция каждой скульптурной фигуры в его собственной редакции, то есть ровно то, из чего статья складывает «правдоподобие», — Fresh Mango (манговое желе, взбитые сливки с ванилью, конфи из манго на ванили, бисквит с манго), Red Apple (текучее сердце из красного яблока с ванилью, ванилевое пралине-крустийан на бретонском сабле, ванилевый мусс), Cocoa Pod (текучее сердце какао-ваниль, кремо какао-ваниль, пралине-крустийан с fleur de sel), Mango Tart (песочная основа, миндальный крем, жареное манго, джем манго-ваниль, текучее сердце, мусс из манго) и Mix Nuts — три ореха в одной схеме: кешью, миндаль и фисташка, каждый с ванилевой карамелью, пралине-крустийаном и муссом](https://cedric-grolet.com/meurice/en/)
+- [Fruit de la Passion — Cédric Grolet Le Meurice: карточка отдельного плода с указанием происхождения, — текучее сердце из маракуйи, домашнее желе на соке, ваниль с табаско и семена маракуйи, мусс из маракуйи; происхождение плода названо прямо: Бразилия; цена 17,00 € при заказе минимум за 24 часа](https://cedric-grolet.com/meurice/en/product/passion-fruit-2023)
+- [Valrhona — Les Essentiels: Fruit](https://essentials.valrhona.com/category/6)`,
   'michalak-chocolate-salt': `## Соль как настройка, а не эффект
 
 Соль в шоколадном десерте должна усиливать обжаренные, карамельные и фруктовые ноты, но не оставаться отдельным солёным вкусом. Её дозировку проверяют в готовой композиции: холод, сахар и жир меняют восприятие. Крупные кристаллы на поверхности дают короткие вспышки, мелкая соль в массе распределяет эффект равномерно — это два разных инструмента.
@@ -118,9 +120,9 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Christophe Michalak — site officiel](https://christophemichalak.com/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Tarte chocolat caramel fleur de sel — Christophe Michalak: карточка изделия, в самом названии которого соединены оба полюса статьи — шоколад и fleur de sel; рядом в том же документе — Kosmik Snickers (мусс на blond-шоколаде, мягкая карамель с fleur de sel, крамбл без муки, карамелизованный арахис) и Religieuse Caramel Beurre Salé, то есть соль в его линии работает не акцентом, а конструктивным элементом](https://www.christophemichalak.com/img/cms/espace-entreprise/Patisserie_Michalak_Catalogue_Professionnel_2025.pdf)
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'conticini-praline': `## Обжарка до карамели
 
 Даже точный сироп не спасёт бледные или пережжённые орехи. Фундук и миндаль обжаривают отдельно, потому что их размер, кожица и влажность различаются. После печи орех должен пахнуть глубоко, но не давать горечь. Карамель затем усиливает уже созданный аромат, а не заменяет его.
@@ -160,7 +162,7 @@ export const articleExpansionPart11: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Nina Métayer — Délicatisserie](https://delicatisserie.com/)
+- [Boutique — Délicatisserie / Nina Métayer: структурированный репертуар дома по коллекциям, по которому видно, что именно она печёт, — «Créations de saison» (Fraisier, тарт с клубникой и мятой, Inspiration Sobacha, тарт с малиной и цветком красного перца, Tropézienne), «Les intemporelles» (Saint-Honoré, чизкейк, тарт лимонный меренговый, шоколадный тарт, flan на компанию, дегустационный набор из четырёх деликатесов), «Gâteaux de voyage» (moelleux с красными ягодами и умэбоси-кунжутом, Tigré, мармурный кекс, палье с корицей, Petit galopin, Brookie, печенье с фисташкой и с фундуком) и «Chocolat & bonbons» (Capucine, Coquelicot, Chocolate Daisy, Hollyhock, леденцы, кремовая карамель с fleur de sel, намазка пралине-фисташка, хрустящая намазка, набор из трёх банок, фундук и миндаль в шоколаде, хрустящий батончик с карамелизованным фундуком)](https://delicatisserie.com/en/shop/)
 - [Nina Métayer — portrait](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/portraits-de-chefs)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Valrhona — Les Essentiels: Finishing Touches](https://essentials.valrhona.com/category/9)`,
 })

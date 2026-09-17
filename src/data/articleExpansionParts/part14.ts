@@ -17,9 +17,9 @@ export const articleExpansionPart14: Readonly<Record<string, string>> = Object.f
 
 ## Французские источники и первичные материалы
 
-- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/fr/l-ecole-valrhona/decouvrir-l-ecole-valrhona/lexique-du-chocolat/le-temperage-du-chocolat)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)`,
+- [Tempérage du chocolat — Valrhona](https://www.valrhona.com/en/l-ecole-valrhona/discover-l-ecole-valrhona/chocolate-terminology/tempering-chocolate)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
+- [Valrhona — Les Essentiels: Chocolate](https://essentials.valrhona.com/category/8)`,
   'tech-entremets-assembly': `## Сборку проектируют от разреза
 
 Перед приготовлением полезно нарисовать вертикальный разрез entremets с толщиной каждого слоя. Так видно, не занимает ли insert половину изделия, не слишком ли близок хруст к влажному compotée и остаётся ли место для мусса вокруг краёв. Масса компонентов затем рассчитывается по объёму формы, а не на глаз.
@@ -38,9 +38,9 @@ Croustillant или sablé размещают рядом с более сухи�
 
 ## Французские источники и первичные материалы
 
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [Référentiel CAP Pâtissier](https://eduscol.education.fr/referentiels-professionnels/cap_patissier.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
   'recipe-tarte-citron-meringuee': `## Песочная основа должна быть полностью сухой
 
 Лимонный крем быстро передаёт влагу тесту. Корзину выпекают до уверенного золотистого цвета, охлаждают и при необходимости покрывают тонким слоем шоколада или какао-масла. Бледное дно размокает даже при идеальном креме.
@@ -60,7 +60,7 @@ Croustillant или sablé размещают рядом с более сухи�
 ## Французские источники и первичные материалы
 
 - [Tartelette citron meringuée — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
-- [Tarte au citron — Académie du Goût](https://www.academiedugout.fr/recherche?q=tarte%20citron)
+- [Tartelettes citron meringuées — Meilleur du Chef: полная пропорция крема (3 яйца, 150 г сахара, сок 3 жёлтых или 6 зелёных лимонов, 1–2 цеста, 45 г масла), варка на умеренном огне при непрерывном помешивании, итальянская меренга и приём против вздутия донышка — прокол ножом в начале выпечки](https://www.meilleurduchef.com/fr/recette/tartelette-citron-meringuee.html)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'recipe-paris-brest-classique': `## Венец должен пропечься внутри
 
@@ -82,7 +82,7 @@ Crème pâtissière и масло должны иметь близкую тем�
 
 - [Paris-Brest — Chef Simon](https://chefsimon.com/gourmets/chef-simon/recettes/paris-brest--4)
 - [Paris-Brest 2009 — Académie du Goût](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)
-- [Pâte à choux — Académie du Goût](https://www.academiedugout.fr/recettes/pate-a-choux_1764_2)`,
+- [Pâte à choux — Alain Ducasse, Académie du Goût](https://www.academiedugout.fr/recettes/la-pate-a-choux_5263_2)`,
   'mercotte-tarte-citron': `## Кислота оценивается после охлаждения
 
 Горячий лимонный крем кажется ярче и менее плотным, чем готовый. Решение о количестве сахара и масла принимают после полного созревания в холодильнике. Цедру снимают без белой части и настаивают в соке или сахаре, чтобы получить аромат без лишней горечи.
@@ -123,7 +123,7 @@ Entremets планируют от времени подачи. Сначала о
 ## Французские источники и первичные материалы
 
 - [Mercotte — entremets](https://www.mercotte.fr/category/entremets/)
-- [Les essentiels Valrhona](https://essentials.valrhona.com/)
+- [Valrhona — Les Essentiels: Mousse Textures](https://essentials.valrhona.com/category/4)
 - [Le Guide des Recettes Cacao Barry](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)`,
   'genin-caramel-philosophy': `## Горечь имеет предел
 
@@ -143,9 +143,9 @@ Fleur de sel и мелкая соль ведут себя по-разному. �
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — univers](https://jacquesgenin.fr/univers)
-- [Caramel tendre — Académie du Goût](https://www.academiedugout.fr/recherche?q=caramel%20tendre)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)`,
+- [Mosaïque — Jacques Genin: декларация состава от самого дома, где карамель названа прямо — сахар, масло, сливки, глюкоза и fleur de sel, а по ассортименту мёд каштана, ваниль Таити, кофе, фёва тонка, лакрица; рядом pâte de fruits (фрукты по сезону, сахар, глюкоза, яблочный пектин) и нуга (каштановый мёд, миндаль Marcona, фисташка Bronte, сахарная пудра, яичный белок, безглютеновая азимная облатка). Всё — без ароматизаторов и консервантов](https://jacquesgenin.fr/product/mosaique-500)
+- [Caramel tendre au beurre salé — Meilleur du Chef](https://www.meilleurduchef.com/fr/recette/tarte-chocolat-caramel.html)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)`,
   'ansel-cronut': `## После одного хита важна система
 
 Карьера после Cronut показывает, способен ли шеф повторять инновацию без копирования собственной формулы. Новые продукты Анселя часто строятся вокруг времени: изменение формы при подаче, сочетание горячего и холодного, ограниченное окно хруста или участие гостя. Это требует не только идеи, но и сценария производства.
@@ -164,7 +164,7 @@ Fleur de sel и мелкая соль ведут себя по-разному. �
 
 ## Французские источники и первичные материалы
 
-- [Dominique Ansel — site officiel](https://www.dominiqueansel.com/)
+- [Chef — Dominique Ansel: первоисточник происхождения Cronut от самого автора — лауреат James Beard Award; Cronut назван журналом TIME в числе «25 лучших изобретений 2013 года»; запущен в мае 2013 года в его собственной пекарне в Нью-Йорке и стал первой в мире «вирусной» выпечкой; на доводку ушло два месяца и более десяти различных рецептур; это не просто обжаренное круассанное тесто — ламинированное тесто напоминает круассан, но сделано по собственной рецептуре, сначала расстаивается, затем обжаривается в виноградном масле при конкретной температуре; после жарки каждый Cronut 1) обваливают в сахаре, 2) наполняют кремом и 3) покрывают глазурью, и весь процесс занимает три дня; продаётся только в Dominique Ansel Bakery в Нью-Йорке, Лондоне и Лос-Анджелесе, вкус меняется каждый месяц и никогда не повторяется; рядом — DKA (Dominique's Kouign Amann), madeleines по заказу и Dominique Ansel Workshop, открытый в июле 2021 года как круассанная стойка внутри его кухонь в Flatiron](https://www.dominiqueansel.com/chef/)
 - [Dominique Ansel — books](https://www.dominiqueansel.com/books/)
-- [Dominique Ansel — tutorials](https://www.dominiqueansel.com/video-tutorials/)`,
+- [Dominique Ansel — tutorials](https://www.dominiqueansel.com/technique-and-recipes/)`,
 })

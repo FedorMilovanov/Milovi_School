@@ -17,9 +17,9 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'french-classics-origins': `## Пять историй — пять уровней уверенности
 
@@ -39,11 +39,11 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Le Livre de pâtisserie (1873)](https://fr.wikisource.org/wiki/Le_Livre_de_p%C3%A2tisserie)
-- [Dictionnaire universel de cuisine pratique](https://commons.wikimedia.org/wiki/Category:Dictionnaire_universel_de_cuisine_pratique)
+- [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
-- [Maison Stohrer — histoire](https://stohrer.fr/pages/notre-histoire)`,
+- [Maison Stohrer — histoire](https://stohrer.fr/notre-maison/)`,
   'genin-autodidact': `## Что означает «самоучка»
 
 Отсутствие классического диплома не означает отсутствие обучения. Ремесленник осваивает производство через работу, наблюдение, повторение, поставщиков и собственные ошибки. Для Жака Жени этот путь следует описывать только по прямому профилю или интервью.
@@ -62,9 +62,9 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
+- [Barres fines — Jacques Genin: собственная формулировка его метода на примере плиток — чёрный шоколад минимум 64 % какао, тонко хрустящий, в паре с пралине из фундука с кофе, а рядом пралине с каперсами с острова Пантеллерия, «чтобы отважиться на неизведанное»](https://jacquesgenin.fr/product/barres-fines)
 - [Académie du Goût — Jacques Genin](https://www.academiedugout.fr/chefs/jacques-genin_204374)
-- [Jacques Genin — site officiel](https://jacquesgenin.fr/)`,
+- [Bon Appétit — городской гид по Парижу, карточка Jacques Genin](https://www.bonappetit.com/city-guides/paris/venue/jacques-genin)`,
   'genin-ganache-craft': `## Сначала эмульсия, потом терруар
 
 Хорошая ганаш начинается с физики: водная фаза должна быть равномерно распределена в жире шоколада. Жидкость вводят частями, формируя блестящее ядро, затем доводят до нужной температуры и только после этого добавляют масло или ароматические компоненты.
@@ -83,7 +83,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
+- [Écrin ganaches & pralinés — Jacques Genin: декларация состава от самого дома — 36 штук, 240 г, две трети чёрных и треть молочных; ганаш на чёрном шоколаде минимум 64 % какао или молочном минимум 33 % со сливками, пралине на карамелизованных орехах с маслом (миндаль, фундук, фисташка Bronte, пекан, какао-бобы, жасмин, розмарин, feuilletine, fleur de sel, шафран, цедры); покрытие — чёрное 64 % или молочное 33 %; всё натуральное, без ароматизаторов и консервантов; хранение в сухом месте между 14 °C и 20 °C и употребление в течение двух недель после покупки](https://jacquesgenin.fr/product/ecrin-ganaches-pralines-36)
 - [Ganache montée](https://essentials.valrhona.com/essential/56)
 - [Ganache pour cadres](https://essentials.valrhona.com/essential/172)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,
@@ -111,7 +111,6 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Jacques Genin — Univers](https://jacquesgenin.fr/univers)
 - [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)`,
   'grolet-raspberry-rose': `## Как собрать правдоподобную малину
@@ -154,7 +153,7 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 ## Французские источники и первичные материалы
 
 - [Le Guide des Recettes — 68 pages](https://www.cacao-barry.com/fr-FR/le-guide-des-recettes)
-- [The Pastry Alphabet](https://www.cacao-barry.com/fr-FR/pastry-alphabet)
+- [Cacao Barry — The Alphabet Series (The Pastry Alphabet)](https://www.cacao-barry.com/en-US/alphabet-series)
 - [Pâte sucrée](https://www.academiedugout.fr/recettes/les-pates_13716_2)`,
   'heitzler-ethical-pastry': `## Закупка как часть рецепта
 
