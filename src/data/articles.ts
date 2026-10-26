@@ -1388,20 +1388,24 @@ function defaultImageTitle(article: Article) {
 }
 
 function defaultImageAlt(article: Article) {
-  const tags = article.tags?.slice(0, 3).join(', ')
+  // All 155 legacy covers are generated editorial artwork, not documentary
+  // photography. The alt must say what the image actually is and give the
+  // article context; duplicating the H1 (or a keyword-stuffed legacy template)
+  // is normalized away by library.ts and leaves the reader with title == alt.
+  const focus = short(article.title, 60)
   if (article.category === 'recipes') {
-    return `Французский десерт «${short(article.title, 58)}»: готовая подача, ключевые текстуры и техника ${tags ? `(${tags})` : ''}`.trim()
+    return `AI-иллюстрация десерта: ${focus}. Редакционный вид подачи и текстуры.`
   }
   if (article.category === 'techniques') {
-    return `Иллюстрация французской кондитерской техники «${short(article.title, 60)}»${tags ? `: ${tags}` : ''}`
+    return `AI-иллюстрация техники: ${focus}. Условная рабочая стадия теста или крема.`
   }
   if (article.category === 'histoire-culinaire') {
-    return `Исторический материал о французской pâtisserie: «${short(article.title, 62)}»`
+    return `AI-иллюстрация исторического материала: ${focus}. Редакционная реконструкция.`
   }
   if (article.category === 'chiffres-gourmands') {
-    return `Инфографичный визуал к аналитике французской кондитерской: «${short(article.title, 60)}»`
+    return `AI-иллюстрация аналитического материала: ${focus}. Декоративный визуал.`
   }
-  return `Французская кондитерская школа: визуал к материалу «${short(article.title, 68)}»${tags ? `(${tags})` : ''}`
+  return `AI-иллюстрация материала: ${focus}. Редакционное изображение библиотеки.`
 }
 
 function defaultImageCaption(article: Article) {
@@ -1424,7 +1428,10 @@ for (const article of articles) {
   article.imageTitle ??= defaultImageTitle(article)
   article.imageAlt ??= defaultImageAlt(article)
   article.imageCaption ??= defaultImageCaption(article)
-  article.imageCredit ??= 'Patisserie Russe / Milovi School'
+  // Honest provenance: every legacy cover is generated editorial artwork.
+  // The article page detects this marker and emits IPTC
+  // trainedAlgorithmicMedia in ImageObject / a visible AI note.
+  article.imageCredit ??= 'Patisserie Russe / Milovi School — original generated editorial artwork (AI)'
 
   // Keep SEO dimensions and the visible hero aspect ratio tied to the real file.
   // The previous blanket 1280×800 assumption was wrong for 1408×768 and portrait
