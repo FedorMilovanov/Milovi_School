@@ -176,4 +176,5 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'body-tarte-citron-slice.webp': { width: 1280, height: 801 },
   'hero-pecan-chocolate-creme-brulee.webp': { width: 1280, height: 796 },
   'body-macarons-row-warm.webp': { width: 1280, height: 853 },
+  'body-entremets-slice-warm.webp': { width: 1248, height: 832 },
 }
