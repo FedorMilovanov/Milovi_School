@@ -189,7 +189,8 @@
 - Ветка: `arena/0e3a398a-milovi-school` (только она).
 - Базовый HEAD: `1b0b848fbcc01eb5a4bc01b58c8855503740b59b`; CI на нём — 23/23 success (агрегат `check-runs`, без cancelled/failure).
 - PR из этой ветки: нет (аудит не требует мерджа); merge SHA: отсутствует.
-- Коммит с отчётом: см. `git log` этой ветки; трейлер `Co-authored-by: arena-agent`.
+- Коммит с отчётом: `8a68fed` — `docs: repo audit 2026-10-26`, трейлер `Co-authored-by: arena-agent`, запушен в `arena/0e3a398a-milovi-school`.
+- Check-runs на `8a68fed`: **0** — это не красный CI, а отсутствие триггера: `ci.yml` слушает только `push`/`pull_request` в `main`. Зелёный 23/23 относится к базовому HEAD `1b0b848`; продуктовый код в этом ходе не менялся.
 
 ---
 
