@@ -438,12 +438,21 @@ const renderedContent = useMemo(() => {
       // [NEW] Block-level images (Prevents <figure> inside <p> Hydration Mismatch)
       const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
       if (imgMatch) {
+        // Local editorial illustrations are AI-generated; label them honestly in
+        // the visible caption, matching the hero's IPTC provenance note.
+        const isGeneratedIllustration = /^\/images\/articles\/(?:body|hero)-/.test(imgMatch[2]);
         return (
-          // FIX CLS: aspect-ratio reserves the exact space before the image loads so
-          // surrounding text doesn't shift. max-h-[600px] still caps very tall images.
-          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
-            <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
-            {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
+          // FIX CLS: the aspect-ratio wrapper reserves the exact media space before
+          // the image loads. The caption sits OUTSIDE that wrapper so it is never
+          // clipped by overflow-hidden — keeping the AI provenance note visible.
+          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
+            <div className="w-full" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
+              <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
+            </div>
+            {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">
+              {imgMatch[1]}
+              {isGeneratedIllustration && <span className="mt-1 block font-mono text-[10px] uppercase not-italic tracking-[0.18em] text-stone-400 dark:text-stone-500">Генеративная редакционная иллюстрация (AI)</span>}
+            </figcaption>}
           </figure>
         )
       }

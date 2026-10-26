@@ -213,3 +213,20 @@
 3. Добавить **rendering-contract gate**: на сгенерированном `dist/` запретить `====`, `## `, `PT\d+[HM]` и H2 >110 символов в видимом тексте; прогнать по всем 157 статьям. Ожидается 6/6/47/5 → 0/0/0/0.
 4. Починить контент: разделить склеенные блоки (21 + 7 + 6 + 2 статьи), отформатировать ISO-8601 в «45 мин», заменить 11 Unsplash-изображений на локальные dedicated WebP (или удалить).
 5. Доказательства: teardown strict CI + повтор browser-пака (screenshot/axe/mobile/dark/reduced-motion) на exact HEAD; только потом — merge.
+
+---
+
+## 12. Волна 3 — изображения: локальные AI-иллюстрации и честный provenance (2026-10-26)
+
+Реализует п. 11.4 backlog. Маршруты не менялись (167 страниц, 157 статей).
+
+**Что сделано**
+
+- **11 внешних Unsplash-изображений** в 8 рецептурных статьях (`deepContents.ts`) заменены на локальные dedicated WebP. Первопричина бага: `ArticleView.tsx` подменял любой `src` без ведущего `/` на `fallbackImageFor(category)` — поэтому все 11 картинок рендерились как одна и та же заглушка `/_astro/pastry-chef*.jpg`. Теперь у каждой статьи свой кадр.
+- **18 PNG-мастеров** (выбраны владельцем в BATTLE-режиме по референсу «ряд макарон», тёплый боковой свет, тёмная пекарня, графитовый сланец, крошки, малая ГРИП) конвертированы в WebP 1280px/q82: **65 МБ → 2.0 МБ**. Оригиналы перенесены в gitignored `audit/repo-audit-2026-10-26/selected-originals/` (evidence, не source). 7 «рядовых» кадров добавлены как лидирующие иллюстрации.
+- **Dedicated hero** для `recipe-pecan-chocolate-creme-brulee`: вместо Vite-бандла `localImages.pecan` — `/images/articles/hero-pecan-chocolate-creme-brulee.webp`; мёртвая ветка `1296×864` в `articles.ts` удалена, неиспользуемый импорт `localImages` убран.
+- **Честный provenance для body-изображений:** все локальные `body-*`/`hero-*` иллюстрации помечены видимой подписью «Генеративная редакционная иллюстрация (AI)» в figcaption — той же, что у обложек. Новый счётчик `audit_rendered_content.py` (`generatedBodyFigures`/`missingBodyProvenance`) делает это контрактом: 17/17, 0 пропусков.
+- **Попутно исправлен баг рендера:** figcaption ранее находилась *внутри* блока `figure` с `aspect-ratio` и `overflow-hidden` и **обрезалась** — подпись и AI-нота были в DOM, но не видны. Медиа-обёртка с aspect-ratio вынесена отдельно (CLS-резерв сохранён), подпись теперь в потоке ниже и видима. Проверено геометрией в headless Chromium 153.
+- **Источники и честность цитат:** вместо 11 «источников»-картинок Unsplash в `deepContents.ts` добавлены 16 реальных проверенных живых первоисточников (BnF/Gallica, Académie du Goût, Europeana, Potel & Chabot/Dalloyau, Stohrer, Trinity College Cambridge, Cacao Barry, Valrhona) — ссылки идут в видимом тексте и собираются гейтом `audit_source_links.py` как `base`. Три выдуманные цитаты от первого лица (Контисини, Гроле, Дюкасс), которые раньше «проходили» только потому, что рядом стоял URL картинки, переписаны в честные пересказы с явной оговоркой — по стандарту корпуса (§585) и прецеденту волны 1.
+
+**Валидация (все зелёные):** `check`, `lint`, `audit:content` (weak citations 0/783, attributed-quotes 0 at-risk, mixed-script OK), `build`, `audit:build`, `audit:site` (SEO 3477/166/157; render: 157 страниц, generatedBodyFigures 17, все дефекты 0), `audit:privacy` (169 док.). Browser-проверка (Chromium 153, Playwright): все 17 body-изображений и 8 hero загружаются с реальными размерами, 0 fallback, AI-нота видима во всех 17; внешний egress (только `fonts.googleapis.com`) явно отфильтрован. Скриншоты: `audit/repo-audit-2026-10-26/browser-opera-figure*.png`.

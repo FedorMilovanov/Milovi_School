@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist" / "articles"
 DIGITAL_SOURCE_TYPE = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+AI_NOTE = "Генеративная редакционная иллюстрация (AI)"
 
 RAW_EQUALS = re.compile(r"(?m)^\s*={6,}\s*$")
 RAW_MD_HEADING = re.compile(r"(?m)^\s*#{2,3}\s+\S")
@@ -34,7 +35,7 @@ if not pages:
 
 stats = {"pages": len(pages), "rawSeparators": 0, "rawMarkdown": 0,
          "machineDurations": 0, "giantHeadings": 0, "missingProvenance": 0,
-         "titleAsAlt": 0}
+         "titleAsAlt": 0, "generatedBodyFigures": 0, "missingBodyProvenance": 0}
 
 for page in pages:
     article_id = page.parent.name
@@ -73,6 +74,20 @@ for page in pages:
             stats["titleAsAlt"] += 1
             errors.append(f"{article_id}: hero alt duplicates the H1 instead of describing the image")
 
+    # Local editorial illustrations are AI-generated; every inline body figure
+    # must carry the same visible AI note used by the hero credit. Restricted to
+    # body- files: hero- files are article covers whose provenance is asserted
+    # separately via the ImageObject digitalSourceType check above.
+    for fig in soup.select("article figure"):
+        img = fig.find("img")
+        src = (img.get("src") or "") if img else ""
+        if not src.startswith("/images/articles/body-"):
+            continue
+        stats["generatedBodyFigures"] += 1
+        if AI_NOTE not in fig.get_text(" ", strip=True):
+            stats["missingBodyProvenance"] += 1
+            errors.append(f"{article_id}: generated body illustration lacks visible AI provenance note: {src}")
+
     # JSON-LD is still needed (we decomposed the DOM copy, not the raw text).
     has_provenance = False
     for raw in re.findall(
@@ -94,8 +109,9 @@ for page in pages:
 
 print("Rendered article content gate")
 print(f"- article pages: {stats['pages']}")
+print(f"- generatedBodyFigures: {stats['generatedBodyFigures']}")
 for key in ("rawSeparators", "rawMarkdown", "machineDurations", "giantHeadings",
-            "titleAsAlt", "missingProvenance"):
+            "titleAsAlt", "missingProvenance", "missingBodyProvenance"):
     print(f"- {key}: {stats[key]}")
 
 if errors:
