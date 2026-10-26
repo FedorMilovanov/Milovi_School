@@ -43,6 +43,12 @@ TRUSTED_DOMAINS = {
     "poilane.com", "latartetropezienne.fr", "editions-larousse.fr",
     "theworlds50best.com", "jamesbeard.org", "bbc.com",
     "cuisineactuelle.fr", "cultures-sucre.com", "visit.alsace",
+    # Первоисточники, добавленные в волне аутентичности 2026-10-26:
+    # официальная хроника дома Dalloyau у владельца бренда, британские
+    # институции (Тринити-колледж и лондонская гильдия пекарей),
+    # европейский агрегатор Europeana и официальный эпизод M6.
+    "groupepoteletchabot.com", "trin.cam.ac.uk", "bakers.co.uk",
+    "europeana.eu", "m6.fr",
     # Первоисточник прямой речи: интервью Пьера Эрме в Notre Temps (декабрь 2022),
     # данное по случаю выхода его автобиографии в Buchet-Chastel. Пресса в списке
     # уже представлена (bbc.com, cuisineactuelle.fr), поэтому это не размывание

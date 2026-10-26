@@ -175,7 +175,7 @@ Joconde отсаживают тонким ровным пластом. Слиш�
 
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Crème au beurre](https://www.academiedugout.fr/recettes/creme-au-beurre_327_2)
-- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)`,
+- [Dalloyau — Opéra L’Original, création 1955](https://groupepoteletchabot.com/nos-maisons/dalloyau)`,
   'felder-fraisier': `## Génoise
 
 Бисквит должен быть тонким, гибким и равномерно пропитанным. Слишком воздушная сухая génoise забирает влагу у крема, а перепропитанная не держит срез.

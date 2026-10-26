@@ -163,6 +163,7 @@ Fondant или шоколадное покрытие используют в у�
 Большое число вкусов требует общей производственной системы. Базы группируют по типу крема и покрытию, но аллергены, маркировка и сроки остаются отдельными для каждого вкуса. Авторский ассортимент устойчив только тогда, когда команда может воспроизвести цвет, массу и текстуру без присутствия шефа.
 
 ## Французские источники и первичные материалы
+
 - [Christophe Adam, l'éclair de génie de la pâtisserie — Vanity Fair France (1 мая 2014): первоисточник с прямой речью Адама об эклере — «En pleine guerre des macarons pastels, j'imposais ma patte funky et colorée»; там же — более ста рецептов на одну тему к дате публикации и превращение «pain de la duchesse» в ультрамодерную gourmandise](https://www.vanityfair.fr/savoir-vivre/articles/christophe-adam-l-eclair-de-genie/13889)
 - [Christophe Adam, «Éclairs : 20 ans de création» — La Martinière, 12 ноября 2020, 512 страниц, EAN 9782732494197, соавтор Sarah Vasseghi, фотограф Laurent Fau: 200 рецептов эклеров, история пирожного и свидетельства 15 личностей, значимых для кондитерского мира (Gilles Marchal, Christophe Felder, Sébastien Gaudard, Benoît Couvrand, Benoît Castel, Isabelle Capron) — издательские данные, подтверждающие заявленное в тексте число рецептов и состав свидетельств](https://www.lettreetmerveilles.fr/livre/17384098-eclairs-20-ans-de-creation-christophe-adam-la-martiniere)
 
