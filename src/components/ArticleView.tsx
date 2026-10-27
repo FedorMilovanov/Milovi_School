@@ -873,20 +873,45 @@ const renderedContent = useMemo(() => {
               </div>
             </section>
           )}
-          {/* CTA to Milovi Cake */}
-          <div className="mt-10 border-t border-amber-700/10 pt-6 dark:border-amber-500/10">
-            <p className="text-sm leading-6 text-stone-500 dark:text-stone-400">
-              Авторские торты и десерты ручной работы в СПб —{' '}
+          {/* Expert verification byline — mirrors the Article JSON-LD `editor`
+              reference (milovicake.ru/#viktoria). Keeps schema↔visible parity. */}
+          <section className="mt-12 border-t border-amber-700/10 pt-8 dark:border-amber-500/10" aria-label="Экспертная верификация">
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-amber-800 dark:text-amber-400">
+              Проверка технологии
+            </p>
+            <p className="mt-3 text-base leading-8 text-stone-700 dark:text-stone-300">
+              Практический комментарий и проверка технологической адаптации для ингредиентов РФ —{' '}
+              <strong className="font-semibold">Виктория Милованова</strong>, шеф-кондитер{' '}
+              <a
+                href="https://milovicake.ru/o-konditere/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+              >
+                Milovi Cake
+              </a>{' '}
+              (Санкт-Петербург). Профильное обучение подтверждено{' '}
+              <a
+                href="https://milovicake.ru/certificates/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+              >
+                сертификатами
+              </a>.
+            </p>
+            <p className="mt-3 text-sm leading-7 text-stone-500 dark:text-stone-400">
+              Этот материал — часть образовательной библиотеки: учебный разбор классической французской рецептуры, а не коммерческое меню. Авторские торты и десерты ручной работы в СПб —{' '}
               <a
                 href="https://milovicake.ru"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
               >
-                Milovi Cake
-              </a>
+                milovicake.ru
+              </a>.
             </p>
-          </div>
+          </section>
             </div>
 
             {/* Spacer for right column */}

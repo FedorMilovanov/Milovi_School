@@ -1,32 +1,30 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import StaticPageShell from '../components/StaticPageShell'
+import { entityGraph, ENTITY_IDS, schoolNode } from '../data/entityGraph'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/about/`
 
-const jsonLdAbout = {
-  '@context': 'https://schema.org',
+// /about/ describes the project, so it carries the full canonical entity graph
+// plus an AboutPage node that points at the School and its founder.
+const aboutGraph = entityGraph() as {
+  '@context': string
+  '@graph': Record<string, unknown>[]
+}
+aboutGraph['@graph'].push({
   '@type': 'AboutPage',
+  '@id': `${canonicalUrl}#webpage`,
   name: 'О проекте Patisserie Russe / Milovi School',
   url: canonicalUrl,
   inLanguage: 'ru',
-  isPartOf: {
-    '@type': 'WebSite',
-    name: 'Patisserie Russe',
-    url: siteUrl,
-  },
-  about: {
-    '@type': 'EducationalOrganization',
-    name: 'Milovi School / Patisserie Russe',
-    url: siteUrl,
-  },
-  sponsor: {
-    '@type': 'Organization',
-    name: 'Milovi Cake',
-    url: 'https://milovicake.ru',
-  },
-}
+  isPartOf: { '@id': ENTITY_IDS.website },
+  about: { '@id': ENTITY_IDS.school },
+  mainEntity: { '@id': ENTITY_IDS.school },
+  sponsor: { '@id': ENTITY_IDS.organization },
+  disambiguatingDescription: schoolNode.disambiguatingDescription,
+})
+
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
@@ -39,7 +37,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdAbout)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(aboutGraph)} slot="head" />
 
   <StaticPageShell client:load>
     <div class="px-4 py-12 sm:px-6 lg:px-8">
@@ -73,6 +71,10 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
 
         <h2>Как читать рецепты</h2>
         <p>Рецепты в библиотеке — образовательные. Они помогают понять структуру десерта, температуру, текстуру и последовательность работы. Домашние условия, мука, влажность, духовка, шоколад и молочные продукты сильно влияют на результат, поэтому мы постепенно добавляем блоки диагностики ошибок, замены ингредиентов и профессиональные примечания.</p>
+
+        <h2>Автор и редактор проекта</h2>
+        <p><strong>Виктория Викторовна Милованова</strong> — практикующий шеф-кондитер, основатель авторской кондитерской <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer">Milovi Cake</a> в Санкт-Петербурге и автор образовательного проекта Patisserie Russe. Профильное обучение подтверждено <a href="https://milovicake.ru/certificates/" target="_blank" rel="noopener noreferrer">сертификатами кондитерских школ</a>; подробнее о практике — на странице <a href="https://milovicake.ru/o-konditere/" target="_blank" rel="noopener noreferrer">«О кондитере»</a>.</p>
+        <p>Практический комментарий и проверка технологической адаптации для ингредиентов РФ — Виктория Милованова, шеф-кондитер Milovi Cake (Санкт-Петербург). Проект Patisserie Russe создан в образовательных целях для кондитеров и ценителей французской гастрономии; представленные здесь разборы классических французских десертов <strong>не входят в коммерческое меню кондитерской</strong>.</p>
 
         <h2>Юридическая и этическая позиция</h2>
         <p>Имена шефов, домов, школ и десертов используются для образовательного описания и атрибуции источников. Проект не заявляет партнёрство с этими брендами, если оно явно не указано. При обнаружении неточности или спорного фрагмента можно написать команде Milovi Cake через основной сайт.</p>

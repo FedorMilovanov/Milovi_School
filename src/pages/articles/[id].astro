@@ -8,6 +8,7 @@ import { libraryArticles, libraryClientMeta } from '../../data/library'
 import { categories } from '../../data/categories'
 import { canonWorks } from '../../data/canon'
 import type { Article } from '../../data/types'
+import { ENTITY_IDS } from '../../data/entityGraph'
 
 export function getStaticPaths() {
   return libraryArticles.map((article) => ({
@@ -92,9 +93,14 @@ const jsonLdArticle = {
   inLanguage: 'ru',
   wordCount,
   author: jsonLdAuthor,
+  // The founder reviews the practical adaptation of French techniques to RF
+  // ingredients. `author` stays the library (§4: source != author); the visible
+  // byline in ArticleView mirrors this editor reference 1:1.
+  editor: { '@id': ENTITY_IDS.person },
   publisher: {
     '@type': 'Organization',
     name: 'Patisserie Russe / Milovi School',
+    '@id': ENTITY_IDS.school,
     url: siteUrl,
     logo: {
       '@type': 'ImageObject',
