@@ -114,6 +114,56 @@ for key in ("rawSeparators", "rawMarkdown", "machineDurations", "giantHeadings",
             "titleAsAlt", "missingProvenance", "missingBodyProvenance"):
     print(f"- {key}: {stats[key]}")
 
+
+def relative_luminance(hex_color: str) -> float:
+    channels = [int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+
+    def linear(value: float) -> float:
+        return value / 12.92 if value <= 0.03928 else ((value + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (linear(channel) for channel in channels)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def contrast_ratio(foreground: str, background: str) -> float:
+    first, second = sorted(
+        (relative_luminance(foreground), relative_luminance(background)),
+        reverse=True,
+    )
+    return (first + 0.05) / (second + 0.05)
+
+
+# A11y 2026-10-27: axe-core found 430 `color-contrast` (serious) violations
+# across 8 routes x 2 themes. They were fixed by the semantic tokens in
+# global.css / canon.css. This static ratchet keeps those tokens from drifting
+# back below WCAG AA (4.5:1) without needing a browser in CI; the browser
+# proof stays the authoritative measurement.
+CSS_PATH = ROOT / "src" / "styles" / "global.css"
+css_text = CSS_PATH.read_text(encoding="utf-8")
+token_contract = (
+    # (token declaration to find, backgrounds it must satisfy, min ratio)
+    ("--color-stone-400: #645e58", ("#fcfaf8", "#f4efe6", "#fefefd"), 4.5),
+    ("--color-stone-500: #5f5953", ("#fcfaf8", "#f4efe6", "#fefefd"), 4.5),
+    ("--color-stone-400: #a8a097", ("#0c0a09", "#10100f", "#161412"), 4.5),
+    ("--color-stone-500: #b0a89f", ("#0c0a09", "#10100f", "#161412"), 4.5),
+    ("--text-accent-strong: #6b4c06", ("#f4efe6",), 4.5),
+)
+contrast_checked = 0
+for declaration, backgrounds, minimum in token_contract:
+    if declaration not in css_text:
+        errors.append(f"A11y token missing from global.css: {declaration!r}")
+        continue
+    color = declaration.split(":", 1)[1].strip()
+    for background in backgrounds:
+        contrast_checked += 1
+        ratio = contrast_ratio(color, background)
+        if ratio < minimum:
+            errors.append(
+                f"A11y token {declaration!r} is {ratio:.2f}:1 on {background} "
+                f"(needs >= {minimum}:1)"
+            )
+print(f"- a11y contrast tokens checked: {contrast_checked}")
+
 if errors:
     print(f"\nFAILED: {len(errors)} rendered-content defects", file=sys.stderr)
     for error in errors[:40]:

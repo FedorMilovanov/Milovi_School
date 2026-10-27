@@ -55,7 +55,7 @@
 
   /* MainCategories theme vars */
   --ink:       #151311;
-  --ink-50:    rgba(21, 19, 17, 0.50);
+  --ink-50:    rgba(21, 19, 17, 0.68);
   --gold:      #b8860b;
   --gold-pale: rgba(212, 175, 55, 0.80);
   --cream:     #f8f3eb;
@@ -106,7 +106,7 @@
   --glass-blur: blur(40px) saturate(200%);
 
   --ink:       #eae4d9;
-  --ink-50:    rgba(234, 228, 217, 0.50);
+  --ink-50:    rgba(234, 228, 217, 0.68);
   --gold:      #e8c670;
   --gold-pale: rgba(232, 198, 112, 0.75);
   --cream:     #17130f;
@@ -362,7 +362,7 @@ blockquote.lux-quote::before {
   position: absolute;
   left: 0.5rem; top: -0.5rem;
   font-size: 4rem; line-height: 1;
-  color: var(--accent-gold);
+  color: var(--text-accent);
   opacity: 0.2;
   font-family: serif;
 }
@@ -370,7 +370,7 @@ blockquote.lux-quote::before {
 /* ── French terms ─────────────────────────────────────────────── */
 .french-term {
   position: relative;
-  color: var(--accent-gold);
+  color: var(--text-accent);
   border-bottom: 1px dashed var(--accent-gold);
   transition: all 0.3s ease;
   cursor: help;
@@ -426,7 +426,7 @@ blockquote.lux-quote::before {
   line-height: 0.82;
   margin-right: 0.08em;
   margin-top: 0.06em;
-  color: var(--accent-gold);
+  color: var(--text-accent);
   shape-outside: margin-box;
 }
 
@@ -663,7 +663,7 @@ a {
   margin-top: -0.04em;
 }
 .dark .hero-h1-lux .hero-line-2 { color: #6da8e2; }
-:root:not(.dark) .hero-h1-lux .hero-line-2 { color: #4a7eb8; }
+:root:not(.dark) .hero-h1-lux .hero-line-2 { color: #2f5f94; }
 
 /* ── 3. INTERACTIVE TEXT (group glow по близости курсора) ───────────────── */
 /* Управляется через CSS-переменную --wave-alpha (Cursor.tsx). */
@@ -693,7 +693,7 @@ a {
 }
 .about-h2 em.interactive-text {
   font-style: italic;
-  color: #4a7eb8;
+  color: #2f5f94;
   text-shadow:
     0 0 calc(5px  * var(--wave-alpha)) rgba(26,122,239, 0.85),
     0 0 calc(14px * var(--wave-alpha)) rgba(26,122,239, 0.35),
@@ -705,7 +705,7 @@ a {
 .logo-name-patisserie {
   font-style: italic;
   font-weight: 400;
-  color: #4a7eb8;
+  color: #2f5f94;
   transition: color 0.3s cubic-bezier(0.23, 1, 0.32, 1),
               text-shadow 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -1078,3 +1078,73 @@ a:hover .logo-name-patisserie {
     word-break: break-all;
   }
 }
+
+/* ============================================================
+   A11y 2026-10-27 — WCAG AA contrast for muted text
+   ------------------------------------------------------------
+   axe-core (WCAG 2.1 AA) found `color-contrast` serious violations
+   across 8 routes × 2 themes. Root causes were design tokens whose
+   muted greys and low-alpha golds fell below 4.5:1.
+
+   Tailwind v4 utilities resolve through `var(--color-stone-400/500)`.
+   Overriding those two tokens here (unlayered CSS wins over @layer theme)
+   fixes every `text-stone-400/500` occurrence without touching the 22
+   `border-stone-*` uses, because borders read a different property.
+   Values chosen by measured WCAG contrast against every observed
+   background in BOTH themes (see docs A11y report):
+     light surfaces (#fcfaf8/#f4efe6/#fefefd): #645e58 -> >=5.58:1
+     dark  surfaces (#0c0a09/#10100f/#161412): #a8a097 -> >=7.07:1
+
+   `.canon-page`, `.canon-index` and `footer#about` are ALWAYS dark
+   (independent of the theme), so they keep the light-on-dark values
+   in both themes. No blanket overrides, no !important, no aria-hidden.
+   ============================================================ */
+:root {
+  --color-stone-400: #645e58;
+  --color-stone-500: #5f5953;
+}
+.dark {
+  --color-stone-400: #a8a097;
+  --color-stone-500: #a8a097;
+}
+/* Always-dark surfaces: light muted text in either theme. */
+.canon-page, .canon-index, footer#about,
+aside.bg-stone-950, nav.bg-stone-950, .bg-stone-950 {
+  --color-stone-400: #b0a89f;
+  --color-stone-500: #b0a89f;
+}
+/* Brand wordmark inside the always-dark footer: the light-theme sapphire and
+   primary-ink values would otherwise be dark-on-dark. */
+footer#about .logo-name-patisserie { color: #6da8e2; }
+footer#about .logo-name-russe { color: #eae4d9; }
+
+/* Low-alpha gold metadata on always-dark Canon surfaces. Raising alpha
+   restores >=4.5:1 for 7.5-9px mono labels without changing the hue. */
+.canon-work-techniques span,
+.canon-work-cta,
+.canon-act-transition { color: rgba(224, 190, 131, 0.82); }
+.canon-work-techniques span:not(:last-child)::after { color: rgba(224, 190, 131, 0.82); }
+
+/* Section-overline amber-800/70 on light article surfaces -> solid amber-900. */
+:root:not(.dark) .article-body .text-amber-800\/70,
+:root:not(.dark) .text-amber-800\/70 { color: #78350f; }
+/* 8px Canon-nav kicker on always-dark bars: raise alpha from /50. */
+aside.bg-stone-950 .text-amber-200\/50,
+nav.bg-stone-950 .text-amber-200\/50,
+footer#about .text-amber-200\/50 { color: rgba(254, 243, 199, 0.85); }
+
+/* Dark-theme links using `text-amber-700` (e.g. /sources/ corrections link)
+   sit on #10100f; amber-700 (#b45309) is only 3.79:1. Use amber-500 instead. */
+.dark .text-amber-700 { color: #f59e0b; }
+
+/* ── Final AA fixes (2026-10-27) ────────────────────────────────
+   1) 9px section kicker on #f4efe6: --text-accent (#8c620a) is 3.99:1.
+      A dedicated darker token keeps CommandPalette accents untouched.
+   2) The 60px `pâtisserie` wordmark lives in the always-dark footer,
+      where the light-theme sapphire (#2f5f94) is 2.99:1 (needs 3:1).
+   Neither change touches the dark-first identity or adds !important. */
+:root { --text-accent-strong: #6b4c06; }
+.dark { --text-accent-strong: #e8c670; }
+.section-kicker-aa { color: var(--text-accent-strong); }
+footer#about .about-h2 em.interactive-text,
+footer#about .about-h2 em { color: #6da8e2; }
