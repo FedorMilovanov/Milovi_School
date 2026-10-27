@@ -247,7 +247,7 @@
 
 **Валидация финального HEAD (все зелёные):** `check`, `lint`, `audit:content`, `build`, `audit:build` (167 документов, 169 HTML, strict UTF-8), `audit:site` (SEO 3477/166/157; render: 157 страниц, `generatedBodyFigures: 32`, `rawSeparators/rawMarkdown/machineDurations/giantHeadings/titleAsAlt/missingProvenance/missingBodyProvenance` — все 0), `audit:privacy` (169 док.). Рабочее дерево чистое, local == remote `arena/0e3a398a-milovi-school`.
 
-**Известное ограничение (не блокер):** базовый `npm run validate` красный на `audit:security` из-за 12 dev-only advisories; `npm audit --omit=dev` = 0. Продуктовых уязвимостей нет. CI-trigger слушает только `main`/PR, поэтому check-runs на промежуточных коммитах ветки = 0; зелёный 23/23 относится к базовому HEAD `1b0b848`.
+**Зависимости (исправлено в волне 4):** на момент открытия PR #38 шаг `audit:security` (`npm audit --audit-level=high`) был красным из-за 12 dev-only advisories; продуктовых уязвимостей не было (`npm audit --omit=dev` = 0). Вместо ослабления гейта применён `npm audit fix --package-lock-only`: 13 транзитивных пакетов обновлены до пропатченных версий, `package.json` не тронут, осталось 3 уязвимости ниже порога high (1 low, 2 moderate). Полная цепочка `npm run validate` стала зелёной впервые. CI-trigger слушает только `main`/PR, поэтому check-runs на промежуточных коммитах ветки = 0; зелёный 23/23 относится к базовому HEAD `1b0b848`.
 
 ---
 
@@ -276,3 +276,5 @@ DEAD SOURCES:
 Оба мёртвых URL занесены в `KNOWN_DEAD_URLS` (нельзя перецитировать), `laduree.com` добавлен в trusted-домены. `laduree.fr/l-ete-chez-laduree.html` в `part1.ts` оставлен: strict-проба его живым/не-mёртвым не пометила, и он нужен для `REQUIRED_DATA_SOURCES` статьи `chiffres-macarons-laduree-herme`.
 
 **Вывод:** оффлайн-гейты (`audit:source-links`, `audit:content`) не могут заменить сетевую проверку — мёртвые ссылки живут только в реальном HTTP. Стоит гонять `audit:source-links:strict` перед каждым мёржем, а не только в CI.
+
+**Перепроверка в CI:** после `c111da1` шаг `Verify every cited French source is reachable` в job `validate` стал **success** — замена сработала в реальной сети. Параллельно был закрыт красный шаг `Audit dependencies at high severity` (12 dev-only advisories) через `npm audit fix --package-lock-only` (`e92004d`): гейт не ослаблялся, только обновлены транзитивные версии в lock-файле, `npm run validate` впервые зелёный целиком.
