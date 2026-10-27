@@ -30,14 +30,14 @@ export default function Footer() {
           </div>
           <div className="space-y-6 text-stone-300">
             <p className="text-lg leading-8">
-              Это образовательная библиотека частной кондитерской Milovi Cake о людях, техниках и десертах, которые сделали французскую pâtisserie современной. Материалы не являются меню Milovi Cake: это справочник, переводы, сводки и технологические разборы для читателей.
+              Это независимая образовательная библиотека о людях, техниках и десертах, которые сделали французскую pâtisserie современной. Материалы не являются меню Milovi Cake: это справочник, переводы, сводки и технологические разборы для читателей.
             </p>
             <p className="text-lg leading-8">
               Здесь можно читать не рекламные описания, а ремесленную суть: что шеф хотел сказать, почему он выбрал именно эту технику, какие температуры и жесты важны.
             </p>
 
             <div className="border border-amber-100/15 p-6">
-              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/60">Авторский проект</p>
+              <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/60">Независимый образовательный проект</p>
               <span className="font-serif text-2xl font-semibold text-amber-100">
                 <span className="logo-name-patisserie">Pâtisserie</span>{' '}
                 <span className="logo-name-russe">Russe</span>
@@ -46,12 +46,10 @@ export default function Footer() {
                 French Pastry Archive — бесплатная база знаний о французской кондитерке и кухне. Коммерческий сайт кондитерской: milovicake.ru.
               </p>
               <p className="mt-4 border-t border-amber-100/10 pt-4 text-xs leading-6 text-stone-400">
-                Проект создан при поддержке авторской кондитерской Виктории Миловановой{' '}
-                <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">Milovi Cake (Санкт-Петербург)</a>
-                {' · '}
-                <a href="https://milovicake.ru/o-konditere/" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">О шеф-кондитере</a>
-                {' · '}
-                <a href="https://milovicake.ru/certificates/" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">Дипломы и сертификаты</a>
+                Проект создан и отредактирован <strong className="font-semibold text-stone-300">Фёдором Миловановым</strong> с применением генеративных нейросетей. Кондитерская{' '}
+                <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">Milovi Cake (Санкт-Петербург)</a>{' '}
+                — отдельный проект и не является автором учебных разборов{' · '}
+                <a href="/about/" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">О проекте</a>
               </p>
             </div>
           </div>
