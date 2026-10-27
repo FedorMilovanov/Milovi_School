@@ -248,3 +248,31 @@
 **Валидация финального HEAD (все зелёные):** `check`, `lint`, `audit:content`, `build`, `audit:build` (167 документов, 169 HTML, strict UTF-8), `audit:site` (SEO 3477/166/157; render: 157 страниц, `generatedBodyFigures: 32`, `rawSeparators/rawMarkdown/machineDurations/giantHeadings/titleAsAlt/missingProvenance/missingBodyProvenance` — все 0), `audit:privacy` (169 док.). Рабочее дерево чистое, local == remote `arena/0e3a398a-milovi-school`.
 
 **Известное ограничение (не блокер):** базовый `npm run validate` красный на `audit:security` из-за 12 dev-only advisories; `npm audit --omit=dev` = 0. Продуктовых уязвимостей нет. CI-trigger слушает только `main`/PR, поэтому check-runs на промежуточных коммитах ветки = 0; зелёный 23/23 относится к базовому HEAD `1b0b848`.
+
+---
+
+## 14. Строгая сетевая проверка источников на PR (2026-10-27)
+
+При открытии PR #38 впервые сработал CI-триггер `pull_request`, а вместе с ним — шаг `Verify every cited French source is reachable` (`npm run audit:source-links:strict`), который в песочнице недоступен (нет egress). Лог добыт через подписанный URL `actions/jobs/.../logs` + `fetch_page`. Результат на `cec4e9b`:
+
+```
+unique urls: 350 across 125 domains | dead urls: 2 | blocked/inconclusive: 49 (14.0%, лимит 35%)
+weak citations: 0 (budget 0) | root-redirect citations: 0 (budget 0)
+DEAD SOURCES:
+  [HTTP 404] https://www.christophemichalak.com/content/lhistoire-dun-chef
+  [HTTP 404] https://www.laduree.fr/en/pages/notre-histoire-maison-laduree
+```
+
+Оба URL — **pre-existing** (не из волны 3/4), и один и тот же мёртвый Michalak-URL цитировался для **двух разных утверждений** (карточка religieuse в `part12` и определение Fantastik в `part13`) — то есть источник уже не подтверждал ни одного из них. Оффлайн-инварианты (weak ratchet, known-dead, attributed quotes) при этом были зелёными: баг ловился только реальной сетью.
+
+**Исправлено в `c111da1`** (живые первоисточники проверены прямой загрузкой; описания цитат переписаны под то, что страницы действительно говорят):
+
+| Было (404) | Стало (live, первый источник) |
+|---|---|
+| `laduree.fr/en/pages/notre-histoire-maison-laduree` | `laduree.com/pages/histoire-laduree` — официальная хроника: 1862, rue Royale, пожар 1871, Ж. Шере, salon de thé, макарон Дефонтена, 1993 Holder, 2021 LOV Group |
+| `christophemichalak.com/content/lhistoire-dun-chef` (part12) | `christophemichalak.com/recettes/le-paris-brest` — официальный рецепт pâte à choux, та же база, что у religieuse |
+| тот же URL (part13) | `christophemichalak.com/content/la-maison` — официальная страница дома, четыре принципа, контекст линеек Kosmik/Klassik |
+
+Оба мёртвых URL занесены в `KNOWN_DEAD_URLS` (нельзя перецитировать), `laduree.com` добавлен в trusted-домены. `laduree.fr/l-ete-chez-laduree.html` в `part1.ts` оставлен: strict-проба его живым/не-mёртвым не пометила, и он нужен для `REQUIRED_DATA_SOURCES` статьи `chiffres-macarons-laduree-herme`.
+
+**Вывод:** оффлайн-гейты (`audit:source-links`, `audit:content`) не могут заменить сетевую проверку — мёртвые ссылки живут только в реальном HTTP. Стоит гонять `audit:source-links:strict` перед каждым мёржем, а не только в CI.
