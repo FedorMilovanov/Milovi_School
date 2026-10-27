@@ -1,4 +1,3 @@
-import { localImages } from '../assets/images'
 import { articleImageDimensions } from './articleImageDimensions'
 import { dc } from './deepContents'
 import type { Article, ArticleMeta } from './types'
@@ -50,8 +49,8 @@ export const articles: Article[] = [
   { id: 'michalak-fantastik', title: 'Мишалак и Fantastik: торт высотой 3 см, потому что рот не шире', excerpt: 'Эргономика десерта: почему чемпион мира буквально измерил свой рот перед созданием фирменного торта.', content: body('Мишалак Fantastik', 'michalak-fantastik'), category: 'christophe-michalak', author: 'HuffPost, Reporter Gourmet', readTime: 5, image: '/images/articles/michalak-fantastik.webp', tags: ['Fantastik', 'эргономика', 'шоколад'], sourceUrl: 'https://reportergourmet.com/en/chef/782-christophe-michalak', date: '2024-09-01', sourceLabel: 'Reporter Gourmet' },
   { id: 'tech-madeleine', title: 'Madeleine: бугорок не магия, а температурный шок', excerpt: 'Почему появляется bosse: холодное тесто, горячая форма, двухэтапная выпечка и металлическая форма.', content: body('Мадлен бугорок', 'tech-madeleine'), category: 'techniques', author: 'BakingLikeAChef, Pardon Your French', readTime: 4, image: '/images/articles/tech-madeleine.webp', tags: ['мадлен', 'bosse', 'температура'], sourceUrl: 'https://www.bakinglikeachef.com/secrets-of-the-madeleine-hump/', date: '2024-09-15', sourceLabel: 'BakingLikeAChef' },
   { id: 'cuisine-galette', title: 'Классическая Galette des Rois: миндальный крем, слоёное тесто, традиция', excerpt: 'Традиционный французский пирог Трёх королей с миндальным кремом и слоёным тестом.', content: body('Galette des Rois', 'cuisine-galette'), category: 'french-cuisine', author: 'Leonce Chenal', readTime: 3, image: '/images/articles/cuisine-galette.webp', tags: ['традиция', 'Galette', 'миндаль'], sourceUrl: 'https://lacuisinedethomas.fr/recettes/galette-des-rois-frangipane-christophe-michalak/', date: '2024-10-01', sourceLabel: 'La Cuisine de Thomas' },
-  { id: 'cuisine-sauces-history', title: 'История французских соусов от Карема до Эскоффера', excerpt: 'Как два великих шефа создали систему, которой пользуются до сих пор.', content: body('История соусов', 'cuisine-sauces-history'), category: 'french-cuisine', author: 'Savory Kitchin', readTime: 3, image: '/images/articles/cuisine-sauces-history.webp', tags: ['история', 'Карем', 'Эскоффер'], sourceUrl: 'https://savorykitchin.com/deep-history-of-the-five-mother-sauces/', date: '2024-10-15', sourceLabel: 'Savory Kitchen' },
-  { id: 'recipe-pecan-chocolate-creme-brulee', title: 'Entremets «пекан, шоколад и крем-брюле»: профессиональная учебная технология', excerpt: 'Пралине пекан, шоколадный biscuit, insert крем-брюле и ганаш montée на открытых профессиональных базах без ложной авторской атрибуции.', content: body('recipe-pecan-chocolate-creme-brulee', 'recipe-pecan-chocolate-creme-brulee'), category: 'recipes', author: 'Cacao Barry, Valrhona', readTime: 4, image: localImages.pecan, tags: ['рецепт', 'пекан', 'шоколад', 'крем-брюле', 'entremets'], sourceUrl: 'https://www.cacao-barry.com/fr-FR/le-guide-des-recettes', date: '2024-11-01', sourceLabel: 'Cacao Barry — Le Guide des Recettes' },
+  { id: 'cuisine-sauces-history', title: 'История французских соусов от Карема до Эскоффера', excerpt: 'Как два великих шефа создали систему, которой пользуются до сих пор.', content: body('История соусов', 'cuisine-sauces-history'), category: 'french-cuisine', author: 'Savory Kitchen', readTime: 3, image: '/images/articles/cuisine-sauces-history.webp', tags: ['история', 'Карем', 'Эскоффер'], sourceUrl: 'https://savorykitchin.com/deep-history-of-the-five-mother-sauces/', date: '2024-10-15', sourceLabel: 'Savory Kitchen' },
+  { id: 'recipe-pecan-chocolate-creme-brulee', title: 'Entremets «пекан, шоколад и крем-брюле»: профессиональная учебная технология', excerpt: 'Пралине пекан, шоколадный biscuit, insert крем-брюле и ганаш montée на открытых профессиональных базах без ложной авторской атрибуции.', content: body('recipe-pecan-chocolate-creme-brulee', 'recipe-pecan-chocolate-creme-brulee'), category: 'recipes', author: 'Cacao Barry, Valrhona', readTime: 4, image: '/images/articles/hero-pecan-chocolate-creme-brulee.webp', tags: ['рецепт', 'пекан', 'шоколад', 'крем-брюле', 'entremets'], sourceUrl: 'https://www.cacao-barry.com/fr-FR/le-guide-des-recettes', date: '2024-11-01', sourceLabel: 'Cacao Barry — Le Guide des Recettes' },
   { id: 'tech-macaronage', title: 'Техника макаронаж: искусство идеального теста для макарон', excerpt: 'Секреты складывания теста: сбор и переворачивание, тест с лентой, проверка поверхности.', content: body('Макаронаж', 'tech-macaronage'), category: 'techniques', author: 'Pastry Expertise', readTime: 4, image: '/images/articles/tech-macaronage.webp', tags: ['макаронаж', 'макарон', 'техника'], sourceUrl: 'https://ecoledepatisserie-boutique.com/fr-us/blogs/patisserie-conseil-professionnel/preparation-cap-patisserie', date: '2024-11-15', updatedAt: '2026-09-16', sourceLabel: 'CAP pastry notes' },
   // === НОВЫЕ СТАТЬИ (апрель 2026) ===
   { id: 'adam-eclair', title: 'Кристоф Адам: эклер как холст — цвет, глянец и 200 вариаций', excerpt: 'Основатель L\'Éclair de Génie о том, почему эклер стал главным десертом десятилетия и как из классики сделать арт-объект.', content: body('Кристоф Адам эклер', 'adam-eclair'), category: 'techniques', author: 'L\'Éclair de Génie, Vogue France', readTime: 5, image: '/images/articles/adam-eclair.webp', tags: ['эклер', 'глазурь', 'цвет'], sourceUrl: 'https://www.bakersjournal.com/interview-with-chef-christophe-adam-on-inspiration-and-eclairs-7517/', date: '2024-12-01', sourceLabel: 'Bakers Journal' },
@@ -1388,20 +1387,24 @@ function defaultImageTitle(article: Article) {
 }
 
 function defaultImageAlt(article: Article) {
-  const tags = article.tags?.slice(0, 3).join(', ')
+  // All 155 legacy covers are generated editorial artwork, not documentary
+  // photography. The alt must say what the image actually is and give the
+  // article context; duplicating the H1 (or a keyword-stuffed legacy template)
+  // is normalized away by library.ts and leaves the reader with title == alt.
+  const focus = short(article.title, 60)
   if (article.category === 'recipes') {
-    return `Французский десерт «${short(article.title, 58)}»: готовая подача, ключевые текстуры и техника ${tags ? `(${tags})` : ''}`.trim()
+    return `AI-иллюстрация десерта: ${focus}. Редакционный вид подачи и текстуры.`
   }
   if (article.category === 'techniques') {
-    return `Иллюстрация французской кондитерской техники «${short(article.title, 60)}»${tags ? `: ${tags}` : ''}`
+    return `AI-иллюстрация техники: ${focus}. Условная рабочая стадия теста или крема.`
   }
   if (article.category === 'histoire-culinaire') {
-    return `Исторический материал о французской pâtisserie: «${short(article.title, 62)}»`
+    return `AI-иллюстрация исторического материала: ${focus}. Редакционная реконструкция.`
   }
   if (article.category === 'chiffres-gourmands') {
-    return `Инфографичный визуал к аналитике французской кондитерской: «${short(article.title, 60)}»`
+    return `AI-иллюстрация аналитического материала: ${focus}. Декоративный визуал.`
   }
-  return `Французская кондитерская школа: визуал к материалу «${short(article.title, 68)}»${tags ? `(${tags})` : ''}`
+  return `AI-иллюстрация материала: ${focus}. Редакционное изображение библиотеки.`
 }
 
 function defaultImageCaption(article: Article) {
@@ -1424,7 +1427,10 @@ for (const article of articles) {
   article.imageTitle ??= defaultImageTitle(article)
   article.imageAlt ??= defaultImageAlt(article)
   article.imageCaption ??= defaultImageCaption(article)
-  article.imageCredit ??= 'Patisserie Russe / Milovi School'
+  // Honest provenance: every legacy cover is generated editorial artwork.
+  // The article page detects this marker and emits IPTC
+  // trainedAlgorithmicMedia in ImageObject / a visible AI note.
+  article.imageCredit ??= 'Patisserie Russe / Milovi School — original generated editorial artwork (AI)'
 
   // Keep SEO dimensions and the visible hero aspect ratio tied to the real file.
   // The previous blanket 1280×800 assumption was wrong for 1408×768 and portrait
@@ -1434,10 +1440,6 @@ for (const article of articles) {
   if (dimensions) {
     article.imageWidth ??= dimensions.width
     article.imageHeight ??= dimensions.height
-  } else if (article.id === 'recipe-pecan-chocolate-creme-brulee') {
-    // Vite-bundled fallback image in src/assets/pastry-pecan.jpg.
-    article.imageWidth ??= 1296
-    article.imageHeight ??= 864
   } else {
     article.imageWidth ??= 1280
     article.imageHeight ??= 800
@@ -1445,6 +1447,6 @@ for (const article of articles) {
 }
 
 // ─── Metadata only (no content) — safe to send to the browser ───────────────
-// Use this in React client islands to avoid shipping all 103 articles' content.
+// Use this in React client islands to avoid shipping all 155 articles' content.
 // Each article page receives its own full content as a static SSG prop.
 export const articlesMeta: ArticleMeta[] = articles.map(({ content: _content, ...meta }) => meta)

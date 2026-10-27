@@ -38,6 +38,13 @@ from urllib.parse import quote, urlsplit, urlunsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 ARTICLES_PATH = ROOT / "src" / "data" / "articles.ts"
+# Base bodies and metadata overrides are published too. Historically the gate
+# only read articles.ts + expansions, so 79/157 final sourceUrl values (the
+# override layer) and all base-body URLs escaped both the dead registry and the
+# weak-citation ratchet. Keep these paths in the collection contract.
+DEEP_PATH = ROOT / "src" / "data" / "deepContents.ts"
+OVERRIDES_PATH = ROOT / "src" / "data" / "articleOverrides.ts"
+STATIC_PAGES_DIR = ROOT / "src" / "pages"
 EXPANSIONS_DIR = ROOT / "src" / "data" / "articleExpansionParts"
 CANON_CONTENTS_PATH = ROOT / "src" / "data" / "canonArticleContents.ts"
 CANON_APPENDICES_PATH = ROOT / "src" / "data" / "canonArticleAppendices.ts"
@@ -240,12 +247,34 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
     "https://www.dalloyau.fr/img/st-menu/11.pdf",
     "https://www.dalloyau.fr/img/cms/Catalogue%20Sous-traitance/Catalogue_soustraitance_sucr%C3%A9_dalloyau.pdf",
     "https://www.pierreherme.com/fr/coffret-de-24-macarons.html",
+    # Verified 2026-10-26: the Dalloyau shop moved to the Potel & Chabot
+    # group domain. Every legacy dalloyau.fr deep link below now resolves to
+    # a groupepoteletchabot.com 404 (or to a different-domain landing page),
+    # so none of them can serve as a source trail. The live official timeline
+    # is https://groupepoteletchabot.com/nos-maisons/dalloyau instead.
+    "https://www.dalloyau.fr/desserts/831-opera-portion-individuelle.html",
+    "https://dalloyau.fr/patisseries/658-opera-portion-individuelle.html",
+    "https://dalloyau.fr/opera-100017.html",
+    "https://www.dalloyau.fr/actualites/dalloyau-x-jo-di-bona-n26",
+    "https://www.dalloyau.fr/img/cms/DALLOYAU%20-%20Carte%20%C3%A0%20emporter%20H2020.pdf",
+    "https://www.dalloyau.fr/11-patisseries",
+    "https://www.europeana.eu/en/item/9200520/ark__12148_bpt6k1025189c",
+    # Verified 2026-10-27 by the strict CI network probe (HTTP 404) and by
+    # direct fetch: the Laduree "notre histoire" page moved to the Shopify
+    # storefront at https://laduree.com/pages/histoire-laduree, and the old
+    # Michalak "l'histoire d'un chef" CMS page is gone (soft-404 "Cette page
+    # n'existe pas"). Live first-party replacements are now cited instead.
+    "https://www.laduree.fr/en/pages/notre-histoire-maison-laduree",
+    "https://www.christophemichalak.com/content/lhistoire-dun-chef",
 })
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
 BARE_URL_RE = re.compile(r"(?<![(\[])https?://[^\s<>'\"`)\]]+")
 SOURCE_URL_FIELD_RE = re.compile(r"\bsourceUrl\s*:\s*'([^']+)'")
+STATIC_HREF_RE = re.compile(r'href="(https?://[^"]+)"')
+# Own-domain links in static pages are navigation/branding, not source trail.
+STATIC_INTERNAL_HOSTS = ("french.milovicake.ru", "milovicake.ru")
 
 # A page whose visible title/heading says this is a soft-404 even on HTTP 200.
 SOFT_404_MARKERS = (
@@ -324,18 +353,32 @@ def collect_citations() -> list[dict[str, str]]:
             for url in MARKDOWN_URL_RE.findall(body):
                 add(article_id, url, origin)
 
-    for path in sorted(EXPANSIONS_DIR.glob("part*.ts")):
-        scan_entries(path.read_text(encoding="utf-8"), "expansion")
+    for path in (DEEP_PATH, *sorted(EXPANSIONS_DIR.glob("part*.ts"))):
+        if path.exists():
+            scan_entries(path.read_text(encoding="utf-8"), "base" if path == DEEP_PATH else "expansion")
     for path in (CANON_CONTENTS_PATH, CANON_APPENDICES_PATH):
         if path.exists():
             scan_entries(path.read_text(encoding="utf-8"), "canon")
 
-    for path, label in ((ARTICLES_PATH, "metadata"), (CANON_ARTICLES_PATH, "canon-metadata")):
+    for path, label in (
+        (ARTICLES_PATH, "metadata"),
+        (OVERRIDES_PATH, "override-metadata"),
+        (CANON_ARTICLES_PATH, "canon-metadata"),
+    ):
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
         for url in SOURCE_URL_FIELD_RE.findall(text):
             add("__metadata__", url, label)
+
+    # Static editorial pages cite external references too. Only real href links
+    # count; JSON-LD siteUrl/schema URLs are not part of the source trail.
+    for path in sorted(STATIC_PAGES_DIR.glob("*.astro")):
+        text = path.read_text(encoding="utf-8")
+        for url in STATIC_HREF_RE.findall(text):
+            if any(host in url for host in STATIC_INTERNAL_HOSTS):
+                continue
+            add(f"__static__:{path.name}", url, "static-page")
 
     return citations
 
@@ -434,6 +477,23 @@ def run_selftest() -> int:
     ]
     if parsed != expected:
         failures.append(f"metadata parser mismatch: expected={expected!r}, got={parsed!r}")
+
+    # Regression: the published metadata source is the OVERRIDE value, not the
+    # articles.ts value. If the collector drops overrides again, dead/weak URLs
+    # become invisible while the gate still prints a green verdict.
+    collected = collect_citations()
+    origins = {item["origin"] for item in collected}
+    for required in ("base", "expansion", "override-metadata", "metadata", "static-page"):
+        if required not in origins:
+            failures.append(f"collector dropped origin {required!r}")
+    override_urls = set(SOURCE_URL_FIELD_RE.findall(OVERRIDES_PATH.read_text(encoding="utf-8")))
+    collected_urls = {item["url"] for item in collected}
+    missing_overrides = override_urls - collected_urls
+    if missing_overrides:
+        failures.append(f"override sourceUrl not collected: {sorted(missing_overrides)[:3]!r}")
+    deep_urls = set(MARKDOWN_URL_RE.findall(DEEP_PATH.read_text(encoding="utf-8")))
+    if deep_urls and not deep_urls.issubset(collected_urls):
+        failures.append("deepContents.ts URLs are not fully collected")
 
     generic_positive = (
         "https://example.test/",

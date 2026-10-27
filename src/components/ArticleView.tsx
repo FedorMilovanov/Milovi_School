@@ -221,10 +221,28 @@ function headingId(text: string, index: number) {
   return `h-${slugify(text)}-${index}`
 }
 
+/** Recipe schema needs ISO-8601 durations; readers need Russian minutes/hours. */
+function formatDuration(value: string | undefined): string {
+  if (!value) return '—'
+  const match = /^PT(?:(\d+)H)?(?:(\d+)M)?$/.exec(value)
+  if (!match) return value
+  const hours = Number(match[1] ?? 0)
+  const minutes = Number(match[2] ?? 0)
+  if (hours === 0 && minutes === 0) return 'не требуется'
+  if (hours >= 24) {
+    const days = Math.round((hours / 24) * 10) / 10
+    return `${String(days).replace('.', ',')} дн.`
+  }
+  if (hours && minutes) return `${hours} ч ${minutes} мин`
+  if (hours) return `${hours} ч`
+  return `${minutes} мин`
+}
+
 export default function ArticleView({ article, allArticles, onBack, onNavigate, onTagSearch, disableEscapeBack = false }: ArticleViewProps) {
   const category = categories.find((c) => c.id === article.category)
   const imageWidth = article.imageWidth ?? 1280
   const imageHeight = article.imageHeight ?? 800
+  const imageIsGenerated = /(?:\bAI\b|generated|генератив|сгенерирован)/i.test(article.imageCredit ?? '')
   const isPortraitHero = imageHeight > imageWidth
   const heroAspectRatio = `${imageWidth} / ${imageHeight}`
   // BUG FIX: removed duplicate local useScrollProgress that registered a second scroll
@@ -420,12 +438,21 @@ const renderedContent = useMemo(() => {
       // [NEW] Block-level images (Prevents <figure> inside <p> Hydration Mismatch)
       const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
       if (imgMatch) {
+        // Local editorial illustrations are AI-generated; label them honestly in
+        // the visible caption, matching the hero's IPTC provenance note.
+        const isGeneratedIllustration = /^\/images\/articles\/(?:body|hero)-/.test(imgMatch[2]);
         return (
-          // FIX CLS: aspect-ratio reserves the exact space before the image loads so
-          // surrounding text doesn't shift. max-h-[600px] still caps very tall images.
-          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
-            <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
-            {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">{imgMatch[1]}</figcaption>}
+          // FIX CLS: the aspect-ratio wrapper reserves the exact media space before
+          // the image loads. The caption sits OUTSIDE that wrapper so it is never
+          // clipped by overflow-hidden — keeping the AI provenance note visible.
+          <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
+            <div className="w-full" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
+              <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
+            </div>
+            {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">
+              {imgMatch[1]}
+              {isGeneratedIllustration && <span className="mt-1 block font-mono text-[10px] uppercase not-italic tracking-[0.18em] text-stone-400 dark:text-stone-500">Генеративная редакционная иллюстрация (AI)</span>}
+            </figcaption>}
           </figure>
         )
       }
@@ -585,6 +612,7 @@ const renderedContent = useMemo(() => {
               <p className="mb-2 text-sm text-stone-500 dark:text-stone-400">
                 {article.author}
                 {article.date && <><span className="mx-2">·</span><time dateTime={article.date}>{new Date(article.date + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</time></>}
+                {article.updatedAt && article.updatedAt !== article.date && <><span className="mx-2">·</span>обновлено <time dateTime={article.updatedAt}>{new Date(article.updatedAt + 'T12:00:00').toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</time></>}
               </p>
               <h1 className="font-serif text-4xl font-semibold leading-tight tracking-[-0.06em] text-stone-950 dark:text-stone-100 sm:text-5xl md:text-6xl">{article.title}</h1>
             </div>
@@ -644,9 +672,9 @@ const renderedContent = useMemo(() => {
                 {article.imageCaption}
               </figcaption>
             )}
-            {article.imageCredit && article.imageCredit !== 'Patisserie Russe / Milovi School' && (
+            {article.imageCredit && (
               <p className="mx-auto mt-1 max-w-3xl px-2 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500">
-                {article.imageCredit}
+                {imageIsGenerated ? 'Генеративная редакционная иллюстрация (AI)' : article.imageCredit}
               </p>
             )}
           </figure>
@@ -661,13 +689,13 @@ const renderedContent = useMemo(() => {
                     {article.recipeData.prepTime && (
                       <div>
                         <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Подготовка</span>
-                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.prepTime}</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{formatDuration(article.recipeData.prepTime)}</span>
                       </div>
                     )}
                     {article.recipeData.cookTime && (
                       <div>
                         <span className="block font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">Приготовление</span>
-                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{article.recipeData.cookTime}</span>
+                        <span className="text-sm font-semibold text-stone-900 dark:text-stone-100">{formatDuration(article.recipeData.cookTime)}</span>
                       </div>
                     )}
                     {article.recipeData.yield && (
@@ -779,6 +807,7 @@ const renderedContent = useMemo(() => {
                   <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
                   <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)); showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок') }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
                   <button type="button" onClick={toggleFocusMode} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{focusMode ? 'выключить фокус' : 'режим фокуса'}</button>
+                  <button type="button" onClick={() => window.print()} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">Печать статьи</button>
                 </div>
 
                 {/* Source card */}

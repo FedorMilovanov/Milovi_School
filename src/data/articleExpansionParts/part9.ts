@@ -17,7 +17,7 @@ Dalloyau связывает создание Opéra с Сириаком Гави
 
 ## Французские источники и первичные материалы
 
-- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)
+- [Dalloyau — Opéra L’Original, création 1955](https://groupepoteletchabot.com/nos-maisons/dalloyau)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
 - [Crème au beurre](https://www.academiedugout.fr/recettes/creme-au-beurre_327_2)
 - [Ganaches chocolat blanc/blond/lait](https://essentials.valrhona.com/essential/118)`,

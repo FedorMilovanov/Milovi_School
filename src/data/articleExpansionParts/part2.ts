@@ -137,11 +137,17 @@ Paris-Brest лучше темперировать несколько минут:
 
 Чтобы ответить «кто изобрёл», сначала нужно определить критерий: первое письменное название, первый рецепт с обожжённым сахаром или непрерывная региональная традиция. Разные критерии дают разные результаты. Научно честный вывод состоит в том, что несколько европейских кухонь развивали близкую идею, а французская печать конца XVII века даёт один из ранних хорошо известных следов.
 
+## Британский архивный след
+
+Тринити-колледж Кембриджа публикует официальную историческую заметку Trinity Burnt Cream. Колледж прямо пишет, что версия об изобретении крем-брюле в его стенах почти наверняка не имеет оснований, но подтверждает связь блюда с колледжем с конца XIX века и рецептуры Cambridge burnt cream в поваренных книгах. Такая институциональная осторожность ценнее поздних пересказов легенды: первоисточник сам снимает с себя авторство.
+
 ## Французские источники и первичные материалы
 
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
 - [Nouveau traité de la cuisine (1739)](https://catalogue.bnf.fr/rechercher.do?motRecherche=Nouveau+trait%C3%A9+de+la+cuisine+Menon)
-- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)`,
+- [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
+- [Trinity College Cambridge — Trinity Burnt Cream, официальная историческая заметка](https://www.trin.cam.ac.uk/about/historical-overview/trinity-burnt-cream/)
+`,
   'croissant-history': `## Kipferl не был современным круассаном
 
 Австрийский kipferl — изогнутая выпечка с более древней историей, но обычно без французской ламинации. Легенда о победе над османами в 1683 году популярна, однако поздние пересказы не заменяют датированный рецепт.
@@ -162,12 +168,18 @@ Paris-Brest лучше темперировать несколько минут:
 
 Круассан — результат французской переработки венской традиции.
 
+## Европейский контекст XIX века
+
+Цифровые коллекции помогают отделить национальный миф от документированной профессиональной культуры. В материале Europeana и проекта Lost Kitchen Scrolls From Dutch pudding to French pastries (2025) на примере трёх рецептов XVIII–XIX веков показано, как французские техники меренги и выпечки распространялись по Европе через торговлю и печатные книги. Для круассана это важнее легенды об осаде Вены: документ объясняет реальный механизм заимствования и трансформации.
+
 ## Французские источники и первичные материалы
 
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
-- [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)`,
+- [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)
+- [Europeana / Lost Kitchen Scrolls — From Dutch pudding to French pastries (2025)](https://www.europeana.eu/en/stories/from-dutch-pudding-to-french-pastries)
+`,
   'crookie-conticini': `## Кто создал crookie
 
 Вирусный crookie связывают с парижской Maison Louvard, где круассан разрезают, дополняют cookie dough и повторно выпекают. Имя Philippe Conticini не должно стоять в заголовке, если он не является создателем конкретного продукта. Его можно упоминать только как отдельного шефа, работавшего с гибридными и текстурными формами.

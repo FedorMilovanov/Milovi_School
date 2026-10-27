@@ -1031,3 +1031,50 @@ a:hover .logo-name-patisserie {
     transform: translateX(4px);
   }
 }
+
+/* ── Print / PDF reading surface ───────────────────────────────────
+   The "Печать статьи" control lives in the desktop reading sidebar.
+   Keep only the article itself on paper: no chrome, sidebars, floating
+   bars, cursor canvas or decorative overlays. No blanket aria-hidden /
+   tabindex tricks — this is presentation-only CSS. */
+@media print {
+  html, body {
+    background: #ffffff;
+    color: #1c1917;
+  }
+  .min-h-screen > header,
+  .min-h-screen > footer,
+  .min-h-screen > aside,
+  .skip-to-content,
+  .fixed,
+  canvas,
+  [role="tooltip"] {
+    display: none;
+  }
+  article,
+  .article-body,
+  .drop-cap {
+    max-width: 100%;
+    width: 100%;
+    overflow: visible;
+  }
+  article header {
+    border-color: #d6d3d1;
+  }
+  .article-body p,
+  .article-body li {
+    break-after: avoid;
+  }
+  figure,
+  table,
+  blockquote,
+  pre {
+    break-inside: avoid;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #57534e;
+    word-break: break-all;
+  }
+}

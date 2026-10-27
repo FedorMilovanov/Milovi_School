@@ -82,7 +82,7 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 
 ## Французские источники и первичные материалы
 
-- [Dalloyau — Opéra L’Original, création 1955](https://www.dalloyau.fr/11-patisseries)
+- [Dalloyau — Opéra L’Original, création 1955](https://groupepoteletchabot.com/nos-maisons/dalloyau)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
@@ -176,12 +176,19 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 Источники вроде «Ménagier de Paris» описывают домашнюю организацию и рецепты, а не устав конкретного парижского цеха. Поэтому их используют для контекста питания, но юридические права профессии проверяют по ордонансам и архивам. Разделение типов источников защищает статью от красивых, но недоказанных выводов.
 
+## Европейская перспектива цехов
+
+Французская линия подтверждается не только ордонансами, но и книгой Антуана Шарабо La pâtisserie à travers les âges (1904): оцифрованный BnF экземпляр содержит разделы Premiers Statuts, Institution définitive de la Communauté, La Maîtrise и L’apprentissage dans le passé. Параллельно лондонская Worshipful Company of Bakers ведёт собственную хронику гильдии от Pipe Rolls Генриха II (1155) и Bread Assize 1266 года. Две независимые традиции показывают, что регулирование ремесла было общеевропейским процессом, а не уникально парижским изобретением.
+
 ## Французские источники и первичные материалы
 
 - [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
 - [Patrimoine gourmand numérisé](https://www.bnf.fr/fr/mediatheque/la-table-de-gallica-le-patrimoine-gourmand-numerise)
-- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)`,
+- [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
+- [A. Charabot — La pâtisserie à travers les âges (1904), полный текст Gallica/BnF](https://gallica.bnf.fr/ark:/12148/bpt6k1025189c)
+- [The Worshipful Company of Bakers — History of the Bakers’ Company, Лондон](https://bakers.co.uk/about-us/history/)
+`,
   'perret-madeleine': `## Beurre noisette
 
 Подрумяненное масло даёт ореховый аромат, но содержит тёмные молочные частицы, которые легко сжечь. Его снимают с огня после янтарной стадии, процеживают по выбранной рецептуре и охлаждают перед введением. Горячее масло разрушит эмульсию теста.
