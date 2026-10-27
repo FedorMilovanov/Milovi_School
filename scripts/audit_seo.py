@@ -350,6 +350,12 @@ if llms_path.is_file():
           "llms.txt must state that materials are not a commercial menu")
     check("Утверждения о технике подкреплены ссылками" in llms_text,
           "llms.txt must explain the source-trail rule")
+    # Owner-verified author/credential pages (2026-10-27) must stay linked.
+    for verified in ("milovicake.ru/o-konditere/", "milovicake.ru/certificates/"):
+        check(verified in llms_text,
+              f"llms.txt must link the owner-verified page: {verified}")
+    check("Виктория Викторовна Милованова" in llms_text,
+          "llms.txt must name the owner-verified author/editor")
     # Every linked local URL must exist in the built site.
     for url in re.findall(r"\]\((https://french\.milovicake\.ru/[^)]+)\)", llms_text):
         parsed = urlparse(url)
@@ -359,6 +365,70 @@ if llms_path.is_file():
         else:
             target = DIST / rel / "index.html" if not rel.endswith(".txt") else DIST / rel
         check(target.is_file(), f"llms.txt links to a non-existent built page: {url}")
+
+# 8. Canonical entity graph (2026-10-27). Owner-verified first-party data:
+# https://milovicake.ru/o-konditere/, /certificates/, /privacy/.
+# Home, /about/ and /methodology/ must share the same @id nodes; every article
+# must reference the editor by @id and show a matching visible byline.
+SITE_IDS = {
+    "person": "https://milovicake.ru/#viktoria",
+    "business": "https://milovicake.ru/#business",
+    "organization": "https://milovicake.ru/#organization",
+    "school": "https://french.milovicake.ru/#school",
+    "website": "https://french.milovicake.ru/#website",
+}
+EXPECTED_TYPES = {
+    SITE_IDS["person"]: "Person",
+    SITE_IDS["business"]: "Bakery",
+    SITE_IDS["organization"]: "Organization",
+    SITE_IDS["school"]: "EducationalOrganization",
+}
+EDU_BOUNDARY = "не являются коммерческим меню"
+
+for page_name in ("index.html", "about/index.html", "methodology/index.html"):
+    page_file = DIST / page_name
+    check(page_file.is_file(), f"Entity graph page missing: /{page_name}")
+    if not page_file.is_file():
+        continue
+    nodes = flatten_jsonld(jsonld_objects(BeautifulSoup(read_html(page_file), "html.parser")))
+    by_id = {n.get("@id"): n for n in nodes if isinstance(n, dict) and n.get("@id")}
+    for key, ident in SITE_IDS.items():
+        if key == "website" and page_name != "index.html":
+            continue  # WebSite node is emitted only on the homepage
+        check(ident in by_id, f"/{page_name} entity graph missing @id {ident}")
+    for ident, expected_type in EXPECTED_TYPES.items():
+        node = by_id.get(ident)
+        check(isinstance(node, dict) and node.get("@type") == expected_type,
+              f"/{page_name} wrong @type for {ident}: expected {expected_type}")
+    person = by_id.get(SITE_IDS["person"], {})
+    check(isinstance(person, dict) and person.get("taxID") == "263006403654",
+          f"/{page_name} Person node must expose the owner-verified taxID")
+    check(isinstance(person, dict) and isinstance(person.get("hasCredential"), list)
+          and len(person["hasCredential"]) == 5,
+          f"/{page_name} Person node must list the 5 verified credentials")
+    school = by_id.get(SITE_IDS["school"], {})
+    check(isinstance(school, dict) and (school.get("founder") or {}).get("@id") == SITE_IDS["person"],
+          f"/{page_name} School must reference the founder by canonical @id")
+    check(isinstance(school, dict)
+          and (school.get("parentOrganization") or {}).get("@id") == SITE_IDS["organization"],
+          f"/{page_name} School must reference the parent organization by @id")
+    check(isinstance(school, dict) and EDU_BOUNDARY in str(school.get("disambiguatingDescription", "")),
+          f"/{page_name} School must carry the educational boundary disclaimer")
+
+# Article-level: editor @id + visible byline + boundary in the built HTML.
+for article_path in article_paths:
+    soup_article = BeautifulSoup(read_html(article_path), "html.parser")
+    nodes_article = flatten_jsonld(jsonld_objects(soup_article))
+    article_node = next((n for n in nodes_article if n.get("@type") == "Article"), None)
+    check(isinstance(article_node, dict)
+          and (article_node.get("editor") or {}).get("@id") == SITE_IDS["person"],
+          f"{article_path.parent.name}: Article JSON-LD must reference the editor @id")
+    visible_text = soup_article.get_text(" ", strip=True)
+    check("Виктория Милованова" in visible_text,
+          f"{article_path.parent.name}: visible byline must name the editor (schema↔HTML parity)")
+    check("не являются коммерческим меню" in visible_text
+          or "не коммерческое меню" in visible_text,
+          f"{article_path.parent.name}: visible byline must state the educational boundary")
 
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)
