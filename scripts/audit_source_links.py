@@ -259,6 +259,13 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
     "https://www.dalloyau.fr/img/cms/DALLOYAU%20-%20Carte%20%C3%A0%20emporter%20H2020.pdf",
     "https://www.dalloyau.fr/11-patisseries",
     "https://www.europeana.eu/en/item/9200520/ark__12148_bpt6k1025189c",
+    # Verified 2026-10-27 by the strict CI network probe (HTTP 404) and by
+    # direct fetch: the Laduree "notre histoire" page moved to the Shopify
+    # storefront at https://laduree.com/pages/histoire-laduree, and the old
+    # Michalak "l'histoire d'un chef" CMS page is gone (soft-404 "Cette page
+    # n'existe pas"). Live first-party replacements are now cited instead.
+    "https://www.laduree.fr/en/pages/notre-histoire-maison-laduree",
+    "https://www.christophemichalak.com/content/lhistoire-dun-chef",
 })
 
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")

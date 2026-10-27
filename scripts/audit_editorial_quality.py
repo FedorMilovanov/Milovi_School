@@ -36,7 +36,7 @@ TRUSTED_DOMAINS = {
     "service-public.fr", "travail-emploi.gouv.fr",
     "meilleursouvriersdefrance.info", "dalloyau.fr",
     "college-culinaire-de-france.fr", "ducasse-edition.com",
-    "cinqsensparis.com", "stohrer.fr", "laduree.fr", "cedric-grolet.com",
+    "cinqsensparis.com", "stohrer.fr", "laduree.fr", "laduree.com", "cedric-grolet.com",
     "delicatisserie.com", "elle-et-vire.com", "leclairdegenie.com",
     "baillardran.com", "legateaubasque.com", "angelina-paris.fr",
     "calisson.com", "clementfaugier.fr", "nicolaspaciello.com",

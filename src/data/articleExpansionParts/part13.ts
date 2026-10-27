@@ -122,7 +122,7 @@ Sablé breton, biscuit или croustillant принимают вес кремо�
 
 ## Французские источники и первичные материалы
 
-- [L'histoire d'un Chef — Christophe Michalak: собственное определение Fantastik домом — mi-entremets / mi-tarte, круглый торт высотой 3 см, из сезонных продуктов, без заморозки, с рецептурой, которая менялась ежедневно; более 700 уникальных созданий за два года, линия Michalak Take-away и Kosmik, Koonie, Klassik](https://www.christophemichalak.com/content/lhistoire-dun-chef)
+- [La Maison — Christophe Michalak: официальная страница дома о его подходе — «maison française artisanale haut de gamme», лаборатория в X округе Парижа; четыре принципа (Élégance, Équilibre, Émotion, Efficacité), на которых построены фирменные линейки Kosmik и Klassik, к контексту которых относится Fantastik](https://www.christophemichalak.com/content/la-maison)
 - [Visitandine framboise litchi — Christophe Michalak: полный рецепт в его стандартной конструкции — visitandine (beurre noisette 180 г, сахарная пудра 140 г, poudre d'amande brute 70 г, кокосовая пудра 70 г, сырые белки 20 г; 190 °C 25 минут), crémeux framboise, нагретый до 83 °C с 4 г желатина и 85 г холодного масла, затем crème légère и монтаж](https://www.christophemichalak.com/recettes/visitandine-framboise-litchi)
 - [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
   'tech-macaronage': `## Масса теряет воздух неравномерно

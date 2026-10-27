@@ -97,8 +97,8 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'laduree-1862': Object.freeze({
     title: 'Ladurée 1862: история дома, salon de thé и парижского macaron',
     excerpt: 'Проверенная история парижского дома: что документировано, что является корпоративной версией и как macaron стал люксовым продуктом.',
-    sourceUrl: 'https://www.laduree.fr/en/pages/notre-histoire-maison-laduree',
-    sourceLabel: 'Maison Ladurée — Notre histoire',
+    sourceUrl: 'https://laduree.com/pages/histoire-laduree',
+    sourceLabel: 'Maison Ladurée — L’histoire Ladurée',
   }),
   'lignac-equinoxe': Object.freeze({ sourceUrl: 'https://lapatisseriecyrillignac.com/en/pastries/20-equinoxe-lignac.html', sourceLabel: 'Equinoxe — La Pâtisserie Cyril Lignac' }),
   'lignac-far-breton': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/recettes/far-breton_14303_2', sourceLabel: 'Far breton — Thomas Marie, Académie du Goût' }),
