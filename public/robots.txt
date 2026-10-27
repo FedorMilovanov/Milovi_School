@@ -1,6 +1,53 @@
+# Patisserie Russe / Milovi School — robots.txt
+# RFC 9309. Wildcard group is inherited by every crawler unless a more
+# specific group exists (see the Yandex note below).
+
 User-agent: *
 Allow: /
 Disallow: /*?q=
 Disallow: /*&q=
+
+# AI search crawlers — explicitly allowed. These surface pages in generative
+# search answers (documented by OpenAI, Perplexity and Anthropic). They are
+# distinct from training crawlers/control tokens, which are not listed here
+# and therefore inherit the wildcard group unchanged.
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+User-agent: Perplexity-User
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+User-agent: Claude-User
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+
+# Yandex understands Clean-param for tracking/UTM duplicates. Yandex ignores
+# the User-agent: * group entirely once a Yandex group exists, so all rules
+# are repeated here explicitly (yandex.com/support/webmaster — User-agent).
+User-agent: Yandex
+Allow: /
+Disallow: /*?q=
+Disallow: /*&q=
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&fbclid&from /
 
 Sitemap: https://french.milovicake.ru/sitemap-index.xml

@@ -289,6 +289,77 @@ if deploy.is_file():
     check("BEFORE_SHA: ${{ github.event.before }}" in deploy_text, "Deploy workflow must supply the previous release SHA")
     check("CURRENT_SHA: ${{ github.sha }}" in deploy_text, "Deploy workflow must supply the deployed SHA")
 
+# 7. robots.txt / llms.txt — crawler policy and AI fact sheet (2026-10-27).
+# Standards: RFC 9309 (robots.txt), llmstxt.org v2 (H1 + blockquote + H2 lists),
+# Yandex Clean-param docs (Yandex ignores User-agent: * once a Yandex group
+# exists, so wildcard rules must be repeated in that group).
+robots_path = PUBLIC / "robots.txt"
+check(robots_path.is_file(), "public/robots.txt is missing")
+if robots_path.is_file():
+    robots_text = robots_path.read_text(encoding="utf-8")
+    dist_robots = DIST / "robots.txt"
+    check(dist_robots.is_file(), "dist/robots.txt is missing (public asset not copied)")
+    if dist_robots.is_file():
+        check(dist_robots.read_text(encoding="utf-8") == robots_text,
+              "dist/robots.txt differs from public/robots.txt")
+    check("Sitemap: https://french.milovicake.ru/sitemap-index.xml" in robots_text,
+          "robots.txt must point at the generated sitemap-index.xml")
+    check("User-agent: *" in robots_text, "robots.txt needs a wildcard group")
+    # AI search crawlers explicitly allowed (not training control tokens).
+    for bot in ("OAI-SearchBot", "ChatGPT-User", "PerplexityBot",
+                "Perplexity-User", "Claude-SearchBot", "Claude-User"):
+        check(f"User-agent: {bot}" in robots_text, f"robots.txt missing AI search crawler group: {bot}")
+    # Training-only control tokens must NOT be given a misleading Allow rule:
+    # they are product tokens, not crawlers (Google-Extended, Applebot-Extended,
+    # YandexAdditional) or training bots (GPTBot, ClaudeBot).
+    for token in ("Google-Extended", "Applebot-Extended", "YandexAdditional", "GPTBot", "ClaudeBot"):
+        check(f"User-agent: {token}" not in robots_text,
+              f"robots.txt must not fake an Allow group for control token {token}")
+    # Yandex group: Clean-param + duplicated wildcard disallows.
+    yandex_groups = re.findall(r"User-agent:\s*Yandex\s*\n(.*?)(?=\nUser-agent:|\Z)",
+                               robots_text, flags=re.S)
+    check(len(yandex_groups) >= 1, "robots.txt needs a Yandex group for Clean-param")
+    if yandex_groups:
+        yblock = yandex_groups[0]
+        check("Clean-param:" in yblock, "Yandex group must declare Clean-param")
+        check("Disallow: /*?q=" in yblock and "Disallow: /*&q=" in yblock,
+              "Yandex group must repeat wildcard Disallow rules (it ignores User-agent: *)")
+        for line in yblock.splitlines():
+            if line.strip().startswith("Clean-param"):
+                check(len(line) <= 500, "Clean-param rule exceeds Yandex 500-char limit")
+
+llms_path = PUBLIC / "llms.txt"
+check(llms_path.is_file(), "public/llms.txt is missing")
+if llms_path.is_file():
+    llms_text = llms_path.read_text(encoding="utf-8")
+    dist_llms = DIST / "llms.txt"
+    check(dist_llms.is_file(), "dist/llms.txt is missing (public asset not copied)")
+    if dist_llms.is_file():
+        check(dist_llms.read_text(encoding="utf-8") == llms_text,
+              "dist/llms.txt differs from public/llms.txt")
+    check(llms_text.startswith("# "), "llms.txt must start with an H1 project name (llmstxt.org v2)")
+    check(re.search(r"^> .+", llms_text, flags=re.M) is not None,
+          "llms.txt must include a blockquote summary")
+    check(re.search(r"^## .+", llms_text, flags=re.M) is not None,
+          "llms.txt must include H2 file-list sections")
+    check(re.search(r"^- \[.+\]\(https://french\.milovicake\.ru/", llms_text, flags=re.M) is not None,
+          "llms.txt file lists must contain absolute markdown links")
+    # Educational boundary is a truth contract, not marketing copy. Accept
+    # the canonical footer wording and the fuller llms.txt phrasing.
+    check(re.search(r"не являются (коммерческим )?меню", llms_text) is not None,
+          "llms.txt must state that materials are not a commercial menu")
+    check("Утверждения о технике подкреплены ссылками" in llms_text,
+          "llms.txt must explain the source-trail rule")
+    # Every linked local URL must exist in the built site.
+    for url in re.findall(r"\]\((https://french\.milovicake\.ru/[^)]+)\)", llms_text):
+        parsed = urlparse(url)
+        rel = parsed.path.lstrip("/")
+        if not rel or rel.startswith(("robots.txt", "sitemap")):
+            target = DIST / rel if rel else DIST / "index.html"
+        else:
+            target = DIST / rel / "index.html" if not rel.endswith(".txt") else DIST / rel
+        check(target.is_file(), f"llms.txt links to a non-existent built page: {url}")
+
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)
     for issue in errors:

@@ -309,3 +309,40 @@ Borders не задеты: переопределялись только `--colo
 **Race пробы (честно):** первая итерация показывала 1 «нарушение» 4.22:1 — оказалось, axe снимал кадр во время `reveal`-анимации (`opacity: 0.073`). Анимацию НЕ форсили: аудит теперь дожидается её естественного завершения; `prefers-reduced-motion: reduce` отключает её сам. Итог — 0.
 
 **Итог:** 430 → **0** `color-contrast`; `npm run validate` exit 0; dark-first identity, always-dark Canon, AI-provenance и 157 маршрутов сохранены.
+
+---
+
+## 16. Безопасное ядро SEO/GEO и FAQ-parity (2026-10-27)
+
+Волна на свежем `main` (`44388a1`). Реализует **только проверенную** часть двух внешних SEO-промптов; остальное отклонено по причинам ниже. Перед работой сверка с **официальными** источниками (§6 AGENTS.md), не с SEO-блогами:
+
+- Google Search Central, «Optimizing your website for generative AI features» (обновлён 2026-07-10): `llms.txt` и «special» разметка не нужны; Google Search их игнорирует, но создание файла для других сервисов разрешено и «не навредит и не поможет» видимости. Специальной schema.org для AI Overviews/AI Mode не существует.
+- `llmstxt.org` v2: формат — H1, blockquote-резюме, произвольные секции без заголовков, затем H2-секции со списками markdown-ссылок; файл курируется под inference, не под обучение.
+- OpenAI «Overview of OpenAI Crawlers» (`developers.openai.com/api/docs/bots`): `OAI-SearchBot` (поиск/цитирование), `GPTBot` (обучение), `ChatGPT-User` (пользовательские запросы) — разные токены с независимым управлением.
+- Perplexity «Crawlers», Anthropic `Claude-SearchBot`/`ClaudeBot`: поисковые и обучающие боты разделены.
+- Yandex Webmaster: `Clean-param` — его директива; при наличии группы `User-agent: Yandex` группа `*` **игнорируется**, правила надо дублировать; лимит строки 500 символов. `YandexAdditional` — control-токен для отказа от AI-ответов, а не краулер.
+
+### СДЕЛАНО
+
+1. **`public/llms.txt`** (73 строки, формат v2) — нейтральный AI fact sheet: миссия, правила интерпретации (источники ≠ маркетинг, генеративные иллюстрации ≠ исторические свидетельства), образовательная граница, курированный список реальных роутов (about/methodology/sources/editorial-policy/canon/materials + статьи по кластерам). **Без** персональных данных, **без** `taxID`/`hasCredential`/`sameAs` (не верифицируемы → §0.11 fake claims), **без** рекламных врезок и sitewide коммерческой перелинковки, **без** утверждений о влиянии на ранжирование.
+2. **`public/robots.txt`** — явные `Allow`-группы для AI-поисковых краулеров (`OAI-SearchBot`, `ChatGPT-User`, `PerplexityBot`, `Perplexity-User`, `Claude-SearchBot`, `Claude-User`). Training/control-токенам (`GPTBot`, `ClaudeBot`, `Google-Extended`, `Applebot-Extended`, `YandexAdditional`) **намеренно не** созданы фальшивые `Allow`-группы — они не краулеры и наследуют `*` без изменений. Добавлена группа `Yandex` с `Clean-param` (UTM/yclid/gclid/fbclid/from) и продублированными `Disallow` из `*`. Sitemap остался `sitemap-index.xml` (фактический файл, который генерирует `@astrojs/sitemap`), а не несуществующий `sitemap.xml` из промпта.
+3. **FAQ 1:1 schema↔HTML parity.** Нашли реальный дефект: 5 из 127 FAQ-ответов в видимом тексте были расширены glossary-тултипами (`panade → заваренная масса…`), а JSON-LD содержал чистый ответ — нарушение требования Google rich results. Исправлено: в FAQ рендерится чистый `{f.answer}`; glossary-тултипы сохранены в основном тексте статей.
+4. **Permanent gates** (без lane-collision: `package.json` и workflows заняты PR #37/#31):
+   - `audit_rendered_content.py`: счётчики `faqPages`/`faqQuestions`/`faqParityFailures` — проверка каждого Q/A по тексту видимых `<details>`; negative test (возврат `InlineText`) → 5 ошибок, restore → 0.
+   - `audit_seo.py`: robots/llms контракт (структура H1/blockquote/H2, sitemap, AI-группы, отсутствие фальшивых control-токенов, дублирование Yandex-правил, лимит Clean-param, существование всех ссылок в dist). Negative test (битая ссылка) → exit 1, restore → 0.
+   - Оба гейта в цепочке `npm run validate`.
+
+### ПРОВЕРЕНО
+
+- `npm run validate` = 0; SEO audit **3539 checks / 166 indexable / 157 articles**; `faqPages=44`, `faqQuestions=127`, `faqParityFailures=0`; 32 body figures; 0 дефектов рендера.
+- Live HTTP: `/robots.txt`, `/llms.txt`, `/sitemap-index.xml` → 200, корректный Content-Type; содержимое dist == public.
+- Browser (Chromium 153, 6 роутов × 4 сценария = 24): **0 axe violations, 0 page errors, 0 битых img, 0 overflowX**; FAQ `<details>` открывается, tooltips=0; 24 скриншота. Console: единственный `ERR_CONNECTION_CLOSED` = 24 отфильтрованных `fonts.googleapis.com` (egress-шум), 0 продуктовых ошибок.
+
+### ОСОЗНАННО НЕ СДЕЛАНО (отклонено)
+
+- Entity Graph с `@id` физлица, ИНН, `hasCredential`, `sameAs` — требуют верификации владельцем; публикация персональных данных без подтверждения = fake claims (§0.11) и риск 152-ФЗ.
+- Массовая замена `author: Organization` на `Person` и `reviewedBy` на всех 157 статьях — ложная атрибуция (§4: source ≠ author) и schema-to-HTML mismatch.
+- `/club/`, цифровые продукты, affiliate/`erid`, калькуляторы — новые роуты и монетизация, отдельная волна по §7 (scope → research → routes → contracts → UI), а не «встройка в шаблон статей».
+- `ScholarlyArticle` для обзорных статей — неверный тип; корректный `Article`/`TechArticle` уже используется.
+- Жёсткие лимиты title 45–65 / description 110–155 — §6 прямо называет их house style, не лимитом Google; существующий гейт уже контролирует метаданные.
+- Sitewide коммерческая перелинковка в хедере/футере — риск ссылочной фермы и конфликт с §3 (premium nav).
