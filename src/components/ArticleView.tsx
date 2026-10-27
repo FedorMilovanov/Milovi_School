@@ -860,7 +860,13 @@ const renderedContent = useMemo(() => {
                       </span>
                     </summary>
                     <div className="px-6 pb-6 pt-2 text-stone-600 dark:text-stone-400 leading-relaxed text-lg border-t border-stone-100 dark:border-stone-800 mt-2 mx-6">
-                      <p className="pt-4"><InlineText text={f.answer} /></p>
+                      {/* Plain text on purpose: FAQPage JSON-LD uses the exact
+                          answer string. InlineText would inject glossary
+                          translations into the DOM (TermTooltip renders them in
+                          a persistent role="tooltip" span), which breaks the
+                          1:1 schema-to-visible-text parity Google requires.
+                          Glossary tooltips stay in the main article body. */}
+                      <p className="pt-4">{f.answer}</p>
                     </div>
                   </details>
                 ))}

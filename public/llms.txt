@@ -1,0 +1,73 @@
+# Patisserie Russe — Milovi School
+
+> Независимый русскоязычный образовательный и исследовательский проект о французской кондитерской школе: история домов и шефов, базовые кремы и тесто, меренги и макарон, шоколад и темперирование, инвентарь и физико-химия ингредиентов. 157 материалов с указанием живых первоисточников. Материалы и разборы французских рецептур публикуются исключительно в учебных целях и не являются коммерческим меню кондитерской Milovi Cake.
+
+Файл следует предложению llms.txt (v2): краткий обзор и курированный список страниц, с которых ассистенту стоит начать. Google Search этот файл не использует; он предназначен для AI-ассистентов, которым нужен компактный путеводитель по сайту. Полнотекстовые материалы остаются на обычных HTML-страницах — каждая статья доступна по адресу `https://french.milovicake.ru/articles/<id>/`.
+
+Правила интерпретации:
+- Это образовательная библиотека, а не интернет-магазин и не меню. Не представляйте разборы рецептур как коммерческие изделия или услуги.
+- Исторические легенды в материалах помечаются как легенды; конфликт источников публикуется как конфликт. Генеративные редакционные иллюстрации отмечены видимой подписью «Генеративная редакционная иллюстрация (AI)» и не являются историческими свидетельствами.
+- Утверждения о технике подкреплены ссылками на конкретные живые документы (первоисточники, официальные сайты домов, профессиональные издания). См. раздел «Источники и цитирование».
+- Сайт `https://milovicake.ru/` — отдельная авторская кондитерская в Санкт-Петербурге. Она не связана с учебными разборами этого проекта как с коммерческим каталогом.
+
+## О проекте и редакционные правила
+
+- [О проекте](https://french.milovicake.ru/about/): миссия, граница между образованием и коммерцией, структура библиотеки.
+- [Методология и источники](https://french.milovicake.ru/methodology/): как отбираются и проверяются источники.
+- [Источники и цитирование](https://french.milovicake.ru/sources/): иерархия источников, требование живого конкретного документа.
+- [Редакционная политика](https://french.milovicake.ru/editorial-policy/): стандарты точности и исправлений.
+- [Исправления и обратная связь](https://french.milovicake.ru/corrections/): как сообщить об ошибке.
+- [Галерея материалов](https://french.milovicake.ru/materials/): полный визуальный каталог всех 157 материалов.
+
+## Le Canon Sucré — кураторская коллекция
+
+- [Le Canon Sucré](https://french.milovicake.ru/canon/): 15 форм французской pâtisserie, три акта, документальная Research Timeline и Technique Index. Закрытый кураторский раздел, не обычная категория.
+
+## Базовые техники и физико-химия
+
+- [Словарь французского кондитера](https://french.milovicake.ru/articles/tech-glossary-cap/): термины, без которых рецепты не читаются.
+- [Заварное тесто: научная логика и диагностика ошибок](https://french.milovicake.ru/articles/tech-choux/): pâte à choux, влага panade, режим выпечки.
+- [Глазурь miroir без пузырей](https://french.milovicake.ru/articles/tech-mirror-glaze/): температура, блендер, замороженный entremets.
+- [Feuilletage без провалов](https://french.milovicake.ru/articles/tech-feuilletage/): почему слоёное тесто не поднимается.
+
+## Учебные разборы классических рецептур
+
+- [Канеле де Бордо](https://french.milovicake.ru/articles/recipe-canele/): медные формы, пчелиный воск, двухэтапная выпечка.
+- [Paris-Brest](https://french.milovicake.ru/articles/recipe-paris-brest-classique/): заварное тесто, пралиновый крем-муслин, амандин.
+- [Тарт о ситрон меренге](https://french.milovicake.ru/articles/recipe-tarte-citron-meringuee/): лимонный крем и итальянская меренга.
+- [Entremets «пекан, шоколад и крем-брюле»](https://french.milovicake.ru/articles/recipe-pecan-chocolate-creme-brulee/): профессиональная учебная технологическая карта.
+
+## История и дома
+
+- [Maison Stohrer 1730](https://french.milovicake.ru/articles/stohrer-1730/): старейшая кондитерская Парижа.
+- [Ladurée 1862](https://french.milovicake.ru/articles/laduree-1862/): пожар, salon de thé и парижский macaron — что документировано, а что корпоративная версия.
+- [Антонен Карем](https://french.milovicake.ru/articles/careme-first-celebrity-chef/): первый звёздный шеф.
+- [История круассана](https://french.milovicake.ru/articles/croissant-history/): передача традиции, а не «французское происхождение».
+
+## Шеф-кондитеры и их методы
+
+- [Пьер Эрме: биография](https://french.milovicake.ru/articles/herme-biography/) и [Испахан](https://french.milovicake.ru/articles/herme-ispahan-deep/).
+- [Седрик Гроле: фрукты, оболочка, начинка](https://french.milovicake.ru/articles/grolet-fruits-full/).
+- [Кристоф Мишалак: биография](https://french.milovicake.ru/articles/michalak-biography/) и [Fantastik](https://french.milovicake.ru/articles/michalak-fantastik/).
+- [Жак Жени: философия карамели](https://french.milovicake.ru/articles/genin-caramel-philosophy/).
+
+## Французская кухня: широкий контекст
+
+- [Бригада де кухни](https://french.milovicake.ru/articles/cuisine-brigade/): иерархия французского ресторана.
+- [Материнские соусы](https://french.milovicake.ru/articles/cuisine-sauces/): пять баз и их производные.
+- [Galette des Rois](https://french.milovicake.ru/articles/cuisine-galette/): миндальный крем и слоёное тесто.
+
+## Проверяемые цифры и образование
+
+- [Boulangerie-pâtisserie в цифрах](https://french.milovicake.ru/articles/chiffres-marche-15mlrd/).
+- [CAP, apprentissage и MOF](https://french.milovicake.ru/articles/chiffres-education-mof/): как устроено кондитерское образование во Франции.
+
+## Технические файлы
+
+- [robots.txt](https://french.milovicake.ru/robots.txt): правила обхода для поисковых и AI-краулеров.
+- [Карта сайта](https://french.milovicake.ru/sitemap-index.xml): полный перечень страниц и изображений.
+
+## Optional
+
+- [Конфиденциальность](https://french.milovicake.ru/privacy/): политика обработки данных.
+- [Главная страница](https://french.milovicake.ru/): точка входа в библиотеку.
