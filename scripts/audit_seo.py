@@ -350,12 +350,19 @@ if llms_path.is_file():
           "llms.txt must state that materials are not a commercial menu")
     check("Утверждения о технике подкреплены ссылками" in llms_text,
           "llms.txt must explain the source-trail rule")
-    # Owner-verified author/credential pages (2026-10-27) must stay linked.
-    for verified in ("milovicake.ru/o-konditere/", "milovicake.ru/certificates/"):
-        check(verified in llms_text,
-              f"llms.txt must link the owner-verified page: {verified}")
-    check("Виктория Викторовна Милованова" in llms_text,
-          "llms.txt must name the owner-verified author/editor")
+    # Owner decision (2026-10-27): the library is INDEPENDENT. Its creator is
+    # Fedor Milovanov; the confectionery is a separate project and must not be
+    # credited as author/reviewer. No private individual's identifiers here.
+    check("Фёдор Милованов" in llms_text,
+          "llms.txt must name the project creator (schema↔AI-fact-sheet parity)")
+    check("Виктория Милованова" not in llms_text and "Виктория Викторовна" not in llms_text,
+          "llms.txt must not attribute the educational library to the confectionery's staff")
+    for forbidden in ("263006403654", "/o-konditere/", "/certificates/", "taxID"):
+        check(forbidden not in llms_text,
+              f"llms.txt must not publish private identifier: {forbidden}")
+    check("не является автором или рецензентом" in llms_text
+          or "не является автором" in llms_text,
+          "llms.txt must state the confectionery is not an author/reviewer of the analyses")
     # Every linked local URL must exist in the built site.
     for url in re.findall(r"\]\((https://french\.milovicake\.ru/[^)]+)\)", llms_text):
         parsed = urlparse(url)
@@ -366,31 +373,43 @@ if llms_path.is_file():
             target = DIST / rel / "index.html" if not rel.endswith(".txt") else DIST / rel
         check(target.is_file(), f"llms.txt links to a non-existent built page: {url}")
 
-# 8. Canonical entity graph (2026-10-27). Owner-verified first-party data:
-# https://milovicake.ru/o-konditere/, /certificates/, /privacy/.
-# Home, /about/ and /methodology/ must share the same @id nodes; every article
-# must reference the editor by @id and show a matching visible byline.
+# 8. Canonical entity graph (owner decision 2026-10-27): INDEPENDENT educational
+# project by Fedor Milovanov; Milovi Cake is a SEPARATE confectionery, never an
+# author/reviewer of these analyses. No private identifiers in published
+# structured data. Home, /about/, /methodology/ share the same @id nodes; each
+# article references the creator/editor by @id and shows a matching byline.
 SITE_IDS = {
-    "person": "https://milovicake.ru/#viktoria",
+    "creator": "https://french.milovicake.ru/#fedor",
     "business": "https://milovicake.ru/#business",
     "organization": "https://milovicake.ru/#organization",
     "school": "https://french.milovicake.ru/#school",
     "website": "https://french.milovicake.ru/#website",
 }
 EXPECTED_TYPES = {
-    SITE_IDS["person"]: "Person",
+    SITE_IDS["creator"]: "Person",
     SITE_IDS["business"]: "Bakery",
     SITE_IDS["organization"]: "Organization",
     SITE_IDS["school"]: "EducationalOrganization",
 }
 EDU_BOUNDARY = "не являются коммерческим меню"
+# Private identifiers that must never appear anywhere in the built site.
+FORBIDDEN_PRIVATE = (
+    "263006403654",
+    "Виктория",
+    "+79119038886",
+    "Пулковская ул., 19",
+    "milovicake.ru/o-konditere/",
+    "milovicake.ru/certificates/",
+    '"taxID"',
+)
 
 for page_name in ("index.html", "about/index.html", "methodology/index.html"):
     page_file = DIST / page_name
     check(page_file.is_file(), f"Entity graph page missing: /{page_name}")
     if not page_file.is_file():
         continue
-    nodes = flatten_jsonld(jsonld_objects(BeautifulSoup(read_html(page_file), "html.parser")))
+    raw_page = read_html(page_file)
+    nodes = flatten_jsonld(jsonld_objects(BeautifulSoup(raw_page, "html.parser")))
     by_id = {n.get("@id"): n for n in nodes if isinstance(n, dict) and n.get("@id")}
     for key, ident in SITE_IDS.items():
         if key == "website" and page_name != "index.html":
@@ -400,35 +419,48 @@ for page_name in ("index.html", "about/index.html", "methodology/index.html"):
         node = by_id.get(ident)
         check(isinstance(node, dict) and node.get("@type") == expected_type,
               f"/{page_name} wrong @type for {ident}: expected {expected_type}")
-    person = by_id.get(SITE_IDS["person"], {})
-    check(isinstance(person, dict) and person.get("taxID") == "263006403654",
-          f"/{page_name} Person node must expose the owner-verified taxID")
-    check(isinstance(person, dict) and isinstance(person.get("hasCredential"), list)
-          and len(person["hasCredential"]) == 5,
-          f"/{page_name} Person node must list the 5 verified credentials")
+    creator = by_id.get(SITE_IDS["creator"], {})
+    check(isinstance(creator, dict) and "Фёдор Милованов" in str(creator.get("name", "")),
+          f"/{page_name} creator Person node must name Fedor Milovanov")
+    check(isinstance(creator, dict) and not any(
+          key in creator for key in ("taxID", "hasCredential", "telephone", "address")),
+          f"/{page_name} creator Person node must not carry private identifiers")
     school = by_id.get(SITE_IDS["school"], {})
-    check(isinstance(school, dict) and (school.get("founder") or {}).get("@id") == SITE_IDS["person"],
-          f"/{page_name} School must reference the founder by canonical @id")
+    check(isinstance(school, dict) and (school.get("founder") or {}).get("@id") == SITE_IDS["creator"],
+          f"/{page_name} School founder must be the project creator by @id")
     check(isinstance(school, dict)
-          and (school.get("parentOrganization") or {}).get("@id") == SITE_IDS["organization"],
-          f"/{page_name} School must reference the parent organization by @id")
+          and (school.get("sponsor") or {}).get("@id") == SITE_IDS["organization"],
+          f"/{page_name} School must mark the confectionery as sponsor, not parent/publisher")
+    check(isinstance(school, dict) and "parentOrganization" not in school,
+          f"/{page_name} School must NOT be a child of the confectionery (independent project)")
     check(isinstance(school, dict) and EDU_BOUNDARY in str(school.get("disambiguatingDescription", "")),
           f"/{page_name} School must carry the educational boundary disclaimer")
+    for forbidden in FORBIDDEN_PRIVATE:
+        check(forbidden not in raw_page,
+              f"/{page_name} must not publish private identifier: {forbidden}")
 
-# Article-level: editor @id + visible byline + boundary in the built HTML.
+# Article-level: creator/editor @id + visible byline + boundary + no private data.
 for article_path in article_paths:
-    soup_article = BeautifulSoup(read_html(article_path), "html.parser")
+    raw_article = read_html(article_path)
+    soup_article = BeautifulSoup(raw_article, "html.parser")
     nodes_article = flatten_jsonld(jsonld_objects(soup_article))
     article_node = next((n for n in nodes_article if n.get("@type") == "Article"), None)
+    aid = article_path.parent.name
     check(isinstance(article_node, dict)
-          and (article_node.get("editor") or {}).get("@id") == SITE_IDS["person"],
-          f"{article_path.parent.name}: Article JSON-LD must reference the editor @id")
+          and (article_node.get("editor") or {}).get("@id") == SITE_IDS["creator"],
+          f"{aid}: Article JSON-LD editor must be the project creator @id")
+    check(isinstance(article_node, dict)
+          and (article_node.get("creator") or {}).get("@id") == SITE_IDS["creator"],
+          f"{aid}: Article JSON-LD creator must be the project creator @id")
     visible_text = soup_article.get_text(" ", strip=True)
-    check("Виктория Милованова" in visible_text,
-          f"{article_path.parent.name}: visible byline must name the editor (schema↔HTML parity)")
+    check("Фёдор Милованов" in visible_text,
+          f"{aid}: visible byline must name the creator (schema↔HTML parity)")
     check("не являются коммерческим меню" in visible_text
           or "не коммерческое меню" in visible_text,
-          f"{article_path.parent.name}: visible byline must state the educational boundary")
+          f"{aid}: visible byline must state the educational boundary")
+    for forbidden in FORBIDDEN_PRIVATE:
+        check(forbidden not in raw_article,
+              f"{aid}: must not publish private identifier: {forbidden}")
 
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)

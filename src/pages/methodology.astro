@@ -20,7 +20,7 @@ methodGraph['@graph'].push({
   inLanguage: 'ru',
   isPartOf: { '@id': ENTITY_IDS.website },
   about: { '@id': ENTITY_IDS.school },
-  editor: { '@id': ENTITY_IDS.person },
+  editor: { '@id': ENTITY_IDS.creator },
 })
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---

@@ -873,43 +873,33 @@ const renderedContent = useMemo(() => {
               </div>
             </section>
           )}
-          {/* Expert verification byline — mirrors the Article JSON-LD `editor`
-              reference (milovicake.ru/#viktoria). Keeps schema↔visible parity. */}
-          <section className="mt-12 border-t border-amber-700/10 pt-8 dark:border-amber-500/10" aria-label="Экспертная верификация">
+          {/* Creator byline — mirrors Article JSON-LD `creator`/`editor`
+              (french.milovicake.ru/#fedor). Keeps schema↔visible parity. */}
+          <section className="mt-12 border-t border-amber-700/10 pt-8 dark:border-amber-500/10" aria-label="О проекте и редактуре">
             <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-amber-800 dark:text-amber-400">
-              Проверка технологии
+              О проекте и редактуре
             </p>
             <p className="mt-3 text-base leading-8 text-stone-700 dark:text-stone-300">
-              Практический комментарий и проверка технологической адаптации для ингредиентов РФ —{' '}
-              <strong className="font-semibold">Виктория Милованова</strong>, шеф-кондитер{' '}
+              <strong className="font-semibold">Фёдор Милованов</strong> — создатель, редактор и дизайнер независимого образовательного проекта{' '}
               <a
-                href="https://milovicake.ru/o-konditere/"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/about/"
                 className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
               >
-                Milovi Cake
-              </a>{' '}
-              (Санкт-Петербург). Профильное обучение подтверждено{' '}
-              <a
-                href="https://milovicake.ru/certificates/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
-              >
-                сертификатами
-              </a>.
+                Patisserie Russe
+              </a>
+              . Проект собран с применением генеративных нейросетей: дизайн, редактура и техническая реализация.
             </p>
             <p className="mt-3 text-sm leading-7 text-stone-500 dark:text-stone-400">
-              Этот материал — часть образовательной библиотеки: учебный разбор классической французской рецептуры, а не коммерческое меню. Авторские торты и десерты ручной работы в СПб —{' '}
+              Этот материал — учебный разбор классической французской рецептуры, а не коммерческое меню. Кондитерская{' '}
               <a
                 href="https://milovicake.ru"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
               >
-                milovicake.ru
-              </a>.
+                Milovi Cake
+              </a>{' '}
+              — отдельный проект и не является автором или рецензентом этих разборов.
             </p>
           </section>
             </div>

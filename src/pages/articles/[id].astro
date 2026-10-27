@@ -93,10 +93,10 @@ const jsonLdArticle = {
   inLanguage: 'ru',
   wordCount,
   author: jsonLdAuthor,
-  // The founder reviews the practical adaptation of French techniques to RF
-  // ingredients. `author` stays the library (§4: source != author); the visible
-  // byline in ArticleView mirrors this editor reference 1:1.
-  editor: { '@id': ENTITY_IDS.person },
+  // The site's creator/editing-desk is a person; `author` stays the library
+  // (§4: source != author). The visible byline mirrors this reference 1:1.
+  creator: { '@id': ENTITY_IDS.creator },
+  editor: { '@id': ENTITY_IDS.creator },
   publisher: {
     '@type': 'Organization',
     name: 'Patisserie Russe / Milovi School',

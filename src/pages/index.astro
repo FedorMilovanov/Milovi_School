@@ -13,8 +13,8 @@ import { entityGraph, ENTITY_IDS, schoolNode } from '../data/entityGraph'
 
 const siteUrl = 'https://french.milovicake.ru'
 
-// Home uses the canonical @graph (Person / Bakery / Organization / School) so
-// Google and LLM retrievers join the founder and both projects into one graph.
+// Home uses the canonical @graph (creator / bakery / organization / school)
+// so search engines and LLM retrievers resolve one consistent entity set.
 const homeGraph = entityGraph() as {
   '@context': string
   '@graph': Record<string, unknown>[]
@@ -26,6 +26,8 @@ homeGraph['@graph'].push({
   alternateName: ['Milovi School', 'Patisserie Russe by Milovi School'],
   url: siteUrl,
   inLanguage: 'ru',
+  creator: { '@id': ENTITY_IDS.creator },
+  editor: { '@id': ENTITY_IDS.creator },
   publisher: { '@id': ENTITY_IDS.school },
   disambiguatingDescription: schoolNode.disambiguatingDescription,
 })
