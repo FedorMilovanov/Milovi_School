@@ -270,7 +270,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
 
   const goMaterials = useCallback(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    document.getElementById('materials')?.scrollIntoView({
+    document.querySelector('[data-section="materials"]')?.scrollIntoView({
       block: 'start',
       behavior: reducedMotion ? 'auto' : 'smooth',
     })
@@ -299,7 +299,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
           onGoAbout={() => { void navigateTo('/#about') }}
           onOpenCommand={() => setCommandOpen(true)}
         />
-        <main id="materials" className="bg-[var(--bg-deep)] py-24 transition-colors">
+        <main id="main-content" data-section="materials" className="bg-[var(--bg-deep)] py-24 transition-colors">
           <div className="mx-auto max-w-[1600px] px-6 lg:px-10">
             <div className="mb-16 flex flex-col items-start gap-6 border-b border-[var(--border)] pb-12">
               <h1 className="section-title-lux font-serif text-[clamp(2.8rem,5.5vw,5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-[var(--ink)]">
