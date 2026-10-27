@@ -161,7 +161,7 @@ export default function Cursor({ theme }: CursorProps) {
     const interactiveSelectors = [
       '#categories .section-title-lux',
       '#archive .section-title-lux',
-      '[data-section="materials"] .section-title-lux',
+      '#materials .section-title-lux',
       '#stats .section-title-lux',
       '.stats-number-lux',
       '.about-h2',
