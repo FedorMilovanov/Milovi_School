@@ -458,3 +458,38 @@ Borders не задеты: переопределялись только `--colo
 ### Осознанно не сделано
 
 Публичное раскрытие SEO/портфолио-целей (скрытые по решению владельца). Массовая замена `author` на Person (§4), `/club/` + платежи + affiliate + калькуляторы (отдельная волна §7), `ScholarlyArticle` (неверный тип), sitewide коммерческая перелинковка в хедере.
+
+---
+
+## 19. Волна 5 — ещё 3 body-иллюстрации и ревизия покрытия (2026-10-28)
+
+Продолжение BATTLE-отбора иллюстраций. Владелец подтвердил правило: референс-кадр → 1 баттл; три независимых промпта без референса → три баттла одновременно. В этой среде стабильно срабатывают одиночные баттлы — фиксируем честно.
+
+### СДЕЛАНО
+
+Три выбранных владельцем кадра (BATTLE, option 1), конвертированы в WebP 1280×853/q82, PNG-мастеры перенесены в gitignored `audit/repo-audit-2026-10-26/selected-originals/`:
+
+| Файл | Статья | Сюжет |
+|---|---|---|
+| `body-beignets-warm.webp` | `recipe-beignets` | три золотистых бенье под сахарной пудрой, один разломан, шоколадный соус |
+| `body-brioche-warm.webp` | `recipe-brioche` | бриошь с шапочкой, отрезан ломоть с воздушным мякишем |
+| `body-creme-caramel-warm.webp` | `recipe-creme-caramel` | крем-карамель с янтарной карамелью и семенами ванили |
+
+- Figure вставлены отдельными standalone-блоками после первого абзаца (0 glued, пустые строки вокруг). Все три кадра осмотрены визуально — аутентичные, единый стиль: тёплый боковой свет, тёмная пекарня, графитовый сланец, крошки, малая ГРИП.
+- Добавлены 3 dimension-записи (byte-level вставка — файл со смешанными CRLF/LF).
+
+### ПРОВЕРЕНО
+
+- `npm run validate` = 0: **generatedBodyFigures 32 → 35**, 0 missing provenance, 0 дефектов рендера; SEO 5342/166/157; FAQ 44/127/0; privacy 169; контраст 13; дисклеймер 3; 0 слабых цитат / смешанных алфавитов / цитат без источника.
+- 35 `body-*.webp`, **0 висячих**, все валидны (RIFF), все с dimension, все 35 built-figure несут видимую AI-ноту.
+
+### Покрытие (честный остаток)
+
+**`recipe-*`: 56 статей → 24 с локальной body-иллюстрацией, 32 без.** Оставшиеся 32 (для следующего агента):
+`recipe-blanc-manger`, `recipe-buche-noel`, `recipe-calisson`, `recipe-charlotte-fraises`, `recipe-chausson-aux-pommes`, `recipe-chou-chantilly`, `recipe-clafoutis-cerises`, `recipe-crepes-suzette`, `recipe-dacquoise`, `recipe-fondant-chocolat`, `recipe-gateau-basque`, `recipe-gaufres`, `recipe-gougeres`, `recipe-kouglof`, `recipe-marrons-glaces`, `recipe-merveilleux`, `recipe-nougat-montelimar`, `recipe-pain-au-chocolat`, `recipe-pain-perdu`, `recipe-palmiers`, `recipe-profiteroles`, `recipe-quatre-quarts`, `recipe-sables-diamant`, `recipe-savarin`, `recipe-tarte-au-chocolat`, `recipe-tarte-au-sucre`, `recipe-tarte-aux-pommes`, `recipe-tarte-bourdaloue`, `recipe-tarte-citron-meringuee`, `recipe-tarte-normande`, `recipe-tarte-tropezienne`, `recipe-tuiles-amandes`.
+
+Примечание: `recipe-clafoutis-cerises` был пропущен владельцем в BATTLE (skipped) — по правилу не регенерируется автоматически.
+
+### СРЕДА
+
+Node v22.22.3 / npm 10.9.8; `npm ci` после сброса окружения; Pillow 13 / bs4 4.15; BATTLE через `generate_image` с `offer_options: true`.

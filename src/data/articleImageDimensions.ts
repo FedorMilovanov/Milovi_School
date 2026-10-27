@@ -190,4 +190,7 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'body-ile-flottante-warm.webp': { width: 1248, height: 832 },
   'body-mont-blanc-warm.webp': { width: 1280, height: 1280 },
   'body-mousse-chocolat-warm.webp': { width: 1248, height: 832 },
+  'body-beignets-warm.webp': { width: 1280, height: 853 },
+  'body-brioche-warm.webp': { width: 1280, height: 853 },
+  'body-creme-caramel-warm.webp': { width: 1280, height: 853 },
 }
