@@ -9,43 +9,28 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import HomeApp from '../components/HomeApp'
 import { libraryClientMeta } from '../data/library'
+import { entityGraph, ENTITY_IDS, schoolNode } from '../data/entityGraph'
 
 const siteUrl = 'https://french.milovicake.ru'
 
-const jsonLdOrg = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': `${siteUrl}/#organization`,
-  name: 'Patisserie Russe / Milovi School',
-  alternateName: ['Patisserie Russe', 'Milovi School'],
-  url: siteUrl,
-  logo: {
-    '@type': 'ImageObject',
-    url: `${siteUrl}/images/logo.png`,
-  },
-  description:
-    'Библиотека материалов о французской кондитерской школе. Гроле, Эрме, Мишалак, Метайе, Куврер — техники, разборы, рецепты.',
-  inLanguage: 'ru',
-  parentOrganization: {
-    '@type': 'Organization',
-    name: 'Milovi Cake',
-    url: 'https://milovicake.ru',
-  },
-  sameAs: ['https://milovicake.ru'],
+// Home uses the canonical @graph (Person / Bakery / Organization / School) so
+// Google and LLM retrievers join the founder and both projects into one graph.
+const homeGraph = entityGraph() as {
+  '@context': string
+  '@graph': Record<string, unknown>[]
 }
-
-const jsonLdWebSite = {
-  '@context': 'https://schema.org',
+homeGraph['@graph'].push({
   '@type': 'WebSite',
-  '@id': `${siteUrl}/#website`,
+  '@id': ENTITY_IDS.website,
   name: 'Patisserie Russe',
   alternateName: ['Milovi School', 'Patisserie Russe by Milovi School'],
   url: siteUrl,
   inLanguage: 'ru',
-  publisher: { '@id': `${siteUrl}/#organization` },
-}
+  publisher: { '@id': ENTITY_IDS.school },
+  disambiguatingDescription: schoolNode.disambiguatingDescription,
+})
 
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout
@@ -59,8 +44,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\u00
   ogImageHeight={630}
   hidePolicyFooter={true}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdOrg)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdWebSite)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(homeGraph)} slot="head" />
 
   <HomeApp articles={libraryClientMeta} client:load />
 </BaseLayout>

@@ -45,6 +45,14 @@ export default function Footer() {
               <p className="mt-3 text-sm leading-6 text-stone-400">
                 French Pastry Archive — бесплатная база знаний о французской кондитерке и кухне. Коммерческий сайт кондитерской: milovicake.ru.
               </p>
+              <p className="mt-4 border-t border-amber-100/10 pt-4 text-xs leading-6 text-stone-400">
+                Проект создан при поддержке авторской кондитерской Виктории Миловановой{' '}
+                <a href="https://milovicake.ru" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">Milovi Cake (Санкт-Петербург)</a>
+                {' · '}
+                <a href="https://milovicake.ru/o-konditere/" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">О шеф-кондитере</a>
+                {' · '}
+                <a href="https://milovicake.ru/certificates/" target="_blank" rel="noopener noreferrer" className="text-amber-200/80 underline decoration-amber-200/30 underline-offset-4 hover:text-amber-100">Дипломы и сертификаты</a>
+              </p>
             </div>
           </div>
         </div>

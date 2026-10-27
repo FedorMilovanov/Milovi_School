@@ -1,18 +1,27 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import StaticPageShell from '../components/StaticPageShell'
+import { entityGraph, ENTITY_IDS } from '../data/entityGraph'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/methodology/`
 
-const jsonLd = {
-  '@context': 'https://schema.org',
+// /methodology/ describes editorial standards, so link the page to the School
+// and its editor via the canonical graph rather than a bare WebPage node.
+const methodGraph = entityGraph() as {
+  '@context': string
+  '@graph': Record<string, unknown>[]
+}
+methodGraph['@graph'].push({
   '@type': 'WebPage',
+  '@id': `${canonicalUrl}#webpage`,
   name: 'Методология и источники Patisserie Russe',
   url: canonicalUrl,
   inLanguage: 'ru',
-  isPartOf: { '@type': 'WebSite', name: 'Patisserie Russe', url: siteUrl },
-}
+  isPartOf: { '@id': ENTITY_IDS.website },
+  about: { '@id': ENTITY_IDS.school },
+  editor: { '@id': ENTITY_IDS.person },
+})
 const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
@@ -25,7 +34,7 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLd)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(methodGraph)} slot="head" />
 
   <StaticPageShell client:load>
     <div class="px-4 py-12 sm:px-6 lg:px-8">
