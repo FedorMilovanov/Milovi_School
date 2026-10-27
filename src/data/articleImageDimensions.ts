@@ -184,4 +184,10 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'body-tarte-tatin-warm.webp': { width: 1280, height: 853 },
   'body-paris-brest-warm.webp': { width: 1280, height: 853 },
   'body-saint-honore-warm.webp': { width: 1280, height: 1280 },
+  'body-croquembouche-warm.webp': { width: 1024, height: 1024 },
+  'body-financiers-warm.webp': { width: 1280, height: 853 },
+  'body-flan-parisien-warm.webp': { width: 1248, height: 832 },
+  'body-ile-flottante-warm.webp': { width: 1248, height: 832 },
+  'body-mont-blanc-warm.webp': { width: 1280, height: 1280 },
+  'body-mousse-chocolat-warm.webp': { width: 1248, height: 832 },
 }
