@@ -31,5 +31,7 @@ const { title, description, updatedAt } = Astro.props
   .policy-copy :global(ul),.policy-copy :global(ol){margin-top:.75rem;padding-left:1.4rem}
   .policy-copy :global(li){margin-top:.4rem}
   .policy-copy :global(a){color:rgb(180 83 9);text-decoration:underline;text-underline-offset:4px}
+  /* WCAG AA: amber-700 on the dark policy surface is only 3.79:1; use amber-500. */
+  :global(.dark) .policy-copy :global(a){color:#f59e0b}
   @media (prefers-color-scheme:dark){.policy-copy :global(h2),.policy-copy :global(h3){color:rgb(245 245 244)}}
 </style>

@@ -97,7 +97,7 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
         {/* Section header */}
         <div className="reveal mb-16 flex flex-col items-start justify-between gap-6 border-b border-[var(--border)] pb-12 sm:flex-row sm:items-end">
           <div>
-            <span className="mb-3 block font-mono text-[9px] uppercase tracking-[0.44em] text-[var(--gold)]">
+            <span className="section-kicker-aa mb-3 block font-mono text-[9px] uppercase tracking-[0.44em]">
               Четыре направления
             </span>
             {/* "Архив по темам" — реагирует на курсор:

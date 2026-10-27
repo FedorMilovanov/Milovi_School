@@ -278,3 +278,34 @@ DEAD SOURCES:
 **Вывод:** оффлайн-гейты (`audit:source-links`, `audit:content`) не могут заменить сетевую проверку — мёртвые ссылки живут только в реальном HTTP. Стоит гонять `audit:source-links:strict` перед каждым мёржем, а не только в CI.
 
 **Перепроверка в CI:** после `c111da1` шаг `Verify every cited French source is reachable` в job `validate` стал **success** — замена сработала в реальной сети. Параллельно был закрыт красный шаг `Audit dependencies at high severity` (12 dev-only advisories) через `npm audit fix --package-lock-only` (`e92004d`): гейт не ослаблялся, только обновлены транзитивные версии в lock-файле, `npm run validate` впервые зелёный целиком.
+
+---
+
+## 15. A11y-волна: WCAG AA color-contrast → 0 (2026-10-27)
+
+Закрывает последнее «красное» из §5 базового аудита. Веха начата на свежем `main` (`c70eac5`) в новой сессии.
+
+**Диагноз (Chromium 153 + axe-core, 8 роутов × 2 темы):** 430 `color-contrast` (`serious`) / 41 уникальная группа. Главная тонкость — **149 нарушений в light-теме сидели на всегда-тёмных поверхностях** (Canon `#0a0908`, footer/nav `#0c0a09`), поэтому простое затемнение токенов их бы ухудшило.
+
+**Решение без костылей** — CSS custom properties + cascade, без `!important`, `aria-hidden`, `tabindex="-1"`, `pointer-events:none`:
+
+| Токен / правило | Было | Стало | Мин. контраст |
+|---|---|---|---|
+| `--color-stone-400` light | `#a6a09b` (2.48) | `#645e58` | 5.58:1 |
+| `--color-stone-500` light | `#79716b` (4.13) | `#5f5953` | 6.03:1 |
+| те же в `.dark` | тёмные | `#a8a097` | 7.07:1 |
+| always-dark surfaces (`.canon-page`, `.canon-index`, `footer#about`, `aside/nav.bg-stone-950`) | — | `#b0a89f` | 7.78:1 |
+| sapphire `#4a7eb8` (logo/hero/about) | 4.06 | `#2f5f94` | 5.76:1 |
+| `--ink-50` alpha (italic lead) | 0.50 (3.0/4.0) | 0.68 | 6.1 / 7.2 |
+| Canon gold alpha (номера, metы, CTA, act-rail) | 0.25–0.62 (3.2–4.2) | 0.80–0.85 | ≥6.2:1 |
+| `--text-accent`/kicker, `.text-amber-800/70`, policy-link dark | 2.5–4.2 | `#6b4c06` / `#78350f` / `#f59e0b` | ≥4.5:1 |
+
+Borders не задеты: переопределялись только `--color-stone-*`, а `border-stone-*` читает тот же токен, но контраст границ не регулируется WCAG text rule; визуально проверено скриншотами.
+
+**Permanent ratchet:** в `scripts/audit_rendered_content.py` (уже в цепочке `validate`, не conflicts с PR #37/#31) добавлена статическая проверка 5 контрастных токенов по формуле WCAG — 13 пар «токен × эталонный фон». Проверен negative test: подмена токена на старый → gate exit 1, restore → 0.
+
+**Пруфы (п.7 протокола):** 32 сценария (8 роутов × desktop light/dark, mobile-390 light/dark+reduced-motion) — **axe 0 violations, 0 page errors, 0 битых img, 0 overflowX**; 32 скриншота осмотрены (dark-first hero, Canon, мобильный). Console: единственный `ERR_CONNECTION_CLOSED` = ровно 32 отфильтрованных `fonts.googleapis.com` (egress-шум, не продукт). Fault-матрица: 4 malformed-state кейса × 3 движка × 3 роута = **36/36 pass**. Figure-proof: natural 1280², AI-нота видима, figcaption не обрезана (capHeight 97/75px). Skip-link: Tab→Enter→Tab фокус внутри `#main-content` на всех 3 роутах.
+
+**Race пробы (честно):** первая итерация показывала 1 «нарушение» 4.22:1 — оказалось, axe снимал кадр во время `reveal`-анимации (`opacity: 0.073`). Анимацию НЕ форсили: аудит теперь дожидается её естественного завершения; `prefers-reduced-motion: reduce` отключает её сам. Итог — 0.
+
+**Итог:** 430 → **0** `color-contrast`; `npm run validate` exit 0; dark-first identity, always-dark Canon, AI-provenance и 157 маршрутов сохранены.
