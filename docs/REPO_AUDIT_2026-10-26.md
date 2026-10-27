@@ -230,3 +230,21 @@
 - **Источники и честность цитат:** вместо 11 «источников»-картинок Unsplash в `deepContents.ts` добавлены 16 реальных проверенных живых первоисточников (BnF/Gallica, Académie du Goût, Europeana, Potel & Chabot/Dalloyau, Stohrer, Trinity College Cambridge, Cacao Barry, Valrhona) — ссылки идут в видимом тексте и собираются гейтом `audit_source_links.py` как `base`. Три выдуманные цитаты от первого лица (Контисини, Гроле, Дюкасс), которые раньше «проходили» только потому, что рядом стоял URL картинки, переписаны в честные пересказы с явной оговоркой — по стандарту корпуса (§585) и прецеденту волны 1.
 
 **Валидация (все зелёные):** `check`, `lint`, `audit:content` (weak citations 0/783, attributed-quotes 0 at-risk, mixed-script OK), `build`, `audit:build`, `audit:site` (SEO 3477/166/157; render: 157 страниц, generatedBodyFigures 17, все дефекты 0), `audit:privacy` (169 док.). Browser-проверка (Chromium 153, Playwright): все 17 body-изображений и 8 hero загружаются с реальными размерами, 0 fallback, AI-нота видима во всех 17; внешний egress (только `fonts.googleapis.com`) явно отфильтрован. Скриншоты: `audit/repo-audit-2026-10-26/browser-opera-figure*.png`.
+
+---
+
+## 13. Волна 4 — BATTLE-отбор иллюстраций и финальная заморозка (2026-10-27)
+
+Продолжение волны 3: владелец в BATTLE-режиме (2 варианта на кадр) отобрал дополнительные фотореалистичные иллюстрации для рецептурных статей, ранее не имевших body-кадра. Маршруты не менялись — **167 страниц, 157 статей**.
+
+**Что сделано**
+
+- Добавлено **15 новых локальных AI-иллюстраций** (WebP, до 1280px, q82) в статьи: macarons row, entremets slice, canelés, chocolate soufflé, crème brûlée, madeleines, tarte Tatin, Paris-Brest, Saint-Honoré, croquembouche, financiers, flan parisien, île flottante, Mont-Blanc, mousse au chocolat. Каждая — отдельный figure-блок с видимой AI-нотой (автоматический provenance из волны 3), PNG-мастеры перенесены в gitignored `audit/repo-audit-2026-10-26/selected-originals/`.
+- **Учтены правки владельца:** суфле сначала было отклонено («шапочка слишком высокая») — переснято с умеренным подъёмом ~2 см над краем и без пара; макаронс — единственный «ряд» по референсу, остальные десерты сняты одним/двумя предметами в разных композициях; все промпты — фотореализм, тёплый боковой свет, тёмная пекарня, графит, крошки, малая ГРИП (отказ от гравюр).
+- **Попутно исправлен баг markdown:**figure для `recipe-saint-honore` изначально был вставлен в середину абзаца без пустой строки и рендерился как inline-ссылка `!` вместо картинки (гейт показывал 25 вместо 26). Разделён на отдельный блок; добавлена проверка, что все `body-*` картинки в `deepContents.ts` занимают отдельную строку.
+
+**Итог на HEAD:** **32 локальных AI body-изображения** в рецептурных статьях (было 17 в конце волны 3), все с честным видимым provenance.
+
+**Валидация финального HEAD (все зелёные):** `check`, `lint`, `audit:content`, `build`, `audit:build` (167 документов, 169 HTML, strict UTF-8), `audit:site` (SEO 3477/166/157; render: 157 страниц, `generatedBodyFigures: 32`, `rawSeparators/rawMarkdown/machineDurations/giantHeadings/titleAsAlt/missingProvenance/missingBodyProvenance` — все 0), `audit:privacy` (169 док.). Рабочее дерево чистое, local == remote `arena/0e3a398a-milovi-school`.
+
+**Известное ограничение (не блокер):** базовый `npm run validate` красный на `audit:security` из-за 12 dev-only advisories; `npm audit --omit=dev` = 0. Продуктовых уязвимостей нет. CI-trigger слушает только `main`/PR, поэтому check-runs на промежуточных коммитах ветки = 0; зелёный 23/23 относится к базовому HEAD `1b0b848`.
