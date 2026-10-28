@@ -115,7 +115,7 @@ all_checkout_pins_current() {
   local line count=0
   while IFS= read -r line; do
     count=$((count + 1))
-    [[ "$line" == *'de0fac2e4500dabe0009e67214ff5f5447ce83dd'* ]] || return 1
+    [[ "$line" == *'d23441a48e516b6c34aea4fa41551a30e30af803'* ]] || return 1
   done < <(grep -RHE 'actions/checkout@' .github/workflows)
   (( count > 0 ))
 }
@@ -124,7 +124,7 @@ all_setup_node_pins_current() {
   local line count=0
   while IFS= read -r line; do
     count=$((count + 1))
-    [[ "$line" == *'48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'* ]] || return 1
+    [[ "$line" == *'249970729cb0ef3589644e2896645e5dc5ba9c38'* ]] || return 1
   done < <(grep -RHE 'actions/setup-node@' .github/workflows)
   (( count > 0 ))
 }
@@ -191,10 +191,10 @@ check 'Decorative card arrow is hidden from assistive technology' contains 'aria
 check 'Reduced motion disables preview animation' contains '\.gallery-preview-image \{ animation: none; \}' src/styles/global.css
 check 'Gallery images do not emit sizes without srcset' not_contains '\bsizes=' src/components/gallery/GalleryApp.tsx
 check 'All third-party workflow actions are pinned to full SHAs' all_actions_pinned
-check 'Checkout action is pinned to current v6.0.2 commit' all_checkout_pins_current
-check 'Setup Node action is pinned to current v6.4.0 commit' all_setup_node_pins_current
+check 'Checkout action is pinned to current v6.1.0 commit' all_checkout_pins_current
+check 'Setup Node action is pinned to current v6.5.0 commit' all_setup_node_pins_current
 check 'Pages artifact action is pinned to current Node 24 v5 commit' contains 'actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9' .github/workflows/deploy.yml
-check 'Pages deploy action is pinned to current Node 24 v5.0.0 commit' contains 'actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128' .github/workflows/deploy.yml
+check 'Pages deploy action is pinned to current Node 24 v5.0.1 commit' contains 'actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346' .github/workflows/deploy.yml
 check 'Gallery quality gate runs on pull requests' contains '^  pull_request:' .github/workflows/gallery-quality.yml
 check 'Gallery quality gate executes Canon browser audit' contains 'node scripts/audit_canon_visual\.mjs' .github/workflows/gallery-quality.yml
 check 'Gallery quality gate executes Canon Research browser audit' contains 'node scripts/audit_canon_research_visual\.mjs' .github/workflows/gallery-quality.yml
