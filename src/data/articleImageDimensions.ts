@@ -205,6 +205,7 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'body-clafoutis-cerises-warm.webp': { width: 1280, height: 853 },
   'body-fondant-chocolat-warm.webp': { width: 1280, height: 853 },
   'body-tarte-au-sucre-warm.webp': { width: 1280, height: 853 },
+  'body-palmiers-warm.webp': { width: 1280, height: 853 },
   'body-gaufres-warm.webp': { width: 1248, height: 832 },
   'body-gougeres-warm.webp': { width: 1248, height: 832 },
   'body-kouglof-warm.webp': { width: 1280, height: 853 },
