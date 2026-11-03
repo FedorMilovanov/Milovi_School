@@ -37,20 +37,39 @@ The `michalak-fantastik` article refers to the characteristic Fantastik format o
 
 Hashes for reproducibility: previous SHA-256 `457EE554B9CB1890CEBAA8418DFF7B5876766FDFF245A23218543495683D7F8E`; new SHA-256 `D6C5BAFB74994AC55FF7ACBEBA6457E0B3DAD7AEA508F36186EF37A89047E259`.
 
-## Follow-up: source-specific signature-dessert review (2026-11-03)
+## Owner-approved eight-image editorial update (2026-11-04)
 
-This is a **second, stricter pass**, beyond the initial thumbnail triage: chef-named article titles and actual original product presentation were compared with source images and recipes. **Two further substantive mismatches** were identified:
+After a full semantic survey of the article and site artwork, the site owner approved the eight *separate full-resolution original GPT Image outputs* below. They are photographic-style **AI editorial illustrations**, not historical originals, photographs taken in a named chef's kitchen, official product photographs, or evidence of an endorsement. The approved PNG sources were converted lossily to WebP quality 94 at their **native 1448 x 1086** pixel dimensions, with no upscaled contact-sheet crops and no discarded top/bottom image areas. Stable article filenames, routes, metadata/alt relationships and page logic remain unchanged. Their actual widths and heights are registered in the code.
 
-1. **`lignac-equinoxe.webp`** (`lignac-equinoxe`): the old image was a generic ivory-glazed layer cake with a dark chocolate ring, inconsistent with Cyril Lignac & Benoît Couvrand's distinctive **dark charcoal/black velvety cylinder, red glossy drops, bourbon-vanilla mousse, caramel interior and crunchy speculoos-praline base**. See the official [Equinoxe product page](https://lapatisseriecyrillignac.com/en/pastries/20-equinoxe-lignac.html) and [official image](https://lapatisseriecyrillignac.com/1017-large_default/equinoxe-lignac.jpg). Corrected with an **original GPT Image editorial illustration**, including a separate cut slice that visibly explains the composition; the image is **not** an official or licensed chef photograph. Preserved exact WebP dimensions **1408 × 768**. SHA-256 old: `8C2E6106A45C3CA5DDD618E07AF6CD2DC4F4F8E00E9E69336B006894E0C5A297`; new: `47BE5A12C17D946B3B0C75B3A695B581DB485B0CD0E4C39C3B7EEE5733F7D310`.
-2. **`recipe-tarte-citron-grolet.webp`** (`recipe-tarte-citron-grolet`): the old image showed a cut **whole fruit-shaped lemon dessert**, without the **pâte sucrée tart foundation** that the linked article explicitly describes (18 cm tart, cooked lemon cream, citrus confit and meringue). This image misrepresented the *tart* article as Grolet's different trompe-l'œil lemon. Compare [Grolet's sculpted lemon tart](https://cedric-grolet.com/saint-tropez/produit/tarte-sculptee-citron25/), [Grolet's lemon tartelettes](https://www.academiedugout.fr/recettes/tartelettes-citron-jaune_13633_2), and the source article's own ingredient list. Replaced with an **original GPT Image editorial lemon-meringue tart** with a visible baked crust, lemon filling and lightly toasted meringue; *not* a claim to show an exact historic Grolet retail product. Preserved exact WebP dimensions **1280 × 800**. SHA-256 old: `22C6B8913BF4CD2E784E1C74109E5B368F8DF913B3479B76A9C5637F1EB4265E`; new: `B036088D7EEFE77DC7DA43044294AD75444419A1E375E14D7288039725BBB598`.
+| Replaced article illustration | Approved subject | SHA-256 of shipped WebP |
+|---|---|---|
+| `lignac-kouign-amann.webp` | Kouign-amann | `7988730b358c332c8ce7fa0b05db199c2bc0828ac407ca195a69bd5e1844dd03` |
+| `michalak-religieuse.webp` | Religieuse caramel | `dee9057e4be371627fbfe366879ae891a9398e21ce4b3335740ebed7dcfe998a` |
+| `grolet-raspberry-rose.webp` | Raspberry Rose | `e86a0c03ca6f46f17cd841ddc8f4c2ed1e7c526a9a1a2198e2f723503c0d6eb7` |
+| `recipe-tarte-citron-grolet.webp` | Lemon tart | `33603515c86eb97f96adb0af68f2298a9be4f44306911d01e01acfd51dc180fd` |
+| `recipe-saint-honore.webp` | Saint-Honore | `ccedc84ab91ca6c97c8a8e10fe46e59fcac3a074b8ce30a2c22e0f716e24565a` |
+| `millefeuille-histoire.webp` | Mille-feuille general history | `d347ac976b010ce6755b8325c8b7665642e7bca9453d41fd14e09fe0eb28e44a` |
+| `recipe-opera-dalloyau.webp` | Opera | `e87acec3669f25aaee6aad0f40cd9a49f78e6e372a58f5228e168ccb42ba3127` |
+| `recipe-tarte-tatin.webp` | Tarte Tatin | `1a55da707a03045cd0769e366c4fcd4cf80bd9d6066c0b0d20d210a72cebb034` |
 
-**Important false-positive avoided:** `conticini-paris-brest.webp` depicts a *verrine* in a glass, but the corresponding article explicitly discusses **Conticini's 1994 verrine innovation**. Despite the misleading stem, that file is **not** a wrong-photo finding and was preserved. `grolet-lemon-yuzu.webp` is a cutaway editorial illustration of the *trompe-l'œil* lemon rather than a claim to be an official photograph; no independent high-confidence mismatch was found.
+Mapping choice: a classic caramelized Breton kouign-amann for the Lignac technique article, caramel religieuse for Michalak, sculpted Raspberry Rose for Grolet, a lemon tart with visible baked shell for Grolet's tart recipe, Saint-Honore with caramelized choux, a general mille-feuille for the *history* article (not an assertion of inverted puff-pastry technique), layered Opéra for the Dalloyau recipe, and a caramelized apple Tarte Tatin for the recipe.
 
-No original photograph was reproduced or misrepresented as authentic. All exact product descriptions and sources are cited above; source rights and authorship of the *editorial illustrations* remain distinct from chef originals.
+**Specific identity caution: Cédric Grolet's sculpted lemon is itself legitimate on a tart base.** The source article calls for a tart, and the selected image has a visible pastry shell. Sources: [Grolet tart sculptée citron](https://cedric-grolet.com/saint-tropez/produit/tarte-sculptee-citron25/) and [Grolet tartelettes citron jaune](https://www.academiedugout.fr/recettes/tartelettes-citron-jaune_13633_2).
+
+### Excluded from owner approval: Equinoxe
+
+The earlier draft PR had also contained a different generated Equinoxe proposal. **The owner did not approve that image**, so the file was restored from production main. Do not publish the old proposal silently. It remains an editorial candidate requiring comparison with [Cyril Lignac's actual Equinoxe](https://lapatisseriecyrillignac.com/fr/la-patisserie/20-equinoxe-lignac.html), including the characteristic red droplets, dark velvet finish, contrasting vanilla mousse and natural, continuous caramel insert.
+
+### Other verified candidate subjects not changed in this PR
+
+- **Dominique Ansel DKA**, whose original is a squat, rounded, caramelized-top laminated pastry: [original product](https://dominiqueanselonline.com/products/4pc-dka-dominiques-kouign-amann-gift-box). The approved *traditional kouign-amann* image should **not** be misrepresented as his particular DKA.
+- **Conticini's iconic Paris-Brest**, composed of individual connected choux and praline filling: [official pastry](https://philippeconticini.fr/pages/paris-brest). The separate historical article illustrated by a *verrine* is correctly about a verrine and was not changed.
+- **Tarte au sucre** remained unmodified since plausible Northern French styles match its existing illustration.
+- The orphan old *unknown image* is repository-hygiene debt, not a missing pastry representation.
 
 ## Negative findings / limits
 
-At the initial thumbnail pass the other images showed no further high-confidence substituted subjects; the later targeted chef-original comparison above found **two additional, specific** mismatches, and did not justify other replacements. Some images are stylistic illustrations of historical subjects or modern pastry interpretations, and are not photographs of an original chef's specific product. Do **not** treat aesthetics, backdrop, small plating differences, or a noncanonical but plausible variant as a defect.
+The initial 248-raster contact-sheet pass was a *triage*, not a universal provenance attestation. A subsequent source-specific pass identified more candidate mismatches. Eight owner-approved article illustrations are replaced above; unapproved cases are explicitly retained as candidates instead of being silently changed. Some images are stylistic illustrations of historical subjects or modern pastry interpretations, and are not photographs of an original chef's specific product. Do **not** treat aesthetics, backdrop, small plating differences, or a noncanonical but plausible variant as a defect.
 
 This is a **semantic triage of every raster at thumbnail size**, not 248 independent original-product photographic identifications. If a particular chef-branded image must represent an exact historical work, it requires its own source-specific comparison and rights/provenance judgment; those are not automatically authenticated by the first-pass gallery review.
 
