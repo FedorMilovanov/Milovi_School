@@ -1,6 +1,6 @@
 # Milovi School — first-pass semantic image audit (2026-11-03)
 
-**Scope:** exact source `main@4fcf206882f1ee30ba66dfadb395fd4eda083da4` before the correction. Read-only visual inventory first; then a narrowly scoped correction of one demonstrable mismatch pair. This report is not an assertion of photographic provenance for all assets.
+**Scope:** exact source `main@4fcf206882f1ee30ba66dfadb395fd4eda083da4` before the corrections. Visual inventory of every raster first; then two grounded interventions: one reciprocal filename/content mismatch and one misleading Fantastik editorial image confirmed against chef-authored recipe morphology. This report is not an assertion of photographic provenance for all assets.
 
 ## Method and coverage
 
@@ -19,15 +19,27 @@
 
 **Root cause:** the contents of the two source image assets had been assigned to the opposite semantically named files. The article-to-file references themselves were consistent; modifying React or client routing was unnecessary.
 
-**Minimal correction:** swap the *file contents* of the two existing WebPs. Keep stable semantic filenames, article references, image dimensions, alt relationships, site identity and existing AI-editorial image styling. No new images, no GPT Image generation, no unrelated article changes.
+**Minimal correction for this pair:** swap the *file contents* of the two existing WebPs. Keep stable semantic filenames, article references, image dimensions, alt relationships, site identity and existing AI-editorial image styling. No generation is needed for these two images.
 
 **Content hashes, for reproducibility:**
 - The correct *savarin* content has SHA-256 `7600421D88C6C9AF69EF045D1EE3B20F1203E0A1F6065193B796F437CBF2A687` (was in `recipe-pain-perdu.webp`).
 - The correct *pain perdu* content has SHA-256 `A0C9F8D0319A7DB8B71CA32CBE9104C65B5C13C0BE98DBDA0D774DEC0074E7BB` (was in `recipe-savarin.webp`).
 
+## Targeted chef-original check: Fantastik
+
+The `michalak-fantastik` article refers to the characteristic Fantastik format of Christophe Michalak. The former `michalak-fantastik.webp` depicted disconnected, saturated rainbow-colored icing rosettes and berries on a bare plate, without an identifiable baked tart or sponge base. The issue is *structural recognition of the named dessert*, not the plate, lighting, or a preference for muted color.
+
+- [Michalak's Fantastik recipe published by Elle & Vire](https://www.elle-et-vire.com/fr/fr/recettes/fantastik/) specifies a compact 20 cm sable base and cheesecake/cream topping.
+- [Fantastik abricot-mûre-dragée by Christophe Michalak, Académie du Goût](https://www.academiedugout.fr/recettes/fantastik-abricot-mure-dragee_8475_2) specifies almond crisp, pain de Gênes sponge and a fruit/cream composition.
+- [Fantastik figue-poire-pécan by Christophe Michalak, Académie du Goût](https://www.academiedugout.fr/recettes/fantastik-figue-poire-pecan_12005_2) specifies a baked lemon Linzer tart base, cream and fresh fruit.
+
+**High-confidence semantic correction:** replace just `public/images/articles/michalak-fantastik.webp` with a fresh **GPT Image-generated original editorial illustration**, not a copy of a particular Michalak photograph or a claim that his team made this exact product. The new image visibly shows a round baked tart base supporting natural piped vanilla cream, berries, apricot and restrained floral garnish. Original layout, route, image filename, image dimensions (1280 × 800), schema semantics and article text remain unchanged.
+
+Hashes for reproducibility: previous SHA-256 `457EE554B9CB1890CEBAA8418DFF7B5876766FDFF245A23218543495683D7F8E`; new SHA-256 `D6C5BAFB74994AC55FF7ACBEBA6457E0B3DAD7AEA508F36186EF37A89047E259`.
+
 ## Negative findings / limits
 
-The other first-pass images did **not** show another sufficiently certain wrong-dessert substitution to justify a replacement. Some images are stylistic illustrations of historical subjects or modern pastry interpretations, and are not photographs of an original chef's specific product. Do **not** treat aesthetics, backdrop, small plating differences, or a noncanonical but plausible variant as a defect.
+Aside from these two corrected semantic cases (three affected file paths), the first-pass images did **not** show another sufficiently certain wrong-dessert substitution to justify a replacement. Some images are stylistic illustrations of historical subjects or modern pastry interpretations, and are not photographs of an original chef's specific product. Do **not** treat aesthetics, backdrop, small plating differences, or a noncanonical but plausible variant as a defect.
 
 This is a **semantic triage of every raster at thumbnail size**, not 248 independent original-product photographic identifications. If a particular chef-branded image must represent an exact historical work, it requires its own source-specific comparison and rights/provenance judgment; those are not automatically authenticated by the first-pass gallery review.
 
