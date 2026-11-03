@@ -5,15 +5,15 @@
  * the homepage, /about/, /methodology/ and the 157 article pages reference the
  * SAME nodes instead of re-declaring conflicting copies.
  *
- * Positioning (owner decision, 2026-10-27):
- *   - Patisserie Russe is an INDEPENDENT educational project. It is NOT a
- *     publication of the Milovi Cake confectionery and carries no author/
- *     editor claims on behalf of that business.
+ * Positioning (owner clarification, 2026-11-03):
+ *   - Patisserie Russe / Milovi School is the educational project associated
+ *     with Milovi Cake. Its editorial work is independently authored; the
+ *     bakery does not claim to write or review the educational articles.
  *   - The site was created, edited and designed by Fedor Milovanov using
  *     generative AI tooling. He is the `creator` / `editor` of the project.
- *   - Milovi Cake (https://milovicake.ru) is a SEPARATE confectionery that
- *     supports the project. None of its staff are credited as authors or
- *     reviewers of the French recipe analyses published here.
+ *   - Milovi Cake (https://milovicake.ru) is the related confectionery brand.
+ *     The educational recipes are NOT its order menu or production recipes.
+ *     None of its staff are credited as authors or reviewers of this corpus.
  *   - The educational/editorial, search-discovery and portfolio intentions of
  *     the project are internal and are NOT stated in public copy.
  *
@@ -37,12 +37,13 @@ export const ENTITY_IDS = {
 
 /** Educational boundary — repeated in schema, UI and llms.txt (truth contract). */
 export const EDUCATIONAL_DISCLAIMER =
-  'Patisserie Russe — независимый образовательный и исследовательский проект ' +
-  'Фёдора Милованова, созданный с применением генеративных нейросетей. ' +
-  'Материалы и разборы французских рецептур публикуются исключительно в ' +
-  'учебных целях и не являются коммерческим меню кондитерской Milovi Cake. ' +
-  'Кондитерская Milovi Cake и её сотрудники не являются авторами или ' +
-  'рецензентами этих учебных разборов.'
+  'Patisserie Russe / Milovi School — образовательный проект Milovi Cake ' +
+  'о французской кондитерской школе, созданный и редактируемый ' +
+  'Фёдором Миловановым с применением генеративных нейросетей. ' +
+  'Учебные материалы не являются меню или производственными ' +
+  'технологическими картами кондитерской Milovi Cake. ' +
+  'Кондитерская и её сотрудники не выступают авторами или ' +
+  'рецензентами этих редакционных разборов.'
 
 /** The project's creator/editor/designer. No private identifiers by design. */
 export const creatorNode = {
@@ -52,8 +53,8 @@ export const creatorNode = {
   alternateName: 'Fedor Milovanov',
   jobTitle: 'Создатель, редактор и дизайнер образовательного проекта Patisserie Russe',
   description:
-    'Создал Patisserie Russe как независимую образовательную библиотеку о ' +
-    'французской кондитерской школе, применив генеративные нейросети для ' +
+    'Создал Patisserie Russe / Milovi School как образовательную библиотеку ' +
+    'Milovi Cake о французской кондитерской школе, применив нейросети для ' +
     'дизайна, редактуры и технической реализации.',
   url: `${SITE_URL}/about/`,
   knowsAbout: [
@@ -63,7 +64,7 @@ export const creatorNode = {
   ],
 } as const
 
-/** Separate confectionery — a sponsor entity, NOT the publisher of this site. */
+/** Related confectionery brand — not the editor or publisher of the articles. */
 export const businessNode = {
   '@type': 'Bakery',
   '@id': ENTITY_IDS.business,

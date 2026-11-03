@@ -350,9 +350,10 @@ if llms_path.is_file():
           "llms.txt must state that materials are not a commercial menu")
     check("Утверждения о технике подкреплены ссылками" in llms_text,
           "llms.txt must explain the source-trail rule")
-    # Owner decision (2026-10-27): the library is INDEPENDENT. Its creator is
-    # Fedor Milovanov; the confectionery is a separate project and must not be
-    # credited as author/reviewer. No private individual's identifiers here.
+    # Owner clarification (2026-11-03): Milovi School belongs to Milovi Cake's
+    # educational ecosystem; the library is independently edited by Fedor.
+    # The bakery must not be credited as the author/reviewer or as producing
+    # the recipes. No private individual's identifiers appear here.
     check("Фёдор Милованов" in llms_text,
           "llms.txt must name the project creator (schema↔AI-fact-sheet parity)")
     check("Виктория Милованова" not in llms_text and "Виктория Викторовна" not in llms_text,
@@ -360,8 +361,8 @@ if llms_path.is_file():
     for forbidden in ("263006403654", "/o-konditere/", "/certificates/", "taxID"):
         check(forbidden not in llms_text,
               f"llms.txt must not publish private identifier: {forbidden}")
-    check("не является автором или рецензентом" in llms_text
-          or "не является автором" in llms_text,
+    check("не выступает автором или рецензентом" in llms_text
+          or "не является автором или рецензентом" in llms_text,
           "llms.txt must state the confectionery is not an author/reviewer of the analyses")
     # Every linked local URL must exist in the built site.
     for url in re.findall(r"\]\((https://french\.milovicake\.ru/[^)]+)\)", llms_text):
@@ -373,11 +374,11 @@ if llms_path.is_file():
             target = DIST / rel / "index.html" if not rel.endswith(".txt") else DIST / rel
         check(target.is_file(), f"llms.txt links to a non-existent built page: {url}")
 
-# 8. Canonical entity graph (owner decision 2026-10-27): INDEPENDENT educational
-# project by Fedor Milovanov; Milovi Cake is a SEPARATE confectionery, never an
-# author/reviewer of these analyses. No private identifiers in published
-# structured data. Home, /about/, /methodology/ share the same @id nodes; each
-# article references the creator/editor by @id and shows a matching byline.
+# 8. Canonical entity graph (owner clarification 2026-11-03): educational
+# project associated with Milovi Cake, independently edited by Fedor.
+# The bakery is not the article author/reviewer, and educational recipes are
+# not its commercial menu. Home, /about/, /methodology/ share stable @id nodes.
+# Each article references its editor by @id and shows a matching byline.
 SITE_IDS = {
     "creator": "https://french.milovicake.ru/#fedor",
     "business": "https://milovicake.ru/#business",
@@ -391,7 +392,7 @@ EXPECTED_TYPES = {
     SITE_IDS["organization"]: "Organization",
     SITE_IDS["school"]: "EducationalOrganization",
 }
-EDU_BOUNDARY = "не являются коммерческим меню"
+EDU_BOUNDARY = "не являются меню или производственными"
 # Private identifiers that must never appear anywhere in the built site.
 FORBIDDEN_PRIVATE = (
     "263006403654",
@@ -432,7 +433,7 @@ for page_name in ("index.html", "about/index.html", "methodology/index.html"):
           and (school.get("sponsor") or {}).get("@id") == SITE_IDS["organization"],
           f"/{page_name} School must mark the confectionery as sponsor, not parent/publisher")
     check(isinstance(school, dict) and "parentOrganization" not in school,
-          f"/{page_name} School must NOT be a child of the confectionery (independent project)")
+          f"/{page_name} School must not falsely claim a legal parent organization")
     check(isinstance(school, dict) and EDU_BOUNDARY in str(school.get("disambiguatingDescription", "")),
           f"/{page_name} School must carry the educational boundary disclaimer")
     for forbidden in FORBIDDEN_PRIVATE:
