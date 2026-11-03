@@ -20,7 +20,8 @@ function bumpServiceWorkerVersion() {
     name: 'milovi-sw-version',
     hooks: {
       'astro:build:done': async ({ dir }) => {
-        const swPath = path.join(dir.pathname, 'sw.js')
+        const outputDir = fileURLToPath(dir)
+        const swPath = path.join(outputDir, 'sw.js')
         try {
           const original = await fs.readFile(swPath, 'utf8')
           const hash = createHash('sha256')
@@ -33,13 +34,13 @@ function bumpServiceWorkerVersion() {
               if (entry.isDirectory()) {
                 await walk(full)
               } else if (entry.isFile()) {
-                const rel = path.relative(dir.pathname, full).replaceAll(path.sep, '/')
+                const rel = path.relative(outputDir, full).replaceAll(path.sep, '/')
                 hash.update(rel)
                 hash.update(await fs.readFile(full))
               }
             }
           }
-          await walk(dir.pathname)
+          await walk(outputDir)
           const stamp = hash.digest('hex').slice(0, 16)
           const updated = original.replaceAll('__BUILD_HASH__', `v${stamp}`)
           if (updated !== original) {
@@ -94,7 +95,7 @@ function enhanceImageSitemap() {
     name: 'milovi-image-sitemap',
     hooks: {
       'astro:build:done': async ({ dir }) => {
-        const dist = dir.pathname
+        const dist = fileURLToPath(dir)
         const sitemapPath = path.join(dist, 'sitemap-0.xml')
         let sitemapXml = await readText(sitemapPath)
         if (!sitemapXml) return
