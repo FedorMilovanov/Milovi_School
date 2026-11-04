@@ -396,8 +396,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
             }}
           >
             <div className="gallery-preview-aura" aria-hidden="true" />
-            <div className="gallery-preview-card overflow-hidden border border-amber-100/20 bg-[rgba(16,14,12,0.88)] shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl dark:bg-[rgba(10,9,8,0.9)]">
-              <div key={previewArticle.id} className="grid min-h-[360px] lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="gallery-preview-card border border-amber-100/20 bg-[rgba(16,14,12,0.88)] shadow-[0_30px_90px_rgba(0,0,0,0.55)] backdrop-blur-2xl dark:bg-[rgba(10,9,8,0.9)]">
+              <div key={previewArticle.id} className="gallery-preview-layout grid min-h-[360px] lg:grid-cols-[1fr_1fr]">
                 <div className="gallery-preview-image-wrap relative overflow-hidden bg-stone-950">
                   <img
                     src={previewImage}
@@ -412,7 +412,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                   </div>
                 </div>
 
-                <div className="relative flex flex-col justify-between p-7 text-amber-50 lg:p-9">
+                <div className="gallery-preview-content relative flex min-h-0 flex-col justify-between p-7 text-amber-50 lg:p-9">
                   <button
                     type="button"
                     onClick={() => closePreview(true)}
@@ -422,7 +422,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     Свернуть
                   </button>
 
-                  <div className="pr-28">
+                  <div className="gallery-preview-body pt-10">
                     <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/65">
                       {previewCategory} · {previewArticle.readTime} мин чтения
                     </p>
@@ -443,7 +443,7 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                     )}
                   </div>
 
-                  <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-amber-100/10 pt-5">
+                  <div className="gallery-preview-actions mt-8 flex shrink-0 flex-wrap items-center justify-between gap-4 border-t border-amber-100/10 pt-5">
                     <div className="flex gap-2">
                       <button
                         type="button"

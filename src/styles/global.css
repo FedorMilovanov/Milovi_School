@@ -851,6 +851,10 @@ a:hover .logo-name-patisserie {
 .gallery-preview-shell {
   pointer-events: none;
   transform: translateZ(0);
+  /* Keep the preview below the header and above an open privacy dialog.
+     The clearance is measured by analytics-consent.js at runtime. */
+  bottom: calc(1.25rem + var(--prs-consent-clearance, 0px));
+  max-height: max(8rem, calc(100dvh - var(--header-height, 84px) - 2rem - var(--prs-consent-clearance, 0px)));
 }
 .gallery-preview-shell::before {
   content: '';
@@ -882,8 +886,47 @@ a:hover .logo-name-patisserie {
   pointer-events: auto;
   position: relative;
   isolation: isolate;
+  max-height: inherit;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: galleryPreviewIn 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+/* Desktop: image, scrollable description and navigation form three stable
+   regions. Changing the article must not scroll the photograph or hide controls. */
+@media (min-width: 1024px) {
+  .gallery-preview-card {
+    overflow: hidden;
+  }
+  .gallery-preview-layout {
+    height: min(430px, calc(100dvh - var(--header-height, 84px) - 2rem - var(--prs-consent-clearance, 0px)));
+    max-height: inherit;
+    min-height: 0;
+  }
+  .gallery-preview-image-wrap {
+    min-height: 0;
+    height: 100%;
+  }
+  .gallery-preview-image {
+    height: 100%;
+  }
+  .gallery-preview-content {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .gallery-preview-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 169, 106, 0.45) transparent;
+  }
+  .gallery-preview-actions {
+    margin-top: 1rem;
+  }
+}
+
 .gallery-preview-card::before {
   content: '';
   position: absolute;
