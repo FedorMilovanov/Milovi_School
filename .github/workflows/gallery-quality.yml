@@ -6,6 +6,7 @@ on:
     paths:
       - 'src/components/**'
       - 'src/data/**'
+      - 'public/images/**'
       - 'src/layouts/**'
       - 'src/pages/materials.astro'
       - 'src/pages/canon.astro'
@@ -30,6 +31,7 @@ on:
     paths:
       - 'src/components/**'
       - 'src/data/**'
+      - 'public/images/**'
       - 'src/layouts/**'
       - 'src/pages/materials.astro'
       - 'src/pages/canon.astro'
