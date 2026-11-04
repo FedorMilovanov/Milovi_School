@@ -547,7 +547,12 @@ await logCheck('mobile privacy controls stay off content and remain accessible t
     await bottomSearch.click()
     const search = mobile.getByRole('dialog', { name: 'Поиск по материалам' })
     await search.waitFor({ state: 'visible' })
-    await mobile.keyboard.press('Escape')
+    const searchInput = search.getByRole('textbox', { name: 'Поиск материалов, шефов и техник' })
+    await searchInput.fill('DKA')
+    await search.getByText(/DKA: техническая карта/i).first().waitFor({ state: 'visible' })
+    await searchInput.press('Escape')
+    assert.equal(await searchInput.inputValue(), '', 'First Escape must clear the active query')
+    await searchInput.press('Escape')
     await search.waitFor({ state: 'hidden' })
 
     const menuButton = mobile.locator('header button[aria-controls="mobile-navigation-menu"]')
