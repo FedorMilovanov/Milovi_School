@@ -19,7 +19,7 @@ import { navigateTo } from '../utils/navigation'
 
 interface ArticlePageShellProps {
   article: Article
-  allMeta: ArticleClientMeta[]
+  relatedMeta: ArticleClientMeta[]
 }
 
 const CommandPalette = lazy(() => import('./CommandPalette'))
@@ -27,9 +27,12 @@ const CommandPalette = lazy(() => import('./CommandPalette'))
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
 
-export default function ArticlePageShell({ article, allMeta }: ArticlePageShellProps) {
+export default function ArticlePageShell({ article, relatedMeta }: ArticlePageShellProps) {
   const [commandOpen, setCommandOpen] = useState(false)
   const [commandInitialQuery, setCommandInitialQuery] = useState('')
+  const [searchMeta, setSearchMeta] = useState<ArticleClientMeta[] | null>(null)
+  const [searchFailure, setSearchFailure] = useState(false)
+  const [searchAttempt, setSearchAttempt] = useState(0)
   const commandOpenRef = useRef(false)
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
@@ -95,6 +98,53 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
     setCommandOpen(true)
   }, [])
 
+  // Fetch the shared search index only when someone opens search, rather than
+  // serializing all article metadata into every individual article page.
+  useEffect(() => {
+    if (!commandOpen || searchMeta || searchFailure) return
+
+    const controller = new AbortController()
+    const loadSearch = async () => {
+      try {
+        const response = await fetch('/article-index.json', { signal: controller.signal })
+        if (!response.ok) throw new Error(`Search index HTTP ${response.status}`)
+        const payload: unknown = await response.json()
+        if (
+          !Array.isArray(payload) ||
+          payload.length === 0 ||
+          !payload.every((item: unknown) =>
+            typeof item === 'object' &&
+            item !== null &&
+            'id' in item &&
+            typeof item.id === 'string' &&
+            'title' in item &&
+            typeof item.title === 'string',
+          )
+        ) {
+          throw new Error('Invalid article index')
+        }
+        if (!controller.signal.aborted) setSearchMeta(payload as ArticleClientMeta[])
+      } catch {
+        if (!controller.signal.aborted) setSearchFailure(true)
+      }
+    }
+
+    void loadSearch()
+    return () => controller.abort()
+  }, [commandOpen, searchMeta, searchFailure, searchAttempt])
+
+  useEffect(() => {
+    if (!commandOpen || searchMeta) return
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        closeCommand()
+      }
+    }
+    window.addEventListener('keydown', onEscape)
+    return () => window.removeEventListener('keydown', onEscape)
+  }, [commandOpen, searchMeta, closeCommand])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
@@ -124,7 +174,7 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
           <CanonArticleNav articleId={article.id} placement="top" />
           <ArticleView
             article={article}
-            allArticles={allMeta}
+            allArticles={relatedMeta}
             onBack={goBack}
             onNavigate={goToArticle}
             disableEscapeBack={commandOpen}
@@ -134,15 +184,53 @@ export default function ArticlePageShell({ article, allMeta }: ArticlePageShellP
         </main>
         <Footer />
         {commandOpen && (
-          <Suspense fallback={null}>
-            <CommandPalette
-              open={commandOpen}
-              articles={allMeta}
-              onClose={closeCommand}
-              onOpenArticle={openArticleByUrl}
-              initialQuery={commandInitialQuery}
-            />
-          </Suspense>
+          searchMeta ? (
+            <Suspense fallback={null}>
+              <CommandPalette
+                open={commandOpen}
+                articles={searchMeta}
+                onClose={closeCommand}
+                onOpenArticle={openArticleByUrl}
+                initialQuery={commandInitialQuery}
+              />
+            </Suspense>
+          ) : (
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="article-search-loading-title"
+              className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 px-4 pt-[12vh]"
+            >
+              <div className="w-full max-w-lg rounded-xl border border-stone-700 bg-stone-950 p-6 text-stone-100 shadow-2xl">
+                <h2 id="article-search-loading-title" className="text-xl font-semibold">Поиск по библиотеке</h2>
+                {searchFailure ? (
+                  <div className="mt-4 space-y-3">
+                    <p role="alert">Не удалось загрузить каталог поиска. Проверьте соединение.</p>
+                    <button
+                      type="button"
+                      className="rounded-lg border border-stone-500 px-4 py-2"
+                      onClick={() => {
+                        setSearchFailure(false)
+                        setSearchAttempt((attempt) => attempt + 1)
+                      }}
+                    >
+                      Повторить загрузку
+                    </button>
+                    <a className="block underline" href="/materials/">Открыть галерею материалов</a>
+                  </div>
+                ) : (
+                  <p role="status" className="mt-4 text-stone-300">Загружаем каталог поиска…</p>
+                )}
+                <button
+                  type="button"
+                  className="mt-5 rounded-lg border border-stone-600 px-4 py-2"
+                  onClick={closeCommand}
+                >
+                  Закрыть
+                </button>
+              </div>
+            </div>
+          )
         )}
         <UpdateNotification />
         <ToastContainer className="max-lg:bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6" />

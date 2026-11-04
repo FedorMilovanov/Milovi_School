@@ -19,6 +19,20 @@ export function getStaticPaths() {
 
 const { article } = Astro.props as { article: Article }
 
+// The article page needs only its three related cards. The complete metadata
+// index is loaded on demand for CommandPalette from /article-index.json.
+const sameCategory = libraryClientMeta.filter((item) =>
+  item.id !== article.id && item.category === article.category
+)
+const articleTags = new Set(article.tags ?? [])
+const relatedMeta = sameCategory.length >= 3
+  ? sameCategory.slice(0, 3)
+  : [...sameCategory, ...libraryClientMeta.filter((item) =>
+      item.id !== article.id &&
+      item.category !== article.category &&
+      item.tags?.some((tag) => articleTags.has(tag))
+    )].slice(0, 3)
+
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/articles/${article.id}/`
 const canonUrl = `${siteUrl}/canon/`
@@ -249,5 +263,5 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   {jsonLdRecipe && <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdRecipe)} slot="head" />}
   {jsonLdFAQ && <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdFAQ)} slot="head" />}
 
-  <ArticlePageShell article={article} allMeta={libraryClientMeta} client:load />
+  <ArticlePageShell article={article} relatedMeta={relatedMeta} client:load />
 </BaseLayout>
