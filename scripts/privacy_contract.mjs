@@ -153,6 +153,9 @@ else {
   for (const marker of ['milovi_school_analytics_consent_v1', 'window.MiloviSchoolConsent']) {
     if (!loader.includes(marker)) fail(`analytics loader missing marker: ${marker}`)
   }
+  if (!/\bwebvisor\s*:\s*false\b/.test(loader)) {
+    fail('Yandex Webvisor must remain disabled in the consent-gated analytics loader')
+  }
 }
 
 if (failures.length) {

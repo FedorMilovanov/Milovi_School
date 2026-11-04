@@ -76,7 +76,7 @@
       clickmap: true,
       trackLinks: true,
       accurateTrackBounce: true,
-      webvisor: true
+      webvisor: false
     });
     var script = document.createElement('script');
     script.async = true;
