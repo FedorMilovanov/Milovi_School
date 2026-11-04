@@ -201,6 +201,9 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
               >
                 О проекте
               </button>
+              <a href="/privacy/" onClick={() => setMobileMenuOpen(false)} className={mobileMenuItemClass}>
+                Конфиденциальность
+              </a>
             </div>
           </motion.div>
         )}

@@ -348,7 +348,10 @@ await logCheck('focused gallery link still navigates with Enter', async () => {
   assert.ok(href)
   await card(0).focus()
   await page.keyboard.press('Enter')
-  await page.waitForURL((url) => url.pathname === href, { timeout: 5000 })
+  // The destination is a fully rendered HTML article: DOMContentLoaded proves
+  // navigation without coupling the contract to slow external image loading.
+  await page.waitForURL((url) => url.pathname === href, { waitUntil: 'domcontentloaded', timeout: 10000 })
+  await page.locator('main h1').first().waitFor({ state: 'visible' })
 })
 
 await logCheck('all preview controls have accessible button names', async () => {
@@ -378,7 +381,8 @@ await logCheck('plain card click still navigates to its article', async () => {
   const href = await card(0).getAttribute('href')
   assert.ok(href)
   await card(0).click()
-  await page.waitForURL((url) => url.pathname === href, { timeout: 5000 })
+  await page.waitForURL((url) => url.pathname === href, { waitUntil: 'domcontentloaded', timeout: 10000 })
+  await page.locator('main h1').first().waitFor({ state: 'visible' })
 })
 
 await logCheck('Read material button navigates to the previewed article', async () => {
@@ -387,7 +391,8 @@ await logCheck('Read material button navigates to the previewed article', async 
   const href = await card(0).getAttribute('href')
   assert.ok(href)
   await preview().getByRole('link', { name: /Читать материал/ }).click()
-  await page.waitForURL((url) => url.pathname === href, { timeout: 5000 })
+  await page.waitForURL((url) => url.pathname === href, { waitUntil: 'domcontentloaded', timeout: 10000 })
+  await page.locator('main h1').first().waitFor({ state: 'visible' })
 })
 
 await logCheck('preview stays fully inside desktop viewport', async () => {
@@ -481,6 +486,87 @@ await logCheck('reduced-motion preference disables preview entrance animations',
   })
   assert.deepEqual(animationNames, ['none', 'none'])
   await reducedContext.close()
+})
+
+await logCheck('expanded preview stays inside the short desktop viewport', async () => {
+  await loadDesktop()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await openViaHover(0)
+  const panel = await preview().boundingBox()
+  const header = await page.locator('header').first().boundingBox()
+  assert.ok(panel && header)
+  assert.ok(panel.y >= header.y + header.height - 4, 'Preview must not extend behind the header')
+  assert.ok(panel.y + panel.height <= 900 - 8, 'Preview must not extend below the viewport')
+  const body = preview().locator('.gallery-preview-body')
+  assert.equal(await body.evaluate((el) => getComputedStyle(el).overflowY), 'auto')
+  const previous = preview().getByRole('button', { name: 'Предыдущий материал' })
+  const controls = await previous.boundingBox()
+  assert.ok(controls && controls.y >= panel.y && controls.y + controls.height <= panel.y + panel.height)
+  await previous.click()
+  const after = await preview().boundingBox()
+  assert.ok(after && after.y >= header.y + header.height - 4)
+  assert.ok(after.y + after.height <= 900 - 8)
+})
+
+await logCheck('visible analytics consent does not block gallery preview controls', async () => {
+  await loadDesktop()
+  await page.setViewportSize({ width: 1440, height: 900 })
+  const hasConsent = await page.evaluate(() => Boolean(window.MiloviSchoolConsent))
+  if (!hasConsent) return // No analytics integration configured in this build.
+  await page.evaluate(() => window.MiloviSchoolConsent.open())
+  const banner = page.locator('.prs-consent')
+  await banner.waitFor({ state: 'visible' })
+  await openViaHover(0)
+  const bannerRect = await banner.boundingBox()
+  const panelRect = await preview().boundingBox()
+  const headerRect = await page.locator('header').first().boundingBox()
+  assert.ok(bannerRect && panelRect && headerRect)
+  assert.ok(panelRect.y >= headerRect.y + headerRect.height - 4, 'Preview overlaps the header')
+  assert.ok(panelRect.y + panelRect.height <= bannerRect.y - 8, 'Preview overlaps the consent banner')
+  const before = await previewTitle()
+  await preview().getByRole('button', { name: 'Предыдущий материал' }).click()
+  assert.notEqual(await previewTitle(), before)
+})
+
+await logCheck('mobile privacy controls stay off content and remain accessible through navigation', async () => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+  })
+  try {
+    const mobile = await context.newPage()
+    await mobile.goto(BASE_URL + '/', { waitUntil: 'networkidle' })
+    const hasConsent = await mobile.evaluate(() => Boolean(window.MiloviSchoolConsent))
+    if (!hasConsent) return // No analytics integration configured in this build.
+    await mobile.evaluate(() => window.MiloviSchoolConsent.deny())
+    const settings = mobile.locator('.prs-consent-settings')
+    assert.equal(await settings.isVisible(), false, 'Privacy shortcut must not float above mobile content')
+    const bottomSearch = mobile.locator('nav button[aria-label="Открыть поиск"]').last()
+    await bottomSearch.waitFor({ state: 'visible' })
+    await bottomSearch.click()
+    const search = mobile.getByRole('dialog', { name: 'Поиск по материалам' })
+    await search.waitFor({ state: 'visible' })
+    const searchInput = search.getByRole('textbox', { name: 'Поиск материалов, шефов и техник' })
+    await searchInput.fill('DKA')
+    await search.getByText(/DKA: техническая карта/i).first().waitFor({ state: 'visible' })
+    await searchInput.press('Escape')
+    assert.equal(await searchInput.inputValue(), '', 'First Escape must clear the active query')
+    await searchInput.press('Escape')
+    await search.waitFor({ state: 'hidden' })
+
+    const menuButton = mobile.locator('header button[aria-controls="mobile-navigation-menu"]')
+    await menuButton.click()
+    const privacyLink = mobile.getByRole('dialog', { name: 'Навигационное меню' })
+      .getByRole('link', { name: 'Конфиденциальность' })
+    await privacyLink.waitFor({ state: 'visible' })
+    await privacyLink.click()
+    await mobile.waitForURL((url) => url.pathname === '/privacy/', { waitUntil: 'domcontentloaded', timeout: 10000 })
+    await mobile.getByRole('button', { name: 'Открыть настройки аналитики' }).click()
+    await mobile.locator('.prs-consent').waitFor({ state: 'visible' })
+  } finally {
+    await context.close()
+  }
 })
 
 await logCheck('no uncaught page errors occurred during interaction audit', async () => {

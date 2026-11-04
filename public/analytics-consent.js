@@ -12,6 +12,18 @@
   var loaded = false;
   var dialog = null;
   var settingsButton = null;
+  var consentResizeObserver = null;
+
+  // Fixed overlays share the visible viewport. Expose the actual occupied
+  // height rather than guessing a fixed consent-banner size in gallery CSS.
+  function syncConsentClearance() {
+    var clearance = 0;
+    if (dialog && !dialog.hidden) {
+      var rect = dialog.getBoundingClientRect();
+      clearance = Math.max(0, Math.ceil(window.innerHeight - rect.top + 12));
+    }
+    document.documentElement.style.setProperty('--prs-consent-clearance', clearance + 'px');
+  }
 
   function readChoice() {
     try {
@@ -40,7 +52,10 @@
       '.prs-consent[hidden]{display:none!important}.prs-consent h2{margin:0 0 8px;font:600 24px/1.18 Georgia,serif}.prs-consent p{margin:0;color:#d6cec2}.prs-consent a{color:#e5b85f}.prs-consent__actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin-top:16px}',
       '.prs-consent button{min-height:44px;padding:10px 18px;border-radius:999px;border:1px solid rgba(229,184,95,.45);font:600 14px/1 system-ui,sans-serif;cursor:pointer}.prs-consent__deny{background:transparent;color:#f5efe5}.prs-consent__allow{background:#e5b85f;color:#17130d;border-color:#e5b85f}',
       '.prs-consent-settings{position:fixed;z-index:2147482000;right:14px;bottom:max(14px,env(safe-area-inset-bottom));min-height:38px;padding:8px 13px;border-radius:999px;border:1px solid rgba(180,125,45,.42);background:rgba(16,16,15,.92);color:#f5efe5;font:500 12px/1.2 system-ui,sans-serif;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.25)}',
-      '@media(max-width:560px){.prs-consent{padding:17px}.prs-consent__actions{display:grid;grid-template-columns:1fr 1fr}.prs-consent button{width:100%}.prs-consent-settings{right:10px;bottom:10px}}'
+      /* Mobile visitors can reopen settings via Menu > Privacy, then the privacy-page button.
+         Hiding the floating control prevents covering bottom navigation or page CTAs. */
+      '@media(max-width:1023px){.prs-consent-settings{display:none}}',
+      '@media(max-width:560px){.prs-consent{padding:17px}.prs-consent__actions{display:grid;grid-template-columns:1fr 1fr}.prs-consent button{width:100%}.prs-consent-settings{right:10px}}'
     ].join('');
     document.head.appendChild(style);
   }
@@ -95,6 +110,7 @@
   function setChoice(value) {
     saveChoice(value);
     if (dialog) dialog.hidden = true;
+    syncConsentClearance();
     renderSettingsButton();
     if (value === 'granted') {
       loadAnalytics();
@@ -124,8 +140,14 @@
         if (target) setChoice(target.getAttribute('data-choice'));
       });
       document.body.appendChild(dialog);
+      if (typeof window.ResizeObserver !== 'undefined') {
+        consentResizeObserver = new window.ResizeObserver(syncConsentClearance);
+        consentResizeObserver.observe(dialog);
+      }
+      window.addEventListener('resize', syncConsentClearance, { passive: true });
     }
     dialog.hidden = false;
+    syncConsentClearance();
     var first = dialog.querySelector('[data-choice="denied"]');
     if (first) first.focus({ preventScroll: true });
   }

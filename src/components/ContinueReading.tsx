@@ -79,7 +79,7 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
                 <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
                   {saved && progress === 0 ? 'Закладка' : `${progress}%`}
                 </span>
-                <div className="flex-1 h-1 bg-stone-200 dark:bg-stone-800">
+                <div className="h-1 flex-1 bg-stone-200 transition-[filter] duration-300 group-hover:blur-[2px] motion-reduce:transition-none dark:bg-stone-800">
                   <div className="h-1 bg-amber-600 transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
               </div>
