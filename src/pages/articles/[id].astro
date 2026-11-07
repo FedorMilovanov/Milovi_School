@@ -36,6 +36,7 @@ const relatedMeta = sameCategory.length >= 3
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/articles/${article.id}/`
 const canonUrl = `${siteUrl}/canon/`
+const historyUrl = `${siteUrl}/history/`
 const pageTitle = `${article.title} — Patisserie Russe`
 const generatedMediaSourceType = 'http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia'
 
@@ -133,7 +134,16 @@ const jsonLdArticle = {
           name: 'Le Canon Sucré',
         },
       }
-    : {}),
+    : article.category === 'histoire-culinaire'
+      ? {
+          isPartOf: {
+            '@type': 'CollectionPage',
+            '@id': historyUrl,
+            url: historyUrl,
+            name: 'История кондитерского искусства',
+          },
+        }
+      : {}),
   ...(article.sourceUrl ? { citation: article.sourceUrl } : {}),
   ...(article.date
     ? {
@@ -156,8 +166,8 @@ const jsonLdBreadcrumb = {
     {
       '@type': 'ListItem',
       position: 2,
-      name: categoryName,
-      item: `${siteUrl}/#archive`,
+      name: article.category === 'histoire-culinaire' ? 'История кондитерского искусства' : categoryName,
+      item: article.category === 'histoire-culinaire' ? historyUrl : `${siteUrl}/#archive`,
     },
     {
       '@type': 'ListItem',

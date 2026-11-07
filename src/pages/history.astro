@@ -1,0 +1,187 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import StaticPageShell from '../components/StaticPageShell'
+import { libraryMeta } from '../data/library'
+import { articleImageDimensions } from '../data/articleImageDimensions'
+import { HISTORY_CATEGORY, HISTORY_FEATURE_ID, historySections } from '../data/history'
+
+const siteUrl = 'https://french.milovicake.ru'
+const canonicalUrl = `${siteUrl}/history/`
+const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
+
+const historyItems = libraryMeta.filter((article) => article.category === HISTORY_CATEGORY)
+const byId = new Map(historyItems.map((article) => [article.id, article]))
+if (historyItems.length !== byId.size) throw new Error('[history] Duplicate historical article ids')
+
+const featured = byId.get(HISTORY_FEATURE_ID)
+if (!featured) throw new Error('[history] Editorial feature must have a published article route')
+
+const assigned = new Set<string>()
+const sections = historySections.map((section) => {
+  const articles = section.articleIds.map((id) => {
+    if (assigned.has(id)) throw new Error(`[history] Duplicated curated binding ${id}`)
+    assigned.add(id)
+    const article = byId.get(id)
+    if (!article) throw new Error(`[history] Curated article route missing: ${id}`)
+    return article
+  })
+  return { ...section, articles }
+})
+const newArticles = historyItems.filter((article) => !assigned.has(article.id))
+  .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))
+const displaySections = [
+  ...sections,
+  ...(newArticles.length > 0 ? [{
+    id: 'new',
+    number: '04',
+    kicker: 'Новые публикации',
+    title: 'Новые исследования',
+    description: 'Материалы, только что добавленные в историческую библиотеку.',
+    articles: newArticles,
+  }] : []),
+]
+const ordered = [featured, ...historyItems.filter((article) => article.id !== featured.id)]
+const imageSize = (src: string, width?: number, height?: number) => {
+  const known = articleImageDimensions[src.split('/').pop() ?? '']
+  return { width: width ?? known?.width, height: height ?? known?.height }
+}
+
+const jsonLdCollection = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  '@id': canonicalUrl,
+  url: canonicalUrl,
+  name: 'История кондитерского искусства — Patisserie Russe',
+  description: 'Историческая библиотека: происхождение кондитерского ремесла, люди, дома, десерты и проверяемые первоисточники.',
+  inLanguage: 'ru',
+  isPartOf: { '@type': 'WebSite', name: 'Patisserie Russe', url: `${siteUrl}/` },
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: ordered.length,
+    itemListElement: ordered.map((article, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: article.title,
+      url: `${siteUrl}/articles/${article.id}/`,
+    })),
+  },
+}
+const jsonLdBreadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Главная', item: `${siteUrl}/` },
+    { '@type': 'ListItem', position: 2, name: 'История кондитерского искусства', item: canonicalUrl },
+  ],
+}
+---
+
+<BaseLayout
+  title="История кондитерского искусства — Patisserie Russe"
+  description="Документированная история pâtisserie: цехи, мастерские, шефы, происхождение десертов и легенды. Исследования со ссылками на исторические источники."
+  canonicalUrl={canonicalUrl}
+  image={featured.image}
+  imageAlt={featured.imageAlt}
+  ogImageWidth={featured.imageWidth}
+  ogImageHeight={featured.imageHeight}
+  hidePolicyFooter={true}
+>
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />
+
+  <StaticPageShell client:load>
+    <div class="history-room overflow-hidden">
+      <div class="mx-auto max-w-7xl px-5 pt-12 pb-16 sm:px-8 lg:px-10 lg:pt-20">
+        <nav aria-label="Навигационная цепочка" class="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
+          <a href="/" class="underline-offset-4 transition hover:text-amber-700 hover:underline dark:hover:text-amber-200">Pâtisserie Russe</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page" class="text-amber-800 dark:text-amber-300">История</span>
+        </nav>
+
+        <header class="mt-14 max-w-5xl">
+          <p class="font-mono text-[10px] uppercase tracking-[0.35em] text-amber-800 dark:text-amber-300">Histoire Culinaire / Исследовательская библиотека</p>
+          <h1 class="mt-5 max-w-5xl font-serif text-[clamp(2.65rem,8vw,7.8rem)] leading-[0.91] tracking-[-0.065em] text-[var(--ink)]">
+            История <span class="italic text-amber-800 dark:text-amber-200">кондитерского</span> искусства
+          </h1>
+          <div class="mt-9 grid gap-6 border-t border-[var(--border)] pt-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <p class="max-w-2xl font-serif text-xl leading-8 text-stone-600 dark:text-stone-300 sm:text-2xl sm:leading-9">От парижских ремесленных цехов до великой pâtisserie. Люди, мастерские и десерты — с вниманием к историческим документам, а не только красивым легендам.</p>
+            <div class="font-mono text-[10px] uppercase tracking-[0.22em] text-stone-500 dark:text-stone-400"><span class="mr-2 font-serif text-5xl tracking-tight text-amber-800 dark:text-amber-200">{historyItems.length}</span> материалов</div>
+          </div>
+        </header>
+
+        <article class="mt-16 grid overflow-hidden border border-[var(--border)] bg-[var(--bg-deep)] lg:grid-cols-[1.18fr_1fr]">
+          <a href={`/articles/${featured.id}/`} aria-label={featured.title} class="group block overflow-hidden">
+            <img
+              src={featured.image}
+              alt={featured.imageAlt ?? featured.title}
+              width={featured.imageWidth}
+              height={featured.imageHeight}
+              fetchpriority="high"
+              decoding="async"
+              class="h-full min-h-[260px] w-full object-cover transition-transform duration-700 motion-reduce:transform-none group-hover:scale-[1.035] sm:min-h-[390px]"
+            />
+          </a>
+          <div class="flex flex-col justify-center px-7 py-10 sm:px-10 lg:px-12 lg:py-16">
+            <div class="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.26em] text-amber-800 dark:text-amber-200">
+              <span>Главное исследование</span><span aria-hidden="true">—</span><span>07.11.2026</span>
+            </div>
+            <h2 class="mt-6 font-serif text-4xl font-semibold leading-[1.06] tracking-[-0.055em] sm:text-5xl">
+              <a href={`/articles/${featured.id}/`} class="transition hover:text-amber-700 dark:hover:text-amber-200">{featured.title}</a>
+            </h2>
+            <p class="mt-6 font-serif text-lg leading-8 text-stone-600 dark:text-stone-300">{featured.excerpt}</p>
+            <div class="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border)] pt-6 font-mono text-[10px] uppercase tracking-[0.18em]">
+              <span class="text-stone-500 dark:text-stone-400">{featured.readTime} мин чтения</span>
+              <a href={`/articles/${featured.id}/`} class="inline-flex min-h-11 items-center border-b border-amber-700 pb-1 text-amber-800 transition hover:text-stone-950 dark:border-amber-300 dark:text-amber-200 dark:hover:text-white">Читать исследование <span aria-hidden="true" class="ml-3">↗</span></a>
+            </div>
+          </div>
+        </article>
+        <p class="mt-3 text-xs leading-5 text-stone-500 dark:text-stone-400">Обложка — современная редакционная AI-иллюстрация, а не исторический документ.</p>
+
+        <nav aria-label="Разделы исторической библиотеки" class="mt-20 flex flex-wrap gap-3 border-y border-[var(--border)] py-5">
+          {displaySections.map((section) => (
+            <a href={`#${section.id}`} class="inline-flex min-h-11 items-center gap-3 border border-[var(--border)] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-stone-700 transition hover:border-amber-700 hover:text-amber-800 dark:text-stone-200 dark:hover:border-amber-300 dark:hover:text-amber-200"><span class="text-amber-800 dark:text-amber-300">{section.number}</span>{section.title}</a>
+          ))}
+        </nav>
+
+        {displaySections.map((section) => (
+          <section id={section.id} aria-labelledby={`${section.id}-title`} class="scroll-mt-28 border-b border-[var(--border)] py-16 sm:py-20">
+            <div class="mb-11 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.26em] text-amber-800 dark:text-amber-300">{section.number} / {section.kicker}</p>
+                <h2 id={`${section.id}-title`} class="mt-4 max-w-2xl font-serif text-4xl leading-[1.04] tracking-[-0.05em] sm:text-5xl">{section.title}</h2>
+              </div>
+              <p class="max-w-xl font-serif text-lg leading-8 text-stone-600 dark:text-stone-400">{section.description}</p>
+            </div>
+            <div class="grid gap-x-6 gap-y-11 sm:grid-cols-2 xl:grid-cols-3">
+              {section.articles.map((article) => {
+                const dims = imageSize(article.image, article.imageWidth, article.imageHeight)
+                return (
+                  <article class="group">
+                    <a href={`/articles/${article.id}/`} class="block overflow-hidden border border-[var(--border)] bg-stone-900/10 dark:bg-stone-900/40" aria-label={article.title}>
+                      <img src={article.image} alt={article.imageAlt ?? article.title} width={dims.width} height={dims.height} loading="lazy" decoding="async" class="aspect-[16/10] w-full object-cover transition-transform duration-500 motion-reduce:transform-none group-hover:scale-[1.035]" />
+                    </a>
+                    <div class="mt-5 flex items-center justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
+                      <span>{article.date ? article.date.slice(0, 4) : 'Исследование'}</span><span>{article.readTime} мин чтения</span>
+                    </div>
+                    <h3 class="mt-3 font-serif text-[1.7rem] font-semibold leading-[1.13] tracking-[-0.035em]"><a href={`/articles/${article.id}/`} class="transition hover:text-amber-800 dark:hover:text-amber-200">{article.title}</a></h3>
+                    <p class="mt-3 line-clamp-3 text-sm leading-7 text-stone-600 dark:text-stone-400">{article.excerpt}</p>
+                    <a href={`/articles/${article.id}/`} class="mt-4 inline-flex min-h-11 items-center font-mono text-[10px] uppercase tracking-[0.18em] text-amber-800 underline-offset-4 hover:underline dark:text-amber-200">Читать статью <span class="ml-2" aria-hidden="true">↗</span></a>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+        ))}
+        <aside class="mt-16 grid gap-7 border border-amber-800/20 bg-amber-900/[0.035] p-8 dark:border-amber-300/15 dark:bg-amber-300/[0.035] sm:p-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div>
+            <p class="font-mono text-[10px] uppercase tracking-[0.25em] text-amber-800 dark:text-amber-300">Редакционный стандарт</p>
+            <h2 class="mt-3 font-serif text-3xl tracking-[-0.045em] sm:text-4xl">Документ, легенда или реконструкция?</h2>
+            <p class="mt-4 max-w-3xl font-serif text-lg leading-8 text-stone-600 dark:text-stone-300">Мы различаем свидетельства эпохи, поздние рассказы и редакционные иллюстрации. Каждая новая историческая статья должна иметь проверяемые источники, честную атрибуцию и собственную страницу в библиотеке.</p>
+          </div>
+          <a href="/sources/" class="inline-flex min-h-12 items-center justify-center border border-amber-700/45 px-6 py-3 font-mono text-[10px] uppercase tracking-[0.15em] text-amber-800 transition hover:bg-amber-900/10 dark:text-amber-200 dark:hover:bg-amber-200/10">Наши источники <span aria-hidden="true" class="ml-3">↗</span></a>
+        </aside>
+        <div class="mt-10 flex flex-wrap gap-7 font-mono text-[11px] text-stone-500 dark:text-stone-400"><a href="/materials/" class="underline underline-offset-4 hover:text-amber-700">Вся библиотека</a><a href="/corrections/" class="underline underline-offset-4 hover:text-amber-700">Сообщить об ошибке</a><a href="/" class="underline underline-offset-4 hover:text-amber-700">Главная</a></div>
+      </div>
+    </div>
+  </StaticPageShell>
+</BaseLayout>
