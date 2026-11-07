@@ -42,10 +42,10 @@ try {
     assert.ok(hrefs.every((href) => /^\/articles\/[a-z0-9-]+\/$/.test(href)), variant.name + ': invalid article hrefs')
     assert.equal(await page.locator('section#profession, section#desserts, section#culture').count(), 3)
     const geometry = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      viewportWidth: document.documentElement.clientWidth,
+      scrollWidth: globalThis.document.documentElement.scrollWidth,
+      viewportWidth: globalThis.document.documentElement.clientWidth,
       duplicatedIds: (() => {
-        const ids = [...document.querySelectorAll('[id]')].map((el) => el.id)
+        const ids = [...globalThis.document.querySelectorAll('[id]')].map((el) => el.id)
         return ids.filter((id, index) => ids.indexOf(id) !== index)
       })(),
     }))
