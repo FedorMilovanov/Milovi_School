@@ -24,6 +24,7 @@ npm run validate
 ```text
 /                         → главная
 /materials/                → визуальная галерея библиотеки
+/history/                  → документальная историческая библиотека и кураторский индекс
 /canon/                    → Le Canon Sucré, отдельная CollectionPage
 /articles/<id>/            → статические article pages
 ```
@@ -37,6 +38,10 @@ npm run validate
 - Исторические утверждения, editorial media и article routing — разные слои данных. Наличие изображения не создаёт исторический факт или article route.
 
 Подробные инженерные ограничения для агентов: [`AGENTS.md`](./AGENTS.md).
+
+## История кондитерского искусства
+
+`/history/` — самостоятельный серверно отрендеренный каталог исторических статей `histoire-culinaire`: тематическая навигация, реальные статьи из общей библиотеки, исторические источники, визуальные обложки и автоматическое появление новых материалов. Первая самостоятельная статья `confectionery-profession-history` адаптирована из редакционной публикации MILOVI CAKE в Telegraph. Добавление и проверка — [`docs/HISTORY_EDITORIAL_PLAYBOOK.md`](docs/HISTORY_EDITORIAL_PLAYBOOK.md).
 
 ## Le Canon Sucré
 

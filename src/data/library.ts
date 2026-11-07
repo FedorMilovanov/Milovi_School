@@ -2,6 +2,7 @@ import { articles } from './articles'
 import { articleExpansions } from './articleExpansions'
 import { articleOverrides } from './articleOverrides'
 import { canonArticles } from './canonArticles'
+import { historyArticles } from './historyArticles'
 import { canonArticleAppendices } from './canonArticleAppendices'
 import type { Article, ArticleMeta, ArticleClientMeta } from './types'
 
@@ -117,6 +118,10 @@ const normalizeStandaloneArticle = (article: Article): Article => {
 const unique = new Map<string, Article>()
 for (const article of articles) unique.set(article.id, enrichArticle(article))
 for (const article of canonArticles) unique.set(article.id, normalizeStandaloneArticle(article))
+for (const article of historyArticles) {
+  if (unique.has(article.id)) throw new Error(`[library] History article id collides with existing catalog: ${article.id}`)
+  unique.set(article.id, normalizeStandaloneArticle(article))
+}
 export const libraryArticles = Array.from(unique.values()).sort((a, b) =>
   (b.date ?? '').localeCompare(a.date ?? '')
 )
