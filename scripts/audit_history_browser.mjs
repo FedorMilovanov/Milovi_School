@@ -65,7 +65,7 @@ try {
       const link = page.getByRole('dialog', { name: 'Навигационное меню' }).getByRole('link', { name: 'История' })
       assert.ok(await link.isVisible(), 'mobile history link missing')
       await page.keyboard.press('Escape')
-      assert.ok(await page.getByRole('dialog', { name: 'Навигационное меню' }).count() === 0, 'mobile Escape failed')
+      await page.getByRole('dialog', { name: 'Навигационное меню' }).waitFor({ state: 'detached', timeout: 2500 })
       checks += 2
     }
     await context.close()
