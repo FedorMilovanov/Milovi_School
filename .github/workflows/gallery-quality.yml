@@ -9,6 +9,9 @@ on:
       - 'public/images/**'
       - 'src/layouts/**'
       - 'src/pages/materials.astro'
+      - 'src/pages/history.astro'
+      - 'scripts/audit_history_*.mjs'
+      - 'scripts/audit_history_*.py'
       - 'src/pages/canon.astro'
       - 'src/styles/global.css'
       - 'src/styles/canon*.css'
@@ -173,6 +176,12 @@ jobs:
 
       - name: Run Canon Research visual QA
         run: node scripts/audit_canon_research_visual.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4321
+          VISUAL_QA_DIR: artifacts/visual-qa
+
+      - name: Run history library responsive and accessibility QA
+        run: node scripts/audit_history_browser.mjs
         env:
           BASE_URL: http://127.0.0.1:4321
           VISUAL_QA_DIR: artifacts/visual-qa
