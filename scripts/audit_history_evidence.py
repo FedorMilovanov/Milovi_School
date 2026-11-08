@@ -44,6 +44,7 @@ for row in rows:
     require(f"updatedAt: '{DATE}'" in row, f"Historical edit needs genuine updatedAt: {ident.group(1)}")
 
 risk_markers = {
+    "escoffier-biography": ["В 1889 году они вместе взялись за лондонский Savoy", "В 1900 году Эскоффье и Риц были уволены из Savoy"],
     "opera-gateau-histoire": ["десятилетиями судились", "Судебные тяжбы тянулись годами"],
     "brillat-savarin": ["Первым в западной традиции поставил умами"],
     "canele-bordeaux-histoire": ["В 1790 году монастырь Анонсиад был закрыт"],

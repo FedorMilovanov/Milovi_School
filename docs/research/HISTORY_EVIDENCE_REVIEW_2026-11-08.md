@@ -132,3 +132,9 @@ BnF Oct 2026 scholarly overview + Metropolitan Museum Bosse 1632–1633 (verifie
 - Дискуссионные атрибуции Desfontaines/macaron, Lasne/financier, Seugnot/mille-feuille, Carême/éclair сохраняются как атрибуции, а не бесспорные факты.
 - Необходимо сохранять отличие оригинальной музейной гравюры Босса от современных AI-обложек.
 - После редактуры обязательны npm validate, browser/SEO, PR, exact deployed SHA; локальная проверка не равна публикации.
+
+## Хронология Escoffier: дополнительная проверка
+
+Официальный Musée Escoffier de l'Art Culinaire подтверждает Savoy (1890), Ritz Paris (1898), Carlton London (1899), уход Рица и Эскоффье из Savoy в марте 1897 года и Peach Swan/Pêche Melba: ранний 1894 и поздняя рецептурная идентичность 1899 года. Прежние даты 1889, 1893 и 1900 исправлены по первичному институциональному источнику.
+
+- https://www.musee-escoffier.com/auguste-escoffier

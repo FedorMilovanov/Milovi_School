@@ -168,6 +168,7 @@ Christophe Adam превратил éclair в коллекционный фор�
 Опись фонда Эскоффье и архив brigades; она не доказывает универсальных заявлений «самый первый».
 
 - [Проверенный полнотекстовый источник](https://ccfr.bnf.fr/portailccfr/ark:/16871/004b80364125)
+- [Musée Escoffier — официальная полная биография, Savoy 1890, Carlton 1899](https://www.musee-escoffier.com/auguste-escoffier)
 `,
   'felder-biscuit-joconde': `## Что такое tant-pour-tant
 
