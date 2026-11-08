@@ -133,7 +133,8 @@ require("нельзя повышать 1865 год" in PRIMARY_RESEARCH,
 FINAL = (ROOT / "docs/research/HISTORY_FINAL_CLOSURE_2026-11-08.md").read_text(encoding="utf-8")
 for item in ("Y 85, fol. 90", "bpt6k313879z", "bpt6k940508c", "BSG_8VSUP2127", "1900", "Pierre C..."):
     require(item in FINAL, f"Final archive protocol missing provenance or uncertainty: {item}")
-require("Le Mémorial (1900)" in EVIDENCE, "BnF Gallica 1900 edition mislabeled again")
+require(re.search(r'"B",\s*"Pierre Lacam, Le Mémorial \(1900\)', EVIDENCE) is not None,
+        "Gallica 1900 bibliographic entry must remain grade B, not unchecked primary A")
 require("десяти одинаковых кругов" in entry(DEEP, "buche-noel-histoire"),
         "1895 bûche construction regressed")
 require("не подтверждено постранично" in entry(DEEP, "financier-histoire"),
