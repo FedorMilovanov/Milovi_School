@@ -102,4 +102,17 @@ require("1566: КОРОЛЕВСКИЙ ЭДИКТ И «ШЕСТЬ ТАЙН МАС
         "Guild myth headline returned")
 require("Поворотный момент — 1867 год, Всемирная выставка в Париже." not in DEEP,
         "Mille-feuille name myth leaked into classics")
-print("OK: 19/19 history evidence cards, source tiers, corrections and 2026 revision dates")
+
+# Live Markdown rendering regression: the article renderer escapes nested bold-link
+# spans and one-item Markdown lists. Use readable source-labelled paragraphs.
+require("`Класс ${grade} · [${title}](${url}) — ${scope}`" in LIBRARY,
+        "Historical sources must render as readable labelled links")
+require("`• ${item}`" in LIBRARY,
+        "Single-claim evidence must not render as a literal Markdown list marker")
+require("`- **[${grade}]" not in LIBRARY and "**[A]**" not in LIBRARY,
+        "Nested Markdown bold/link source labels must not return")
+require("return `${opening}\\n\\n${narrative.trim()}\\n\\n${ending}`" in LIBRARY,
+        "Evidence sections must not emit raw Markdown separators")
+require(OVERRIDES.count("imageAlt: 'Редакционная иллюстрация") >= 4,
+        "Corrected historical covers need accessible and non-misleading alt text")
+print("OK: 19/19 history evidence cards, source tiers, readable citations and captions")
