@@ -202,5 +202,12 @@ Tarte Bourdaloue связывают с парижской улицей и кон
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Le Ménagier de Paris](https://catalogue.bnf.fr/ark:/12148/cb12145427s)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)
+
+## Проверка исторических источников — ноябрь 2026
+
+Случайная ошибка сестёр Татен — легенда, основанная на позднем пересказе.
+
+- [Проверенный полнотекстовый источник](https://www.academiedugout.fr/articles/la-mysterieuse-histoire-de-la-tarte-tatin_3268)
+`,
 })

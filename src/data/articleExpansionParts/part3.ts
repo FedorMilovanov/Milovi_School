@@ -127,7 +127,14 @@ Christophe Adam превратил éclair в коллекционный фор�
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Éclair vanille–pécan](https://www.academiedugout.fr/recettes/eclair-vanille-de-madagascar-et-noix-de-pecan-caramelisees-2012_7197_2)`,
+- [Éclair vanille–pécan](https://www.academiedugout.fr/recettes/eclair-vanille-de-madagascar-et-noix-de-pecan-caramelisees-2012_7197_2)
+
+## Проверка исторических источников — ноябрь 2026
+
+Полная историческая страница специализированного производителя служит вторичным ориентиром, не первичным архивным патентом.
+
+- [Проверенный полнотекстовый источник](https://www.leseclaireurspatissiers.com/eclair)
+`,
   'escoffier-biography': `## От Ниццы к великим гостиницам
 
 Огюст Эскоффье родился в 1846 году в Вильнёв-Лубе и начал ученичество в тринадцать лет в ресторане родственника в Ницце. Парижская практика, военная служба и работа в крупных ресторанах научили его кухне большого потока. Партнёрство с Сезаром Ритцем в Savoy, Ritz и Carlton превратило эту дисциплину в модель международной гостиницы.
@@ -154,7 +161,14 @@ Christophe Adam превратил éclair в коллекционный фор�
 
 - [BnF — Auguste Escoffier, Le guide culinaire (1903)](https://catalogue.bnf.fr/ark:/12148/cb30405448c.public)
 - [Gallica — коллекции меню](https://gallica.bnf.fr/selections/fr/html/menus)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)
+
+## Проверка исторических источников — ноябрь 2026
+
+Опись фонда Эскоффье и архив brigades; она не доказывает универсальных заявлений «самый первый».
+
+- [Проверенный полнотекстовый источник](https://ccfr.bnf.fr/portailccfr/ark:/16871/004b80364125)
+`,
   'felder-biscuit-joconde': `## Что такое tant-pour-tant
 
 В классическом biscuit Joconde основа строится на tant-pour-tant — равных частях миндальной пудры и сахарной пудры. Эта смесь даёт вкус, удерживает влагу и ограничивает развитие жёсткой клейковины. Целые яйца взбивают с миндальной смесью до светлой объёмной массы; отдельно приготовленные белки отвечают за дополнительную лёгкость. Небольшая доля муки укрепляет пласт, а растопленный жир делает его гибким после охлаждения.

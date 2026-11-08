@@ -113,7 +113,14 @@ Stohrer заявляет Николя Сторера изобретателем 
 - [Maison Stohrer — «La plus ancienne pâtisserie de Paris», fondée en 1730](https://stohrer.fr/notre-maison/)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)`,
+- [BnF — Gastronomie](https://www.bnf.fr/fr/gastronomie)
+
+## Проверка исторических источников — ноябрь 2026
+
+Официальный дом подтверждает 1730 год, но рекламное первенство конкретных десертов нуждается в первичных книгах.
+
+- [Проверенный полнотекстовый источник](https://stohrer.fr/notre-maison/)
+`,
   'tech-creme-pat': `## Крахмал и нагрев
 
 Crème pâtissière может использовать кукурузный, пшеничный или комбинированный крахмал. Они дают разную плотность и ощущение во рту, поэтому замена грамм в грамм не всегда нейтральна. После соединения с горячим молоком крем возвращают на огонь и доводят до уверенного кипения при постоянном перемешивании. Это устраняет мучнистый вкус и полностью развивает загущение.
