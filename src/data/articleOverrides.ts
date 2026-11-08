@@ -16,14 +16,14 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
     sourceLabel: 'Physiologie du goût (1826) — première édition, BnF',
   }),
   'buche-noel-histoire': Object.freeze({
-    sourceUrl: 'https://catalogue.ina.fr/doc/TV-RADIO/DA_CPF86650566/buche-de-noel-et-crepes',
-    sourceLabel: 'Bûche de Noël et crêpes (1954)',
+    sourceUrl: 'https://www.nationalgeographic.fr/histoire/gastronomie-culture-generale-comment-la-buche-est-imposee-sur-la-table-de-noel-recette-buche-de-noel-chocolat',
+    sourceLabel: 'National Geographic — histoire de la bûche',
   }),
   'canele-bordeaux-histoire': Object.freeze({
     title: 'Канеле Бордо: документы, легенды и технология медной формы',
     excerpt: 'Рифлёная форма, тёмная корка и влажный центр: что известно из источников, а что остаётся бордоской легендой.',
-    sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k940508c',
-    sourceLabel: 'Mémorial historique et géographique de la pâtisserie',
+    sourceUrl: 'https://www.nouvelle-aquitaine.fr/le-territoire/produits-de-nouvelle-aquitaine/le-cannele-bordelais',
+    sourceLabel: 'Région Nouvelle-Aquitaine',
   }),
   'careme-first-celebrity-chef': Object.freeze({
     title: 'Антонен Карем: первый публичный шеф, книги и архитектура высокой кухни',
@@ -32,8 +32,8 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
     sourceLabel: 'Le Pâtissier pittoresque (1815) — Gallica/BnF',
   }),
   'carnaval-culinaire-histoire': Object.freeze({
-    sourceUrl: 'https://catalogue.bnf.fr/ark:/12148/cb357291124',
-    sourceLabel: 'L’art de la cuisine française au XIXe siècle — BnF',
+    sourceUrl: 'https://www.france.fr/fr/article/specialites-culinaires-lyon/',
+    sourceLabel: 'France.fr — bugnes de Lyon',
   }),
   'chiffres-macarons-laduree-herme': Object.freeze({
     title: 'Ladurée и Pierre Hermé: проверяемая экономика macaron без мифических оборотов',
@@ -52,7 +52,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'couvreur-biography': Object.freeze({ sourceUrl: 'https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur', sourceLabel: 'La Pâtisserie de Yann Couvreur' }),
   'couvreur-canal-biography': Object.freeze({ sourceUrl: 'https://www.yanncouvreur.com/products/livre-la-patisserie-de-yann-couvreur', sourceLabel: 'La Pâtisserie de Yann Couvreur' }),
   'creme-brulee-dispute': Object.freeze({ sourceUrl: 'https://catalogue.bnf.fr/ark:/12148/cb34734367t', sourceLabel: 'Le Cuisinier royal et bourgeois (1691)' }),
-  'croissant-history': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n', sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF' }),
+  'croissant-history': Object.freeze({ sourceUrl: 'https://www.news.uliege.be/cms/c_9704828/en/les-grands-mythes-de-la-gastronomie-l-histoire-du-croissant', sourceLabel: 'Université de Liège — Pierre Leclercq' }),
   'crookie-conticini': Object.freeze({
     title: 'Crookie: от Maison Louvard до мирового тренда',
     excerpt: 'Документированная история Stéphane Louvard, повторной выпечки круассана с cookie dough и вирусного распространения продукта.',
@@ -68,12 +68,12 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'felder-biscuit-joconde': Object.freeze({ sourceUrl: 'https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie', sourceLabel: 'Pâtisserie FERRANDI Paris' }),
   'felder-fraisier': Object.freeze({ sourceUrl: 'http://www.christophe-felder.com/cours/detail.php?id=542', sourceLabel: 'Le fraisier contemporain — École Christophe Felder' }),
   'financier-histoire': Object.freeze({
-    title: 'Финансье: от visitandines к парижскому пирожному с beurre noisette',
+    title: 'Финансье: ранние рецепты и легенда о кондитере Ласне',
     excerpt: 'Ранние миндальные формулы, легенда о форме слитка и профессиональная работа с beurre noisette.',
-    sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n',
-    sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF',
+    sourceUrl: 'https://nouvellesgastronomiques.com/dou-vient-le-financier/',
+    sourceLabel: 'Hervé This — histoire du financier',
   }),
-  'french-classics-origins': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n', sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF' }),
+  'french-classics-origins': Object.freeze({ sourceUrl: 'https://www.campus.uliege.be/cms/c_9917930/fr/les-grands-mythes-de-la-gastronomie-la-tarte-des-demoiselles-tatin', sourceLabel: 'Université de Liège — tarte Tatin' }),
   'genin-autodidact': Object.freeze({
     title: 'Жак Жени: независимый путь шоколатье и кондитера',
     excerpt: 'Проверяемый разбор независимого пути Жака Жени, свежих ганашей, карамели и мильфея без сенсационной биографической легенды.',
@@ -92,7 +92,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'herme-biography': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/chefs/pierre-herme_12', sourceLabel: 'Pierre Hermé — profil de chef' }),
   'herme-fetish-flavors': Object.freeze({ sourceUrl: 'https://www.pierreherme.com/fr/livre-infiniment-macaron.html', sourceLabel: 'Infiniment Macaron' }),
   'herme-ispahan-deep': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/recettes/ispahan_1111_2', sourceLabel: 'Ispahan' }),
-  'histoire-tartes-francaises': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n', sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF' }),
+  'histoire-tartes-francaises': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/articles/la-mysterieuse-histoire-de-la-tarte-tatin_3268', sourceLabel: 'Académie du Goût — histoire Tatin' }),
   'kayser-sourdough-pastry': Object.freeze({ sourceUrl: 'https://maison-kayser.com/cours/la-recette-du-croissant/', sourceLabel: 'La recette du croissant' }),
   'laduree-1862': Object.freeze({
     title: 'Ladurée 1862: история дома, salon de thé и парижского macaron',
@@ -121,7 +121,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   }),
   'paciello-flan-parisien': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/recettes/flan-a-la-parisienne_15246_2', sourceLabel: 'Flan à la parisienne' }),
   'paciello-praline-art': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/recettes/praline-noisette_15699_2', sourceLabel: 'Praliné noisette — Nicolas Paciello, Académie du Goût' }),
-  'paris-brest-race-dessert': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k940508c', sourceLabel: 'Mémorial historique et géographique de la pâtisserie' }),
+  'paris-brest-race-dessert': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/articles/paris-brest-un-gateau-mythique-et-mysterieux_3238', sourceLabel: 'Académie du Goût — Paris-Brest' }),
   'patissiers-guild-medieval': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k1025189c', sourceLabel: 'La pâtisserie à travers les âges (1904) — Gallica/BnF' }),
   'perret-madeleine': Object.freeze({ sourceUrl: 'https://www.ritzparis.com/fr/e-boutique/art-de-vivre/accessoires-maison/livre-instants-sucres-par-francois-perret-version-francaise', sourceLabel: 'Instants Sucrés' }),
   'perret-madeleine-18h': Object.freeze({ sourceUrl: 'https://www.ritzparis.com/fr/e-boutique/art-de-vivre/accessoires-maison/livre-instants-sucres-par-francois-perret-version-francaise', sourceLabel: 'Instants Sucrés' }),

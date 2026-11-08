@@ -52,7 +52,14 @@ export const articleExpansionPart6: Readonly<Record<string, string>> = Object.fr
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Infiniment Macaron](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
-- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)`,
+- [Pierre Hermé — profil de chef](https://www.academiedugout.fr/chefs/pierre-herme_12)
+
+## Проверка исторических источников — ноябрь 2026
+
+Официальный дом подтверждает основание 1862 года, пожар 1871-го и обозначает Дефонтеня как petit-cousin, а не внука.
+
+- [Проверенный полнотекстовый источник](https://laduree.com/pages/histoire-laduree)
+`,
   'lignac-equinoxe': `## Официальная архитектура вкуса
 
 Equinoxe строится на трёх понятных осях: ваниль, speculoos и солёная карамель. Их нельзя просто сложить в одинаковой интенсивности. Ванильный мусс создаёт основной объём и длинный аромат, пряное печенье даёт сухой хруст и тёплые ноты, карамель работает коротким насыщенным центром. Если карамели слишком много, ваниль исчезает; если speculoos отсыревает, композиция теряет смысл.

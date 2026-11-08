@@ -57,7 +57,14 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [2000 Feuilles](https://www.academiedugout.fr/recettes/2000-feuilles_1112_2)
-- [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)`,
+- [Millefeuille de tradition](https://www.academiedugout.fr/recettes/millefeuille-de-tradition_1147_2)
+
+## Проверка исторических источников — ноябрь 2026
+
+BnF описывает развитие книг и кондитерской техники; точное авторство и 1867 год Сеньо требуют датированного документа.
+
+- [Проверенный полнотекстовый источник](https://gallica.bnf.fr/accueil/fr/html/surprenante-patisserie)
+`,
   'opera-gateau-histoire': `## Версия Dalloyau
 
 Дом Dalloyau связывает Opéra с Сириаком Гавийоном и 1955 годом. По корпоративному рассказу, его жена Андре Андре-Dalloyau увидела в плоском прямоугольном торте сцену Оперы Гарнье. Это важное свидетельство дома, но само по себе не закрывает вопрос авторства.
@@ -85,7 +92,14 @@ export const articleExpansionPart7: Readonly<Record<string, string>> = Object.fr
 - [Dalloyau — Opéra L’Original, création 1955](https://groupepoteletchabot.com/nos-maisons/dalloyau)
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
-- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)`,
+- [Le XIXe siècle, âge d’or de la gastronomie](https://www.bnf.fr/sites/default/files/2018-11/biblio_aged%27or.pdf)
+
+## Проверка исторических источников — ноябрь 2026
+
+Le Monde (2009) подтверждает спорные притязания Ленотра, но не судебные тяжбы; приписывает современный Opéra Гавийону.
+
+- [Проверенный полнотекстовый источник](https://www.lemonde.fr/disparitions/article/2009/01/09/gaston-lenotre-patissier_1139869_3382.html)
+`,
   'paciello-flan-parisien': `## Appareil как контролируемый заварной крем
 
 Парижский флан кажется простым, но в нём нечем скрыть ошибку. Молочную фазу нагревают с ароматикой; яйца и сахар соединяют с крахмалом без лишнего воздуха. Горячее молоко вводят постепенно, затем массу возвращают на нагрев и доводят до полноценного загущения. Крахмалу недостаточно просто «стать густым»: короткое кипение устраняет мучнистый вкус и формирует устойчивую сетку.
@@ -153,7 +167,14 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Paris-Brest](https://philippeconticini.fr/pages/paris-brest)
-- [Paris-Brest 2009](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)`,
+- [Paris-Brest 2009](https://www.academiedugout.fr/recettes/paris-brest-2009_77_2)
+
+## Проверка исторических источников — ноябрь 2026
+
+Académie du Goût связывает десерт с Луи Дюраном и 1910 годом, но не подтверждает очередной старт гонки именно в 1910 году.
+
+- [Проверенный полнотекстовый источник](https://www.academiedugout.fr/articles/paris-brest-un-gateau-mythique-et-mysterieux_3238)
+`,
   'patissiers-guild-medieval': `## Oubloyers и pâtissiers
 
 В средневековых городах сладкое ремесло не существовало в сегодняшних границах. Oubloyers выпекали тонкие облатки и вафли, которые продавались на улицах и праздниках. Pâtissiers работали прежде всего с оболочками из теста, мясными и праздничными pâtés; сахарная кондитерская частично пересекалась с аптекарями и épiciers, потому что сахар и специи были дорогим товаром. Поэтому современное слово «кондитер» нельзя механически переносить на любого средневекового мастера.
@@ -188,6 +209,12 @@ Paris-Brest связывают с велогонкой Париж—Брест�
 - [Référentiel CAP Pâtissier](https://referentiels-professionnels.eduscol.education.fr/cap_patis.html)
 - [A. Charabot — La pâtisserie à travers les âges (1904), полный текст Gallica/BnF](https://gallica.bnf.fr/ark:/12148/bpt6k1025189c)
 - [The Worshipful Company of Bakers — History of the Bakers’ Company, Лондон](https://bakers.co.uk/about-us/history/)
+
+## Проверка исторических источников — ноябрь 2026
+
+BnF подтверждает первоначальную мясную выпечку, цеховые традиции и отмену корпораций 1791 года, но не перечень «шести шедевров».
+
+- [Проверенный полнотекстовый источник](https://gallica.bnf.fr/accueil/fr/html/surprenante-patisserie)
 `,
   'perret-madeleine': `## Beurre noisette
 

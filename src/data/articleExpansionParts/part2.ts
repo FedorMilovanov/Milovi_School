@@ -147,6 +147,12 @@ Paris-Brest лучше темперировать несколько минут:
 - [Nouveau traité de la cuisine (1739)](https://catalogue.bnf.fr/rechercher.do?motRecherche=Nouveau+trait%C3%A9+de+la+cuisine+Menon)
 - [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Trinity College Cambridge — Trinity Burnt Cream, официальная историческая заметка](https://www.trin.cam.ac.uk/about/historical-overview/trinity-burnt-cream/)
+
+## Проверка исторических источников — ноябрь 2026
+
+Официальный Trinity College отрицает собственное изобретение crème brûlée и фиксирует связь только с конца XIX века.
+
+- [Проверенный полнотекстовый источник](https://www.trin.cam.ac.uk/about/historical-overview/trinity-burnt-cream/)
 `,
   'croissant-history': `## Kipferl не был современным круассаном
 
@@ -179,6 +185,12 @@ Paris-Brest лучше темперировать несколько минут:
 - [Croissant par Thomas Marie, MOF boulangerie 2007 — титул присвоен 14 ноября 2007 года в 26 лет с первой попытки; автор «Le Grand Livre de la Viennoiserie» (Alain Ducasse Éditions, 2020)](https://www.academiedugout.fr/recettes/croissant_16818_2)
 - [La recette du croissant](https://maison-kayser.com/cours/la-recette-du-croissant/)
 - [Europeana / Lost Kitchen Scrolls — From Dutch pudding to French pastries (2025)](https://www.europeana.eu/en/stories/from-dutch-pudding-to-french-pastries)
+
+## Проверка исторических источников — ноябрь 2026
+
+Историк Pierre Leclercq различает Kipfel до 1683 года и парижскую венскую пекарню 1839 года; 1683 и Мария-Антуанетта — легенды.
+
+- [Проверенный полнотекстовый источник](https://www.news.uliege.be/cms/c_9704828/en/les-grands-mythes-de-la-gastronomie-l-histoire-du-croissant)
 `,
   'crookie-conticini': `## Кто создал crookie
 

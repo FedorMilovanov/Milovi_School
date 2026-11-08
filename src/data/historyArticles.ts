@@ -131,6 +131,14 @@ export const historyArticles: Article[] = [
 [Смитсоновский институт — история Fry’s](https://www.si.edu/object/nmah_1362395): формованный шоколад 1847 года; [HISTORY](https://www.history.com/articles/history-of-chocolate): более широкий контекст истории шоколада.
 
 *Иллюстрации: оригинальная гравюра — Метрополитен-музей (Public Domain); современные тематические изображения — Milovi School.*
+
+
+## Архивное дополнение 2026
+
+16 октября 2026 года Gallica/Bibliothèque nationale de France опубликовала исторический обзор Surprenante pâtisserie по архивным изображениям и трактатам в связи с книгой Coline Arnaud и Isabelle Degrange. Этот материал документирует мясные и рыбные пироги средневековых pâtissiers, отмену корпораций в 1791 году и распространение профессиональных книг XIX века. Эти наблюдения не означают, что полная книга уже прочитана: исследованы именно опубликованные полнотекстовые материалы BnF.
+
+- [Gallica / BnF, Surprenante pâtisserie, 2026](https://gallica.bnf.fr/accueil/fr/html/surprenante-patisserie)
+- [Metropolitan Museum of Art, Abraham Bosse, Pastry Shop, 1632–1633, Public Domain](https://www.metmuseum.org/art/collection/search/390804)
 `,
     category: 'histoire-culinaire',
     author: 'MILOVI CAKE / Patisserie Russe — редакционное исследование по архивным, музейным и отраслевым источникам',
@@ -144,6 +152,7 @@ export const historyArticles: Article[] = [
     imageHeight: 941,
     tags: ['история профессии', 'парижские pâtissiers', 'цехи', 'Карем', 'Stohrer', 'сахар', 'музейные источники'],
     date: '2026-11-07',
+    updatedAt: '2026-11-08',
     sourceUrl: "https://telegra.ph/Kto-pridumal-konditerskoe-delo-Ot-myasnyh-pirogov-do-iskusstva-desertov-11-07-2",
     sourceLabel: 'Первоначальная публикация MILOVI CAKE в Telegraph',
   },

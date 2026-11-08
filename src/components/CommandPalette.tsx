@@ -787,6 +787,7 @@ export default function CommandPalette({
 
               <input
                 ref={inputRef}
+                autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Поиск материалов, шефов, техник..."

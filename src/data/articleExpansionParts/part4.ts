@@ -20,7 +20,14 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 - [Le Livre de pâtisserie (1873)](https://catalogue.bnf.fr/ark:/12148/cb45546121j)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
-- [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)`,
+- [Pâtisserie FERRANDI Paris](https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie)
+
+## Проверка исторических источников — ноябрь 2026
+
+Hervé This указывает на ранние печатные рецепты financier, опровергая установленное единственное первенство Ласне.
+
+- [Проверенный полнотекстовый источник](https://nouvellesgastronomiques.com/dou-vient-le-financier/)
+`,
   'french-classics-origins': `## Пять историй — пять уровней уверенности
 
 У каждого классического десерта своя доказательная база. Для baba есть официальный рассказ Stohrer и печатные рецепты XIX века; для éclair — эволюция pain à la duchesse; для Tatin — сильная поздняя легенда при более сложном документальном следе.
@@ -43,7 +50,14 @@ export const articleExpansionPart4: Readonly<Record<string, string>> = Object.fr
 - [Dictionnaire universel de cuisine pratique](https://gallica.bnf.fr/ark:/12148/bpt6k57300060)
 - [Mémorial historique et géographique de la pâtisserie](https://gallica.bnf.fr/ark:/12148/bpt6k940508c)
 - [Le Cuisinier royal et bourgeois (1691)](https://catalogue.bnf.fr/ark:/12148/cb34734367t)
-- [Maison Stohrer — histoire](https://stohrer.fr/notre-maison/)`,
+- [Maison Stohrer — histoire](https://stohrer.fr/notre-maison/)
+
+## Проверка исторических источников — ноябрь 2026
+
+Université de Liège разъясняет позднее происхождение легенды об ошибке сестёр Татен.
+
+- [Проверенный полнотекстовый источник](https://www.campus.uliege.be/cms/c_9917930/fr/les-grands-mythes-de-la-gastronomie-la-tarte-des-demoiselles-tatin)
+`,
   'genin-autodidact': `## Что означает «самоучка»
 
 Отсутствие классического диплома не означает отсутствие обучения. Ремесленник осваивает производство через работу, наблюдение, повторение, поставщиков и собственные ошибки. Для Жака Жени этот путь следует описывать только по прямому профилю или интервью.
