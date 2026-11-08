@@ -143,18 +143,9 @@ require_contains "robots.txt points at the live HTTPS host" "$TMP_DIR/robots.txt
 require_contains "sitemap index references sitemap-0.xml" "$TMP_DIR/sitemap-index.xml" "sitemap-0.xml"
 require_contains "primary sitemap includes the materials gallery" "$TMP_DIR/sitemap-0.xml" "$LIVE_BASE/materials/"
 
-python3 - "$TMP_DIR/sitemap-0.xml" "$LIVE_BASE" <<'PY'
-import sys, xml.etree.ElementTree as ET
-path, base = sys.argv[1:]
-root = ET.parse(path).getroot()
-locs = [node.text.strip() for node in root.iter() if node.tag.endswith('loc') and node.text]
-page_locs = [loc for loc in locs if '/images/' not in loc]
-article_locs = [loc for loc in page_locs if '/articles/' in loc]
-assert len(article_locs) >= 100, len(article_locs)
-assert len(page_locs) == len(set(page_locs)), 'duplicate page locs'
-assert all(loc.startswith(base) for loc in page_locs), 'foreign or non-HTTPS loc'
-PY
-pass "Sitemap has 100+ unique same-origin article URLs"
+python3 scripts/audit_gallery_sitemap.py --selftest
+python3 scripts/audit_gallery_sitemap.py "$TMP_DIR/sitemap-0.xml" "$LIVE_BASE"
+pass "Sitemap has 100+ unique same-origin article URLs and valid HTTPS image URLs"
 
 python3 - "$TMP_DIR/materials.html" "$LIVE_BASE" > "$TMP_DIR/extracted.json" <<'PY'
 import json, re, sys
