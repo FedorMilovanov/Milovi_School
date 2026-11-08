@@ -3,6 +3,7 @@ import { articleExpansions } from './articleExpansions'
 import { articleOverrides } from './articleOverrides'
 import { canonArticles } from './canonArticles'
 import { historyArticles } from './historyArticles'
+import { historyEvidence, HISTORY_EVIDENCE_DATE } from './historyEvidence'
 import { canonArticleAppendices } from './canonArticleAppendices'
 import type { Article, ArticleMeta, ArticleClientMeta } from './types'
 
@@ -47,6 +48,45 @@ if (orphanAppendixIds.length > 0) {
 const estimateReadTime = (content: string) =>
   Math.max(1, Math.ceil((content.match(WORD_RE)?.length ?? 0) / 180))
 
+/**
+ * Every historical article carries a source-claim evidence card immediately
+ * before the narrative and a complete annotated bibliography after it.
+ * An A-grade historical text is primary ONLY for its original wording;
+ * a modern court's retelling of earlier history is still secondary evidence.
+ */
+const annotateHistoryEvidence = (id: string, narrative: string): string => {
+  const evidence = historyEvidence[id]
+  if (!evidence) return narrative.trim()
+
+  const points = (items: readonly string[]) => items.map((item) => `- ${item}`).join('\n')
+  const grades = {
+    A: 'первичный исторический документ',
+    B: 'историческое исследование / музей / научная институция',
+    C: 'заинтересованная история учреждения или бренда',
+    D: 'популярный пересказ / спорное свидетельство',
+  }
+  const sourceRows = evidence.sources.map(([grade, title, url, scope]) =>
+    `- **[${grade}] [${title}](${url})** — ${scope}`
+  ).join('\n')
+  const opening = [
+    `## Паспорт исторической достоверности · ${HISTORY_EVIDENCE_DATE}`,
+    'Утверждения в статье имеют разную доказательную силу. Исторический документ подтверждает собственный текст, но не автоматически первенство автора или точность более раннего события.',
+    '**Подтверждено документами или независимыми исследованиями:**',
+    points(evidence.verified),
+    '**Распространённая атрибуция, а не бесспорный факт:**',
+    points(evidence.attributed),
+    '**Не подтверждено / остаётся предметом исследования:**',
+    points(evidence.uncertain),
+  ].join('\n\n')
+  const ending = [
+    '## Проверяемые источники и их ограничения',
+    '**[A]** Первичный документ для описанных в нём фактов; **[B]** историческое исследование или профильное учреждение; **[C]** заинтересованная версия дома; **[D]** слабый/спорный пересказ. Класс характеризует источник **в рамках указанного утверждения**, не оценивает все публикации сайта.',
+    sourceRows,
+    'Редакторское правило: рекламное первенство, воспоминание, раннее печатное упоминание и независимо доказанный акт изобретения — четыре разные категории. Отсутствие найденного документа не доказывает, что события никогда не было.',
+  ].join('\n\n')
+  return `${opening}\n\n---\n\n${narrative.trim()}\n\n---\n\n${ending}`
+}
+
 const appendCanonEditorial = (id: string, content: string): string => {
   const appendix = canonArticleAppendices[id]
   if (!appendix) return content.trim()
@@ -86,7 +126,7 @@ const enrichArticle = (article: Article): Article => {
   const override = articleOverrides[article.id]
   const merged = { ...article, ...override }
   const expanded = expansion ? `${article.content.trim()}\n\n${expansion.trim()}` : article.content
-  const content = appendCanonEditorial(article.id, expanded)
+  const content = annotateHistoryEvidence(article.id, appendCanonEditorial(article.id, expanded))
 
   return {
     ...merged,
@@ -102,7 +142,7 @@ const enrichArticle = (article: Article): Article => {
 
 const normalizeStandaloneArticle = (article: Article): Article => {
   const appendix = canonArticleAppendices[article.id]
-  const content = appendCanonEditorial(article.id, article.content)
+  const content = annotateHistoryEvidence(article.id, appendCanonEditorial(article.id, article.content))
   return {
     ...article,
     content,

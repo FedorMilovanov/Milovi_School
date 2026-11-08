@@ -71,4 +71,35 @@ require("Hervé This" in PARTS and "Université de Liège" in PARTS,
         "European expert/archival evidence missing")
 require("https://www.nouvelle-aquitaine.fr/le-territoire/" in OVERRIDES,
         "Regional counter-evidence missing from public source metadata")
-print("OK: 19/19 historical article evidence ratchets and 2026 editorial revision dates")
+
+EVIDENCE = (ROOT / "src/data/historyEvidence.ts").read_text(encoding="utf-8")
+LIBRARY = (ROOT / "src/data/library.ts").read_text(encoding="utf-8")
+require("annotateHistoryEvidence(article.id, appendCanonEditorial" in LIBRARY,
+        "Historical claim cards are not rendered for legacy and standalone articles")
+require(LIBRARY.count("annotateHistoryEvidence(article.id, appendCanonEditorial") == 2,
+        "Each historical article path must render evidence exactly once")
+evidence_ids = re.findall(r'(?m)^  "([a-z0-9-]+)": \{', EVIDENCE)
+expected = IDS | {"confectionery-profession-history"}
+require(len(evidence_ids) == len(expected) and set(evidence_ids) == expected,
+        f"Expected exactly 19 individual evidence cards, got {len(evidence_ids)}")
+for ident in sorted(expected):
+    start = EVIDENCE.find('  "' + ident + '": {')
+    require(start >= 0, f"Missing evidence entry: {ident}")
+    tail = EVIDENCE.find('\n  "', start + 4)
+    if tail < 0:
+        tail = EVIDENCE.find("\n} as const", start)
+    block = EVIDENCE[start:tail]
+    for field in ("verified", "attributed", "uncertain", "sources"):
+        require(f'"{field}"' in block, f"History evidence lacks {field}: {ident}")
+    require(block.count("https://") >= 2, f"History needs two independent reviewable links: {ident}")
+    require(len(block) > 380, f"Evidence note too thin: {ident}")
+
+require("1890: ШВЕЙЦАРЕЦ ЛАСНЕ И БУРЖУАЗИЯ" not in DEEP,
+        "Financier history leaked into mille-feuille again")
+require("1930: ПЬЕР ДЕФОНТЕНЬ И РОЖДЕНИЕ МАКАРОНА" not in DEEP,
+        "Laduree invention headline returned")
+require("1566: КОРОЛЕВСКИЙ ЭДИКТ И «ШЕСТЬ ТАЙН МАСТЕРСТВА»" not in DEEP,
+        "Guild myth headline returned")
+require("Поворотный момент — 1867 год, Всемирная выставка в Париже." not in DEEP,
+        "Mille-feuille name myth leaked into classics")
+print("OK: 19/19 history evidence cards, source tiers, corrections and 2026 revision dates")
