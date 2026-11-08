@@ -115,4 +115,19 @@ require("return `${opening}\\n\\n${narrative.trim()}\\n\\n${ending}`" in LIBRARY
         "Evidence sections must not emit raw Markdown separators")
 require(OVERRIDES.count("imageAlt: 'Редакционная иллюстрация") >= 4,
         "Corrected historical covers need accessible and non-misleading alt text")
-print("OK: 19/19 history evidence cards, source tiers, readable citations and captions")
+# Archival primary-witness ratchet (new primary evidence should never silently regress).
+PRIMARY_RESEARCH = (ROOT / "docs/research/HISTORY_PRIMARY_WITNESSES_2026-11-08.md").read_text(encoding="utf-8")
+for ident, witness in (
+    ("patissiers-guild-medieval", "six platz completz en ung jour"),
+    ("millefeuille-histoire", "семь-восемь пластов"),
+    ("stohrer-1730", "смородины либо абрикосовый мармелад"),
+):
+    require(witness in entry(DEEP, ident), f"Missing precise archival witness in chapter: {ident}")
+require("Lespinasse" in EVIDENCE and "1566" in EVIDENCE and "шесть" in EVIDENCE,
+        "1566 published original testimony missing in graded evidence")
+require("The Modern Cook" in PRIMARY_RESEARCH and "Леспинас" in PRIMARY_RESEARCH
+        and "Y 85, fol. 90" in PRIMARY_RESEARCH,
+        "Primary manuscript provenance and limits missing from archive ledger")
+require("нельзя повышать 1865 год" in PRIMARY_RESEARCH,
+        "Unverified 1865 financier first-recipe claim must not be promoted")
+print("OK: 19/19 history evidence cards, verified 1566/1733 witnesses, readable citations and captions")
