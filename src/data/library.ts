@@ -58,10 +58,10 @@ const annotateHistoryEvidence = (id: string, narrative: string): string => {
   const evidence = historyEvidence[id]
   if (!evidence) return narrative.trim()
 
-  const points = (items: readonly string[]) => items.map((item) => `- ${item}`).join('\n')
+  const points = (items: readonly string[]) => items.map((item) => `• ${item}`).join('\n\n')
   const sourceRows = evidence.sources.map(([grade, title, url, scope]) =>
-    `- **[${grade}] [${title}](${url})** — ${scope}`
-  ).join('\n')
+    `Класс ${grade} · [${title}](${url}) — ${scope}`
+  ).join('\n\n')
   const opening = [
     `## Паспорт исторической достоверности · ${HISTORY_EVIDENCE_DATE}`,
     'Утверждения в статье имеют разную доказательную силу. Исторический документ подтверждает собственный текст, но не автоматически первенство автора или точность более раннего события.',
@@ -74,11 +74,11 @@ const annotateHistoryEvidence = (id: string, narrative: string): string => {
   ].join('\n\n')
   const ending = [
     '## Проверяемые источники и их ограничения',
-    '**[A]** Первичный документ для описанных в нём фактов; **[B]** историческое исследование или профильное учреждение; **[C]** заинтересованная версия дома; **[D]** слабый/спорный пересказ. Класс характеризует источник **в рамках указанного утверждения**, не оценивает все публикации сайта.',
+    '**Классы доказательств:** A — первичный исторический документ; B — историческое исследование или профильное учреждение; C — заинтересованная версия дома; D — слабый или спорный пересказ. Класс характеризует источник в рамках указанного утверждения, не оценивает все публикации сайта.',
     sourceRows,
     'Редакторское правило: рекламное первенство, воспоминание, раннее печатное упоминание и независимо доказанный акт изобретения — четыре разные категории. Отсутствие найденного документа не доказывает, что события никогда не было.',
   ].join('\n\n')
-  return `${opening}\n\n---\n\n${narrative.trim()}\n\n---\n\n${ending}`
+  return `${opening}\n\n${narrative.trim()}\n\n${ending}`
 }
 
 const appendCanonEditorial = (id: string, content: string): string => {

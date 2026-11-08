@@ -1,6 +1,6 @@
 import type { Article } from './types'
 
-export type ArticleOverride = Partial<Pick<Article, 'title' | 'excerpt' | 'sourceUrl' | 'sourceLabel'>>
+export type ArticleOverride = Partial<Pick<Article, 'title' | 'excerpt' | 'imageAlt' | 'sourceUrl' | 'sourceLabel'>>
 
 export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Object.freeze({
   'ansel-dka': Object.freeze({
@@ -28,7 +28,8 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
     sourceLabel: 'Région Nouvelle-Aquitaine',
   }),
   'careme-first-celebrity-chef': Object.freeze({
-    title: 'Антонен Карем: первый публичный шеф, книги и архитектура высокой кухни',
+    title: 'Антонен Карем: публичный образ шефа, книги и архитектура высокой кухни',
+    imageAlt: 'Редакционная иллюстрация о кондитерском искусстве Антонена Карема; не исторический портрет.',
     excerpt: 'Карем через первичные книги: придворные кухни, pièces montées, публичный образ автора и границы наполеоновской легенды.',
     sourceUrl: 'https://gallica.bnf.fr/ark:/12148/btv1b8541000q.item',
     sourceLabel: 'Le Pâtissier pittoresque (1815) — Gallica/BnF',
@@ -111,6 +112,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'michalak-biography': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/chefs/michalak_20', sourceLabel: 'Christophe Michalak — profil' }),
   'millefeuille-histoire': Object.freeze({
     title: 'Мильфей: ранние рецепты, история названия и настоящие слои теста',
+    imageAlt: 'Редакционная иллюстрация французского мильфея из слоёного теста и крема; не историческая фотография.',
     excerpt: 'Ранние печатные рецепты, реальная логика туров, влажностная миграция и современные версии французской классики.',
     sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n',
     sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF',
@@ -126,6 +128,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'paris-brest-race-dessert': Object.freeze({ sourceUrl: 'https://www.academiedugout.fr/articles/paris-brest-un-gateau-mythique-et-mysterieux_3238', sourceLabel: 'Académie du Goût — Paris-Brest' }),
   'patissiers-guild-medieval': Object.freeze({
     title: 'Парижские кондитерские цехи: устав 1566 года, экзамены и расхождения источников',
+    imageAlt: 'Редакционная иллюстрация старинного кондитерского ремесла; не документальное изображение цеха XVI века.',
     excerpt: 'Что известно из Энциклопедии XVIII века, почему данные о пяти и шести изделиях расходятся и какие документы ещё нужны.',
     sourceUrl: 'https://fr.wikisource.org/wiki/L%E2%80%99Encyclop%C3%A9die/1re_%C3%A9dition/PATISSIER',
     sourceLabel: 'Encyclopédie — PATISSIER, сводка цеховых статутов',
@@ -159,6 +162,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   }),
   'stohrer-1730': Object.freeze({
     title: 'Stohrer 1730: история парижского дома и легенды о baba и Puits d’amour',
+    imageAlt: 'Редакционная иллюстрация парижского кондитерского дома Stohrer; не архивная фотография.',
     excerpt: 'Открытие кондитерской в 1730 году документировано историей дома; происхождение баба и Puits d’amour требует разграничения легенды и ранних рецептов.',
     sourceUrl: 'https://stohrer.fr/notre-maison/',
     sourceLabel: 'Maison Stohrer — история дома с 1730 года',
