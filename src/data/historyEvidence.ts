@@ -419,7 +419,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
         "Печатные страницы 163–164: около десяти кругов женуаза, собранных с кремом moka или chocolat; прочитан OCR издания 1895 года, но без отдельной визуальной колляции факсимиле."
       ],
       [
-        "A",
+        "B",
         "Pierre Lacam, Le Mémorial (1900), Gallica/BnF",
         "https://gallica.bnf.fr/ark:/12148/bpt6k940508c",
         "Библиография BnF 2017 относит цифровой объект bpt6k940508c к изданию 1900 года; это не оцифровка первого издания 1890 года."
