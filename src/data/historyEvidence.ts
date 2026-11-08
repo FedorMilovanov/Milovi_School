@@ -262,7 +262,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
       [
         "A",
         "René de Lespinasse, Les métiers et corporations de la ville de Paris, tome I (1886), c. 386–392",
-        "https://commons.wikimedia.org/wiki/File:Les_m%C3%A9tiers_et_corporations_de_la_ville_de_Paris,_XIVe-XVIIIe_si%C3%A8cle_(IA_lesmetiersetcorp01lesp).pdf",
+        "https://archive.org/details/lesmetiersetcorp01lesp",
         "Печатная транскрипция грамоты июля 1566 года, ст. 1–2: пять лет ученичества, шесть блюд и отдельное испытание oublayers. Сверено по тексту OCR оцифровки; это не собственноручная рукопись 1566 года."
       ],
       [
@@ -563,7 +563,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
       [
         "A",
         "Lespinasse, Les métiers et corporations de la ville de Paris, I (1886), p. 386–392",
-        "https://commons.wikimedia.org/wiki/File:Les_m%C3%A9tiers_et_corporations_de_la_ville_de_Paris,_XIVe-XVIIIe_si%C3%A8cle_(IA_lesmetiersetcorp01lesp).pdf",
+        "https://archive.org/details/lesmetiersetcorp01lesp",
         "Текст грамоты 1566 года в опубликованной исторической транскрипции, статья 2 о шести блюдах; сама архивная рукопись не сверена."
       ],
       [

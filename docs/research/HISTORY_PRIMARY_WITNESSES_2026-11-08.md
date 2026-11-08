@@ -4,7 +4,7 @@
 
 ## 1. Корпорация pâtissiers и oublayers: что установлено, а что остаётся открытым
 
-**A — опубликованная транскрипция исторического правового акта:** René de Lespinasse, *Les Métiers et corporations de la ville de Paris*, tome I, 1886, печатные страницы 386–392, раздел «1566, juillet. Lettres patentes de Charles IX ... en trente-quatre articles». Источник: [скан книги](https://commons.wikimedia.org/wiki/File:Les_m%C3%A9tiers_et_corporations_de_la_ville_de_Paris,_XIVe-XVIIIe_si%C3%A8cle_(IA_lesmetiersetcorp01lesp).pdf), текстовое извлечение: `https://archive.org/download/lesmetiersetcorp01lesp/lesmetiersetcorp01lesp_djvu.txt`.
+**A — опубликованная транскрипция исторического правового акта:** René de Lespinasse, *Les Métiers et corporations de la ville de Paris*, tome I, 1886, печатные страницы 386–392, раздел «1566, juillet. Lettres patentes de Charles IX ... en trente-quatre articles». Источник: [скан книги](https://archive.org/details/lesmetiersetcorp01lesp), текстовое извлечение: `https://archive.org/download/lesmetiersetcorp01lesp/lesmetiersetcorp01lesp_djvu.txt`.
 
 - **Статья 1:** полное ученичество в течение **пяти лет**.
 - **Статья 2:** для pâtisserie требуется **six platz completz en ung jour a la discrecion des jurez** — шесть законченных блюд за один день по усмотрению присяжных.
