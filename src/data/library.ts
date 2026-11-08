@@ -59,12 +59,6 @@ const annotateHistoryEvidence = (id: string, narrative: string): string => {
   if (!evidence) return narrative.trim()
 
   const points = (items: readonly string[]) => items.map((item) => `- ${item}`).join('\n')
-  const grades = {
-    A: 'первичный исторический документ',
-    B: 'историческое исследование / музей / научная институция',
-    C: 'заинтересованная история учреждения или бренда',
-    D: 'популярный пересказ / спорное свидетельство',
-  }
   const sourceRows = evidence.sources.map(([grade, title, url, scope]) =>
     `- **[${grade}] [${title}](${url})** — ${scope}`
   ).join('\n')
