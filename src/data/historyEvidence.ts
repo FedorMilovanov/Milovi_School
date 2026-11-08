@@ -173,7 +173,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
     ],
     "sources": [
       [
-        "A",
+        "B",
         "Brillat-Savarin — Physiologie du goût, BnF",
         "https://catalogue.bnf.fr/ark:/12148/cb30161657n.public",
         "Каталог исторического оригинала; для точной цитаты нужна страница полного текста."
@@ -225,7 +225,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
     ],
     "sources": [
       [
-        "A",
+        "B",
         "Massialot, Le Cuisinier roial et bourgeois (1691) — Wellcome",
         "https://wellcomecollection.org/works/cc2tbhjj",
         "Библиографическое свидетельство существования первоиздания; просмотр страницы рецепта отдельно."
@@ -343,7 +343,7 @@ export const historyEvidence: Readonly<Record<string, HistoryEvidence>> = Object
         "Оцифрованное издание для сопоставления ранней терминологии; страницы требуют визуальной проверки."
       ],
       [
-        "A",
+        "B",
         "La Varenne, Le Cuisinier françois (1651) — BnF",
         "https://catalogue.bnf.fr/ark:/12148/cb30754438c",
         "Каталог раннего профессионального труда; наличие слоёного теста не доказывает готовый нынешний десерт."
