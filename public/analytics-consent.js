@@ -120,6 +120,10 @@
     }
     dialogOpener = null;
     if (value === 'granted') {
+      // Google Analytics keeps this global opt-out flag for the lifetime of the
+      // document. A same-page deny → grant transition must clear it before the
+      // library initializes, or the loaded tag remains effectively disabled.
+      if (gaId) window['ga-disable-' + gaId] = false;
       loadAnalytics();
       return;
     }

@@ -260,6 +260,11 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:4174
 
+      - name: Verify uncached offline navigation in Chromium
+        run: node scripts/audit_service_worker_offline.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4174
+
       - name: Stop candidate server
         if: always()
         run: kill "$(cat /tmp/school-candidate-server.pid)" 2>/dev/null || true

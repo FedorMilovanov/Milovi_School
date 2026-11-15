@@ -85,6 +85,24 @@ try {
       check(await privacyControl.evaluate((node) => node === document.activeElement), 'closing consent did not restore focus to its opener')
     }
     check(requests.length === 0, 'analytics requested while consent remained denied')
+
+    // Exercise a consent transition in the same document. GA's disable flag is
+    // global for the page lifetime, so merely injecting the script after grant
+    // is not enough if denial previously set it to true.
+    await privacyControl.click()
+    const grantDialog = page.locator('.prs-consent')
+    await grantDialog.locator('.prs-consent__allow').click()
+    await page.waitForFunction(() => Boolean(document.querySelector('script[data-prs-ga]')))
+    const regranted = await page.evaluate(() => {
+      const id = window.__MILOVI_SCHOOL_ANALYTICS__?.gaId
+      return { id, disabled: id ? window['ga-disable-' + id] : null }
+    })
+    check(Boolean(regranted.id), 'same-document re-grant test requires a configured Google Analytics ID')
+    check(regranted.disabled !== true, 'same-document denial → grant left the Google Analytics disable flag enabled')
+    check(
+      requests.some((url) => /googletagmanager\.com/.test(url)),
+      'same-document grant did not request Google Analytics',
+    )
   } finally {
     await deniedContext.close()
   }
@@ -148,7 +166,7 @@ if (failures.length) {
   throw new Error(`Consent lifecycle audit failed:\n- ${failures.join('\n- ')}`)
 }
 
-console.log('Consent lifecycle audit passed: pre-consent block, persisted denial, grant, revocation, and focus restoration.')
+console.log('Consent lifecycle audit passed: pre-consent block, persisted denial, same-document re-grant, revocation, and focus restoration.')
 if (STUB_EXTERNAL_TEST_ENDPOINTS) {
   console.log('Test-only endpoint substitutions: Google Analytics/Tag Manager, Yandex Metrika, Google Fonts CSS and font hosts returned empty local responses.')
 }
