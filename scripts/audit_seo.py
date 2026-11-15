@@ -87,7 +87,11 @@ def same_origin(url: str) -> bool:
         port = parts.port
     except ValueError:  # malformed port, e.g. "https://host:abc/"
         return False
-    return (port or DEFAULT_PORTS[parts.scheme.lower()]) == DEFAULT_PORTS[SITE_PARTS.scheme]
+    # `port or default` would turn an explicit `:0` into the default port, because
+    # 0 is falsy — `https://host:0/x` then compares equal to `:443` and passes.
+    # Only an absent port may fall back to the scheme default.
+    effective_port = DEFAULT_PORTS[parts.scheme.lower()] if port is None else port
+    return effective_port == DEFAULT_PORTS[SITE_PARTS.scheme]
 
 
 SAME_ORIGIN_FIXTURES: tuple[tuple[str, bool], ...] = (
@@ -102,6 +106,9 @@ SAME_ORIGIN_FIXTURES: tuple[tuple[str, bool], ...] = (
     ("https://evil.example/french.milovicake.ru/x.png", False),
     ("http://french.milovicake.ru/x.png", False),
     ("https://french.milovicake.ru:8443/x.png", False),
+    ("https://french.milovicake.ru:0/x.png", False),
+    ("https://french.milovicake.ru:/x.png", True),
+    ("https://french.milovicake.ru:80/x.png", False),
     ("https://sub.french.milovicake.ru/x.png", False),
     ("https://french.milovicake.ru:abc/x.png", False),
     ("images/relative.webp", False),
