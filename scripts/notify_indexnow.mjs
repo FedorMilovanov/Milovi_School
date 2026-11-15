@@ -71,12 +71,14 @@ async function liveCanonicalUrls() {
   return [...new Set(urls)]
 }
 
-function selectUrls(files, allUrls) {
+async function selectUrls(files, allUrls) {
   if (!files || files.length === 0) return []
 
   const allSitePatterns = [
     /^src\/layouts\//,
     /^src\/styles\/global\.css$/,
+    // Shared JSON-LD serializer: every page's structured data goes through it.
+    /^src\/utils\/jsonld\.ts$/,
     /^src\/components\/(Header|Footer|PolicyFooter|AnalyticsConsent|ScrollToTop|CommandPalette)/,
     /^astro\.config\.mjs$/,
     /^package(?:-lock)?\.json$/,
@@ -112,8 +114,22 @@ function selectUrls(files, allUrls) {
     for (const url of articles) selected.add(url)
   }
 
+  const historyPatterns = [/^src\/data\/history/, /^src\/components\/(?:History|history)/]
+  if (files.some((file) => historyPatterns.some((pattern) => pattern.test(file)))) {
+    const historyPage = allUrls.find((url) => new globalThis.URL(url).pathname === '/history/')
+    if (historyPage) selected.add(historyPage)
+    // History essays are article routes too: notify only the ids that the
+    // changed files actually declare, never the whole corpus.
+    const declared = await declaredArticleIds(files.filter((file) => historyPatterns.some((pattern) => pattern.test(file))))
+    for (const id of declared) {
+      const url = allUrls.find((candidate) => new globalThis.URL(candidate).pathname === `/articles/${id}/`)
+      if (url) selected.add(url)
+    }
+  }
+
   const staticRouteMap = new Map([
     ['src/pages/index.astro', '/'],
+    ['src/pages/history.astro', '/history/'],
     ['src/pages/about.astro', '/about/'],
     ['src/pages/materials.astro', '/materials/'],
     ['src/pages/methodology.astro', '/methodology/'],
@@ -130,6 +146,26 @@ function selectUrls(files, allUrls) {
   }
 
   return [...selected]
+}
+
+
+/**
+ * Article ids declared by the given source files (`id: 'some-slug'`). Used to
+ * notify the exact essay routes of a data change instead of the whole corpus.
+ */
+async function declaredArticleIds(files) {
+  const ids = new Set()
+  for (const file of files) {
+    if (!/\.(?:ts|tsx|astro)$/.test(file)) continue
+    let source
+    try {
+      source = await readFile(path.resolve(file), 'utf8')
+    } catch {
+      continue
+    }
+    for (const match of source.matchAll(/\bid:\s*'([a-z0-9][a-z0-9-]{2,})'/g)) ids.add(match[1])
+  }
+  return ids
 }
 
 async function postIndexNow(payload) {
@@ -172,7 +208,7 @@ async function main() {
   }
 
   const allUrls = await liveCanonicalUrls()
-  const urlList = selectUrls(files, allUrls)
+  const urlList = await selectUrls(files, allUrls)
   if (urlList.length === 0) {
     console.log(`[indexnow] ${files.length} changed source file(s), but no public content URL requires notification.`)
     return
