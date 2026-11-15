@@ -150,8 +150,20 @@ async function selectUrls(files, allUrls) {
 
 
 /**
- * Article ids declared by the given source files (`id: 'some-slug'`). Used to
- * notify the exact essay routes of a data change instead of the whole corpus.
+ * Article ids declared by the given source files. Two shapes exist in the
+ * corpus and both have to be recognised, otherwise a data edit silently
+ * notifies only the hub page:
+ *
+ *   1. article records:            `id: 'some-slug'`
+ *   2. keyed registries:           `"some-slug": { ... }`
+ *      (`historyEvidence.ts` is keyed this way, and `library.ts` folds every
+ *      evidence record into that article's generated body — so an evidence edit
+ *      changes 19 article routes, not just `/history/`.)
+ *
+ * The quoted-key pattern requires an object value (`{`), which excludes the
+ * per-record array keys (`"verified": [`, `"sources": [`). Candidates are then
+ * resolved against the live sitemap by the caller, so a key that is not an
+ * article simply drops out instead of producing a 404 notification.
  */
 async function declaredArticleIds(files) {
   const ids = new Set()
@@ -164,6 +176,7 @@ async function declaredArticleIds(files) {
       continue
     }
     for (const match of source.matchAll(/\bid:\s*'([a-z0-9][a-z0-9-]{2,})'/g)) ids.add(match[1])
+    for (const match of source.matchAll(/^\s*["']([a-z0-9][a-z0-9-]{2,})["']\s*:\s*\{/gm)) ids.add(match[1])
   }
   return ids
 }
@@ -229,7 +242,70 @@ async function main() {
   })
 }
 
-main().catch((error) => {
-  console.error(`[indexnow] ${error instanceof Error ? error.message : String(error)}`)
-  process.exitCode = 1
-})
+/**
+ * Offline selection test: `node scripts/notify_indexnow.mjs --self-test`.
+ *
+ * The deployment path cannot be exercised in CI (it needs the live sitemap and a
+ * deploy), so the selection logic — the part that decides *which* URLs are
+ * announced — is pinned here with fixtures instead. Runs without network and
+ * without git.
+ */
+async function selfTest() {
+  const urls = [
+    'https://fixture.invalid/',
+    'https://fixture.invalid/history/',
+    'https://fixture.invalid/canon/',
+    'https://fixture.invalid/materials/',
+    'https://fixture.invalid/articles/stohrer-1730/',
+    'https://fixture.invalid/articles/laduree-1862/',
+    'https://fixture.invalid/images/logo.png',
+  ]
+  const pathnames = async (files) => new Set((await selectUrls(files, urls)).map((url) => new globalThis.URL(url).pathname))
+  const failures = []
+  const expect = async (name, files, predicate) => {
+    const selected = await pathnames(files)
+    if (!predicate(selected)) failures.push(`${name}: got ${JSON.stringify([...selected].sort())}`)
+  }
+
+  // A keyed evidence-registry edit must reach the affected article routes, not
+  // just the hub. This is the regression the review found.
+  await expect('historyEvidence edit → history + evidence articles', ['src/data/historyEvidence.ts'],
+    (set) => set.has('/history/') && set.has('/articles/stohrer-1730/') && set.has('/articles/laduree-1862/'))
+  await expect('historyEvidence edit does not over-submit', ['src/data/historyEvidence.ts'],
+    (set) => !set.has('/canon/') && !set.has('/articles/unknown-slug/'))
+
+  // Unrelated media must not notify anything.
+  await expect('logo edit → no URLs', ['public/images/logo.png'], (set) => set.size === 0)
+
+  // A static page maps to exactly itself.
+  await expect('materials page → /materials/', ['src/pages/materials.astro'],
+    (set) => set.size === 1 && set.has('/materials/'))
+
+  // An article-catalogue edit still notifies the whole article corpus.
+  await expect('catalogue edit → every article', ['src/data/articles.ts'],
+    (set) => set.has('/articles/stohrer-1730/') && set.has('/articles/laduree-1862/'))
+
+  // The quoted-key pattern must not pick up array keys such as "sources": [.
+  await expect('registry never yields non-slug keys', ['src/data/historyEvidence.ts'],
+    (set) => ![...set].some((p) => p.includes('/articles/verified/') || p.includes('/articles/sources/')))
+
+  if (failures.length > 0) {
+    console.error(`[indexnow] self-test FAILED (${failures.length}):`)
+    for (const failure of failures) console.error(` - ${failure}`)
+    process.exitCode = 1
+    return
+  }
+  console.log(`[indexnow] self-test passed: 6 selection cases`)
+}
+
+if (process.argv.includes('--self-test')) {
+  selfTest().catch((error) => {
+    console.error(`[indexnow] self-test crashed: ${error instanceof Error ? error.message : String(error)}`)
+    process.exitCode = 1
+  })
+} else {
+  main().catch((error) => {
+    console.error(`[indexnow] ${error instanceof Error ? error.message : String(error)}`)
+    process.exitCode = 1
+  })
+}
