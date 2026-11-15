@@ -639,6 +639,14 @@ await Promise.all([desktop.context.close(), mobile.context.close(), tablet.conte
 await browser.close()
 
 if (failures.length > 0) {
+  // GitHub turns `::error` workflow commands into check annotations, which are
+  // readable through the checks API. Without them a red gate is only diagnosable
+  // from the raw job log — and the log link expires and is not always reachable.
+  for (const failure of failures) {
+    const firstLine = (failure.message ?? '').split('\n').find((line) => line.trim().length > 0) ?? 'failed'
+    const clean = (value) => value.replace(/[%\r\n]/g, ' ').replace(/::/g, ':').slice(0, 300)
+    console.error(`::error title=${failure.id} ${clean(failure.name)}::${clean(firstLine)}`)
+  }
   console.error(`\nVisual QA failed: ${passed.length}/${number} checks passed.`)
   process.exitCode = 1
 } else {
