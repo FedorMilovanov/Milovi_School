@@ -16,20 +16,41 @@ const INDEX_URL = '/article-index.json'
 
 export type ArticleIndexStatus = 'idle' | 'loading' | 'ready' | 'error'
 
-function isValidIndex(value: unknown): value is ArticleClientMeta[] {
+const nonEmptyString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0
+
+/**
+ * A record is only usable when the fields the UI actually reads are present.
+ * Checking just `id`/`title` accepted a partial payload
+ * (`[{"id":"recipe-kouglof","title":"Куглоф"}]`) and handed it to
+ * CommandPalette, which rendered a card with an empty category and "· мин"
+ * instead of surfacing a recoverable error — a data contract violation that
+ * looks like a working search. Every record is validated, and one bad record
+ * rejects the whole payload: a half-valid index silently drops articles from
+ * search results, which is worse than an explicit retry.
+ */
+function isArticleRecord(value: unknown): value is ArticleClientMeta {
+  if (typeof value !== 'object' || value === null) return false
+  const record = value as Record<string, unknown>
   return (
-    Array.isArray(value) &&
-    value.length > 0 &&
-    value.every(
-      (item: unknown) =>
-        typeof item === 'object' &&
-        item !== null &&
-        'id' in item &&
-        typeof (item as { id: unknown }).id === 'string' &&
-        'title' in item &&
-        typeof (item as { title: unknown }).title === 'string',
-    )
+    nonEmptyString(record.id) &&
+    nonEmptyString(record.title) &&
+    nonEmptyString(record.category) &&
+    typeof record.readTime === 'number' &&
+    Number.isFinite(record.readTime) &&
+    record.readTime > 0 &&
+    nonEmptyString(record.excerpt) &&
+    nonEmptyString(record.author) &&
+    Array.isArray(record.tags) &&
+    record.tags.length > 0 &&
+    record.tags.every(nonEmptyString) &&
+    nonEmptyString(record.image) &&
+    record.image.startsWith('/')
   )
+}
+
+function isValidIndex(value: unknown): value is ArticleClientMeta[] {
+  return Array.isArray(value) && value.length > 0 && value.every(isArticleRecord)
 }
 
 export function useArticleIndex(enabled: boolean) {

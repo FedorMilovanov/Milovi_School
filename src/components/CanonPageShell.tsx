@@ -23,6 +23,7 @@ export default function CanonPageShell({ dossiers }: { dossiers: Record<string, 
   const [themeReady, setThemeReady] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
+  const searchStatusDialogRef = useRef<HTMLDivElement | null>(null)
   // Search metadata is fetched on first open instead of being serialized into
   // the page: /canon/ used to carry ~144 KB of unused article props.
   const { index: searchIndex, status: searchStatus, retry: retrySearch } = useArticleIndex(commandOpen)
@@ -61,6 +62,65 @@ export default function CanonPageShell({ dossiers }: { dossiers: Record<string, 
   const closeCommand = useCallback(() => setCommandOpen(false), [])
   const openArticle = useCallback((article: ArticleClientMeta) => { void navigateTo(`/articles/${article.id}/`) }, [])
 
+  /**
+   * The loading/error dialog is a real modal, so it owes the keyboard contract a
+   * modal owes: focus moves inside on open, Tab stays inside, Escape closes it,
+   * the page behind does not scroll, and focus returns to whatever opened it.
+   * `aria-modal="true"` alone does none of that — it is an announcement, not
+   * behaviour. Applies only while the status dialog is on screen; once the index
+   * resolves, CommandPalette owns focus with its own implementation.
+   */
+  const searchStatusVisible = commandOpen && searchIndex === null
+  useEffect(() => {
+    if (!searchStatusVisible) return
+    const dialog = searchStatusDialogRef.current
+    if (!dialog) return
+
+    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    const focusables = () =>
+      Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      )
+    const first = focusables()[0] ?? dialog
+    first.focus()
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setCommandOpen(false)
+        return
+      }
+      if (event.key !== 'Tab') return
+      const items = focusables()
+      if (items.length === 0) {
+        event.preventDefault()
+        dialog.focus()
+        return
+      }
+      const firstItem = items[0]
+      const lastItem = items[items.length - 1]
+      if (event.shiftKey && document.activeElement === firstItem) {
+        event.preventDefault()
+        lastItem.focus()
+      } else if (!event.shiftKey && document.activeElement === lastItem) {
+        event.preventDefault()
+        firstItem.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = previousOverflow
+      if (previouslyFocused && previouslyFocused.isConnected) previouslyFocused.focus()
+    }
+  }, [searchStatusVisible])
+
   return (
     <div className="min-h-screen bg-[var(--bg-main)] transition-colors dark:bg-stone-950">
       <ErrorBoundary>
@@ -90,10 +150,12 @@ export default function CanonPageShell({ dossiers }: { dossiers: Record<string, 
             </Suspense>
           ) : (
             <div
+              ref={searchStatusDialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="canon-search-loading-title"
-              className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 px-4 pt-[12vh]"
+              tabIndex={-1}
+              className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 px-4 pt-[12vh] outline-none"
             >
               <div className="w-full max-w-lg rounded-xl border border-stone-700 bg-stone-950 p-6 text-stone-100 shadow-2xl">
                 <h2 id="canon-search-loading-title" className="text-xl font-semibold">Поиск по библиотеке</h2>
@@ -103,7 +165,10 @@ export default function CanonPageShell({ dossiers }: { dossiers: Record<string, 
                     <button
                       type="button"
                       className="rounded-lg border border-stone-500 px-4 py-2"
-                      onClick={retrySearch}
+                      onClick={() => {
+                        retrySearch()
+                        searchStatusDialogRef.current?.focus()
+                      }}
                     >
                       Повторить загрузку
                     </button>
