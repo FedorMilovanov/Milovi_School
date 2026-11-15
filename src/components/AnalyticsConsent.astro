@@ -1,7 +1,10 @@
 ---
 const gaId = (import.meta.env.PUBLIC_GA_ID ?? '').trim()
 const rawYandexId = (import.meta.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
-const yandexId = /^\d+$/.test(rawYandexId) ? Number(rawYandexId) : null
+const parsedYandexId = Number(rawYandexId)
+const yandexId = /^\d+$/.test(rawYandexId) && Number.isSafeInteger(parsedYandexId) && parsedYandexId > 0
+  ? parsedYandexId
+  : null
 const enabled = Boolean(gaId || yandexId)
 ---
 

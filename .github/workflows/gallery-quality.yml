@@ -59,6 +59,9 @@ on:
 permissions:
   contents: read
 
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
 concurrency:
   group: gallery-quality-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

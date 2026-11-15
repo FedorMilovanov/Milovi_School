@@ -11,6 +11,9 @@ permissions:
   contents: read
   pull-requests: read
 
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -61,7 +64,7 @@ jobs:
       - name: Verify every cited French source is reachable
         run: npm run audit:source-links:strict
 
-      - name: Audit dependencies at high severity
+      - name: Audit dependencies at moderate severity
         run: npm run audit:security
 
       - name: Build analytics-disabled candidate

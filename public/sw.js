@@ -9,7 +9,7 @@
  *   • fetch (everything else, same-origin) → cache-first, lazy refresh
  *
  * Build hash:
- *   __BUILD_HASH__ is replaced at the end of `astro build` by the
+ *   The build-time version token is replaced at the end of `astro build` by the
  *   integration in astro.config.mjs (bumpServiceWorkerVersion). In dev
  *   the placeholder is left as-is — the registration script in
  *   BaseLayout.astro skips registration on localhost so the unresolved

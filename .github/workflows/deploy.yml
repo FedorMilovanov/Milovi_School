@@ -7,8 +7,9 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
 
 concurrency:
   group: pages
@@ -16,6 +17,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/main'
     name: Validate and build exact source
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -43,7 +45,7 @@ jobs:
       - name: Audit article depth, sourcing and publication quality
         run: npm run audit:content
 
-      - name: Audit production dependencies at high severity
+      - name: Audit production dependencies at moderate severity
         run: npm run audit:security
 
       - name: Build immutable site candidate
@@ -82,10 +84,14 @@ jobs:
           path: ./dist
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     name: Deploy exact candidate
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -95,6 +101,7 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
   live-proof:
+    if: github.ref == 'refs/heads/main'
     name: Prove live domain serves this commit
     needs: deploy
     runs-on: ubuntu-latest
@@ -143,7 +150,7 @@ jobs:
 
   indexnow:
     name: Notify IndexNow of changed public URLs
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: live-proof
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -165,8 +172,8 @@ jobs:
           CURRENT_SHA: ${{ github.sha }}
 
   publish-release-status:
+    if: always() && github.ref == 'refs/heads/main'
     name: Publish release proof status
-    if: always()
     needs: [build, deploy, live-proof]
     runs-on: ubuntu-latest
     timeout-minutes: 3

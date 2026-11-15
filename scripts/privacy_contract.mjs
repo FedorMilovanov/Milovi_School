@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const root = path.resolve('dist')
+const sourceRoot = path.resolve('.')
 const failures = []
 const fail = (message) => failures.push(message)
 const read = (relative) => fs.readFileSync(path.join(root, relative), 'utf8')
@@ -75,8 +76,23 @@ if (fs.existsSync(path.join(root, '404.html'))) {
 
 const gaId = (process.env.PUBLIC_GA_ID ?? '').trim()
 const rawYandexId = (process.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
-const yandexId = /^\d+$/.test(rawYandexId) ? rawYandexId : ''
+const parsedYandexId = Number(rawYandexId)
+const yandexId = /^\d+$/.test(rawYandexId) && Number.isSafeInteger(parsedYandexId) && parsedYandexId > 0
+  ? parsedYandexId
+  : null
 const analyticsEnabled = Boolean(gaId || yandexId)
+const analyticsComponentPath = path.join(sourceRoot, 'src/components/AnalyticsConsent.astro')
+const analyticsComponent = fs.existsSync(analyticsComponentPath)
+  ? fs.readFileSync(analyticsComponentPath, 'utf8')
+  : ''
+if (!analyticsComponent.includes('Number.isSafeInteger(parsedYandexId)')) {
+  fail('analytics config must reject unsafe, zero and non-integer Yandex IDs before rendering the loader')
+}
+const privacySourcePath = path.join(sourceRoot, 'src/pages/privacy.astro')
+const privacySource = fs.existsSync(privacySourcePath) ? fs.readFileSync(privacySourcePath, 'utf8') : ''
+if (!privacySource.includes('Number.isSafeInteger(parsedYandexId)')) {
+  fail('privacy analytics-enabled state must match the valid configured Yandex ID contract')
+}
 
 if (fs.existsSync(path.join(root, 'index.html'))) {
   const home = read('index.html')
@@ -115,6 +131,19 @@ if (fs.existsSync(path.join(root, 'privacy/index.html'))) {
   const hasSettingsButton = privacy.includes('Открыть настройки аналитики')
   if (analyticsEnabled && !hasSettingsButton) fail('configured analytics lacks a usable settings button on /privacy/')
   if (!analyticsEnabled && hasSettingsButton) fail('/privacy/ renders a no-op analytics settings button while analytics is disabled')
+
+  const layoutPath = path.join(sourceRoot, 'src/layouts/BaseLayout.astro')
+  const layout = fs.existsSync(layoutPath) ? fs.readFileSync(layoutPath, 'utf8') : ''
+  const loadsGoogleFonts = /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(layout)
+  if (loadsGoogleFonts && !privacy.includes('Google Fonts')) {
+    fail('privacy page does not disclose the externally loaded Google Fonts service')
+  }
+  if (loadsGoogleFonts && !privacy.includes('независимо от выбора аналитического согласия')) {
+    fail('privacy page does not say Google Fonts load independently of analytics consent')
+  }
+  if (!privacy.includes('Вебвизор отключён')) {
+    fail('privacy page must reflect the disabled Yandex Webvisor configuration')
+  }
 }
 
 const verification = [
@@ -152,6 +181,12 @@ else {
   const loader = fs.readFileSync(loaderPath, 'utf8')
   for (const marker of ['milovi_school_analytics_consent_v1', 'window.MiloviSchoolConsent']) {
     if (!loader.includes(marker)) fail(`analytics loader missing marker: ${marker}`)
+  }
+  if (!loader.includes("choice !== 'granted'")) {
+    fail('analytics loader must fail closed until explicit consent is granted')
+  }
+  if (!loader.includes('Number.isSafeInteger(config.yandexId)')) {
+    fail('analytics loader must reject null, zero and non-integer Yandex IDs')
   }
   if (!/\bwebvisor\s*:\s*false\b/.test(loader)) {
     fail('Yandex Webvisor must remain disabled in the consent-gated analytics loader')

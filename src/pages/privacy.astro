@@ -3,7 +3,10 @@ import PolicyPage from '../components/PolicyPage.astro'
 
 const gaId = (import.meta.env.PUBLIC_GA_ID ?? '').trim()
 const rawYandexId = (import.meta.env.PUBLIC_YANDEX_METRIKA_ID ?? '').trim()
-const analyticsEnabled = Boolean(gaId || /^\d+$/.test(rawYandexId))
+const parsedYandexId = Number(rawYandexId)
+const analyticsEnabled = Boolean(
+  gaId || (/^\d+$/.test(rawYandexId) && Number.isSafeInteger(parsedYandexId) && parsedYandexId > 0),
+)
 ---
 
 <PolicyPage
@@ -13,7 +16,8 @@ const analyticsEnabled = Boolean(gaId || /^\d+$/.test(rawYandexId))
 >
   <section>
     <h2>Принцип по умолчанию</h2>
-    <p>Чтение статей, поиск, навигация, настройки оформления и сохранение материалов доступны без аналитики. Google Analytics и Яндекс.Метрика не загружаются до явного согласия посетителя.</p>
+    <p>Чтение статей, поиск, навигация, настройки оформления и сохранение материалов доступны без аналитики. Счётчики Google Analytics и Яндекс.Метрика не загружаются до явного согласия посетителя.</p>
+    <p>Отдельно от аналитики, страницы загружают веб-шрифты через Google Fonts с серверов Google. Запросы за таблицей стилей и файлами шрифтов выполняются при открытии страниц независимо от выбора аналитического согласия; поэтому отказ от аналитики не блокирует эти запросы.</p>
   </section>
   <section>
     <h2>Какие данные могут обрабатываться</h2>
@@ -27,7 +31,7 @@ const analyticsEnabled = Boolean(gaId || /^\d+$/.test(rawYandexId))
   <section>
     <h2>Google Analytics и Яндекс.Метрика</h2>
     <p>При согласии могут подключаться Google Analytics 4 и Яндекс.Метрика. Они используются для оценки посещаемости, востребованности материалов и качества интерфейса. Рекламная персонализация со стороны сайта не включается.</p>
-    <p>Яндекс.Метрика может использовать Вебвизор. До согласия запросы к серверам Google и Яндекса не выполняются.</p>
+    <p>В текущей конфигурации Вебвизор отключён. До согласия не загружаются скрипты счётчиков и не выполняются запросы к их аналитическим endpoint-ам. Это не отменяет отдельную загрузку веб-шрифтов Google Fonts, описанную выше.</p>
   </section>
   <section>
     <h2>Как изменить решение</h2>
