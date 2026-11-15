@@ -22,3 +22,19 @@ for (const [input, expected] of fixtures) assert.deepEqual(splitMarkdownLinks(in
 for (const url of ['javascript:alert(1)', 'data:text/html,test', '//example.org', 'https://x.test/\nscript']) assert.equal(safeInlineHref(url), null, url)
 for (const url of ['https://x.test/a(b)', '/materials/', '#section', 'mailto:editor@example.org']) assert.equal(safeInlineHref(url), url)
 console.log(`UI helper audit passed: ${fixtures.length} parsing fixtures and 8 URL-policy cases`)
+
+const storageSource = await readFile(new URL('../src/utils/storage.ts', import.meta.url), 'utf8')
+const storageOutput = ts.transpileModule(storageSource, { compilerOptions: { module: ts.ModuleKind.ESNext } }).outputText
+const { safeSetItem } = await import(`data:text/javascript;base64,${Buffer.from(storageOutput).toString('base64')}`)
+assert.equal(safeSetItem('bookmark', 'true'), false, 'SSR must not claim a persisted write')
+try {
+  let written
+  globalThis.window = { localStorage: { setItem: (key, value) => { written = [key, value] } } }
+  assert.equal(safeSetItem('bookmark', 'true'), true)
+  assert.deepEqual(written, ['bookmark', 'true'])
+  globalThis.window.localStorage.setItem = () => { throw new Error('quota/security failure') }
+  assert.equal(safeSetItem('bookmark', 'false'), false)
+} finally {
+  delete globalThis.window
+}
+console.log('Storage write-result audit passed: SSR, persisted write, rejected write')

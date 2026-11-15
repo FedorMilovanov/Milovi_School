@@ -348,6 +348,7 @@ export default function CommandPalette({
   )
 
   /* ── Refs ── */
+  const [inputFocused, setInputFocused] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -758,6 +759,10 @@ export default function CommandPalette({
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Поиск материалов, шефов, техник..."
                 aria-label="Поиск материалов, шефов и техник"
+                aria-controls="cp-results"
+                aria-describedby="cp-keyboard-help"
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
                 className="input-focus-premium min-w-0 flex-1 bg-transparent pl-1.5 text-[17px] font-light tracking-wide outline-none"
                 style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
               />
@@ -883,6 +888,16 @@ export default function CommandPalette({
               )}
             </AnimatePresence>
 
+            {/* Results remain native buttons, not an ARIA listbox containing
+                nested controls. Announce the arrow-key target while input owns
+                focus; Tab users retain normal button navigation. */}
+            <p id="cp-keyboard-help" className="sr-only">Стрелки вверх и вниз выбирают результат, Enter открывает его. Tab переходит к кнопкам. Escape сбрасывает запрос или закрывает поиск.</p>
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only" data-search-active-announcement>
+              {inputFocused && totalItems > 0 && (activeQuickAction || activeResult)
+                ? `${activeQuickAction?.label ?? activeResult?.item.title}. ${activeIndex + 1} из ${totalItems}. Enter — открыть.`
+                : ''}
+            </div>
+
             {/* ═══ Body container (list + preview) ═══ */}
             <div style={{
               display: 'flex',
@@ -894,6 +909,9 @@ export default function CommandPalette({
               {/* ─── Left column: results list ─── */}
               <div
                 ref={listRef}
+                id="cp-results"
+                role="region"
+                aria-label="Результаты поиска"
                 className="cp-list min-w-0 flex-1 overflow-y-auto"
                 style={{ maxHeight: 'min(72svh, 72vh)' }}
               >

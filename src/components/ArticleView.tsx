@@ -275,6 +275,30 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   }, [article.id])
 
   useEffect(() => {
+    const syncBookmark = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== `article-saved:${article.id}`) return
+      // Read only this article's bookmark. Other tabs must not drive our scroll.
+      setSaved(safeGetItem(`article-saved:${article.id}`) === 'true')
+    }
+    window.addEventListener('storage', syncBookmark)
+    return () => window.removeEventListener('storage', syncBookmark)
+  }, [article.id])
+
+  const changeBookmark = (next: boolean): boolean => {
+    if (!safeSetItem(`article-saved:${article.id}`, String(next))) return false
+    setSaved(next)
+    return true
+  }
+  const toggleBookmark = () => {
+    const next = !saved
+    if (!changeBookmark(next)) {
+      showToast('info', 'Не удалось изменить закладки. Хранилище браузера недоступно или заполнено.')
+      return
+    }
+    showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок')
+  }
+
+  useEffect(() => {
     let streakMarked = false
     const save = () => {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight
@@ -665,7 +689,7 @@ const renderedContent = useMemo(() => {
                 <ArticleActions
                   article={article}
                   saved={saved}
-                  onToggleSave={(next) => { setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }}
+                  onToggleSave={changeBookmark}
                 />
                 <button type="button" aria-label="Режим фокуса" aria-pressed={focusMode} onClick={toggleFocusMode} className="hidden min-h-11 border border-[var(--border-subtle)] px-4 py-2 font-mono text-[11px] text-stone-700 dark:text-stone-300 lg:inline-flex">
                   {focusMode ? 'Обычный вид' : 'Режим фокуса'}
@@ -837,7 +861,7 @@ const renderedContent = useMemo(() => {
                     <button type="button" onClick={() => { if (!largeText) toggleLargeText() }} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
                   </div>
                   <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { showToast('info', 'Не удалось скопировать ссылку. Скопируйте адрес страницы вручную.') } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
-                  <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)); showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок') }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
+                  <button type="button" onClick={toggleBookmark} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
                   <button type="button" onClick={() => window.print()} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">Печать статьи</button>
                 </div>
 
@@ -1044,13 +1068,7 @@ const renderedContent = useMemo(() => {
           <button
             type="button"
             aria-pressed={saved}
-            onClick={() => {
-              const next = !saved
-              setSaved(next)
-              safeSetItem(`article-saved:${article.id}`, String(next))
-              // F-05: show toast confirmation (was silent on mobile)
-              showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок')
-            }}
+            onClick={toggleBookmark}
             className={`haptic-btn group flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${saved ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-amber-800 dark:text-stone-500 dark:hover:text-amber-400'}`}
           >
             <svg className="h-[18px] w-[18px]" fill={saved ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

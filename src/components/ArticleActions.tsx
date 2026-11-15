@@ -8,7 +8,7 @@ interface ArticleActionsProps {
   article: Article
   /** Lift saved state up to parent to keep in sync with mobile reading bar */
   saved?: boolean
-  onToggleSave?: (next: boolean) => void
+  onToggleSave?: (next: boolean) => boolean
 }
 
 export default function ArticleActions({ article, saved: savedProp, onToggleSave }: ArticleActionsProps) {
@@ -35,12 +35,14 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
 
   const toggleSave = () => {
     const newSaved = !saved
-    if (onToggleSave) {
-      onToggleSave(newSaved)
-    } else {
-      setSavedLocal(newSaved)
-      safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    const persisted = onToggleSave
+      ? onToggleSave(newSaved)
+      : safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    if (!persisted) {
+      showToast('info', 'Не удалось изменить закладки. Хранилище браузера недоступно или заполнено.')
+      return
     }
+    if (!onToggleSave) setSavedLocal(newSaved)
     showToast('save', newSaved ? 'Добавлено в закладки' : 'Убрано из закладок')
   }
 
