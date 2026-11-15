@@ -59,6 +59,7 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'herme-fetish-flavors.webp': { width: 1280, height: 800 },
   'herme-ispahan-deep.webp': { width: 1408, height: 768 },
   'histoire-tartes-francaises.webp': { width: 1280, height: 800 },
+  'history-confectionery-profession-cover.webp': { width: 1280, height: 720 },
   'kayser-sourdough-pastry.webp': { width: 1280, height: 800 },
   'laduree-1862.webp': { width: 1408, height: 768 },
   'lignac-equinoxe.webp': { width: 1448, height: 1086 },
