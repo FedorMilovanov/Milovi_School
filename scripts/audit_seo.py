@@ -53,6 +53,29 @@ def check(condition: bool, message: str) -> None:
         errors.append(message)
 
 
+
+def same_origin(url: str) -> bool:
+    """True for site-relative or same-origin absolute URLs."""
+    if not url:
+        return False
+    return url.startswith("/") or url.startswith(SITE)
+
+
+def jsonld_executable_strings(value: object) -> list[str]:
+    """Every string reachable from a parsed JSON-LD value."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for entry in value for item in jsonld_executable_strings(entry)]
+    if isinstance(value, dict):
+        return [
+            item
+            for key, entry in value.items()
+            for item in [*jsonld_executable_strings(key), *jsonld_executable_strings(entry)]
+        ]
+    return []
+
+
 def read_html(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -462,6 +485,46 @@ for article_path in article_paths:
     for forbidden in FORBIDDEN_PRIVATE:
         check(forbidden not in raw_article,
               f"{aid}: must not publish private identifier: {forbidden}")
+
+
+# 6. Structured-data hygiene and own-origin media.
+#    - Inline JSON-LD is HTML: a raw "<" can close the <script> element early, and
+#      the double-escaped "\\\\u003c" bug produced a literal backslash in the value.
+#    - Every image the crawler can see (HTML <img>, og:image, sitemap image:loc)
+#      must live on our origin: a third-party URL there is an unversioned
+#      dependency outside our cache, CSP and uptime control.
+for html_path in DIST.rglob("*.html"):
+    if is_ownership_verification(html_path):
+        continue
+    rel = html_path.relative_to(DIST)
+    soup = BeautifulSoup(read_html(html_path), "html.parser")
+
+    for node in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        raw = node.string or node.get_text() or ""
+        check("<" not in raw, f"JSON-LD must not contain a raw '<' (breaks the script element): {rel}")
+        check("\\\\u003c" not in raw, f"JSON-LD contains a double-escaped '\\\\u003c' (value decodes to a literal backslash): {rel}")
+        try:
+            parsed = json.loads(raw) if raw.strip() else None
+        except json.JSONDecodeError:
+            continue  # reported by jsonld_objects()
+        for text in jsonld_executable_strings(parsed):
+            check("\\u003c" not in text, f"JSON-LD string value contains a literal escape instead of '<': {rel}")
+
+    for meta_attr in ({"property": "og:image"}, {"name": "twitter:image"}):
+        meta = soup.find("meta", attrs=meta_attr)
+        if meta is not None:
+            content = str(meta.get("content", "")).strip()
+            check(same_origin(content), f"Social image must be served from our own origin: {rel} -> {content}")
+
+    for img in soup.find_all("img"):
+        src = str(img.get("src", "")).strip()
+        if src and not src.startswith("data:"):
+            check(same_origin(src), f"Image must be served from our own origin: {rel} -> {src}")
+
+if sitemap_path.is_file():
+    for node in ET.fromstring(sitemap_path.read_text(encoding="utf-8")).iter(f"{{{IMAGE_NS}}}loc"):
+        loc = (node.text or "").strip()
+        check(loc.startswith(f"{SITE}/"), f"Sitemap image:loc must be on our origin: {loc}")
 
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)
