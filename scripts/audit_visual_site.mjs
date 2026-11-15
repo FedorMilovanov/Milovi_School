@@ -618,14 +618,15 @@ for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
   await check('search happy path: the real index still opens a usable palette', async () => {
     await validPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
     await validPage.locator(TRIGGER).first().click({ timeout: 15_000 })
-    // The status dialog is transient by design: when the index resolves before
-    // the first paint the palette opens directly and that dialog never appears.
-    // Wait for any non-consent dialog, then assert the failure path did not fire.
-    const PALETTE = '[role="dialog"]:not([aria-labelledby="prs-consent-title"])'
-    await validPage.waitForSelector(PALETTE, { timeout: 15_000 })
-    await validPage.waitForTimeout(1000)
-    assert.equal(await validPage.locator(`${SEARCH_DIALOG} [role="alert"]`).count(), 0)
-    const text = await validPage.locator(PALETTE).first().innerText()
+    // Wait for the palette itself, not for "some dialog". The loading dialog
+    // (`canon-search-loading-title`) is transient: matching it and reading text a
+    // moment later raced with its unmount and made this check flaky. The palette
+    // has its own stable label.
+    const PALETTE = '[role="dialog"][aria-label="Поиск по материалам"]'
+    await validPage.waitForSelector(PALETTE, { state: 'visible', timeout: 20_000 })
+    await validPage.waitForTimeout(600)
+    assert.equal(await validPage.locator(`${PALETTE} [role="alert"]`).count(), 0)
+    const text = await validPage.locator(PALETTE).innerText()
     assert.ok(text.trim().length > 0, 'empty palette')
     await validPage.close()
   })
@@ -672,6 +673,44 @@ for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
     assert.equal(blocked.hidden, 0, `${blocked.hidden}/${blocked.total} reveal blocks still invisible`))
 
   await revealContext.close()
+}
+
+// ── A broken derivative falls back in one hop ───────────────────────────────
+// With a `srcSet` still attached, assigning `src` alone leaves `currentSrc` on the
+// failed candidate and every re-selection fires `error` again (retry storm). The
+// components must drop the candidates, land on the placeholder, and stop retrying.
+{
+  const brokenContext = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })
+  const broken = await brokenContext.newPage()
+  const hits = new Map()
+  await broken.route('**/*', (route) => route.request().url().startsWith(BASE_URL) ? route.continue() : route.abort())
+  await broken.route('**/images/variants/cat-recipes-*', (route) => {
+    const url = route.request().url()
+    hits.set(url, (hits.get(url) ?? 0) + 1)
+    return route.fulfill({ status: 404, contentType: 'text/plain', body: 'gone' })
+  })
+  await broken.goto(`${BASE_URL}/`, { waitUntil: 'load' })
+  const tile = broken.locator('.cat-img').first()
+  await tile.scrollIntoViewIfNeeded()
+  await broken.waitForTimeout(2500)
+  const tiles = await broken.evaluate(() => [...document.querySelectorAll('.cat-img')].map((image) => ({
+    currentSrc: image.currentSrc || '',
+    hasSrcset: image.hasAttribute('srcset'),
+    applied: image.dataset.fallbackApplied === '1',
+  })))
+  const recovered = tiles.filter((entry) => entry.applied)
+  const attempts = [...hits.values()].reduce((sum, count) => sum + count, 0)
+
+  await check('image fallback: a broken derivative lands on the placeholder', async () => {
+    assert.ok(recovered.length > 0, 'no tile applied the fallback: ' + JSON.stringify(tiles.slice(0, 2)))
+    assert.ok(recovered.every((entry) => entry.currentSrc.endsWith('/images/placeholder.svg')), JSON.stringify(recovered))
+  })
+  await check('image fallback: the failed candidate list is dropped', async () =>
+    assert.ok(recovered.every((entry) => !entry.hasSrcset), 'srcset survived the fallback: ' + JSON.stringify(recovered)))
+  await check('image fallback: the failure is not retried in a loop', async () =>
+    assert.ok(attempts > 0 && attempts <= 4, `broken candidates requested ${attempts} times (expected 1-4)`))
+
+  await brokenContext.close()
 }
 
 process.on('unhandledRejection', (error) => {

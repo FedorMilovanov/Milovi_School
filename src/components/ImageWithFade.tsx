@@ -22,6 +22,7 @@ export default function ImageWithFade({ src, alt, srcSet, sizes, className = '',
   const [error, setError] = useState(false)
   const [usingFallback, setUsingFallback] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLImageElement | null>(null)
   const shouldReduce = useReducedMotion()
 
   useEffect(() => {
@@ -67,6 +68,18 @@ export default function ImageWithFade({ src, alt, srcSet, sizes, className = '',
     setUsingFallback(false)
   }, [src])
 
+  // An image that 404s before hydration never reaches `onError`; the browser only
+  // leaves `complete && naturalWidth === 0` behind. That is the same one hop as a
+  // live error, so the fallback state is entered here too.
+  useEffect(() => {
+    const element = imageRef.current
+    if (!element || !element.complete || element.naturalWidth > 0) return
+    if (!usingFallback && fallback) {
+      setUsingFallback(true)
+      setLoaded(false)
+    }
+  }, [isIntersected, usingFallback, fallback])
+
   const handleError = () => {
     if (!usingFallback && fallback) {
       setUsingFallback(true)
@@ -84,6 +97,7 @@ export default function ImageWithFade({ src, alt, srcSet, sizes, className = '',
 
       {isIntersected && !error && (
         <motion.img
+          ref={imageRef}
           src={usingFallback ? fallback : src}
           // The fallback is a local SVG/PNG with no derivatives, so the candidate
           // list must disappear together with the source it describes.

@@ -42,3 +42,33 @@ export function variantUrl(src: string, preferredWidth?: number): string | undef
   const name = src.slice(src.lastIndexOf('/') + 1, -'.webp'.length)
   return `${VARIANT_DIR}/${name}-${width}.webp`
 }
+
+/** Shown when an image and its one fallback hop have both failed. */
+export const IMAGE_FALLBACK = '/images/placeholder.svg'
+
+/**
+ * One-hop fallback for a responsive `<img>`.
+ *
+ * Assigning `src` alone is not enough once the element has a `srcSet`: the browser
+ * keeps choosing among the failed candidates, so `currentSrc` can stay on the broken
+ * URL and every re-selection fires `error` again (a retry storm). The candidates are
+ * removed first, and the data flag bounds the fallback to a single hop.
+ */
+export function applyImageFallback(image: HTMLImageElement, fallback: string = IMAGE_FALLBACK): void {
+  if (image.dataset.fallbackApplied === '1') return
+  image.dataset.fallbackApplied = '1'
+  image.removeAttribute('srcset')
+  image.removeAttribute('sizes')
+  image.src = fallback
+}
+
+/**
+ * An image that failed *before* React hydrated never re-fires `error` once the
+ * handler exists, so the fallback would silently never run. The browser does leave
+ * the evidence: `complete` is true and `naturalWidth` is 0. Called from a ref
+ * callback, this recovers exactly those images and does nothing for healthy ones.
+ */
+export function recoverFailedImage(image: HTMLImageElement | null, fallback?: string): void {
+  if (!image || !image.complete || image.naturalWidth > 0) return
+  applyImageFallback(image, fallback)
+}

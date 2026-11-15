@@ -6,7 +6,7 @@ import Cursor from '../Cursor'
 import type { ArticleClientMeta } from '../../data/types'
 import { categories } from '../../data/categories'
 import { fallbackImageFor } from '../../assets/images'
-import { CARD_SIZES, variantSrcSet, variantUrl } from '../../utils/imageVariants'
+import { applyImageFallback, CARD_SIZES, recoverFailedImage, variantSrcSet, variantUrl } from '../../utils/imageVariants'
 import LuxuryText from '../LuxuryText'
 import { navigateTo } from '../../utils/navigation'
 import { safeSetItem } from '../../utils/storage'
@@ -355,6 +355,8 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                         loading="lazy"
                         decoding="async"
                         className="cat-img cat-card-img-lux h-full w-full object-cover"
+                        ref={(element) => recoverFailedImage(element, fallbackImageFor(article.category))}
+                        onError={(event) => applyImageFallback(event.currentTarget, fallbackImageFor(article.category))}
                       />
                       <div className="cat-overlay-lux absolute inset-0 z-[2]" />
 

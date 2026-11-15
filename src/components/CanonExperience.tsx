@@ -9,7 +9,7 @@ import {
   type CanonWork,
 } from '../data/canon'
 import { prefetchRoute } from '../utils/navigation'
-import { variantSrcSet } from '../utils/imageVariants'
+import { applyImageFallback, recoverFailedImage, variantSrcSet } from '../utils/imageVariants'
 import LuxuryText from './LuxuryText'
 import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
@@ -103,6 +103,8 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: CanonDoss
             loading="lazy"
             decoding="async"
             className="canon-work-image"
+            ref={(element) => recoverFailedImage(element)}
+            onError={(event) => applyImageFallback(event.currentTarget)}
           />
         </picture>
         <span className="canon-work-sheen" aria-hidden="true" />

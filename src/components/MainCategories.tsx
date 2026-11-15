@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { markRevealReady } from '../utils/revealReady'
-import { variantSrcSet, variantUrl } from '../utils/imageVariants'
+import { applyImageFallback, recoverFailedImage, variantSrcSet, variantUrl } from '../utils/imageVariants'
 import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import LuxuryText from './LuxuryText'
@@ -147,13 +147,8 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     loading="lazy"
                     decoding="async"
                     className="cat-img cat-card-img-lux h-full w-full object-cover"
-                    onError={(e) => {
-                      const el = e.currentTarget
-                      const fb = (cat as { localFallback?: string }).localFallback
-                      if (fb && el.src !== window.location.origin + fb) {
-                        el.src = fb
-                      }
-                    }}
+                    ref={(element) => recoverFailedImage(element)}
+                    onError={(e) => applyImageFallback(e.currentTarget)}
                   />
                   {/* Gradient overlay */}
                   <div className="cat-overlay-lux absolute inset-0 z-[2]" />

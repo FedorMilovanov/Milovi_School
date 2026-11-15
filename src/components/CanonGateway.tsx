@@ -4,7 +4,7 @@ import { useReducedMotion } from 'framer-motion'
 import { canonMedia, type CanonMediaId } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
-import { variantSrcSet } from '../utils/imageVariants'
+import { applyImageFallback, recoverFailedImage, variantSrcSet } from '../utils/imageVariants'
 import '../styles/canon-gateway.css'
 
 const GATEWAY_IMAGE = '/images/canon-sucre/canon-gateway-hero.webp'
@@ -68,6 +68,8 @@ export default function CanonGateway() {
             height={821}
             loading="lazy"
             decoding="async"
+            ref={(element) => recoverFailedImage(element)}
+            onError={(event) => applyImageFallback(event.currentTarget)}
           />
         </span>
 
