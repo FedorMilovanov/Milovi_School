@@ -107,7 +107,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
           aria-label={alt}
         >
           <img
-            src="/images/logo.png"
+            src="/images/logo-128.webp"
             alt="Patisserie Russe"
             style={{
               width: 56, height: 56, objectFit: 'contain', borderRadius: 4,

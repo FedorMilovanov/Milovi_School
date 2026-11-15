@@ -85,7 +85,20 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
       <header className={`sticky top-0 z-40 border-b transition-all duration-300 ${scrolled ? 'border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] shadow-sm backdrop-blur-xl' : 'border-transparent bg-[var(--bg-overlay-90)] backdrop-blur-md'}`}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-5 sm:gap-6 sm:px-6 lg:px-8">
           <a href="/" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; e.preventDefault(); onGoHome() }} className="haptic-btn group flex min-w-0 items-center gap-3 text-left">
-            <img src="/images/logo.png" alt="Patisserie Russe" title="Patisserie Russe" width="44" height="44" className="h-11 w-11 shrink-0 rounded-sm transition group-hover:scale-105" loading="eager" decoding="async" />
+            {/* 44×44 CSS px logo. The 512×512 PNG master (203 KB) is only needed by the
+                manifest and the publisher JSON-LD; a 3 KB WebP is enough here and
+                this image is requested on every single page. */}
+            <img
+              src="/images/logo-128.webp"
+              srcSet="/images/logo-64.webp 1x, /images/logo-128.webp 2x"
+              alt="Patisserie Russe"
+              title="Patisserie Russe"
+              width="44"
+              height="44"
+              className="h-11 w-11 shrink-0 rounded-sm transition group-hover:scale-105"
+              loading="eager"
+              decoding="async"
+            />
             <span className="logo-text-lux min-w-0">
               {/* Бренд "Pâtisserie Russe": слово "Pâtisserie" — синий italic
                   с blue glow при hover (см. .logo-name-patisserie в global.css).
