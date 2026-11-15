@@ -564,7 +564,7 @@ const renderedContent = useMemo(() => {
         )
       }
 
-      if (/смысловое переложение|адаптац|не дословн/i.test(p)) {
+      if (/смысловое переложение|не дословн/i.test(p)) {
         return (
           <aside key={idx} className="my-10 rounded-lg border border-stone-200 bg-white/50 px-6 py-5 text-sm leading-7 text-stone-500 italic dark:border-stone-800 dark:bg-stone-900/50 dark:text-stone-400">
             <InlineText text={p} />

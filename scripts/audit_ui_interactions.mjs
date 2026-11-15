@@ -244,6 +244,15 @@ try {
       assert.equal(color, theme === 'dark' ? 'rgb(245, 245, 244)' : 'rgb(28, 25, 23)')
     }
   }, { colorScheme: 'dark' })
+  await check('recipe adaptation is prose, not a quotation disclaimer; genuine notices remain', async page => {
+    for (const id of ['recipe-tarte-tropezienne', 'recipe-clafoutis-cerises', 'ansel-cronut-origin', 'recipe-paris-brest-classique', 'ansel-time', 'recipe-tarte-citron-meringuee', 'perret-madeleine-18h', 'lignac-equinoxe', 'grolet-raspberry-rose', 'perret-madeleine']) {
+      await goto(page, `/articles/${id}/`)
+      const notices = await page.locator('aside.my-10.rounded-lg').allTextContents()
+      assert.ok(notices.every(text => /смысловое переложение|не дословн/i.test(text)), `${id}: recipe adaptation rendered as a disclaimer`)
+    }
+    await goto(page, '/articles/recipe-macarons-herme/')
+    assert.ok(await page.locator('aside.my-10.rounded-lg').filter({ hasText: 'не дословная цитата' }).count() > 0)
+  })
   if (process.env.UI_AUDIT_AXE_MODULE) {
     const { default: AxeBuilder } = await import(pathToFileURL(process.env.UI_AUDIT_AXE_MODULE).href)
     for (const theme of ['dark', 'light']) {
