@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { useModalFocus } from '../hooks/useModalFocus'
 
 type Theme = 'light' | 'dark'
 
@@ -35,47 +36,18 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Scroll lock — prevent body scroll while mobile menu is open
+  useModalFocus(mobileMenuRef, mobileMenuOpen)
+
   useEffect(() => {
     if (!mobileMenuOpen) return
-    const scrollbarW = window.innerWidth - document.documentElement.clientWidth
-    const prevOverflow = document.body.style.overflow
-    const prevPad = document.body.style.paddingRight
-    document.body.style.overflow = 'hidden'
-    if (scrollbarW > 0) document.body.style.paddingRight = `${scrollbarW}px`
-    return () => {
-      document.body.style.overflow = prevOverflow
-      document.body.style.paddingRight = prevPad
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return
+      event.preventDefault()
+      event.stopPropagation()
+      setMobileMenuOpen(false)
     }
-  }, [mobileMenuOpen])
-
-  // Focus trap for mobile menu
-  useEffect(() => {
-    if (!mobileMenuOpen || !mobileMenuRef.current) return
-    const menu = mobileMenuRef.current
-    const focusable = Array.from(
-      menu.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')
-    )
-    if (focusable.length) focusable[0].focus()
-    const handleTab = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault(); last.focus()
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault(); first.focus()
-      }
-    }
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileMenuOpen(false)
-    }
-    document.addEventListener('keydown', handleTab)
-    document.addEventListener('keydown', handleEsc)
-    return () => {
-      document.removeEventListener('keydown', handleTab)
-      document.removeEventListener('keydown', handleEsc)
-    }
+    document.addEventListener('keydown', onEscape)
+    return () => document.removeEventListener('keydown', onEscape)
   }, [mobileMenuOpen])
 
   const mobileMenuItemClass = 'flex min-h-11 w-full items-center py-2 text-left font-mono text-[12px] uppercase tracking-[0.24em] text-stone-600 transition hover:text-stone-950 dark:text-stone-400 dark:hover:text-amber-100'
@@ -109,7 +81,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
           <div className="flex shrink-0 items-center gap-2">
             <motion.button
               type="button"
-              onClick={onOpenCommand}
+              onClick={() => { setMobileMenuOpen(false); onOpenCommand() }}
               aria-label="Открыть поиск"
               className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 border border-[var(--border-subtle)] px-0 text-[11px] font-mono uppercase tracking-[0.22em] text-stone-700 transition hover:border-stone-400 hover:bg-stone-950 hover:text-amber-50 sm:w-auto sm:px-4 dark:text-stone-300 dark:hover:border-stone-500 dark:hover:bg-amber-100 dark:hover:text-stone-950"
               whileHover={{ y: -1 }}
@@ -167,7 +139,8 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
             aria-modal="true"
             aria-label="Навигационное меню"
             id="mobile-navigation-menu"
-            className="fixed inset-x-0 top-[var(--header-height)] z-30 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl lg:hidden"
+            tabIndex={-1}
+            className="fixed inset-x-0 top-[var(--header-height)] max-h-[calc(100dvh-var(--header-height))] overflow-y-auto z-50 border-b border-[var(--border-subtle)] bg-[var(--bg-overlay-95)] p-6 backdrop-blur-xl lg:hidden"
             initial={shouldReduce ? false : { opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: -10 }}
@@ -203,6 +176,7 @@ export default function Header({ theme, onToggleTheme, onGoHome, onGoCategories,
               >
                 О проекте
               </button>
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className={mobileMenuItemClass}>Закрыть меню</button>
               <a href="/privacy/" onClick={() => setMobileMenuOpen(false)} className={mobileMenuItemClass}>
                 Конфиденциальность
               </a>

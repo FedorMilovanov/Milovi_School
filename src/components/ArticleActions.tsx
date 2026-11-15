@@ -54,7 +54,8 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
       copiedTimeoutRef.current = window.setTimeout(() => setCopied(false), 2000)
       return true
     } catch (e) {
-      console.error('Failed to copy:', e)
+      console.warn('Failed to copy:', e)
+      showToast('info', 'Не удалось скопировать ссылку. Скопируйте адрес страницы вручную.')
       return false
     }
   }
@@ -86,7 +87,7 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <button
         type="button"
         onClick={toggleSave}

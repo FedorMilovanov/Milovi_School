@@ -1,0 +1,20 @@
+/* Intrinsic sizing, rather than clipping the page, keeps text/actions usable at zoom. */
+.article-ui h1, .article-ui h2, .article-ui h3 {
+  overflow-wrap: anywhere;
+}
+.article-ui a {
+  overflow-wrap: anywhere;
+}
+.article-ui :is(header, .article-body) > * {
+  min-width: 0;
+}
+.article-ui [role="tooltip"] {
+  white-space: normal;
+}
+@media (prefers-reduced-motion: reduce) {
+  .article-ui *, .article-ui *::before, .article-ui *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

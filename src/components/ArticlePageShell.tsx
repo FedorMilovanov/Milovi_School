@@ -4,6 +4,7 @@
 import { lazy, Suspense, useState, useCallback, useEffect, useRef } from 'react'
 import { safeSetItem } from '../utils/storage'
 import Header from './Header'
+import SearchStatusDialog from './SearchStatusDialog'
 import ArticleView from './ArticleView'
 import CanonArticleNav from './CanonArticleNav'
 import Footer from './Footer'
@@ -59,7 +60,6 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
   const goHome = useCallback(() => { void navigateTo('/') }, [])
   const goToSection = useCallback((sectionId: string) => { void navigateTo(`/#${sectionId}`) }, [])
   const goToArticle = useCallback((a: ArticleClientMeta) => {
-    window.scrollTo({ top: 0, behavior: 'auto' })
     void navigateTo(`/articles/${a.id}/`)
   }, [])
 
@@ -104,6 +104,10 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
     if (!commandOpen || searchMeta || searchFailure) return
 
     const controller = new AbortController()
+    const timeout = window.setTimeout(() => {
+      setSearchFailure(true)
+      controller.abort()
+    }, 15000)
     const loadSearch = async () => {
       try {
         const response = await fetch('/article-index.json', { signal: controller.signal })
@@ -118,7 +122,12 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
             'id' in item &&
             typeof item.id === 'string' &&
             'title' in item &&
-            typeof item.title === 'string',
+            typeof item.title === 'string' &&
+            'category' in item && typeof item.category === 'string' &&
+            'tags' in item && Array.isArray(item.tags) && item.tags.every((tag: unknown) => typeof tag === 'string') &&
+            'readTime' in item && typeof item.readTime === 'number' &&
+            'excerpt' in item && typeof item.excerpt === 'string' &&
+            'author' in item && typeof item.author === 'string',
           )
         ) {
           throw new Error('Invalid article index')
@@ -130,20 +139,8 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
     }
 
     void loadSearch()
-    return () => controller.abort()
+    return () => { window.clearTimeout(timeout); controller.abort() }
   }, [commandOpen, searchMeta, searchFailure, searchAttempt])
-
-  useEffect(() => {
-    if (!commandOpen || searchMeta) return
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        closeCommand()
-      }
-    }
-    window.addEventListener('keydown', onEscape)
-    return () => window.removeEventListener('keydown', onEscape)
-  }, [commandOpen, searchMeta, closeCommand])
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -185,7 +182,8 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
         <Footer />
         {commandOpen && (
           searchMeta ? (
-            <Suspense fallback={null}>
+            <ErrorBoundary fallback={<SearchStatusDialog failed onClose={closeCommand} onRetry={() => window.location.reload()} />}>
+            <Suspense fallback={<SearchStatusDialog onClose={closeCommand} />}>
               <CommandPalette
                 open={commandOpen}
                 articles={searchMeta}
@@ -194,42 +192,16 @@ export default function ArticlePageShell({ article, relatedMeta }: ArticlePageSh
                 initialQuery={commandInitialQuery}
               />
             </Suspense>
+            </ErrorBoundary>
           ) : (
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="article-search-loading-title"
-              className="fixed inset-0 z-[100] flex items-start justify-center bg-black/70 px-4 pt-[12vh]"
-            >
-              <div className="w-full max-w-lg rounded-xl border border-stone-700 bg-stone-950 p-6 text-stone-100 shadow-2xl">
-                <h2 id="article-search-loading-title" className="text-xl font-semibold">Поиск по библиотеке</h2>
-                {searchFailure ? (
-                  <div className="mt-4 space-y-3">
-                    <p role="alert">Не удалось загрузить каталог поиска. Проверьте соединение.</p>
-                    <button
-                      type="button"
-                      className="rounded-lg border border-stone-500 px-4 py-2"
-                      onClick={() => {
-                        setSearchFailure(false)
-                        setSearchAttempt((attempt) => attempt + 1)
-                      }}
-                    >
-                      Повторить загрузку
-                    </button>
-                    <a className="block underline" href="/materials/">Открыть галерею материалов</a>
-                  </div>
-                ) : (
-                  <p role="status" className="mt-4 text-stone-300">Загружаем каталог поиска…</p>
-                )}
-                <button
-                  type="button"
-                  className="mt-5 rounded-lg border border-stone-600 px-4 py-2"
-                  onClick={closeCommand}
-                >
-                  Закрыть
-                </button>
-              </div>
-            </div>
+            <SearchStatusDialog
+              failed={searchFailure}
+              onClose={closeCommand}
+              onRetry={() => {
+                setSearchFailure(false)
+                setSearchAttempt(attempt => attempt + 1)
+              }}
+            />
           )
         )}
         <UpdateNotification />

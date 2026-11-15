@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, useId } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { splitMarkdownLinks, safeInlineHref } from '../utils/markdownLinks'
+import '../styles/article-ui.css'
 import { type Article } from '../data/types'
 import { articleImageDimensions } from '../data/articleImageDimensions'
 import type { ArticleClientMeta } from '../data/types'
@@ -59,7 +61,6 @@ const TERMS: Record<string, string> = {
   'mise en place': 'подготовка ингредиентов и рабочего места',
 }
 const TERMS_PATTERN = /\b(crème diplomate|crème pâtissière|ganache montée|pâte à choux|fleur de sel|mise en place|macaronage|maturation|ganache|panade|ruban)\b/gi
-const LINK_REGEX = /\[([^\]]+)\]\(([^)]+)\)/g;
 // NOTE: Lookbehind assertions ((?<=...) / (?<!...)) crash iOS Safari <16.4 at
 // parse time with a SyntaxError — the whole component fails to mount. This
 // regex achieves the same semantic without any lookbehind:
@@ -162,7 +163,7 @@ function InlineText({ text }: { text: string }) {
     });
   };
 
-  const parts = text.split(LINK_REGEX);
+  const parts = splitMarkdownLinks(text);
   return (
     <>
       {parts.flatMap((part, index) => {
@@ -181,9 +182,10 @@ function InlineText({ text }: { text: string }) {
         }
         if (index % 3 === 1) {
           const lIdx = Math.floor(index / 3);
-          const linkHref = parts[lIdx * 3 + 2] ?? '#';
+          const linkHref = safeInlineHref(parts[lIdx * 3 + 2] ?? '');
+          if (!linkHref) return [<span key={`link-${lIdx}`}>{renderLinkText(part, `link-${lIdx}`)}</span>];
           return [
-            <a key={`link-${lIdx}`} href={linkHref} target="_blank" rel="noopener noreferrer" className="text-amber-800 underline transition hover:text-stone-950 dark:text-amber-400 dark:hover:text-amber-300">
+            <a key={`link-${lIdx}`} href={linkHref} target={/^https?:/i.test(linkHref) ? '_blank' : undefined} rel={/^https?:/i.test(linkHref) ? 'noopener noreferrer' : undefined} className="text-amber-800 underline transition hover:text-stone-950 dark:text-amber-400 dark:hover:text-amber-300">
               {renderLinkText(part, `link-${lIdx}`)}
             </a>
           ];
@@ -239,6 +241,7 @@ function formatDuration(value: string | undefined): string {
 }
 
 export default function ArticleView({ article, allArticles, onBack, onNavigate, onTagSearch, disableEscapeBack = false }: ArticleViewProps) {
+  const shouldReduce = useReducedMotion()
   const category = categories.find((c) => c.id === article.category)
   const imageWidth = article.imageWidth ?? 1280
   const imageHeight = article.imageHeight ?? 800
@@ -264,8 +267,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
   useEffect(() => {
     const savedPos = Number(safeGetItem(`article-progress:${article.id}`) ?? 0)
-    setResumePosition(savedPos > 360 ? savedPos : 0)
-    requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'auto' }))
+    setResumePosition(Number.isFinite(savedPos) && savedPos > 360 && !window.location.hash ? savedPos : 0)
     setSaved(safeGetItem(`article-saved:${article.id}`) === 'true')
     // F-06: record timestamp of last visit so DashboardBento shows truly last-read article
     safeSetItem(`article-last-read:${article.id}`, String(Date.now()))
@@ -287,11 +289,14 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
       }
     }
     const interval = window.setInterval(save, 2000)
-    window.addEventListener('beforeunload', save)
-    // FIX AV-1: don't call save() explicitly in cleanup — beforeunload handles the final save.
-    // Double-calling overwrites progress with a stale value on iOS Safari where cleanup
-    // may run after pagehide but before the actual unload completes.
-    return () => { window.clearInterval(interval); window.removeEventListener('beforeunload', save) }
+    const onVisibility = () => { if (document.visibilityState === 'hidden') save() }
+    window.addEventListener('pagehide', save)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('pagehide', save)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [article.id])
 
   // FIX C-2: clean up copiedTimeoutRef on unmount to avoid setState on unmounted component
@@ -340,6 +345,15 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
     document.documentElement.classList.toggle('focus-mode-active', next)
     return next
   })
+
+  const focusHeading = (id: string) => {
+    const target = document.getElementById(id)
+    if (!target) return
+    const heading = target.matches('h2, h3') ? target : target.querySelector<HTMLElement>('h2, h3') ?? target
+    heading.tabIndex = -1
+    heading.focus({ preventScroll: true })
+    target.scrollIntoView({ behavior: shouldReduce ? 'auto' : 'smooth', block: 'start' })
+  }
 
   // Z-8 FIX: single parse of article.content shared by both headings and renderedContent
   const blocks = useMemo(
@@ -586,7 +600,7 @@ const renderedContent = useMemo(() => {
   const readingTimeLeft = Math.max(0, Math.ceil(article.readTime * (1 - progress)))
 
   return (
-    <div className="relative bg-[var(--bg-main)] pb-32 pt-0 lg:pb-24">
+    <div className="article-ui relative bg-[var(--bg-main)] pb-32 pt-0 lg:pb-24">
       {/* Progress bar — flush under sticky header; header is py-5 + h-11 = 84px on all breakpoints */}
       <div className="fixed inset-x-0 top-[var(--header-height)] z-40 hidden h-[3px] lg:block">
         <div className="h-[3px] bg-gradient-to-r from-amber-700 to-amber-500 transition-[width] duration-100" style={{ width: `${progress * 100}%` }} />
@@ -601,7 +615,7 @@ const renderedContent = useMemo(() => {
           </button>
 
           {/* Header */}
-          <header className={`grid gap-8 border-y border-[var(--border-subtle)] py-10 dark:border-stone-800 ${focusMode ? 'lg:grid-cols-1 lg:mx-auto lg:max-w-3xl' : 'lg:grid-cols-[0.88fr_1.12fr] lg:items-end'}`}>
+          <header className={`grid grid-cols-[minmax(0,1fr)] gap-8 border-y border-[var(--border-subtle)] py-10 dark:border-stone-800 ${focusMode ? 'lg:grid-cols-1 lg:mx-auto lg:max-w-3xl' : 'lg:grid-cols-[0.88fr_1.12fr] lg:items-end'}`}>
             <div>
               <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.28em] text-amber-800 dark:text-amber-500">
                 {category?.name ?? article.category}
@@ -633,15 +647,18 @@ const renderedContent = useMemo(() => {
                   </button>
                 ))}
               </div>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-wrap items-center gap-2">
                 <ArticleActions
                   article={article}
                   saved={saved}
                   onToggleSave={(next) => { setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)) }}
                 />
+                <button type="button" aria-label="Режим фокуса" aria-pressed={focusMode} onClick={toggleFocusMode} className="hidden min-h-11 border border-[var(--border-subtle)] px-4 py-2 font-mono text-[11px] text-stone-700 dark:text-stone-300 lg:inline-flex">
+                  {focusMode ? 'Обычный вид' : 'Режим фокуса'}
+                </button>
               </div>
               {resumePosition > 0 && (
-                <button type="button" onClick={() => { window.scrollTo({ top: resumePosition, behavior: 'smooth' }); setResumePosition(0); }} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
+                <button type="button" onClick={() => { window.scrollTo({ top: resumePosition, behavior: shouldReduce ? 'auto' : 'smooth' }); setResumePosition(0); }} className="mt-5 border border-stone-950 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-stone-950 transition hover:bg-stone-950 hover:text-amber-100 dark:border-amber-100 dark:text-amber-100 dark:hover:bg-amber-100 dark:hover:text-stone-950">
                   Продолжить с прошлого места
                 </button>
               )}
@@ -748,7 +765,7 @@ const renderedContent = useMemo(() => {
                   <span>{headings.length}&thinsp;{pluralRu(headings.length, HEADING)}</span>
                   <motion.span
                     animate={{ rotate: tocOpen ? 180 : 0 }}
-                    transition={{ duration: 0.22 }}
+                    transition={{ duration: shouldReduce ? 0 : 0.22 }}
                     className="inline-block"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -759,15 +776,15 @@ const renderedContent = useMemo(() => {
               </button>
               <AnimatePresence initial={false}>
                 {tocOpen && (
-                  <motion.ol id="mobile-toc-list"
-                    initial={{ height: 0, opacity: 0 }}
+                  <motion.div id="mobile-toc-list"
+                    initial={shouldReduce ? false : { height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    exit={shouldReduce ? {} : { height: 0, opacity: 0 }}
+                    transition={{ duration: shouldReduce ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] }}
                     className="border-t border-stone-100 dark:border-stone-800 overflow-hidden"
                     style={{ maxHeight: '70vh' }}
                   >
-                    <div className="max-h-[70vh] overflow-y-auto">
+                    <ol className="max-h-[70vh] overflow-y-auto">
                     {headings.map((h, i) => (
                       <li key={h.id}>
                         <button
@@ -775,8 +792,8 @@ const renderedContent = useMemo(() => {
                           onClick={() => {
                             setTocOpen(false)
                             setTimeout(() => {
-                              document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                            }, 280)
+                              focusHeading(h.id)
+                            }, shouldReduce ? 0 : 280)
                           }}
                           className="haptic-btn flex w-full gap-3 border-b border-stone-50 px-5 py-3 text-left text-sm leading-6 text-stone-600 transition-colors last:border-b-0 hover:bg-amber-50/60 hover:text-amber-800 dark:border-stone-900 dark:text-stone-400 dark:hover:bg-amber-950/20 dark:hover:text-amber-400"
                         >
@@ -785,15 +802,15 @@ const renderedContent = useMemo(() => {
                         </button>
                       </li>
                     ))}
-                    </div>
-                  </motion.ol>
+                    </ol>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
           )}
 
           {/* 3-column body */}
-          <div className={`grid gap-10 ${focusMode ? 'lg:grid-cols-[minmax(0,54rem)] lg:justify-center' : 'lg:grid-cols-[15rem_minmax(0,54rem)_15rem]'}`}>
+          <div className={`grid grid-cols-[minmax(0,1fr)] gap-10 ${focusMode ? 'lg:grid-cols-[minmax(0,54rem)] lg:justify-center' : 'lg:grid-cols-[15rem_minmax(0,54rem)_15rem]'}`}>
             {/* Desktop sidebar */}
             <aside className={`${focusMode ? 'hidden' : 'hidden lg:block'}`}>
               <div className="sticky top-28 space-y-8">
@@ -804,9 +821,8 @@ const renderedContent = useMemo(() => {
                     <button type="button" onClick={() => { if (largeText) toggleLargeText() }} aria-pressed={!largeText} className={`flex-1 border py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition ${!largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A</button>
                     <button type="button" onClick={() => { if (!largeText) toggleLargeText() }} aria-pressed={largeText} className={`flex-1 border py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition ${largeText ? 'border-stone-950 bg-stone-950 text-amber-100 dark:border-amber-100 dark:bg-amber-100 dark:text-stone-950' : 'border-stone-200 text-stone-600 hover:border-stone-400 dark:border-stone-700 dark:text-stone-400 dark:hover:border-stone-500'}`}>A+</button>
                   </div>
-                  <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { /* clipboard unavailable — silent fail */ } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
+                  <button type="button" onClick={async () => { const url = `${window.location.origin}/articles/${encodeURIComponent(article.id)}/`; try { await navigator.clipboard.writeText(url); setCopied(true); showToast('copy', 'Ссылка скопирована'); if (copiedTimeoutRef.current !== null) window.clearTimeout(copiedTimeoutRef.current); copiedTimeoutRef.current = window.setTimeout(() => { setCopied(false); copiedTimeoutRef.current = null }, 1400) } catch { showToast('info', 'Не удалось скопировать ссылку. Скопируйте адрес страницы вручную.') } }} className="mt-3 block w-full border-t border-stone-100 dark:border-stone-800 pt-3 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{copied ? '✓ скопировано' : 'Копировать ссылку'}</button>
                   <button type="button" onClick={() => { const next = !saved; setSaved(next); safeSetItem(`article-saved:${article.id}`, String(next)); showToast('save', next ? 'Добавлено в закладки' : 'Убрано из закладок') }} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{saved ? '✓ в закладках' : '+ сохранить'}</button>
-                  <button type="button" onClick={toggleFocusMode} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">{focusMode ? 'выключить фокус' : 'режим фокуса'}</button>
                   <button type="button" onClick={() => window.print()} className="mt-2 block w-full text-left font-mono text-[10px] uppercase tracking-[0.2em] text-stone-600 transition hover:text-amber-800 dark:text-stone-400 dark:hover:text-amber-400">Печать статьи</button>
                 </div>
 
@@ -827,7 +843,7 @@ const renderedContent = useMemo(() => {
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-stone-400">Содержание</p>
                     <ol className="mt-3 space-y-1.5">
-                      {headings.map((h, i) => <li key={h.id}><button type="button" onClick={() => document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="haptic-btn flex w-full gap-2 text-left text-sm leading-6 text-stone-600 transition hover:text-amber-800 line-clamp-2 dark:text-stone-400 dark:hover:text-amber-400"><span className="flex-shrink-0 text-stone-400">{i + 1}.</span>{h.title}</button></li>)}
+                      {headings.map((h, i) => <li key={h.id}><button type="button" onClick={() => focusHeading(h.id)} className="haptic-btn flex w-full gap-2 text-left text-sm leading-6 text-stone-600 transition hover:text-amber-800 line-clamp-2 dark:text-stone-400 dark:hover:text-amber-400"><span className="flex-shrink-0 text-stone-400">{i + 1}.</span>{h.title}</button></li>)}
                     </ol>
                   </div>
                 )}
@@ -927,7 +943,7 @@ const renderedContent = useMemo(() => {
                         key={h.id}
                         type="button"
                         onClick={() => {
-                          document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                          focusHeading(h.id)
                           // Close via ref — reliable regardless of where focus ends up
                           if (detailsTocRef.current) detailsTocRef.current.open = false
                         }}
@@ -949,7 +965,7 @@ const renderedContent = useMemo(() => {
               <p className="mb-8 font-mono text-[11px] uppercase tracking-[0.2em] text-stone-500">Читайте также — {category?.name}</p>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map(r => (
-                  <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; if (!onNavigate) return; e.preventDefault(); window.scrollTo({ top: 0, behavior: 'auto' }); onNavigate(r) }} className="group block text-left">
+                  <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; if (!onNavigate) return; e.preventDefault(); onNavigate(r) }} className="group block text-left">
                     <div className="mb-4 overflow-hidden bg-stone-200 dark:bg-stone-800" style={{ aspectRatio: imgAspectRatio(r.image) }}>
                       <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
                     </div>
@@ -1012,6 +1028,7 @@ const renderedContent = useMemo(() => {
           {/* Save / bookmark */}
           <button
             type="button"
+            aria-pressed={saved}
             onClick={() => {
               const next = !saved
               setSaved(next)
@@ -1030,16 +1047,18 @@ const renderedContent = useMemo(() => {
           {/* Font size toggle */}
           <button
             type="button"
+            aria-pressed={largeText}
             onClick={toggleLargeText}
             className="haptic-btn flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 text-stone-500 transition-colors hover:text-stone-950 dark:border-stone-800 dark:text-stone-500 dark:hover:text-stone-100"
           >
-            <span className={`font-serif leading-none transition-all ${largeText ? 'text-[20px] text-amber-800 dark:text-amber-400' : 'text-[15px]'}`}>A</span>
+            <span aria-hidden="true" className={`font-serif leading-none transition-all ${largeText ? 'text-[20px] text-amber-800 dark:text-amber-400' : 'text-[15px]'}`}>A</span>
             <span className="font-mono text-[11px] uppercase tracking-[0.18em]">{largeText ? 'Меньше' : 'Больше'}</span>
           </button>
 
           {/* Focus mode */}
           <button
             type="button"
+            aria-pressed={focusMode}
             onClick={toggleFocusMode}
             className={`haptic-btn flex flex-col items-center justify-center gap-1 border-l border-[var(--border-subtle)] py-3 transition-colors dark:border-stone-800 ${focusMode ? 'text-amber-700 dark:text-amber-400' : 'text-stone-500 hover:text-stone-950 dark:text-stone-500 dark:hover:text-stone-100'}`}
           >

@@ -31,6 +31,8 @@ import {
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Fuse, { type FuseResultMatch } from 'fuse.js'
 import type { ArticleClientMeta } from '../data/types'
+import { useModalFocus } from '../hooks/useModalFocus'
+import '../styles/command-accessibility.css'
 import { categories, NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import { pluralRu, MATERIAL, RESULT } from '../utils/plural'
 import { safeGetItem } from '../utils/storage'
@@ -353,7 +355,7 @@ export default function CommandPalette({
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scrollRafRef = useRef<number | null>(null)
-  const prevFocusRef = useRef<HTMLElement | null>(null)
+  useModalFocus(containerRef, open)
 
   /* ── Responsive ── */
   useEffect(() => {
@@ -373,9 +375,6 @@ export default function CommandPalette({
     setActiveIndex(0)
     setFilterSection(null)
     setExpandedSections(new Set())
-
-    prevFocusRef.current = document.activeElement as HTMLElement | null
-    requestAnimationFrame(() => inputRef.current?.focus())
   }, [open, initialQuery])
 
   /* FIX: iOS keyboard handling — when the virtual keyboard opens on iOS Safari,
@@ -395,25 +394,6 @@ export default function CommandPalette({
     handler()
     return () => visualViewport!.removeEventListener('resize', handler)
   }, [])
-
-  // Restore focus to the trigger on unmount. The palette is conditionally
-  // mounted by its parents (`open` is always true while mounted), so a `!open`
-  // guard would never fire — restore on cleanup instead (WCAG 2.4.3).
-  useEffect(() => () => { prevFocusRef.current?.focus() }, [])
-
-  /* ── Scroll lock ── */
-  useEffect(() => {
-    if (!open) return
-    const w = window.innerWidth - document.documentElement.clientWidth
-    const prevO = document.body.style.overflow
-    const prevP = document.body.style.paddingRight
-    document.body.style.overflow = 'hidden'
-    if (w > 0) document.body.style.paddingRight = `${w}px`
-    return () => {
-      document.body.style.overflow = prevO
-      document.body.style.paddingRight = prevP
-    }
-  }, [open])
 
   /* ── Fuse instance (stable) ── */
   const fuse = useMemo(
@@ -674,22 +654,6 @@ export default function CommandPalette({
   /* ── Keyboard handling ── */
   const handleKeyDown = useCallback(
     (e: ReactKeyboardEvent) => {
-      if (e.key === 'Tab') {
-        const ctr = containerRef.current
-        if (!ctr) return
-        const focusable = Array.from(
-          ctr.querySelectorAll<HTMLElement>(
-            'input:not([disabled]), button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
-          ),
-        ).filter(el => el.closest('[aria-hidden]') === null)
-        if (!focusable.length) return
-        const f = focusable[0]
-        const l = focusable[focusable.length - 1]
-        if (e.shiftKey && document.activeElement === f) { e.preventDefault(); l.focus() }
-        else if (!e.shiftKey && document.activeElement === l) { e.preventDefault(); f.focus() }
-        return
-      }
-
       if (e.key === 'Escape') {
         e.preventDefault()
         e.stopPropagation()
@@ -700,6 +664,8 @@ export default function CommandPalette({
         return
       }
 
+      // Buttons and links keep their native Enter/arrow behaviour.
+      if (e.target !== inputRef.current || e.nativeEvent.isComposing || e.altKey || e.ctrlKey || e.metaKey) return
       if (totalItems === 0) return
       if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex(i => (i + 1) % totalItems) }
       else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex(i => (i - 1 + totalItems) % totalItems) }
@@ -743,7 +709,7 @@ export default function CommandPalette({
           }}
           initial={shouldReduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          exit={shouldReduce ? {} : { opacity: 0 }}
           transition={shouldReduce ? { duration: 0 } : { duration: 0.18 }}
           onClick={onClose}
         >
@@ -752,7 +718,8 @@ export default function CommandPalette({
             role="dialog"
             aria-modal="true"
             aria-label="Поиск по материалам"
-            className="w-full overflow-hidden"
+            className="school-command w-full overflow-hidden"
+            tabIndex={-1}
             style={{
               maxWidth: 980,
               borderRadius: '16px',
@@ -787,24 +754,23 @@ export default function CommandPalette({
 
               <input
                 ref={inputRef}
-                autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Поиск материалов, шефов, техник..."
                 aria-label="Поиск материалов, шефов и техник"
-                className="input-focus-premium flex-1 bg-transparent pl-1.5 text-[17px] font-light tracking-wide outline-none"
+                className="input-focus-premium min-w-0 flex-1 bg-transparent pl-1.5 text-[17px] font-light tracking-wide outline-none"
                 style={{ caretColor: 'var(--text-accent)', color: 'var(--text-primary)' }}
               />
 
               <AnimatePresence>
                 {query && (
                   <motion.span
-                    initial={{ opacity: 0, scale: 0.8 }}
+                    initial={shouldReduce ? false : { opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
+                    exit={shouldReduce ? {} : { opacity: 0, scale: 0.8 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                     className="font-mono text-[11px] uppercase tracking-[0.18em] shrink-0"
-                    style={{ color: 'var(--text-accent)', opacity: 0.6 }}
+                    style={{ color: 'var(--text-accent)' }}
                     aria-live="polite" aria-atomic="true"
                   >
                     {filteredResults.length}&nbsp;{pluralRu(filteredResults.length, RESULT)}
@@ -817,12 +783,12 @@ export default function CommandPalette({
                   <motion.button
                     type="button"
                     aria-label="Очистить поиск"
-                    initial={{ opacity: 0, scale: 0.6, rotate: -45 }}
+                    initial={shouldReduce ? false : { opacity: 0, scale: 0.6, rotate: -45 }}
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                    exit={{ opacity: 0, scale: 0.6, rotate: 45 }}
+                    exit={shouldReduce ? {} : { opacity: 0, scale: 0.6, rotate: 45 }}
                     transition={{ type: 'spring', stiffness: 520, damping: 30 }}
                     onClick={() => { setQuery(''); setFilterSection(null); inputRef.current?.focus() }}
-                    className="flex h-5 w-5 shrink-0 items-center justify-center"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center"
                     style={{
                       background: 'var(--cp-clear-bg)',
                       color: 'var(--cp-clear-fg)',
@@ -839,10 +805,9 @@ export default function CommandPalette({
               <button
                 type="button"
                 onClick={onClose}
-                className="font-mono text-[11px] uppercase tracking-[0.18em] shrink-0 transition-opacity"
+                aria-label="Закрыть поиск"
+                className="min-h-11 min-w-11 font-mono text-[11px] uppercase tracking-[0.18em] shrink-0 transition-opacity"
                 style={{ color: 'var(--cp-text-mid)' }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.6' }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
               >
                 ESC
               </button>
@@ -854,9 +819,9 @@ export default function CommandPalette({
             <AnimatePresence>
               {showChips && (
                 <motion.div
-                  initial={{ height: 0, opacity: 0 }}
+                  initial={shouldReduce ? false : { height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
+                  exit={shouldReduce ? {} : { height: 0, opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 34 }}
                   style={{ overflow: 'hidden', flexShrink: 0 }}
                 >
@@ -907,9 +872,9 @@ export default function CommandPalette({
                           }}
                           title={isDimmed ? `${section.label} — нет результатов` : section.label}
                         >
-                          <span style={{ marginRight: 4, opacity: 0.65 }}>{section.icon}</span>
+                          <span style={{ marginRight: 4 }}>{section.icon}</span>
                           {section.label}
-                          <span style={{ marginLeft: 6, opacity: 0.55 }}>{count}</span>
+                          <span style={{ marginLeft: 6 }}>{count}</span>
                         </motion.button>
                       )
                     })}
@@ -1002,18 +967,16 @@ export default function CommandPalette({
                             {/* Section header */}
                             <div className="flex items-center justify-between px-5 pb-1 pt-3">
                               <SectionLabel inline>
-                                <span style={{ opacity: 0.7, marginRight: 6 }}>{section.icon}</span>
+                                <span style={{ marginRight: 6 }}>{section.icon}</span>
                                 {section.label}
-                                <span style={{ marginLeft: 8, opacity: 0.55 }}>· {block.total}</span>
+                                <span style={{ marginLeft: 8 }}>· {block.total}</span>
                               </SectionLabel>
                               {!filterSection && block.total > PER_SECTION_INITIAL && (
                                 <button
                                   type="button"
                                   onClick={() => toggleExpand(block.sectionId)}
-                                  className="font-mono text-[8.5px] uppercase tracking-[0.18em] transition-opacity"
-                                  style={{ color: 'var(--text-accent)', opacity: 0.75 }}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+                                  className="font-mono text-[10px] uppercase tracking-[0.18em] transition-opacity"
+                                  style={{ color: 'var(--text-accent)' }}
                                 >
                                   {expandedSections.has(block.sectionId)
                                     ? '↑ свернуть'
@@ -1024,10 +987,8 @@ export default function CommandPalette({
                                 <button
                                   type="button"
                                   onClick={() => setFilterSection(null)}
-                                  className="font-mono text-[7.5px] uppercase tracking-[0.18em] transition-opacity"
-                                  style={{ color: 'var(--text-accent)', opacity: 0.65 }}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.65' }}
+                                  className="font-mono text-[10px] uppercase tracking-[0.18em] transition-opacity"
+                                  style={{ color: 'var(--text-accent)' }}
                                 >
                                   × сбросить
                                 </button>
@@ -1097,12 +1058,12 @@ export default function CommandPalette({
                                       </p>
 
                                       <p className="mt-0.5 truncate font-mono text-[10px]" style={{ color: 'var(--cp-text-mid)' }}>
-                                        <span style={{ opacity: 0.7 }}>{cat?.icon ?? '·'}</span>{' '}
+                                        <span>{cat?.icon ?? '·'}</span>{' '}
                                         {cat?.name ?? art.category}{' · '}{art.readTime} мин
                                         {art.author && (
                                           <>
                                             {' · '}
-                                            <span style={byAuthor ? { color: 'var(--text-accent)', opacity: 0.8 } : undefined}>
+                                            <span style={byAuthor ? { color: 'var(--text-accent)' } : undefined}>
                                               <H text={art.author} matches={result.matches} field="author" />
                                             </span>
                                           </>
@@ -1112,16 +1073,16 @@ export default function CommandPalette({
                                       <AnimatePresence>
                                         {isActive && (art.tags ?? []).length > 0 && (
                                           <motion.div
-                                            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                            initial={shouldReduce ? false : { opacity: 0, height: 0, marginTop: 0 }}
                                             animate={{ opacity: 1, height: 'auto', marginTop: 6 }}
-                                            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                            exit={shouldReduce ? {} : { opacity: 0, height: 0, marginTop: 0 }}
                                             transition={{ type: 'spring', stiffness: 500, damping: 38 }}
                                             className="flex flex-wrap gap-1 overflow-hidden"
                                           >
                                             {(art.tags ?? []).slice(0, 4).map(tag => (
                                               <span
                                                 key={tag}
-                                                className="font-mono text-[7.5px] uppercase tracking-[0.12em]"
+                                                className="font-mono text-[10px] uppercase tracking-[0.12em]"
                                                 style={{
                                                   padding: '2px 6px',
                                                   border: '1px solid var(--cp-chip-border)',
@@ -1152,7 +1113,7 @@ export default function CommandPalette({
                 {/* Empty states */}
                 {flatVisible.length === 0 && (query.trim() || filterSection) && (
                   <motion.div
-                    initial={{ opacity: 0 }}
+                    initial={shouldReduce ? false : { opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
                     className="px-5 py-12 text-center"
@@ -1181,7 +1142,7 @@ export default function CommandPalette({
                         × сбросить фильтр
                       </button>
                     )}
-                    <p className="mt-3 font-mono text-[8.5px]" style={{ color: 'var(--cp-text-lo)' }}>
+                    <p className="mt-3 font-mono text-[10px]" style={{ color: 'var(--cp-text-lo)' }}>
                       Попробуйте: шоколад · ваниль · крем · техники
                     </p>
                   </motion.div>
@@ -1287,15 +1248,12 @@ export default function CommandPalette({
                           <button
                             type="button"
                             onClick={activeQuickAction.action}
-                            className="mt-auto flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
+                            className="mt-auto flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] transition-all"
                             style={{
                               color: 'var(--text-accent)',
-                              opacity: 0.85,
                               alignSelf: 'flex-start',
                               padding: '4px 0',
                             }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.85' }}
                           >
                             Открыть
                             <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1437,15 +1395,12 @@ export default function CommandPalette({
                           <button
                             type="button"
                             onClick={() => { onClose(); onOpenArticle(activeResult.item) }}
-                            className="mt-auto flex items-center gap-2 font-mono text-[8.5px] uppercase tracking-[0.22em] transition-all"
+                            className="mt-auto flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] transition-all"
                             style={{
                               color: 'var(--text-accent)',
-                              opacity: 0.65,
                               alignSelf: 'flex-start',
                               padding: '4px 0',
                             }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
-                            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.65' }}
                           >
                             Читать
                             <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
