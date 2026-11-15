@@ -18,6 +18,7 @@ export const articleImageDimensions: Record<string, { width: number; height: num
   'chiffres-luxury-desserts.webp': { width: 1280, height: 800 },
   'chiffres-macarons-laduree-herme.webp': { width: 1280, height: 800 },
   'chiffres-marche-15mlrd.webp': { width: 1280, height: 800 },
+  'confectionery-profession-history.webp': { width: 1672, height: 941 },
   'conticini-paris-brest-iconic.webp': { width: 1448, height: 1086 },
   'conticini-paris-brest.webp': { width: 1280, height: 800 },
   'conticini-praline.webp': { width: 1408, height: 768 },
