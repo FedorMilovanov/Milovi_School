@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { markRevealReady } from '../utils/revealReady'
 import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import LuxuryText from './LuxuryText'
@@ -75,6 +76,8 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
   useEffect(() => {
     const els = sectionRef.current?.querySelectorAll('.reveal')
     if (!els?.length) return
+    // The observer exists now, so the hidden start state is safe to keep.
+    markRevealReady()
 
     // Fallback: если observer не сработал — показываем всё через 400ms
     const fallback = window.setTimeout(() => {
