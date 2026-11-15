@@ -491,19 +491,17 @@ await check('tablet: no browser or network errors', async () => {
 // Shipping a 512x512 / 203 KB PNG to draw a 44 px logo is invisible to every
 // unit test and costs every visitor; the ratio catches that class of defect.
 //
-// Threshold is 5x, not 4x, on purpose: the logo class it was written for is 11.6x
-// (512 px into 44 px), while content cards that still lack `srcset` sit right on
-// the 4x boundary — measured `recipe-tuiles-amandes.webp` at 1672 px into a 411 px
-// related-article card = 4.07x, which is real but is the variant-pipeline gap
-// tracked in the media issue, not a regression this gate should block. Raise it
-// back to 4x when `srcset` lands for cards.
-// /materials/ is intentionally absent while the variant pipeline is missing:
-// its 158 cards render at ~336 CSS px and serve the 1448-1680 px originals
-// (5x oversampling, ~6.8 MB of image transfer on first view — measured in
-// Chromium 153). That needs build-time 480/960 px derivatives plus `srcset`,
-// which is a separate change (see the tracking issue); once it lands the
-// gallery belongs in this list and the ratio gate becomes a ratchet.
-for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/history/'], ['article', '/articles/recipe-kouglof/']]) {
+// Scope: **eagerly loaded** images only (logo, hero, above-the-fold chrome). That
+// is where a wrong size is a correctness bug — it is also the LCP surface. Lazy
+// content thumbnails are a different problem: the article page serves
+// `recipe-tuiles-amandes.webp` at 1672 px into a 411 px related-card slot
+// (4.07x), and the gallery serves 1448-1698 px originals into ~336 px cards
+// (~6.8 MB on first view). Those need build-time derivatives plus `srcset`, which
+// is tracked in the media issue; hiding the ratio behind a higher threshold would
+// have made the gate blind to the very regression it exists for, so the claim is
+// narrowed to eager images instead of the threshold being raised. Once `srcset`
+// lands for cards, drop the `loading` filter and assert over every image.
+for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/history/'], ['materials', '/materials/'], ['article', '/articles/recipe-kouglof/']]) {
   await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
   // Layout must be settled before the ratio is meaningful: a lazy image measured
   // mid-reflow reports a transient width and looks like a 20x violation.
@@ -511,12 +509,13 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   const oversized = await desktop.page.evaluate(() =>
     [...document.images]
       .filter((image) => {
+        if (image.loading === 'lazy') return false
         const box = image.getBoundingClientRect()
-        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > 5
+        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > 4
       })
       .map((image) => `${image.currentSrc || image.getAttribute('src')} natural=${image.naturalWidth} rendered=${Math.round(image.getBoundingClientRect().width)}`),
   )
-  await check(`${slug}: no image is served at >5x its rendered width`, async () => assert.deepEqual(oversized, []))
+  await check(`${slug}: no eagerly loaded image is served at >4x its rendered width`, async () => assert.deepEqual(oversized, []))
 }
 
 // ── Search status dialog: modal contract + index validation ──────────────────
