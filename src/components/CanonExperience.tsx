@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import {
@@ -8,13 +8,23 @@ import {
   type CanonActId,
   type CanonWork,
 } from '../data/canon'
-import type { ArticleClientMeta } from '../data/types'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
 import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
 import '../styles/canon-editorial.css'
+
+/**
+ * The canon cards only need the dossier line (reading time + excerpt). The full
+ * article metadata used to be serialized into this island; it is now projected
+ * down to these two fields by the page, and the rest is fetched on demand by the
+ * search palette (`useArticleIndex`).
+ */
+export interface CanonDossier {
+  readTime: number
+  excerpt: string
+}
 
 const pad = (value: number) => String(value).padStart(2, '0')
 
@@ -36,7 +46,7 @@ function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   )
 }
 
-function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleClientMeta }) {
+function CanonWorkCard({ work, article }: { work: CanonWork; article?: CanonDossier }) {
   const mediaRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
   const destination = work.articleId ? `/articles/${work.articleId}/` : null
@@ -160,11 +170,10 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleCl
   )
 }
 
-export default function CanonExperience({ articles }: { articles: ArticleClientMeta[] }) {
+export default function CanonExperience({ dossiers }: { dossiers: Record<string, CanonDossier> }) {
   const reduceMotion = useReducedMotion()
   const [activeAct, setActiveAct] = useState<CanonActId>('forme')
   const [railVisible, setRailVisible] = useState(false)
-  const articlesById = useMemo(() => new Map(articles.map((article) => [article.id, article])), [articles])
 
   useEffect(() => {
     const nodes = canonActs
@@ -332,7 +341,7 @@ export default function CanonExperience({ articles }: { articles: ArticleClientM
                   <CanonWorkCard
                     key={work.id}
                     work={work}
-                    article={work.articleId ? articlesById.get(work.articleId) : undefined}
+                    article={work.articleId ? dossiers[work.articleId] : undefined}
                   />
                 ))}
               </div>
