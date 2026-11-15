@@ -707,7 +707,9 @@ for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
     await chunkPage.locator("[role=dialog][aria-labelledby=canon-search-loading-title] [role=alert]").waitFor({ timeout: 20000 })
   })
   await check('canon chunk failure: original Canon heading survives', async () => {
-    assert.equal(await chunkPage.locator('h1').filter({ hasText: 'LE CANON SUCRÉ' }).count(), 1)
+    const heading = chunkPage.locator('h1#canon-title')
+    assert.equal(await heading.count(), 1)
+    assert.equal(await heading.isVisible(), true)
     assert.equal(await chunkPage.locator('footer').count() > 0, true)
   })
   await check('canon chunk failure: Escape closes error without navigation', async () => {
