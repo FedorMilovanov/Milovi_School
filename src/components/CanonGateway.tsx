@@ -61,8 +61,8 @@ export default function CanonGateway() {
         <span className="canon-gateway-media" aria-hidden="true">
           <img
             src={GATEWAY_IMAGE}
-            srcSet={variantSrcSet(GATEWAY_IMAGE)}
-            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 100vw, 1280px"
+            srcSet={[variantSrcSet(GATEWAY_IMAGE), `${GATEWAY_IMAGE} 1916w`].filter(Boolean).join(', ')}
+            sizes="95vw"
             alt={GATEWAY_IMAGE_ALT}
             width={1916}
             height={821}
