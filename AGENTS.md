@@ -222,6 +222,8 @@ npm run validate
 
 Для UI/section release дополнительно обязательны соответствующие browser/visual workflows. Для production-closeout доказательство — не только green build, а **exact deployed SHA live witness**.
 
+В Arena Sandbox, если системный браузер недоступен, допустим временный Chromium 153 вне репозитория: `npm install --prefix /tmp/arena-browser --no-audit --no-fund @sparticuz/chromium@153.0.0 playwright@1.64.1`; executable path получать через `Chromium.executablePath()`. На Debian 12/x86_64 при нехватке NSS-библиотек Brotli-декомпрессировать `bin/al2023.tar.br` и распаковать в `/tmp/arena-browser/libs`, добавив `.../libs/lib` в начало `LD_LIBRARY_PATH`. Для Playwright использовать только `--no-sandbox` и `--disable-dev-shm-usage`; не копировать `Chromium.args` (там есть `--disable-web-security`). NSS-патчи и `LD_PRELOAD` не нужны в проверенной среде. `/tmp` эфемерен — перед тестом проверять браузер и зависимости. Внешние подмены делать адресно и явно фиксировать; Chromium не заменяет WebKit, Firefox или физические устройства.
+
 ## 10. Repository hygiene
 
 Запрещено коммитить:

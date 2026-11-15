@@ -5,11 +5,12 @@
  *   • install → precache shell assets (offline-first launch)
  *   • activate → drop every cache whose key doesn't end with the
  *     current build hash; then claim all open clients
- *   • fetch (navigations) → network-first, fall back to cache, then to '/'
+ *   • fetch (navigations) → network-first, fall back to the exact cached page,
+ *     then to a dedicated offline document (never another route's HTML)
  *   • fetch (everything else, same-origin) → cache-first, lazy refresh
  *
  * Build hash:
- *   __BUILD_HASH__ is replaced at the end of `astro build` by the
+ *   The build-time version token is replaced at the end of `astro build` by the
  *   integration in astro.config.mjs (bumpServiceWorkerVersion). In dev
  *   the placeholder is left as-is — the registration script in
  *   BaseLayout.astro skips registration on localhost so the unresolved
@@ -28,6 +29,7 @@ const PRECACHE_ASSETS = [
   '/apple-touch-icon.png',
   '/favicon.svg',
   '/images/placeholder.svg',
+  '/offline.html',
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -97,8 +99,16 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(async () => {
           const cached = await caches.match(request)
-          const appShell = await caches.match('/')
-          return cached ?? appShell ?? new Response('Offline', {
+          if (cached) return cached
+          const offline = await caches.match('/offline.html')
+          if (offline) {
+            return new Response(offline.body, {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: offline.headers,
+            })
+          }
+          return new Response('Offline', {
             status: 503,
             headers: { 'Content-Type': 'text/plain; charset=utf-8' },
           })

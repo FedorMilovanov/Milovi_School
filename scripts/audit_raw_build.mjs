@@ -29,6 +29,18 @@ const htmlFiles = files.filter((file) => file.endsWith('.html'))
 if (htmlFiles.length === 0) throw new Error('No generated HTML files found in dist/')
 
 const failures = []
+const serviceWorkerPath = path.join(DIST_DIR, 'sw.js')
+try {
+  const serviceWorker = await fs.readFile(serviceWorkerPath, 'utf8')
+  const version = serviceWorker.match(/const CACHE_VERSION\s*=\s*['"](v[a-f0-9]{16})['"]/)
+  if (!version) failures.push('dist/sw.js is missing its generated 16-character build hash')
+  if (serviceWorker.includes('__BUILD_HASH__')) failures.push('dist/sw.js contains an unresolved build-hash placeholder')
+  if (!serviceWorker.includes('patisserie-precache-') || !serviceWorker.includes('patisserie-runtime-')) {
+    failures.push('dist/sw.js is missing versioned cache names')
+  }
+} catch {
+  failures.push('dist/sw.js is missing; the build must fail closed when service-worker versioning cannot run')
+}
 let documentCount = 0
 let islandDocumentCount = 0
 let totalBytes = 0

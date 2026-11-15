@@ -24,7 +24,7 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import re, subprocess
+          import json, re, subprocess
 
           tracked = [p for p in subprocess.check_output(['git','ls-files','-z']).decode().split('\0') if p]
           failures=[]
@@ -50,6 +50,42 @@ jobs:
 
           if '.github/CODEOWNERS' not in tracked:
               failures.append('missing .github/CODEOWNERS')
+
+          package=json.loads(Path('package.json').read_text('utf-8'))
+          lock=json.loads(Path('package-lock.json').read_text('utf-8'))
+          astro_manifest=package.get('devDependencies',{}).get('astro','')
+          astro_locked=lock.get('packages',{}).get('node_modules/astro',{}).get('version','')
+          if astro_manifest != astro_locked:
+              failures.append(f'package.json/package-lock.json Astro mismatch: {astro_manifest} != {astro_locked}')
+          if not re.fullmatch(r'\d+\.\d+\.\d+',astro_locked):
+              failures.append(f'Astro version is not a stable numeric release: {astro_locked}')
+          if package.get('scripts',{}).get('audit:security') != 'npm audit --audit-level=moderate':
+              failures.append('security gate must fail on moderate-or-higher npm advisories')
+
+          for name in ('ci.yml','deploy.yml','deep-polish-audit.yml','gallery-quality.yml','canon-gateway-visual.yml'):
+              workflow_path=Path('.github/workflows',name)
+              if not workflow_path.exists():
+                  continue
+              workflow=workflow_path.read_text('utf-8')
+              if 'npm run build' in workflow and "ASTRO_TELEMETRY_DISABLED: '1'" not in workflow:
+                  failures.append(f'{name}: Astro build telemetry must be disabled for repeatable CI')
+          consent_audit=Path('scripts/audit_consent_browser.mjs')
+          if not consent_audit.is_file():
+              failures.append('missing browser regression audit for consent lifecycle')
+          elif 'node scripts/audit_consent_browser.mjs' not in Path('.github/workflows/deep-polish-audit.yml').read_text('utf-8'):
+              failures.append('deep-polish workflow does not run the consent lifecycle browser audit')
+
+          deploy_workflow=Path('.github/workflows/deploy.yml').read_text('utf-8')
+          workflow_header=deploy_workflow.split('jobs:',1)[0]
+          if re.search(r'^\s+(?:pages|id-token):\s*write\s*$',workflow_header,re.M):
+              failures.append('deploy.yml: Pages/OIDC write permissions must not be workflow-wide')
+          deploy_job=re.search(r'(?ms)^  deploy:\n(.*?)(?=^  [A-Za-z0-9_-]+:|\Z)',deploy_workflow)
+          if not deploy_job or not re.search(r'^    permissions:\n      pages: write\n      id-token: write\s*$',deploy_job.group(1),re.M):
+              failures.append('deploy.yml: Pages/OIDC write permissions must be scoped to the deploy job')
+          for job in ('build','deploy','live-proof'):
+              job_match=re.search(rf'(?ms)^  {job}:\n(.*?)(?=^  [A-Za-z0-9_-]+:|\Z)',deploy_workflow)
+              if not job_match or "if: github.ref == 'refs/heads/main'" not in job_match.group(1):
+                  failures.append(f'deploy.yml: {job} must be restricted to main')
 
           exact_sha=re.compile(r'^[0-9a-f]{40}$',re.I)
           for workflow in sorted(Path('.github/workflows').glob('*.yml')):

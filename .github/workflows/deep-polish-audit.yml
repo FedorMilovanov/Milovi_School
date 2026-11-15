@@ -7,6 +7,9 @@ on:
 permissions:
   contents: read
 
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
 concurrency:
   group: school-deep-polish-${{ github.ref }}
   cancel-in-progress: true
@@ -134,6 +137,57 @@ jobs:
           print('Disabled candidate SSR and privacy state passed')
           PY
 
+      # These audits arrive with the UI branch. Keep the shared workflow ready
+      # without copying its tests or introducing new dependencies here. The unit
+      # checks are pure; browser checks use the analytics-disabled build so the
+      # consent banner cannot intercept menu/search interaction fixtures. Keep
+      # Google Fonts unmodified here: these assertions include text geometry,
+      # and the suite's empty-font offline mode is a separate fallback scenario.
+      - name: Run optional UI helper unit audit
+        shell: bash
+        run: |
+          if [[ -f scripts/audit_ui_units.mjs ]]; then
+            node scripts/audit_ui_units.mjs
+          else
+            echo 'UI helper audit not present on this source head; skipped.'
+          fi
+
+      - name: Serve disabled candidate for optional UI browser audit
+        shell: bash
+        run: |
+          if [[ ! -f scripts/audit_ui_interactions.mjs ]]; then
+            echo 'UI interaction audit not present on this source head; server not started.'
+            exit 0
+          fi
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory dist >/tmp/school-ui-audit-server.log 2>&1 &
+          echo $! >/tmp/school-ui-audit-server.pid
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/school-ui-audit-server.log
+          exit 1
+
+      - name: Run optional UI interaction browser audit
+        shell: bash
+        env:
+          BASE_URL: http://127.0.0.1:4174
+          UI_AUDIT_FULL: '0'
+        run: |
+          if [[ -f scripts/audit_ui_interactions.mjs ]]; then
+            node scripts/audit_ui_interactions.mjs
+          else
+            echo 'UI interaction audit not present on this source head; skipped.'
+          fi
+
+      - name: Stop disabled UI candidate server
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f /tmp/school-ui-audit-server.pid ]]; then
+            kill "$(cat /tmp/school-ui-audit-server.pid)" 2>/dev/null || true
+          fi
+
       - name: Build configured candidate
         env:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
@@ -253,70 +307,14 @@ jobs:
           exit 1
 
       - name: Exercise configured consent in Chromium
-        shell: bash
-        run: |
-          node <<'JS'
-          const { chromium } = require('playwright')
-          ;(async () => {
-            const findings = []
-            const browser = await chromium.launch({ headless: true })
-            try {
-              const denyContext = await browser.newContext({ serviceWorkers: 'block' })
-              const denyPage = await denyContext.newPage()
-              const analyticsRequests = []
-              denyPage.on('request', request => {
-                const url = request.url()
-                if (/googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i.test(url)) analyticsRequests.push(url)
-              })
-              await denyPage.goto(`http://127.0.0.1:4174/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
-              await denyPage.waitForTimeout(700)
-              const state = await denyPage.evaluate(() => ({
-                footerCount: document.querySelectorAll('footer').length,
-                links: ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/'].map(href => Boolean(document.querySelector(`a[href="${href}"]`))),
-                stats: [...document.querySelectorAll('#stats .stat-num')].map(node => ({ target: Number(node.dataset.statTarget), aria: node.getAttribute('aria-label') })),
-                panels: document.querySelectorAll('.prs-consent').length,
-                directScripts: [...document.scripts].filter(script => /googletagmanager\.com|mc\.yandex\.ru/i.test(script.src)).length,
-              }))
-              if (analyticsRequests.length) findings.push('analytics requested before consent')
-              if (state.footerCount !== 1) findings.push(`homepage has ${state.footerCount} footers`)
-              if (!state.links.every(Boolean)) findings.push(`trust links incomplete: ${state.links.join(',')}`)
-              if (state.stats.length !== 4 || state.stats.some(item => item.target <= 0 || Number(item.aria?.replace('%', '')) <= 0)) findings.push(`stats not truthful: ${JSON.stringify(state.stats)}`)
-              if (state.panels !== 1) findings.push(`expected one consent panel, found ${state.panels}`)
-              if (state.directScripts) findings.push('direct analytics script exists before consent')
-              await denyPage.locator('.prs-consent__deny').click()
-              await denyPage.waitForTimeout(200)
-              if (analyticsRequests.length) findings.push('analytics requested after denial')
-              await denyContext.close()
+        run: node scripts/audit_consent_browser.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4174
 
-              const allowContext = await browser.newContext({ serviceWorkers: 'block' })
-              const allowPage = await allowContext.newPage()
-              await allowPage.goto(`http://127.0.0.1:4174/?deep-polish-allow=${Date.now()}`, { waitUntil: 'domcontentloaded' })
-              await allowPage.locator('.prs-consent__allow').click()
-              await allowPage.waitForTimeout(200)
-              const after = await allowPage.evaluate(() => ({
-                ga: Boolean(document.querySelector('script[data-prs-ga]')),
-                ym: Boolean(document.querySelector('script[data-prs-ym]')),
-                settings: Boolean(document.querySelector('.prs-consent-settings')),
-              }))
-              if (!after.ga || !after.ym) findings.push('analytics scripts not attached after consent')
-              if (!after.settings) findings.push('privacy settings control missing after choice')
-
-              await allowPage.goto(`http://127.0.0.1:4174/privacy/?deep-polish=${Date.now()}`, { waitUntil: 'domcontentloaded' })
-              const control = allowPage.getByRole('button', { name: 'Открыть настройки аналитики' })
-              if (await control.count() !== 1) {
-                findings.push('privacy page lacks settings control')
-              } else {
-                await control.click()
-                if (!await allowPage.locator('.prs-consent').isVisible()) findings.push('privacy settings control does not reopen dialog')
-              }
-              await allowContext.close()
-            } finally {
-              await browser.close()
-            }
-            if (findings.length) throw new Error(findings.join('\n'))
-            console.log('School configured candidate consent audit passed')
-          })().catch(error => { console.error(error); process.exit(1) })
-          JS
+      - name: Verify uncached offline navigation in Chromium
+        run: node scripts/audit_service_worker_offline.mjs
+        env:
+          BASE_URL: http://127.0.0.1:4174
 
       - name: Stop candidate server
         if: always()

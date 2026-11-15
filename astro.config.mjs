@@ -22,37 +22,33 @@ function bumpServiceWorkerVersion() {
       'astro:build:done': async ({ dir }) => {
         const outputDir = fileURLToPath(dir)
         const swPath = path.join(outputDir, 'sw.js')
-        try {
-          const original = await fs.readFile(swPath, 'utf8')
-          const hash = createHash('sha256')
-          const walk = async (dirPath) => {
-            const entries = await fs.readdir(dirPath, { withFileTypes: true })
-            entries.sort((a, b) => a.name.localeCompare(b.name))
-            for (const entry of entries) {
-              const full = path.join(dirPath, entry.name)
-              if (full === swPath) continue
-              if (entry.isDirectory()) {
-                await walk(full)
-              } else if (entry.isFile()) {
-                const rel = path.relative(outputDir, full).replaceAll(path.sep, '/')
-                hash.update(rel)
-                hash.update(await fs.readFile(full))
-              }
+        const original = await fs.readFile(swPath, 'utf8')
+        const placeholders = original.split('__BUILD_HASH__').length - 1
+        if (placeholders !== 1) {
+          throw new Error(`Expected exactly one __BUILD_HASH__ in dist/sw.js; found ${placeholders}`)
+        }
+
+        const hash = createHash('sha256')
+        const walk = async (dirPath) => {
+          const entries = await fs.readdir(dirPath, { withFileTypes: true })
+          entries.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+          for (const entry of entries) {
+            const full = path.join(dirPath, entry.name)
+            if (full === swPath) continue
+            if (entry.isDirectory()) {
+              await walk(full)
+            } else if (entry.isFile()) {
+              const rel = path.relative(outputDir, full).replaceAll(path.sep, '/')
+              hash.update(rel)
+              hash.update(await fs.readFile(full))
             }
           }
-          await walk(outputDir)
-          const stamp = hash.digest('hex').slice(0, 16)
-          const updated = original.replaceAll('__BUILD_HASH__', `v${stamp}`)
-          if (updated !== original) {
-            await fs.writeFile(swPath, updated, 'utf8')
-            console.log(`[milovi-sw-version] Cache bumped → v${stamp}`)
-          }
-        } catch (err) {
-          // sw.js not present in dist (e.g. removed) — nothing to do
-          if ((err && /** @type {NodeJS.ErrnoException} */ (err).code) !== 'ENOENT') {
-            console.warn('[milovi-sw-version] Failed to bump SW version:', err)
-          }
         }
+        await walk(outputDir)
+        const stamp = hash.digest('hex').slice(0, 16)
+        const updated = original.replace('__BUILD_HASH__', `v${stamp}`)
+        await fs.writeFile(swPath, updated, 'utf8')
+        console.log(`[milovi-sw-version] Cache bumped → v${stamp}`)
       },
     },
   }

@@ -4,7 +4,7 @@
 
   var config = window.__MILOVI_SCHOOL_ANALYTICS__ || {};
   var gaId = typeof config.gaId === 'string' ? config.gaId.trim() : '';
-  var yandexId = Number.isFinite(Number(config.yandexId)) ? Number(config.yandexId) : null;
+  var yandexId = Number.isSafeInteger(config.yandexId) && config.yandexId > 0 ? config.yandexId : null;
   if (!gaId && !yandexId) return;
 
   var STORAGE_KEY = 'milovi_school_analytics_consent_v1';
@@ -12,6 +12,7 @@
   var loaded = false;
   var dialog = null;
   var settingsButton = null;
+  var dialogOpener = null;
   var consentResizeObserver = null;
 
   // Fixed overlays share the visible viewport. Expose the actual occupied
@@ -109,10 +110,20 @@
 
   function setChoice(value) {
     saveChoice(value);
+    var restoreFocus = Boolean(dialog && !dialog.hidden && dialog.contains(document.activeElement));
     if (dialog) dialog.hidden = true;
     syncConsentClearance();
     renderSettingsButton();
+    if (restoreFocus) {
+      var focusTarget = dialogOpener && dialogOpener.isConnected ? dialogOpener : settingsButton;
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
+    }
+    dialogOpener = null;
     if (value === 'granted') {
+      // Google Analytics keeps this global opt-out flag for the lifetime of the
+      // document. A same-page deny → grant transition must clear it before the
+      // library initializes, or the loaded tag remains effectively disabled.
+      if (gaId) window['ga-disable-' + gaId] = false;
       loadAnalytics();
       return;
     }
@@ -122,6 +133,7 @@
 
   function open() {
     ensureStyles();
+    if (!dialog || dialog.hidden) dialogOpener = document.activeElement;
     if (!dialog) {
       dialog = document.createElement('section');
       dialog.className = 'prs-consent';
