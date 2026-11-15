@@ -301,3 +301,25 @@ Galles→Fouquet's), год и адреса CinqSens (2018/rue du Bac/ND-de-Lore
   официальной биографией издательства La Martinière. Без правки.
 
 **Счёт программы: 20 claims, 11 исправленных кластеров, 9 подтверждений.**
+
+### 21. Свип биографий, продолжение — Метайе исправлена; Мишалак/Жени/Эйцлер подтверждены
+
+- **metayer-biography / metayer-world-best-2023 — ТРИ версии происхождения в двух статьях:**
+  «1987, Ниор (Deux-Sèvres)» и «1990, Лион» (с нарративом про Бокюза и bouchons). Реальность
+  (fr.Wikipedia/Wikimonde; La Nouvelle République; интервью Apprentis d'Auteuil — слова самой
+  Метайе; comptoir-francais): **2 мая 1988, Ла-Рошели (Charente-Maritime), выросла в Страсбурге**;
+  мать — журналистка, отец — веб-разработчик; в 16 — год обмена в Пуэбле (Мексика), CAP
+  булочника, apprentissage у Paillat в Ла-Рошели, Австралия, затем Ferrandi (CAP кондитера) и
+  парижские дворцы. Обе статьи переписаны; несуществующие версии исключены.
+- **michalak-chocolate-salt:** 22.07.1973, Санлис (Oise) — подтверждено (EN Wikipedia, Babelio,
+  Première). Без правки.
+- **genin-autodidact / genin-ganache-craft:** Сен-Дье (Вогезы), скотобойни с 13,5 до 19 лет,
+  autodidact без диплома, первый ресторан, затем кондитерское направление La Maison du Chocolat
+  (Робер Линкс), отказ в шоколадном цехе → собственная лаборатория 02.02.1996 — подтверждено
+  детально (HuffPost 2015, Newtable — интервью самого Жени, La Semaine, Ausha-подкаст).
+  Без правки.
+- **heitzler-seasonality:** 26.07.1978, Niedermorschwihr (Haut-Rhin); лицей Жозефа Сторка в
+  Гебвиллере; Meilleur Apprenti d'Alsace 1996 (в 19 лет) — подтверждено (fr.Wikipedia,
+  Gîtes de France Alsace, Nouvelles Gastronomiques). Без правки.
+
+**Счёт программы: 21 claims, 12 исправленных кластеров, 12 подтверждений.**
