@@ -17,8 +17,9 @@
 
 - School id: `confectionery-profession-history`.
 - Первичная публикация: https://telegra.ph/Kto-pridumal-konditerskoe-delo-Ot-myasnyh-pirogov-do-iskusstva-desertov-11-07-2
-- Публичная редакционная обложка: локальный ассет `/images/articles/confectionery-profession-history.webp` (с 2026-11-15). Первоисточник — тот же файл, зафиксированный по commit `c29d95072bc8b1781466ec4781cc94481909b164` репозитория video-channel-manager (путь `content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp`); локальная копия байт-в-байт: sha256 `2bf4ec0e537fcb3c8349267ade1992d779e12ef832c9497a62a10c014d003328`. До локализации обложка раздавалась внешним raw.githubusercontent URL — единственная внешняя зависимость из 158 материалов.
-- Размер обложки: 1672×941. Это AI-иллюстрация, не историческое свидетельство.
+- Публичная редакционная обложка: локальная оптимизированная версия `/images/articles/history-confectionery-profession-cover.webp` (WebP 1280×720, исходный кадр 1672×941). Это AI-иллюстрация, не историческое свидетельство.
+- Первоисточник иллюстрации: `video-channel-manager`, commit `c29d95072bc8b1781466ec4781cc94481909b164`, `content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp`; SHA-256 исходника `2bf4ec0e537fcb3c8349267ade1992d779e12ef832c9497a62a10c014d003328`. Локальная обложка — оптимизированная производная, а не побайтовая копия.
+- Внешние (cross-origin) изображения на School не публикуются: `<img>`, `og:image` и `image:loc` в sitemap должны использовать собственный origin.
 - Полный текст адаптирован из сохранённых Telegraph nodes текущего автора, включая 10 разделов и ссылочный аппарат. Оригинальная гравюра Абрахама Босса доступна внешней ссылкой на музейный оригинал (в ArticleView удалённые inline-image URL не поддерживаются); 4 тематические иллюстрации используют уже имеющиеся локальные School assets.
 - Перенос на School не изменяет Telegraph и уже опубликованные VK/Telegram сообщения.
 

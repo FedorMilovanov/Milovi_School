@@ -15,6 +15,7 @@ import ArticlesGrid from './ArticlesGrid'
 import Footer from './Footer'
 import ErrorBoundary from './ErrorBoundary'
 import ContinueReading from './ContinueReading'
+import LatestMaterials from './LatestMaterials'
 import MobileBottomBar from './MobileBottomBar'
 import UpdateNotification from './UpdateNotification'
 import ToastContainer from './Toast'
@@ -268,7 +269,8 @@ export default function HomeApp({ articles }: HomeAppProps) {
           )}
 
           <DashboardBento articles={articles} onArticleClick={openArticle} />
-          
+          <LatestMaterials articles={articles} />
+
         </main>
         <Footer />
         {commandOpen && (

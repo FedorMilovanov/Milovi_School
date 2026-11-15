@@ -1,15 +1,17 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import Header from './Header'
 import Footer from './Footer'
-import CanonExperience from './CanonExperience'
+import CanonExperience, { type CanonDossier } from './CanonExperience'
 import Cursor from './Cursor'
 import ScrollProgress from './ScrollProgress'
 import ScrollToTop from './ScrollToTop'
 import ToastContainer from './Toast'
 import UpdateNotification from './UpdateNotification'
 import ErrorBoundary from './ErrorBoundary'
+import SearchStatusDialog from './SearchStatusDialog'
 import { safeSetItem } from '../utils/storage'
 import { navigateTo } from '../utils/navigation'
+import { useArticleIndex } from '../hooks/useArticleIndex'
 import type { ArticleClientMeta } from '../data/types'
 
 const CommandPalette = lazy(() => import('./CommandPalette'))
@@ -17,11 +19,14 @@ const CommandPalette = lazy(() => import('./CommandPalette'))
 const THEME_LIGHT = '#f5efe5'
 const THEME_DARK = '#10100f'
 
-export default function CanonPageShell({ articles }: { articles: ArticleClientMeta[] }) {
+export default function CanonPageShell({ dossiers }: { dossiers: Record<string, CanonDossier> }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [themeReady, setThemeReady] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
   const commandOpenRef = useRef(false)
+  // Search metadata is fetched on first open instead of being serialized into
+  // the page: /canon/ used to carry ~144 KB of unused article props.
+  const { index: searchIndex, status: searchStatus, retry: retrySearch } = useArticleIndex(commandOpen)
 
   useEffect(() => { commandOpenRef.current = commandOpen }, [commandOpen])
 
@@ -70,21 +75,38 @@ export default function CanonPageShell({ articles }: { articles: ArticleClientMe
           onOpenCommand={() => setCommandOpen((value) => !value)}
         />
 
-        <CanonExperience articles={articles} />
+        <CanonExperience dossiers={dossiers} />
         <Footer />
 
         {commandOpen && (
-          <Suspense fallback={null}>
-            <CommandPalette
-              open={commandOpen}
-              articles={articles}
+          searchIndex ? (
+            <ErrorBoundary fallback={
+              <SearchStatusDialog
+                titleId="canon-search-loading-title"
+                failed
+                onClose={closeCommand}
+                onRetry={() => window.location.reload()}
+              />
+            }>
+              <Suspense fallback={<SearchStatusDialog titleId="canon-search-loading-title" onClose={closeCommand} />}>
+                <CommandPalette
+                  open={commandOpen}
+                  articles={searchIndex}
+                  onClose={closeCommand}
+                  onOpenArticle={openArticle}
+                  initialQuery=""
+                />
+              </Suspense>
+            </ErrorBoundary>
+          ) : (
+            <SearchStatusDialog
+              titleId="canon-search-loading-title"
+              failed={searchStatus === "error"}
               onClose={closeCommand}
-              onOpenArticle={openArticle}
-              initialQuery=""
+              onRetry={retrySearch}
             />
-          </Suspense>
-        )}
-
+          )
+        )
         <UpdateNotification />
         <ToastContainer />
         <ScrollProgress />

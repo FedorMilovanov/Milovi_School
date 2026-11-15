@@ -143,22 +143,13 @@ jobs:
       # consent banner cannot intercept menu/search interaction fixtures. Keep
       # Google Fonts unmodified here: these assertions include text geometry,
       # and the suite's empty-font offline mode is a separate fallback scenario.
-      - name: Run optional UI helper unit audit
+      - name: Run required UI helper unit audit
         shell: bash
-        run: |
-          if [[ -f scripts/audit_ui_units.mjs ]]; then
-            node scripts/audit_ui_units.mjs
-          else
-            echo 'UI helper audit not present on this source head; skipped.'
-          fi
+        run: node scripts/audit_ui_units.mjs
 
-      - name: Serve disabled candidate for optional UI browser audit
+      - name: Serve disabled candidate for required UI browser audit
         shell: bash
         run: |
-          if [[ ! -f scripts/audit_ui_interactions.mjs ]]; then
-            echo 'UI interaction audit not present on this source head; server not started.'
-            exit 0
-          fi
           python3 -m http.server 4174 --bind 127.0.0.1 --directory dist >/tmp/school-ui-audit-server.log 2>&1 &
           echo $! >/tmp/school-ui-audit-server.pid
           for attempt in $(seq 1 20); do
@@ -168,17 +159,12 @@ jobs:
           cat /tmp/school-ui-audit-server.log
           exit 1
 
-      - name: Run optional UI interaction browser audit
+      - name: Run required UI interaction browser audit
         shell: bash
         env:
           BASE_URL: http://127.0.0.1:4174
           UI_AUDIT_FULL: '0'
-        run: |
-          if [[ -f scripts/audit_ui_interactions.mjs ]]; then
-            node scripts/audit_ui_interactions.mjs
-          else
-            echo 'UI interaction audit not present on this source head; skipped.'
-          fi
+        run: node scripts/audit_ui_interactions.mjs
 
       - name: Stop disabled UI candidate server
         if: always()

@@ -22,7 +22,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -51,6 +51,94 @@ def check(condition: bool, message: str) -> None:
     checks += 1
     if not condition:
         errors.append(message)
+
+
+
+SITE_PARTS = urlsplit(SITE)
+DEFAULT_PORTS = {"http": 80, "https": 443}
+
+
+def same_origin(url: str) -> bool:
+    """True only for root-relative paths or absolute URLs on our exact origin.
+
+    A prefix test is not an origin test: `startswith("/")` accepts
+    protocol-relative third-party URLs (`//evil.example/x.png`) and
+    `startswith(SITE)` accepts prefix lookalike authorities
+    (`https://french.milovicake.ru.evil.example/x.png`). Both pass a naive gate
+    while the browser loads a foreign image, so the components are compared
+    explicitly: scheme, hostname and effective port.
+    """
+    if not url:
+        return False
+    url = url.strip()
+    if not url:
+        return False
+    if url.startswith("//"):  # protocol-relative -> inherits a foreign origin
+        return False
+    parts = urlsplit(url)
+    if not parts.scheme and not parts.netloc:
+        # No scheme and no authority: must be an unambiguous root-relative path.
+        return url.startswith("/") and not url.startswith("//")
+    if parts.scheme.lower() != SITE_PARTS.scheme:
+        return False
+    if (parts.hostname or "").lower() != (SITE_PARTS.hostname or "").lower():
+        return False
+    try:
+        port = parts.port
+    except ValueError:  # malformed port, e.g. "https://host:abc/"
+        return False
+    # `port or default` would turn an explicit `:0` into the default port, because
+    # 0 is falsy — `https://host:0/x` then compares equal to `:443` and passes.
+    # Only an absent port may fall back to the scheme default.
+    effective_port = DEFAULT_PORTS[parts.scheme.lower()] if port is None else port
+    return effective_port == DEFAULT_PORTS[SITE_PARTS.scheme]
+
+
+SAME_ORIGIN_FIXTURES: tuple[tuple[str, bool], ...] = (
+    ("/images/ok.webp", True),
+    (f"{SITE}/images/ok.webp", True),
+    ("https://FRENCH.MILOVICAKE.RU/images/ok.webp", True),
+    (f"{SITE}:443/images/ok.webp", True),
+    ("", False),
+    ("//evil.example/x.png", False),
+    ("//french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru.evil.example/x.png", False),
+    ("https://evil.example/french.milovicake.ru/x.png", False),
+    ("http://french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru:8443/x.png", False),
+    ("https://french.milovicake.ru:0/x.png", False),
+    ("https://french.milovicake.ru:/x.png", True),
+    ("https://french.milovicake.ru:80/x.png", False),
+    ("https://sub.french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru:abc/x.png", False),
+    ("images/relative.webp", False),
+    ("javascript:alert(1)", False),
+    ("data:image/png;base64,AAAA", False),
+)
+
+
+def assert_same_origin_fixtures() -> None:
+    """The gate must reject its own bypasses; a silent gate is worse than none."""
+    for candidate, expected in SAME_ORIGIN_FIXTURES:
+        check(
+            same_origin(candidate) is expected,
+            f"same_origin() disagreed with fixture: {candidate!r} expected {expected}",
+        )
+
+
+def jsonld_executable_strings(value: object) -> list[str]:
+    """Every string reachable from a parsed JSON-LD value."""
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [item for entry in value for item in jsonld_executable_strings(entry)]
+    if isinstance(value, dict):
+        return [
+            item
+            for key, entry in value.items()
+            for item in [*jsonld_executable_strings(key), *jsonld_executable_strings(entry)]
+        ]
+    return []
 
 
 def read_html(path: Path) -> str:
@@ -95,6 +183,8 @@ if not DIST.is_dir():
 
 # 1. Indexable content pages: preview permissions + social image metadata.
 indexable_count = 0
+assert_same_origin_fixtures()
+
 for html_path in DIST.rglob("*.html"):
     if is_ownership_verification(html_path):
         continue
@@ -462,6 +552,46 @@ for article_path in article_paths:
     for forbidden in FORBIDDEN_PRIVATE:
         check(forbidden not in raw_article,
               f"{aid}: must not publish private identifier: {forbidden}")
+
+
+# 6. Structured-data hygiene and own-origin media.
+#    - Inline JSON-LD is HTML: a raw "<" can close the <script> element early, and
+#      the double-escaped "\\\\u003c" bug produced a literal backslash in the value.
+#    - Every image the crawler can see (HTML <img>, og:image, sitemap image:loc)
+#      must live on our origin: a third-party URL there is an unversioned
+#      dependency outside our cache, CSP and uptime control.
+for html_path in DIST.rglob("*.html"):
+    if is_ownership_verification(html_path):
+        continue
+    rel = html_path.relative_to(DIST)
+    soup = BeautifulSoup(read_html(html_path), "html.parser")
+
+    for node in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        raw = node.string or node.get_text() or ""
+        check("<" not in raw, f"JSON-LD must not contain a raw '<' (breaks the script element): {rel}")
+        check("\\\\u003c" not in raw, f"JSON-LD contains a double-escaped '\\\\u003c' (value decodes to a literal backslash): {rel}")
+        try:
+            parsed = json.loads(raw) if raw.strip() else None
+        except json.JSONDecodeError:
+            continue  # reported by jsonld_objects()
+        for text in jsonld_executable_strings(parsed):
+            check("\\u003c" not in text, f"JSON-LD string value contains a literal escape instead of '<': {rel}")
+
+    for meta_attr in ({"property": "og:image"}, {"name": "twitter:image"}):
+        meta = soup.find("meta", attrs=meta_attr)
+        if meta is not None:
+            content = str(meta.get("content", "")).strip()
+            check(same_origin(content), f"Social image must be served from our own origin: {rel} -> {content}")
+
+    for img in soup.find_all("img"):
+        src = str(img.get("src", "")).strip()
+        if src and not src.startswith("data:"):
+            check(same_origin(src), f"Image must be served from our own origin: {rel} -> {src}")
+
+if sitemap_path.is_file():
+    for node in ET.fromstring(sitemap_path.read_text(encoding="utf-8")).iter(f"{{{IMAGE_NS}}}loc"):
+        loc = (node.text or "").strip()
+        check(same_origin(loc), f"Sitemap image:loc must be on our origin: {loc}")
 
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)

@@ -54,9 +54,13 @@ function AnimatedCounter({ target, suffix = '', prefix = '', label, onClick }: A
   }, [target, shouldReduce])
 
   const inner = (
+    // `initial={false}` keeps the truthful value visible in the static HTML:
+    // a framer `initial={{opacity:0}}` here would hide all four statistics for
+    // any client without JS. The scroll reveal is therefore a progressive
+    // enhancement only — content first, motion second.
     <motion.div
       className="flex flex-col items-center px-6 py-10 text-center"
-      initial={shouldReduce ? false : { opacity: 0, y: 16 }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={shouldReduce ? { duration: 0 } : { duration: 0.5 }}

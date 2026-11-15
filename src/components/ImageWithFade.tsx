@@ -4,6 +4,10 @@ import { motion, useReducedMotion } from 'framer-motion'
 interface ImageWithFadeProps {
   src: string
   alt: string
+  /** Responsive candidates from `src/utils/imageVariants`; omit to load `src` alone. */
+  srcSet?: string
+  /** Slot descriptor that pairs with `srcSet`; required whenever `srcSet` is set. */
+  sizes?: string
   className?: string
   lazy?: boolean
   fallback?: string
@@ -12,12 +16,13 @@ interface ImageWithFadeProps {
 
 const DEFAULT_FALLBACK = '/images/placeholder.svg'
 
-export default function ImageWithFade({ src, alt, className = '', lazy = true, fallback = DEFAULT_FALLBACK, fetchPriority = 'auto' }: ImageWithFadeProps) {
+export default function ImageWithFade({ src, alt, srcSet, sizes, className = '', lazy = true, fallback = DEFAULT_FALLBACK, fetchPriority = 'auto' }: ImageWithFadeProps) {
   const [isIntersected, setIsIntersected] = useState(!lazy)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
   const [usingFallback, setUsingFallback] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLImageElement | null>(null)
   const shouldReduce = useReducedMotion()
 
   useEffect(() => {
@@ -63,6 +68,18 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
     setUsingFallback(false)
   }, [src])
 
+  // An image that 404s before hydration never reaches `onError`; the browser only
+  // leaves `complete && naturalWidth === 0` behind. That is the same one hop as a
+  // live error, so the fallback state is entered here too.
+  useEffect(() => {
+    const element = imageRef.current
+    if (!element || !element.complete || element.naturalWidth > 0) return
+    if (!usingFallback && fallback) {
+      setUsingFallback(true)
+      setLoaded(false)
+    }
+  }, [isIntersected, usingFallback, fallback])
+
   const handleError = () => {
     if (!usingFallback && fallback) {
       setUsingFallback(true)
@@ -80,7 +97,12 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
 
       {isIntersected && !error && (
         <motion.img
+          ref={imageRef}
           src={usingFallback ? fallback : src}
+          // The fallback is a local SVG/PNG with no derivatives, so the candidate
+          // list must disappear together with the source it describes.
+          srcSet={usingFallback ? undefined : srcSet}
+          sizes={usingFallback ? undefined : sizes}
           alt={alt}
           className="h-full w-full object-cover"
           style={{ willChange: loaded ? 'auto' : 'opacity, filter' }}
@@ -107,7 +129,7 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
           aria-label={alt}
         >
           <img
-            src="/images/logo.png"
+            src="/images/logo-128.webp"
             alt="Patisserie Russe"
             style={{
               width: 56, height: 56, objectFit: 'contain', borderRadius: 4,

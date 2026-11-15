@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { markRevealReady } from '../utils/revealReady'
+import { applyImageFallback, recoverFailedImage, variantSrcSet, variantUrl } from '../utils/imageVariants'
 import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import LuxuryText from './LuxuryText'
@@ -75,6 +77,8 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
   useEffect(() => {
     const els = sectionRef.current?.querySelectorAll('.reveal')
     if (!els?.length) return
+    // The observer exists now, so the hidden start state is safe to keep.
+    markRevealReady()
 
     // Fallback: если observer не сработал — показываем всё через 400ms
     const fallback = window.setTimeout(() => {
@@ -131,21 +135,20 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     source image fades into a dark blurred copy; overlay/text stay above it. */}
                 <div
                   className="cat-card-img-wrap-lux relative aspect-[16/10] overflow-hidden"
-                  style={{ ['--cat-bg' as string]: `url(${cat.img})` }}
+                  // Blur layer cannot express `srcset`; the smallest derivative is
+                  // enough for a blurred copy and avoids a second full-size fetch.
+                  style={{ ['--cat-bg' as string]: `url(${variantUrl(cat.img) ?? cat.img})` }}
                 >
                   <img
                     src={cat.img}
+                    srcSet={variantSrcSet(cat.img)}
+                    sizes="(max-width: 640px) 100vw, 50vw"
                     alt={cat.imgAlt} title={cat.imgAlt}
                     loading="lazy"
                     decoding="async"
                     className="cat-img cat-card-img-lux h-full w-full object-cover"
-                    onError={(e) => {
-                      const el = e.currentTarget
-                      const fb = (cat as { localFallback?: string }).localFallback
-                      if (fb && el.src !== window.location.origin + fb) {
-                        el.src = fb
-                      }
-                    }}
+                    ref={(element) => recoverFailedImage(element)}
+                    onError={(e) => applyImageFallback(e.currentTarget)}
                   />
                   {/* Gradient overlay */}
                   <div className="cat-overlay-lux absolute inset-0 z-[2]" />

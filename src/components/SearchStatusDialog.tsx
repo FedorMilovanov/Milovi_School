@@ -3,12 +3,13 @@ import { useModalFocus } from '../hooks/useModalFocus'
 
 interface Props {
   failed?: boolean
+  titleId?: string
   onClose: () => void
   onRetry?: () => void
 }
 
 /** The same keyboard contract while either the index or search module loads. */
-export default function SearchStatusDialog({ failed = false, onClose, onRetry }: Props) {
+export default function SearchStatusDialog({ failed = false, onClose, onRetry, titleId = "article-search-loading-title" }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   useModalFocus(ref, true)
   return (
@@ -17,7 +18,7 @@ export default function SearchStatusDialog({ failed = false, onClose, onRetry }:
         ref={ref}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="article-search-loading-title"
+        aria-labelledby={titleId}
         tabIndex={-1}
         onKeyDown={event => {
           if (event.key !== 'Escape') return
@@ -27,7 +28,7 @@ export default function SearchStatusDialog({ failed = false, onClose, onRetry }:
         }}
         className="mx-auto w-full max-w-lg rounded-xl border border-stone-700 bg-stone-950 p-6 text-stone-100 shadow-2xl"
       >
-        <h2 id="article-search-loading-title" className="text-xl font-semibold">Поиск по библиотеке</h2>
+        <h2 id={titleId} className="text-xl font-semibold">Поиск по библиотеке</h2>
         {failed ? (
           <div className="mt-4 space-y-3">
             <p role="alert">Не удалось загрузить поиск. Проверьте соединение и повторите попытку.</p>

@@ -198,16 +198,19 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # ratchet stays at zero.
 MAX_WEAK_CITATIONS = 0
 
-# The graded evidence register (src/data/historyEvidence.ts) deliberately cites
-# interested-party and popular-retelling sources at their site roots — e.g.
-# dalloyau.fr as grade C "corporate history of its own product" or
-# canneles-marion-lebon.fr as grade D "commercial retelling". The grade and the
-# scope note ARE the weakness disclosure; a root is often the only stable page a
-# small maison maintains (dalloyau.fr/opera.html is already in KNOWN_DEAD_URLS).
-# These URLs stay in the dead-link registry — only the weak-citation ratchet
-# exempts them. Raising a genuinely apt deep document remains welcome; replacing
-# a root with an off-topic deep page is not.
-WEAK_EXEMPT_ORIGINS = frozenset({"history-evidence"})
+# Three historical evidence URLs are grade-disclosed commercial homepage citations
+# for which no stable suitable deep-document substitute has been verified.
+# Keep these exact exceptions visible and subject to dead/redirect checks.
+# All future weak history links MUST fail until individually justified.
+WEAK_EXEMPT_URLS = frozenset({
+    "https://mariatotal.com/",  # graded commercial contextual account
+    "https://www.dalloyau.fr/",  # corporate source about its own product
+    "https://canneles-marion-lebon.fr/",  # grade-disclosed commercial retelling
+})
+
+def weak_exception(citation: dict[str, str]) -> bool:
+    return (citation["origin"] == "history-evidence"
+            and citation["url"] in WEAK_EXEMPT_URLS)
 
 # Root redirects are hard failures too. Once the full strict probe reported zero,
 # the former observe-only ratchet was promoted to a permanent zero budget.
@@ -432,7 +435,7 @@ def collect_citations() -> list[dict[str, str]]:
     # Graded evidence register: every quoted URL string is a reviewable source
     # by construction (the register's whole purpose), so all of them join the
     # dead-link registry. Weakness of grade-C/D roots is disclosed by the grade
-    # itself — see WEAK_EXEMPT_ORIGINS.
+    # itself — see WEAK_EXEMPT_URLS.
     if HISTORY_EVIDENCE_PATH.exists():
         for url in EVIDENCE_URL_RE.findall(HISTORY_EVIDENCE_PATH.read_text(encoding="utf-8")):
             add("__history_evidence__", url, "history-evidence")
@@ -692,13 +695,13 @@ def main() -> int:
     # the same set from probe results for the report artifact; the two agree by
     # construction.
     offline_weak = [c for c in citations
-                    if generic_path(c["url"]) and c["origin"] not in WEAK_EXEMPT_ORIGINS]
+                    if generic_path(c["url"]) and not weak_exception(c)]
     offline_weak_exempt = [c for c in citations
-                           if generic_path(c["url"]) and c["origin"] in WEAK_EXEMPT_ORIGINS]
+                           if generic_path(c["url"]) and weak_exception(c)]
     print(f"- weak citations (offline, generic_path): {len(offline_weak)} "
           f"of {len(citations)} (budget {MAX_WEAK_CITATIONS})")
     if offline_weak_exempt:
-        print(f"- weak but grade-disclosed (WEAK_EXEMPT_ORIGINS): "
+        print(f"- weak but grade-disclosed (WEAK_EXEMPT_URLS): "
               f"{len(offline_weak_exempt)}")
     if len(offline_weak) > MAX_WEAK_CITATIONS:
         print(f"\nWeak-citation ratchet exceeded: {len(offline_weak)} > "
@@ -739,7 +742,7 @@ def main() -> int:
     blocked_urls = [item for item in results if item["verdict"] == "blocked"]
     weak_citations = [c for c in citations
                       if verdict[c["url"]]["verdict"] == "weak"
-                      and c["origin"] not in WEAK_EXEMPT_ORIGINS]
+                      and not weak_exception(c)]
     root_redirects = [c for c in citations if verdict[c["url"]].get("rootRedirect")]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

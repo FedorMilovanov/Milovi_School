@@ -1,8 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { defaultFallback } from '../assets/images'
+import { applyImageFallback, variantSrcSet } from '../utils/imageVariants'
 import { pluralRu, MATERIAL } from '../utils/plural'
 import LuxuryText from './LuxuryText'
+
+/**
+ * Above-the-fold entrance. Previously each block used framer-motion
+ * `initial={{opacity:0}}`, which writes `style="opacity:0"` into the static
+ * HTML — the headline was invisible without JS and could only paint after
+ * hydration. The motion now lives in CSS (`html.js .enter-up`), so the document
+ * paints the text immediately and the animation stays optional.
+ */
+// Full-bleed hero: 1296x864 WebP (66 770 B) instead of the bundled 139 046 B JPEG,
+// served through 480/960 derivatives so a phone does not download the desktop frame.
+const HERO_IMAGE = '/images/hero-chef.webp'
+// The master is 1296 px wide, so the source itself is the widest honest candidate:
+// without it the desktop hero (1440 px box) would fall back to the 960 derivative.
+const HERO_SRC_SET = [variantSrcSet(HERO_IMAGE), `${HERO_IMAGE} 1296w`].filter(Boolean).join(', ')
+
+const enterStyle = (delay: string, shift: string): CSSProperties => ({
+  '--enter-delay': delay,
+  '--enter-shift': shift,
+} as CSSProperties)
 
 interface HeroProps {
   totalArticles: number
@@ -49,7 +70,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
       <div className="absolute inset-0">
         {mobile ? (
           <motion.img
-            src={defaultFallback}
+            src={HERO_IMAGE}
+            srcSet={HERO_SRC_SET}
+            sizes="100vw"
             alt="Французская кондитерская"
             className="h-full w-full object-cover"
             initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
@@ -58,10 +81,14 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             loading="eager"
             decoding="async"
             fetchPriority="high"
+            ref={(element) => { if (element?.complete && element.naturalWidth === 0) applyImageFallback(element, defaultFallback) }}
+            onError={(event) => applyImageFallback(event.currentTarget, defaultFallback)}
           />
         ) : (
           <motion.img
-            src={defaultFallback}
+            src={HERO_IMAGE}
+            srcSet={HERO_SRC_SET}
+            sizes="100vw"
             alt="Французская кондитерская"
             className="h-full w-full object-cover"
             style={{ y: yParallax }}
@@ -71,6 +98,8 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             loading="eager"
             decoding="async"
             fetchPriority="high"
+            ref={(element) => { if (element?.complete && element.naturalWidth === 0) applyImageFallback(element, defaultFallback) }}
+            onError={(event) => applyImageFallback(event.currentTarget, defaultFallback)}
           />
         )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.85),rgba(12,10,9,0.50)_48%,rgba(12,10,9,0.08))]" />
@@ -79,11 +108,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
 
       <div className="relative mx-auto flex min-h-[88svh] max-w-7xl items-end px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         <div className="max-w-4xl hero-text text-white">
-          <motion.p
-            className="mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/85 sm:text-xs"
-            initial={shouldReduce ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { duration: 0.7, delay: 0.15 }}
+          <p
+            className="enter-up mb-5 font-mono text-[10px] uppercase tracking-[0.2em] text-amber-200/85 sm:text-xs"
+            style={enterStyle('0.15s', '16px')}
           >
             Patisserie Russe · Образовательный проект{' '}
             <a
@@ -94,26 +121,22 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             >
               Milovi Cake
             </a>
-          </motion.p>
+          </p>
 
-          <motion.h1
-            className="hero-h1-lux max-w-4xl font-serif text-[clamp(3.25rem,12vw,9rem)] font-semibold leading-[1.02] tracking-[-0.08em]"
-            initial={shouldReduce ? false : { opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { duration: 0.9, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          <h1
+            className="enter-up hero-h1-lux max-w-4xl font-serif text-[clamp(3.25rem,12vw,9rem)] font-semibold leading-[1.02] tracking-[-0.08em]"
+            style={enterStyle('0.22s', '24px')}
           >
             {/* Hero h1 — две строки. Курсор покрасит каждую букву по палитре
                 (см. Cursor.tsx). "Французская" — ваниль→золото (tone=title).
                 "Pâtisserie" — синий→ярко-синий (tone=platinum, как в drop). */}
             <LuxuryText tone="hero-title" as="span" className="hero-line-1">Французская</LuxuryText>
             <LuxuryText tone="hero-plat" as="em" className="hero-line-2">Pâtisserie</LuxuryText>
-          </motion.h1>
+          </h1>
 
-          <motion.div
-            className="mt-8 max-w-2xl border-l border-amber-100/40 pl-6"
-            initial={shouldReduce ? false : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { duration: 0.7, delay: 0.4 }}
+          <div
+            className="enter-up mt-8 max-w-2xl border-l border-amber-100/40 pl-6"
+            style={enterStyle('0.4s', '18px')}
           >
             <p className="text-lg leading-8 text-stone-100 sm:text-xl sm:leading-9">
               Бесплатная библиотека о французской кондитерской школе на русском языке. Техники, рецепты и разборы от ведущих мировых шефов — без пафоса, с практическим упором.
@@ -121,13 +144,11 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.28em] text-amber-200/80">
               {totalArticles}&thinsp;{pluralRu(totalArticles, MATERIAL)} · техники, рецепты, биографии · источники указаны
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="mt-10 flex flex-wrap gap-4"
-            initial={shouldReduce ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={shouldReduce ? { duration: 0 } : { duration: 0.7, delay: 0.56 }}
+          <div
+            className="enter-up mt-10 flex flex-wrap gap-4"
+            style={enterStyle('0.56s', '16px')}
           >
             <a
               href="#archive"
@@ -143,7 +164,7 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             >
               Milovi Cake →
             </a>
-          </motion.div>
+          </div>
         </div>
       </div>
 

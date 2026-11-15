@@ -50,7 +50,7 @@ const QUOTES: Quote[] = [
     sourceLabel: '7 à table!, 2017',
   },
   {
-    text: 'Кондитерское дело — более строгая дисциплина: оно прививает работе Vigor и точность. Всё взвешено и вымерено, почти химия.',
+    text: 'Кондитерское дело требует большей дисциплины: оно приучает работать энергично и точно. Здесь всё взвешено и вымерено — почти как в химии.',
     author: 'Мишель Ру-мл.',
     sourceUrl: 'https://www.nrn.com/food-trends/under-the-toque-michel-roux-jr-keeps-tradition-alive-at-le-gavroche',
     sourceLabel: 'Nation’s Restaurant News, 2007',
