@@ -22,7 +22,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -54,11 +54,69 @@ def check(condition: bool, message: str) -> None:
 
 
 
+SITE_PARTS = urlsplit(SITE)
+DEFAULT_PORTS = {"http": 80, "https": 443}
+
+
 def same_origin(url: str) -> bool:
-    """True for site-relative or same-origin absolute URLs."""
+    """True only for root-relative paths or absolute URLs on our exact origin.
+
+    A prefix test is not an origin test: `startswith("/")` accepts
+    protocol-relative third-party URLs (`//evil.example/x.png`) and
+    `startswith(SITE)` accepts prefix lookalike authorities
+    (`https://french.milovicake.ru.evil.example/x.png`). Both pass a naive gate
+    while the browser loads a foreign image, so the components are compared
+    explicitly: scheme, hostname and effective port.
+    """
     if not url:
         return False
-    return url.startswith("/") or url.startswith(SITE)
+    url = url.strip()
+    if not url:
+        return False
+    if url.startswith("//"):  # protocol-relative -> inherits a foreign origin
+        return False
+    parts = urlsplit(url)
+    if not parts.scheme and not parts.netloc:
+        # No scheme and no authority: must be an unambiguous root-relative path.
+        return url.startswith("/") and not url.startswith("//")
+    if parts.scheme.lower() != SITE_PARTS.scheme:
+        return False
+    if (parts.hostname or "").lower() != (SITE_PARTS.hostname or "").lower():
+        return False
+    try:
+        port = parts.port
+    except ValueError:  # malformed port, e.g. "https://host:abc/"
+        return False
+    return (port or DEFAULT_PORTS[parts.scheme.lower()]) == DEFAULT_PORTS[SITE_PARTS.scheme]
+
+
+SAME_ORIGIN_FIXTURES: tuple[tuple[str, bool], ...] = (
+    ("/images/ok.webp", True),
+    (f"{SITE}/images/ok.webp", True),
+    ("https://FRENCH.MILOVICAKE.RU/images/ok.webp", True),
+    (f"{SITE}:443/images/ok.webp", True),
+    ("", False),
+    ("//evil.example/x.png", False),
+    ("//french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru.evil.example/x.png", False),
+    ("https://evil.example/french.milovicake.ru/x.png", False),
+    ("http://french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru:8443/x.png", False),
+    ("https://sub.french.milovicake.ru/x.png", False),
+    ("https://french.milovicake.ru:abc/x.png", False),
+    ("images/relative.webp", False),
+    ("javascript:alert(1)", False),
+    ("data:image/png;base64,AAAA", False),
+)
+
+
+def assert_same_origin_fixtures() -> None:
+    """The gate must reject its own bypasses; a silent gate is worse than none."""
+    for candidate, expected in SAME_ORIGIN_FIXTURES:
+        check(
+            same_origin(candidate) is expected,
+            f"same_origin() disagreed with fixture: {candidate!r} expected {expected}",
+        )
 
 
 def jsonld_executable_strings(value: object) -> list[str]:
@@ -118,6 +176,8 @@ if not DIST.is_dir():
 
 # 1. Indexable content pages: preview permissions + social image metadata.
 indexable_count = 0
+assert_same_origin_fixtures()
+
 for html_path in DIST.rglob("*.html"):
     if is_ownership_verification(html_path):
         continue
@@ -524,7 +584,7 @@ for html_path in DIST.rglob("*.html"):
 if sitemap_path.is_file():
     for node in ET.fromstring(sitemap_path.read_text(encoding="utf-8")).iter(f"{{{IMAGE_NS}}}loc"):
         loc = (node.text or "").strip()
-        check(loc.startswith(f"{SITE}/"), f"Sitemap image:loc must be on our origin: {loc}")
+        check(same_origin(loc), f"Sitemap image:loc must be on our origin: {loc}")
 
 if errors:
     print(f"SEO audit FAILED: {len(errors)} issue(s), {checks} checks", file=sys.stderr)
