@@ -261,6 +261,7 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
   const [copied, setCopied] = useState(false)
   const copiedTimeoutRef = useRef<number | null>(null)
   const [tocOpen, setTocOpen] = useState(false)
+  const mobileTocTriggerRef = useRef<HTMLButtonElement>(null)
   const [resumePosition, setResumePosition] = useState(0)
   // F-18: ref to the floating TOC <details> element so we can close it after navigation
   const detailsTocRef = useRef<HTMLDetailsElement>(null)
@@ -321,10 +322,23 @@ export default function ArticleView({ article, allArticles, onBack, onNavigate, 
 
   const handleKey = useCallback((e: KeyboardEvent) => {
     if (e.defaultPrevented || disableEscapeBack) return
-    if (e.key === 'Escape') {
-      onBack()
+    if (e.key !== 'Escape') return
+    // Dismiss the nearest reading disclosure before interpreting Escape as
+    // navigation. Otherwise the contents menu unexpectedly takes readers away.
+    if (detailsTocRef.current?.open) {
+      e.preventDefault()
+      detailsTocRef.current.open = false
+      detailsTocRef.current.querySelector('summary')?.focus()
+      return
     }
-  }, [disableEscapeBack, onBack])
+    if (tocOpen) {
+      e.preventDefault()
+      setTocOpen(false)
+      mobileTocTriggerRef.current?.focus()
+      return
+    }
+    onBack()
+  }, [disableEscapeBack, onBack, tocOpen])
   useEffect(() => { window.addEventListener('keydown', handleKey); return () => window.removeEventListener('keydown', handleKey) }, [handleKey])
 
   // BUG FIX: clean up focus-mode class when navigating away from article
@@ -755,6 +769,7 @@ const renderedContent = useMemo(() => {
             <div className="mb-8 border border-stone-200 bg-white/60 dark:border-stone-800 dark:bg-stone-900/60 lg:hidden">
               <button
                 type="button"
+                ref={mobileTocTriggerRef}
                 onClick={() => setTocOpen(v => !v)}
                 aria-expanded={tocOpen}
                 aria-controls="mobile-toc-list"
