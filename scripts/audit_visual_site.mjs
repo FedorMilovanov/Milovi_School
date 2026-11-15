@@ -511,9 +511,9 @@ await check('tablet: no browser or network errors', async () => {
 // silently falls back to its 1280 px original lands at 3.8x — i.e. the strict
 // ratio is what actually proves the `srcset` wiring, where 4x would not notice.
 const RASTER_ROUTES = [
-  ['home', '/', false, 4],
+  ['home', '/', true, 3],
   ['canon', '/canon/', false, 4],
-  ['history', '/history/', false, 4],
+  ['history', '/history/', true, 3],
   ['materials', '/materials/', true, 3],
   ['article', '/articles/recipe-kouglof/', false, 4],
 ]

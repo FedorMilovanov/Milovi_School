@@ -4,6 +4,10 @@ import { motion, useReducedMotion } from 'framer-motion'
 interface ImageWithFadeProps {
   src: string
   alt: string
+  /** Responsive candidates from `src/utils/imageVariants`; omit to load `src` alone. */
+  srcSet?: string
+  /** Slot descriptor that pairs with `srcSet`; required whenever `srcSet` is set. */
+  sizes?: string
   className?: string
   lazy?: boolean
   fallback?: string
@@ -12,7 +16,7 @@ interface ImageWithFadeProps {
 
 const DEFAULT_FALLBACK = '/images/placeholder.svg'
 
-export default function ImageWithFade({ src, alt, className = '', lazy = true, fallback = DEFAULT_FALLBACK, fetchPriority = 'auto' }: ImageWithFadeProps) {
+export default function ImageWithFade({ src, alt, srcSet, sizes, className = '', lazy = true, fallback = DEFAULT_FALLBACK, fetchPriority = 'auto' }: ImageWithFadeProps) {
   const [isIntersected, setIsIntersected] = useState(!lazy)
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
@@ -81,6 +85,10 @@ export default function ImageWithFade({ src, alt, className = '', lazy = true, f
       {isIntersected && !error && (
         <motion.img
           src={usingFallback ? fallback : src}
+          // The fallback is a local SVG/PNG with no derivatives, so the candidate
+          // list must disappear together with the source it describes.
+          srcSet={usingFallback ? undefined : srcSet}
+          sizes={usingFallback ? undefined : sizes}
           alt={alt}
           className="h-full w-full object-cover"
           style={{ willChange: loaded ? 'auto' : 'opacity, filter' }}

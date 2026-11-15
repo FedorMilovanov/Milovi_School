@@ -4,6 +4,7 @@ import { useReducedMotion } from 'framer-motion'
 import { canonMedia, type CanonMediaId } from '../data/canon-media'
 import { prefetchRoute } from '../utils/navigation'
 import LuxuryText from './LuxuryText'
+import { variantSrcSet } from '../utils/imageVariants'
 import '../styles/canon-gateway.css'
 
 const GATEWAY_IMAGE = '/images/canon-sucre/canon-gateway-hero.webp'
@@ -60,6 +61,8 @@ export default function CanonGateway() {
         <span className="canon-gateway-media" aria-hidden="true">
           <img
             src={GATEWAY_IMAGE}
+            srcSet={variantSrcSet(GATEWAY_IMAGE)}
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 100vw, 1280px"
             alt={GATEWAY_IMAGE_ALT}
             width={1916}
             height={821}

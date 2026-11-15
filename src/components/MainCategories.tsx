@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { markRevealReady } from '../utils/revealReady'
+import { variantSrcSet, variantUrl } from '../utils/imageVariants'
 import type { ArticleMeta } from '../data/types'
 import { NON_CHEF_CATEGORY_IDS } from '../data/categories'
 import LuxuryText from './LuxuryText'
@@ -134,10 +135,14 @@ export default function MainCategories({ articles, onSelectCategory }: MainCateg
                     source image fades into a dark blurred copy; overlay/text stay above it. */}
                 <div
                   className="cat-card-img-wrap-lux relative aspect-[16/10] overflow-hidden"
-                  style={{ ['--cat-bg' as string]: `url(${cat.img})` }}
+                  // Blur layer cannot express `srcset`; the smallest derivative is
+                  // enough for a blurred copy and avoids a second full-size fetch.
+                  style={{ ['--cat-bg' as string]: `url(${variantUrl(cat.img) ?? cat.img})` }}
                 >
                   <img
                     src={cat.img}
+                    srcSet={variantSrcSet(cat.img)}
+                    sizes="(max-width: 640px) 100vw, 50vw"
                     alt={cat.imgAlt} title={cat.imgAlt}
                     loading="lazy"
                     decoding="async"

@@ -4,6 +4,7 @@ import { fallbackImageFor } from '../assets/images'
 import type { ArticleMeta } from '../data/types'
 import type { Category } from '../data/categories'
 import ImageWithFade from './ImageWithFade'
+import { variantSrcSet } from '../utils/imageVariants'
 import type { FuseResultMatch } from 'fuse.js'
 import { highlightMatch, highlightWithMatches } from '../utils/highlight'
 import { pluralRu, MATERIAL } from '../utils/plural'
@@ -98,6 +99,8 @@ function FeaturedCard({ article, categories, onArticleClick, searchQuery = '', m
       <div className="relative overflow-hidden">
         <ImageWithFade
           src={article.image || fallbackImageFor(article.category)}
+          srcSet={variantSrcSet(article.image || fallbackImageFor(article.category))}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 46vw, 30vw"
           alt={article.imageAlt ?? article.title}
           className="h-64 w-full transition-transform duration-700 group-hover:scale-[1.03] sm:h-80"
           lazy={false}
@@ -155,6 +158,8 @@ function SecondaryCard({ article, categories, onArticleClick, searchQuery = '', 
       <div className="relative h-20 w-20 shrink-0 overflow-hidden sm:h-24 sm:w-24">
         <ImageWithFade
           src={article.image || fallbackImageFor(article.category)}
+          srcSet={variantSrcSet(article.image || fallbackImageFor(article.category))}
+          sizes="96px"
           alt={article.imageAlt ?? article.title}
           className="h-full w-full transition-transform duration-500 group-hover:scale-105"
         />
@@ -353,6 +358,8 @@ function JournalView({ articles, categories, onArticleClick, searchQuery, matchM
           >
             <ImageWithFade
               src={article.image || fallbackImageFor(article.category)}
+              srcSet={variantSrcSet(article.image || fallbackImageFor(article.category))}
+              sizes="(max-width: 640px) 100vw, 280px"
               alt={article.imageAlt ?? article.title}
               className="h-52 w-full transition-transform duration-500 group-hover:scale-[1.02]"
             />

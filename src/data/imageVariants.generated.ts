@@ -242,4 +242,9 @@ export const IMAGE_VARIANT_WIDTHS: Readonly<Record<string, readonly number[]>> =
   '/images/canon-sucre/tarte-au-citron.webp': [480, 960],
   '/images/canon-sucre/tarte-tatin.webp': [480, 960],
   '/images/canon-sucre/tarte-tropezienne.webp': [480, 960],
+  '/images/cat-chefs.webp': [480, 960],
+  '/images/cat-chiffres.webp': [480, 960],
+  '/images/cat-recipes.webp': [480, 960],
+  '/images/cat-techniques.webp': [480, 960],
+  '/images/og-preview.webp': [480, 960],
 }

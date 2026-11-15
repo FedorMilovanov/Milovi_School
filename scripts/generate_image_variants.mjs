@@ -22,11 +22,16 @@
  * with a readable message instead of at the first `srcset` request.
  */
 
-import { readdir, stat, mkdir, writeFile } from 'node:fs/promises'
+import { readdir, stat, mkdir, writeFile, rm } from 'node:fs/promises'
 import path from 'node:path'
 
 const WIDTHS = [480, 960]
-const SOURCE_DIRS = ['public/images/articles', 'public/images/categories', 'public/images/canon-sucre']
+// A derivative that is larger than its source is a regression, not an
+// optimisation: `cat-recipes.webp` is 1638 px at 129 KB, while a naive 960 px
+// re-encode at q78 came out at 142 KB. Step the quality down until the candidate
+// actually beats the source, and drop it if nothing does.
+const QUALITY_STEPS = [78, 68, 58, 48]
+const SOURCE_DIRS = ['public/images', 'public/images/articles', 'public/images/categories', 'public/images/canon-sucre']
 const OUTPUT_DIR = 'public/images/variants'
 const MANIFEST = 'src/data/imageVariants.generated.ts'
 
@@ -109,17 +114,40 @@ async function main() {
         continue
       }
 
+      const sourceBytes = (await stat(source)).size
       for (const width of WIDTHS) {
         // Never upscale: a derivative wider than the source is a bigger lie than none.
         if (metadata.width <= width) continue
         const target = path.join(OUTPUT_DIR, `${name}-${width}.webp`)
-        if (await isStale(source, target)) {
-          await sharp(source).resize({ width, withoutEnlargement: true }).webp({ quality: 78 }).toFile(target)
-          written += 1
-        } else {
-          skipped += 1
-        }
         const publicPath = `/${source.replace(/^public\//, '')}`
+
+        if (!(await isStale(source, target))) {
+          if ((await stat(target)).size < sourceBytes) {
+            skipped += 1
+            manifest[publicPath] = [...(manifest[publicPath] ?? []), width]
+            continue
+          }
+          // Stale-but-too-big: re-encode below.
+        }
+
+        let encoded = null
+        for (const quality of QUALITY_STEPS) {
+          const candidate = await sharp(source).resize({ width, withoutEnlargement: true }).webp({ quality }).toBuffer()
+          if (candidate.length < sourceBytes) {
+            encoded = candidate
+            break
+          }
+        }
+
+        if (!encoded) {
+          // No quality level beats the original: do not advertise this width, and
+          // remove a file a previous run may have left behind.
+          await rm(target, { force: true })
+          continue
+        }
+
+        await writeFile(target, encoded)
+        written += 1
         manifest[publicPath] = [...(manifest[publicPath] ?? []), width]
       }
     }
