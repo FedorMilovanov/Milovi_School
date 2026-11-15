@@ -49,6 +49,11 @@ EXPANSIONS_DIR = ROOT / "src" / "data" / "articleExpansionParts"
 CANON_CONTENTS_PATH = ROOT / "src" / "data" / "canonArticleContents.ts"
 CANON_APPENDICES_PATH = ROOT / "src" / "data" / "canonArticleAppendices.ts"
 CANON_ARTICLES_PATH = ROOT / "src" / "data" / "canonArticles.ts"
+# «Мысль дня» on the dashboard publishes attributed quotes with primary-source
+# links (see docs/RESEARCH_QUOTES_2026-11-15.md). Those URLs are part of the
+# corpus source trail: a dead interview link in a quote card is the same defect
+# as a dead citation in an article.
+DASHBOARD_QUOTES_PATH = ROOT / "src" / "components" / "DashboardBento.tsx"
 OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 
 # Frozen ratchet. Lower it as weak citations are replaced by real documents.
@@ -179,6 +184,11 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # Pre-merge closeout: the five remaining known weak citations were removed/replaced;
 # fixing SOURCE_URL_FIELD_RE exposed two additional inline metadata roots, which were
 # also replaced. The permanent ratchet is now zero.
+# Collection widened 2026-11-15: the seven «Мысль дня» quote cards in
+# DashboardBento.tsx joined the registry as origin "dashboard-quotes" (originally
+# verified interviews and primary pages — docs/RESEARCH_QUOTES_2026-11-15.md).
+# All seven are deep document pages, not roots or search results, so the weak
+# ratchet stays at zero.
 MAX_WEAK_CITATIONS = 0
 
 # Root redirects are hard failures too. Once the full strict probe reported zero,
@@ -364,6 +374,7 @@ def collect_citations() -> list[dict[str, str]]:
         (ARTICLES_PATH, "metadata"),
         (OVERRIDES_PATH, "override-metadata"),
         (CANON_ARTICLES_PATH, "canon-metadata"),
+        (DASHBOARD_QUOTES_PATH, "dashboard-quotes"),
     ):
         if not path.exists():
             continue
@@ -483,7 +494,8 @@ def run_selftest() -> int:
     # become invisible while the gate still prints a green verdict.
     collected = collect_citations()
     origins = {item["origin"] for item in collected}
-    for required in ("base", "expansion", "override-metadata", "metadata", "static-page"):
+    for required in ("base", "expansion", "override-metadata", "metadata", "static-page",
+                     "dashboard-quotes"):
         if required not in origins:
             failures.append(f"collector dropped origin {required!r}")
     override_urls = set(SOURCE_URL_FIELD_RE.findall(OVERRIDES_PATH.read_text(encoding="utf-8")))
@@ -491,6 +503,16 @@ def run_selftest() -> int:
     missing_overrides = override_urls - collected_urls
     if missing_overrides:
         failures.append(f"override sourceUrl not collected: {sorted(missing_overrides)[:3]!r}")
+    # Regression: the dashboard «Мысль дня» cards live outside src/data; if the
+    # collector drops that file again, a dead interview URL in a quote card
+    # becomes invisible while the gate stays green.
+    if DASHBOARD_QUOTES_PATH.exists():
+        dashboard_urls = set(SOURCE_URL_FIELD_RE.findall(
+            DASHBOARD_QUOTES_PATH.read_text(encoding="utf-8")))
+        missing_dashboard = dashboard_urls - collected_urls
+        if missing_dashboard:
+            failures.append(f"dashboard quote sourceUrl not collected: "
+                            f"{sorted(missing_dashboard)[:3]!r}")
     deep_urls = set(MARKDOWN_URL_RE.findall(DEEP_PATH.read_text(encoding="utf-8")))
     if deep_urls and not deep_urls.issubset(collected_urls):
         failures.append("deepContents.ts URLs are not fully collected")

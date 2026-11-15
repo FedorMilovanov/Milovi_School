@@ -19,6 +19,12 @@ URL, проверять нечего. Это единственный класс
   3. отсутствие и того, и другого — голые слова в устах человека. Это и есть
      дефект: либо цитата настоящая и нужен источник, либо её быть не должно.
 
+Отдельный слой — блок QUOTES «Мысль дня» в src/components/DashboardBento.tsx:
+публичные цитаты живых людей в React-компоненте, мимо всех слоёв src/data.
+Карточка обязана нести sourceUrl на документированный первоисточник
+(журнал верификации: docs/RESEARCH_QUOTES_2026-11-15.md); карточка без sourceUrl
+считается тем же дефектом «голые слова в устах человека» и проваливает --strict.
+
 Отчёт сортируется по риску: чем длиннее цитата и чем конкретнее назван человек,
 тем выше приоритет проверки.
 
@@ -43,6 +49,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC_DATA = ROOT / "src" / "data"
+DASHBOARD_PATH = ROOT / "src" / "components" / "DashboardBento.tsx"
 
 # Минимальная длина цитаты: короткие вкрапления («oui», «M.O.F.») не несут
 # самостоятельного утверждения и дают только шум.
@@ -216,15 +223,46 @@ SELFTEST_NEGATIVE = [
     "Масло должно быть холодным",
 ]
 
+# Фикстура блока «Мысль дня»: карточка с sourceUrl проходит, карточка без
+# sourceUrl — дефект. Третий элемент массива без text: — служебный фрагмент,
+# который парсер обязан пропустить, не счётив его карточкой.
+SELFTEST_DASHBOARD = """
+const QUOTES: Quote[] = [
+  {
+    text: 'Проверочная карточка с источником и дословной репликой',
+    author: 'Тестовый Автор',
+    sourceUrl: 'https://example.test/interview',
+    sourceLabel: 'Example Test, 2020',
+  },
+  {
+    text: 'Проверочная карточка без источника — это дефект',
+    author: 'Тестовый Автор',
+    sourceLabel: 'Example Test, 2021',
+  },
+  // служебный комментарий без полей
+]
+"""
 
-def selftest() -> tuple[list, list, list, list]:
+
+def selftest() -> tuple[list, list, list, list, list]:
     """Провалы на положительных и отрицательных примерах обоих детекторов."""
     bad_pos = [s for s in SELFTEST_POSITIVE if not FIRST_PERSON_RE.search(s)]
     bad_neg = [s for s in SELFTEST_NEGATIVE if FIRST_PERSON_RE.search(s)]
     bad_pair_pos = [s for s in SELFTEST_PAIR_POSITIVE if not find_attributed(s)]
     bad_pair_neg = [s for s in SELFTEST_PAIR_NEGATIVE
                     if any(q["person"].lower().startswith("julie") for q in find_attributed(s))]
-    return bad_pos, bad_neg, bad_pair_pos, bad_pair_neg
+    bad_dashboard: list[str] = []
+    parsed = parse_dashboard_quotes(SELFTEST_DASHBOARD)
+    if len(parsed) != 2:
+        bad_dashboard.append(f"ожидались 2 карточки, разобрано {len(parsed)}")
+    else:
+        if not parsed[0]["sourceUrl"]:
+            bad_dashboard.append("карточка с sourceUrl ошибочно признана без источника")
+        if parsed[1]["sourceUrl"]:
+            bad_dashboard.append("карточка без sourceUrl ошибочно признана с источником")
+        if parsed[1]["author"] != "Тестовый Автор":
+            bad_dashboard.append("автор карточки не разобран")
+    return bad_pos, bad_neg, bad_pair_pos, bad_pair_neg, bad_dashboard
 
 
 def looks_like_heading(name: str) -> bool:
@@ -318,6 +356,46 @@ def load_blocks() -> dict[str, dict[str, str]]:
     return out
 
 
+# --- Блок «Мысль дня» в DashboardBento.tsx ----------------------------------
+# Карточки цитат живут в React-компоненте и не проходят через регулярки
+# article-слоёв — до 2026-11-15 семь приписанных цитат не контролировались
+# ничем. Это структура, а не проза, поэтому парсер структурный: массив QUOTES
+# разбирается по элементам, у каждой карточки обязательны text, author,
+# sourceUrl, sourceLabel. Отсутствие sourceUrl — дефект того же класса, что и
+# неподкреплённая цитата в статье: слова в устах человека без проверки.
+# Верификация действующих карточек: docs/RESEARCH_QUOTES_2026-11-15.md.
+
+DASHBOARD_FIELD_RES = {
+    name: re.compile(name + r"\s*:\s*'((?:[^'\\]|\\.)*)'")
+    for name in ("text", "author", "sourceUrl", "sourceLabel")
+}
+
+
+def parse_dashboard_quotes(txt: str) -> list[dict]:
+    """Карточки QUOTES из текста DashboardBento.tsx."""
+    m = re.search(r"const QUOTES[^=]*=\s*\[(.*?)\n\]", txt, re.S)
+    if not m:
+        return []
+    entries: list[dict] = []
+    for chunk in re.split(r"\},", m.group(1)):
+        found = {name: rx.search(chunk) for name, rx in DASHBOARD_FIELD_RES.items()}
+        if found["text"] is None:
+            continue  # фрагмент массива без карточки (интерфейс, комментарий)
+        entries.append({
+            "text": found["text"].group(1).replace("\\'", "'"),
+            "author": found["author"].group(1) if found["author"] else "?",
+            "sourceUrl": found["sourceUrl"].group(1) if found["sourceUrl"] else "",
+            "sourceLabel": found["sourceLabel"].group(1) if found["sourceLabel"] else "",
+        })
+    return entries
+
+
+def dashboard_quote_entries() -> list[dict]:
+    if not DASHBOARD_PATH.exists():
+        return []
+    return parse_dashboard_quotes(DASHBOARD_PATH.read_text(encoding="utf-8"))
+
+
 def find_attributed(text: str) -> list[dict]:
     res = []
     for m in QUOTE_RE.finditer(text):
@@ -390,7 +468,7 @@ def main() -> int:
     a = ap.parse_args()
 
     if a.selftest:
-        bad_pos, bad_neg, bad_pair_pos, bad_pair_neg = selftest()
+        bad_pos, bad_neg, bad_pair_pos, bad_pair_neg, bad_dashboard = selftest()
         for s in bad_pos:
             print(f"НЕ распознано как 1-е лицо: {s[:70]}")
         for s in bad_neg:
@@ -399,6 +477,8 @@ def main() -> int:
             print(f"НЕ найдена атрибуция: {s[:70]}")
         for s in bad_pair_neg:
             print(f"атрибуция перескочила на следующий пункт списка: {s[:70]}")
+        for s in bad_dashboard:
+            print(f"парсер DashboardBento: {s}")
         ok1 = len(SELFTEST_POSITIVE) - len(bad_pos)
         ok2 = len(SELFTEST_NEGATIVE) - len(bad_neg)
         ok3 = len(SELFTEST_PAIR_POSITIVE) - len(bad_pair_pos)
@@ -406,8 +486,9 @@ def main() -> int:
         print(f"самопроверка: 1-е лицо {ok1}/{len(SELFTEST_POSITIVE)} + "
               f"{ok2}/{len(SELFTEST_NEGATIVE)}; "
               f"атрибуция {ok3}/{len(SELFTEST_PAIR_POSITIVE)} + "
-              f"{ok4}/{len(SELFTEST_PAIR_NEGATIVE)}")
-        return 1 if (bad_pos or bad_neg or bad_pair_pos or bad_pair_neg) else 0
+              f"{ok4}/{len(SELFTEST_PAIR_NEGATIVE)}; "
+              f"DashboardBento {'OK' if not bad_dashboard else 'FAIL'}")
+        return 1 if (bad_pos or bad_neg or bad_pair_pos or bad_pair_neg or bad_dashboard) else 0
 
     ids = set(article_ids())
     if a.id:
@@ -432,6 +513,11 @@ def main() -> int:
                 else:
                     sourced += 1
 
+    # «Мысль дня»: карточки цитат в DashboardBento.tsx.
+    dashboard = dashboard_quote_entries()
+    dashboard_unsourced = [q for q in dashboard if not q["sourceUrl"]]
+    dashboard_missing_block = DASHBOARD_PATH.exists() and not dashboard
+
     if a.json:
         print(json.dumps({
             "attributedQuotes": len(found),
@@ -439,8 +525,12 @@ def main() -> int:
             "hedgedNoSource": hedged_only,
             "atRisk": at_risk,
             "atRiskFirstPersonSpeech": speech,
+            "dashboardQuotes": len(dashboard),
+            "dashboardUnsourced": len(dashboard_unsourced),
+            "dashboardBlockMissing": dashboard_missing_block,
             "quotes": sorted(found, key=lambda x: (x["severity"] != "speech",
                                                   not x["at_risk"], -x["chars"])),
+            "dashboard": dashboard,
         }, ensure_ascii=False, indent=1))
     else:
         print(f"приписанных цитат: {len(found)}")
@@ -448,14 +538,21 @@ def main() -> int:
         print(f"  захежированы, без ссылки:  {hedged_only}")
         print(f"  БЕЗ источника и без хеджа: {at_risk}")
         print(f"    из них прямая речь от 1-го лица: {speech}")
+        print(f"карточек «Мысль дня» (DashboardBento): {len(dashboard)}")
+        if dashboard_missing_block:
+            print("  БЛОК QUOTES НЕ НАЙДЕН — парсер устарел или блок удалён")
+        print(f"  без sourceUrl: {len(dashboard_unsourced)}")
         risky = sorted((q for q in found if q["at_risk"]), key=lambda x: -x["chars"])
         for q in risky:
             print(f"\n[{q['articleId']} · {q['layer']}] приписано: {q['person']} ({q['chars']} зн.)")
             print("   ", q["quote"][:300].replace("\n", " "))
-        if not risky:
+        for q in dashboard_unsourced:
+            print(f"\n[dashboard · DashboardBento.tsx] приписано: {q['author']}")
+            print("   ", q["text"][:300].replace("\n", " "))
+        if not risky and not dashboard_unsourced and not dashboard_missing_block:
             print("\nприписанных цитат без источника не найдено")
 
-    return 1 if (a.strict and at_risk) else 0
+    return 1 if (a.strict and (at_risk or dashboard_unsourced or dashboard_missing_block)) else 0
 
 
 if __name__ == "__main__":
