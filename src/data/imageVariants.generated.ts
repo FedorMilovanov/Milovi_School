@@ -2,7 +2,6 @@
 // Maps a public image path to the widths that actually exist on disk, so
 // components never emit a `srcset` candidate that would 404.
 export const IMAGE_VARIANT_WIDTHS: Readonly<Record<string, readonly number[]>> = {
-  '/images/articles/_unknown.webp': [480, 960],
   '/images/articles/adam-eclair.webp': [480, 960],
   '/images/articles/ansel-cronut-origin.webp': [480, 960],
   '/images/articles/ansel-cronut.webp': [480, 960],

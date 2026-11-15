@@ -119,7 +119,7 @@ async function main() {
         // Never upscale: a derivative wider than the source is a bigger lie than none.
         if (metadata.width <= width) continue
         const target = path.join(OUTPUT_DIR, `${name}-${width}.webp`)
-        const publicPath = `/${source.replace(/^public\//, '')}`
+        const publicPath = `/${path.relative('public', source).split(path.sep).join('/')}`
 
         if (!(await isStale(source, target))) {
           if ((await stat(target)).size < sourceBytes) {

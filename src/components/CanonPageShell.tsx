@@ -106,7 +106,7 @@ export default function CanonPageShell({ dossiers }: { dossiers: Record<string, 
               onRetry={retrySearch}
             />
           )
-        )
+        )}
         <UpdateNotification />
         <ToastContainer />
         <ScrollProgress />
