@@ -509,6 +509,79 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   await check(`${slug}: no image is served at >4x its rendered width`, async () => assert.deepEqual(oversized, []))
 }
 
+// ── Search status dialog: modal contract + index validation ──────────────────
+// /canon/ fetches /article-index.json the first time search opens. Two failure
+// modes are invisible to unit tests and to any happy-path browser pass:
+//
+//   1. a failed fetch leaves a dialog that *says* `aria-modal="true"` but ignores
+//      Escape, lets Tab walk out and does not lock the page behind it — an
+//      announcement is not behaviour;
+//   2. a partial payload (`[{id, title}]`) was accepted and rendered as a card
+//      with an empty category and "· мин" instead of a recoverable error.
+//
+// Both are fault-injected here so the contract cannot silently rot again.
+{
+  const dialogContext = await browser.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: 'dark' })
+  const openSearch = async (page) => {
+    await page.locator('button[aria-label="Открыть поиск"]').first().click()
+    await page.waitForSelector('[role="dialog"]', { timeout: 15_000 })
+  }
+
+  const errorPage = await dialogContext.newPage()
+  await errorPage.route('**/article-index.json', (route) => route.fulfill({ status: 503, body: 'unavailable' }))
+  await errorPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+  await openSearch(errorPage)
+  await errorPage.waitForSelector('[role="dialog"] [role="alert"]', { timeout: 15_000 })
+
+  await check('search 503: dialog is exactly one and shows an error', async () =>
+    assert.equal(await errorPage.locator('[role="dialog"]').count(), 1))
+  await check('search 503: focus moves inside the dialog', async () =>
+    assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
+  await check('search 503: page behind the dialog does not scroll', async () =>
+    assert.equal(await errorPage.evaluate(() => document.body.style.overflow), 'hidden'))
+
+  await errorPage.keyboard.press('Tab')
+  await check('search 503: Tab stays inside the dialog', async () =>
+    assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
+  await errorPage.keyboard.press('Escape')
+  await check('search 503: Escape closes the dialog', async () =>
+    assert.equal(await errorPage.locator('[role="dialog"]').count(), 0))
+  await check('search 503: focus returns to the trigger', async () =>
+    assert.equal(await errorPage.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Открыть поиск'))
+  await check('search 503: scroll lock is released', async () =>
+    assert.notEqual(await errorPage.evaluate(() => document.body.style.overflow), 'hidden'))
+  await errorPage.close()
+
+  const partialPage = await dialogContext.newPage()
+  await partialPage.route('**/article-index.json', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify([{ id: 'recipe-kouglof', title: 'Куглоф' }]),
+  }))
+  await partialPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+  await openSearch(partialPage)
+  await partialPage.waitForTimeout(1000)
+  await check('search partial index: invalid payload surfaces a recoverable error', async () =>
+    assert.equal(await partialPage.locator('[role="dialog"] [role="alert"]').count(), 1))
+  await check('search partial index: no half-rendered result card', async () => {
+    const text = await partialPage.locator('[role="dialog"]').innerText()
+    assert.equal(/·\s*мин/.test(text), false, text.replace(/\n+/g, ' / ').slice(0, 120))
+  })
+  await partialPage.close()
+
+  const validPage = await dialogContext.newPage()
+  await validPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+  await openSearch(validPage)
+  await validPage.waitForTimeout(1500)
+  await check('search happy path: the real index still opens results', async () => {
+    const text = await validPage.locator('[role="dialog"]').first().innerText()
+    assert.ok(text.trim().length > 0, 'empty palette')
+    assert.equal(await validPage.locator('[role="dialog"] [role="alert"]').count(), 0)
+  })
+  await validPage.close()
+  await dialogContext.close()
+}
+
 const screenshots = (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort()
 const report = {
   baseUrl: BASE_URL,
