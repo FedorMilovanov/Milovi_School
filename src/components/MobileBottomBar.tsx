@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 
 type ActiveSection = 'home' | 'archive' | 'articles' | 'about'
@@ -40,11 +40,13 @@ function Icon({ id, active }: { id: string; active: boolean }) {
 }
 
 export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles, onGoAbout, onOpenCommand, activeSection = 'home', visible = true }: MobileBottomBarProps) {
+  const reduceMotion = useReducedMotion()
+  const hrefById: Record<string, string> = { home: '/', archive: '/#categories', articles: '/materials/', about: '/#about' }
   const actionById: Record<string, () => void> = {
     home: onGoHome,
     archive: onGoCategories,
     articles: onGoArticles,
-    about: onGoAbout ?? (() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })),
+    about: onGoAbout ?? (() => document.getElementById('about')?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' })),
     search: onOpenCommand,
   }
 
@@ -54,10 +56,10 @@ export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles
         <motion.nav
           aria-label="Основная навигация"
           className="fixed inset-x-4 bottom-5 z-40 md:hidden"
-          initial={{ y: 40, opacity: 0 }}
+          initial={false}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 32, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+          exit={reduceMotion ? { opacity: 0 } : { y: 32, opacity: 0 }}
+          transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 26 }}
         >
           <div className="pointer-events-none absolute -inset-[2px] rounded-[18px] bg-[linear-gradient(135deg,rgba(217,164,85,0.3),transparent_50%,rgba(146,64,14,0.2))] opacity-40 blur-[6px]" />
           <div className="relative overflow-hidden rounded-[16px] border border-amber-700/20 bg-[var(--bg-overlay-95)] shadow-xl shadow-black/10 backdrop-blur-xl" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
@@ -66,19 +68,20 @@ export default function MobileBottomBar({ onGoHome, onGoCategories, onGoArticles
               {tabs.map((tab) => {
                 const active = tab.id !== 'search' && activeSection === tab.id
                 const ariaLabel = tab.id === 'search' ? 'Открыть поиск' : tab.label
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => actionById[tab.id]()}
-                    className="relative flex w-full flex-col items-center gap-1 py-1 text-center transition active:scale-95"
-                    aria-current={active ? 'page' : undefined}
-                    aria-label={ariaLabel}
-                  >
-                    {active && <motion.span layoutId="mobile-active-pill" className="absolute inset-x-2 inset-y-0 rounded-[12px] bg-stone-950/5 dark:bg-amber-100/10" aria-hidden="true" />}
-                    <span className="relative"><Icon id={tab.id} active={active} /></span>
-                    <span className={`relative font-mono text-[11px] uppercase tracking-[0.16em] transition ${active ? 'text-stone-950 dark:text-amber-100' : 'text-stone-500 dark:text-stone-400'}`}>{tab.label}</span>
-                  </button>
+                const content = <>
+                  {active && <motion.span layoutId={reduceMotion ? undefined : 'mobile-active-pill'} className="absolute inset-x-2 inset-y-0 rounded-[12px] bg-stone-950/5 dark:bg-amber-100/10" aria-hidden="true" />}
+                  <span className="relative"><Icon id={tab.id} active={active} /></span>
+                  <span className={`relative font-mono text-[11px] uppercase tracking-[0.16em] transition ${active ? 'text-stone-950 dark:text-amber-100' : 'text-stone-500 dark:text-stone-400'}`}>{tab.label}</span>
+                </>
+                const className = 'relative flex min-h-11 w-full flex-col items-center gap-1 py-1 text-center transition active:scale-95'
+                return tab.id === 'search' ? (
+                  <button key={tab.id} type="button" onClick={onOpenCommand} className={className} aria-label={ariaLabel}>{content}</button>
+                ) : (
+                  <a key={tab.id} href={hrefById[tab.id]} onClick={event => {
+                    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return
+                    event.preventDefault()
+                    actionById[tab.id]()
+                  }} className={className} aria-current={active ? 'page' : undefined} aria-label={ariaLabel}>{content}</a>
                 )
               })}
             </div>

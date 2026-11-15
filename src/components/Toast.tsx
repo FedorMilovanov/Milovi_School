@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 export type ToastType = 'save' | 'copy' | 'share' | 'info'
 
@@ -48,6 +48,7 @@ function ToastIcon({ type }: { type: ToastType }) {
 }
 
 export default function ToastContainer({ className }: { className?: string }) {
+  const reduceMotion = useReducedMotion()
   const [toasts, setToasts] = useState<ToastMessage[]>([])
   const timeoutsRef = useRef<number[]>([])
 
@@ -69,16 +70,16 @@ export default function ToastContainer({ className }: { className?: string }) {
   }, [])
 
   return (
-    <div className={`fixed left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none ${className || "max-lg:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"}`}>
+    <div role="status" aria-live="polite" aria-atomic="false" className={`fixed w-max max-w-[calc(100%-2rem)] left-1/2 -translate-x-1/2 z-50 flex flex-col-reverse gap-2 pointer-events-none ${className || "max-lg:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:bottom-6"}`}>
       <AnimatePresence>
         {toasts.map((toast) => (
           <motion.div
             key={toast.id}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={reduceMotion ? false : { opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="flex items-center gap-2.5 px-4 py-3 border shadow-2xl pointer-events-auto whitespace-nowrap"
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: reduceMotion ? 0 : 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-2.5 px-4 py-3 border shadow-2xl pointer-events-auto whitespace-normal break-words"
             style={{
               backgroundColor: 'var(--bg-command)',
               borderColor: 'var(--text-accent)',
