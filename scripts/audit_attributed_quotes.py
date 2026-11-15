@@ -341,7 +341,10 @@ def is_known_person(name: str) -> bool:
 
 def load_blocks() -> dict[str, dict[str, str]]:
     out: dict[str, dict[str, str]] = {}
-    for f in [SRC_DATA / "deepContents.ts", *sorted((SRC_DATA / "articleExpansionParts").glob("part*.ts"))]:
+    for f in [SRC_DATA / "deepContents.ts",
+              SRC_DATA / "canonArticleContents.ts",
+              SRC_DATA / "canonArticleAppendices.ts",
+              *sorted((SRC_DATA / "articleExpansionParts").glob("part*.ts"))]:
         txt = f.read_text(encoding="utf-8")
         for m in re.finditer(r"(?m)^\s*'([a-z0-9\-]+)'\s*:\s*`", txt):
             i = s = m.end()
@@ -353,6 +356,25 @@ def load_blocks() -> dict[str, dict[str, str]]:
                     break
                 i += 1
             out.setdefault(m.group(1), {})[f.name] = txt[s:i]
+
+    # Самостоятельная history-статья устроена иначе: один объект Article с
+    # полем content в бэктиках, а не словарём 'id': `...`. До 2026-11-15 её
+    # текст не сканировался вовсе — как и canon-слои выше.
+    if DASHBOARD_PATH.parent.exists():
+        hist = SRC_DATA / "historyArticles.ts"
+        if hist.exists():
+            txt = hist.read_text(encoding="utf-8")
+            m = re.search(r"(?m)^\s*content:\s*`", txt)
+            if m:
+                i = m.end()
+                while i < len(txt):
+                    if txt[i] == "\\":
+                        i += 2
+                        continue
+                    if txt[i] == "`":
+                        break
+                    i += 1
+                out.setdefault("confectionery-profession-history", {})[hist.name] = txt[m.end():i]
     return out
 
 
@@ -497,6 +519,11 @@ def main() -> int:
             return 2
         ids = {a.id}
     blocks = load_blocks()
+    # Слои вне articles.ts (canon-содержимое, самостоятельная history-статья)
+    # тоже опубликованные тексты: сканируем всё, что загрузили, а не только id
+    # из articles.ts — иначе блоки этих слоёв молча выпадают из проверки.
+    if not a.id:
+        ids |= set(blocks.keys())
 
     found, at_risk, hedged_only, sourced, speech = [], 0, 0, 0, 0
     for aid in sorted(ids):
