@@ -8,7 +8,13 @@ import { chromium } from 'playwright'
 // UI_AUDIT_OFFLINE=1 stubs Google Fonts explicitly (fallback-font robustness).
 // UI_AUDIT_HISTORY_IMAGE can point to the exact remote cover downloaded separately.
 const base = (process.env.BASE_URL ?? 'http://127.0.0.1:4321').replace(/\/$/, '')
-const browser = await chromium.launch({ headless: true })
+const browser = await chromium.launch({
+  headless: true,
+  ...(process.env.CHROMIUM_EXECUTABLE_PATH ? {
+    executablePath: process.env.CHROMIUM_EXECUTABLE_PATH,
+    args: ['--no-sandbox', '--disable-dev-shm-usage'],
+  } : {}),
+})
 const failures = []
 let checks = 0
 const article = '/articles/recipe-kouglof/'
@@ -52,6 +58,33 @@ try {
     assert.ok(await trigger.evaluate(el => el === document.activeElement))
     assert.equal(await page.locator('[inert]').count(), 0)
   })
+  for (const theme of ['dark', 'light']) {
+    await check(`normal motion: repeated menu/search cycles restore focus and unlock background in ${theme}`, async (page, context) => {
+      await context.addInitScript(theme => localStorage.setItem('theme', theme), theme)
+      await goto(page)
+      for (let cycle = 0; cycle < 2; cycle++) {
+        const menu = page.getByRole('button', { name: 'Открыть меню', exact: true })
+        await menu.click()
+        await page.getByRole('dialog').waitFor()
+        await page.waitForFunction(() => Boolean(document.activeElement?.closest('[role="dialog"]')))
+        for (let tab = 0; tab < 12; tab++) {
+          await page.keyboard.press(tab % 2 ? 'Shift+Tab' : 'Tab')
+          assert.ok(await inDialog(page))
+        }
+        await page.keyboard.press('Escape')
+        await page.getByRole('dialog').waitFor({ state: 'detached' })
+        assert.ok(await menu.evaluate(el => el === document.activeElement))
+        await openSearch(page)
+        await page.getByRole('dialog').locator('input').waitFor()
+        await page.keyboard.press('Escape')
+        await page.getByRole('dialog').waitFor({ state: 'detached' })
+        assert.equal(await page.locator('[inert]').count(), 0)
+        assert.equal(await page.evaluate(() => document.body.style.overflow), '')
+        assert.ok(await page.getByRole('button', { name: 'Открыть поиск', exact: true }).evaluate(el => el === document.activeElement))
+      }
+      assert.equal(new URL(page.url()).pathname, article)
+    }, { reducedMotion: 'no-preference' })
+  }
   await check('short/zoom-equivalent viewport: menu is scrollable and closes by keyboard', async page => {
     await goto(page)
     await page.getByRole('button', { name: 'Открыть меню', exact: true }).click()
