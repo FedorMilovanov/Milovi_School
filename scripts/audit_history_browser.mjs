@@ -54,7 +54,30 @@ try {
     const hero = page.locator('.history-room article img').first()
     await hero.scrollIntoViewIfNeeded()
     await hero.evaluate(async (image) => { await image.decode() })
-    assert.ok(await hero.evaluate((image) => image.naturalWidth >= 1200), variant.name + ': feature image missing')
+    // The feature image is served through srcSet, so "naturalWidth >= 1200" (the old
+    // full-size bitmap) is not the invariant anymore. What must hold is that the image
+    // actually loaded and that the candidate the browser picked is not below the box it
+    // covers - a placeholder, a 404 or a thumbnail in the feature slot all still fail.
+    // `naturalWidth` is density-corrected once srcSet+sizes are in play (a 480 px file
+    // reports ~864 CSS px), so it cannot tell a thumbnail from a full-size bitmap. Decode
+    // the winning candidate in a detached Image to get its real pixel width.
+    const heroImage = await hero.evaluate(async (image) => {
+      const probe = new globalThis.Image()
+      probe.src = image.currentSrc
+      await probe.decode()
+      return {
+        currentSrc: image.currentSrc,
+        servedWidth: probe.naturalWidth,
+        renderedWidth: image.getBoundingClientRect().width,
+        dpr: globalThis.devicePixelRatio,
+      }
+    })
+    assert.ok(heroImage.currentSrc, variant.name + ': feature image has no source ' + JSON.stringify(heroImage))
+    assert.ok(heroImage.servedWidth > 0, variant.name + ': feature image failed to load ' + JSON.stringify(heroImage))
+    assert.ok(
+      heroImage.servedWidth + 1 >= heroImage.renderedWidth * heroImage.dpr,
+      variant.name + ': feature image is under-sampled for its slot ' + JSON.stringify(heroImage),
+    )
     await page.screenshot({ path: path.join(output, 'history-' + variant.name + '.png'), fullPage: false })
     assert.deepEqual(errors, [], variant.name + ': browser errors')
     checks += 12
