@@ -2,7 +2,6 @@
 // If an article image is replaced, update this map (width/height in source pixels).
 
 export const articleImageDimensions: Record<string, { width: number; height: number }> = {
-  '_unknown.webp': { width: 1280, height: 800 },
   'adam-eclair.webp': { width: 1280, height: 800 },
   'ansel-cronut-origin.webp': { width: 1280, height: 800 },
   'ansel-cronut.webp': { width: 1280, height: 800 },
