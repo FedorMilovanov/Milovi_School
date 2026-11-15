@@ -137,6 +137,56 @@ jobs:
           print('Disabled candidate SSR and privacy state passed')
           PY
 
+      # These audits arrive with the UI branch. Keep the shared workflow ready
+      # without copying its tests or introducing new dependencies here. The unit
+      # checks are pure; browser checks use the analytics-disabled build so the
+      # consent banner cannot intercept menu/search interaction fixtures.
+      - name: Run optional UI helper unit audit
+        shell: bash
+        run: |
+          if [[ -f scripts/audit_ui_units.mjs ]]; then
+            node scripts/audit_ui_units.mjs
+          else
+            echo 'UI helper audit not present on this source head; skipped.'
+          fi
+
+      - name: Serve disabled candidate for optional UI browser audit
+        shell: bash
+        run: |
+          if [[ ! -f scripts/audit_ui_interactions.mjs ]]; then
+            echo 'UI interaction audit not present on this source head; server not started.'
+            exit 0
+          fi
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory dist >/tmp/school-ui-audit-server.log 2>&1 &
+          echo $! >/tmp/school-ui-audit-server.pid
+          for attempt in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:4174/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/school-ui-audit-server.log
+          exit 1
+
+      - name: Run optional UI interaction browser audit
+        shell: bash
+        env:
+          BASE_URL: http://127.0.0.1:4174
+          UI_AUDIT_OFFLINE: '1'
+          UI_AUDIT_FULL: '0'
+        run: |
+          if [[ -f scripts/audit_ui_interactions.mjs ]]; then
+            node scripts/audit_ui_interactions.mjs
+          else
+            echo 'UI interaction audit not present on this source head; skipped.'
+          fi
+
+      - name: Stop disabled UI candidate server
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f /tmp/school-ui-audit-server.pid ]]; then
+            kill "$(cat /tmp/school-ui-audit-server.pid)" 2>/dev/null || true
+          fi
+
       - name: Build configured candidate
         env:
           PUBLIC_RELEASE_SHA: ${{ env.SOURCE_SHA }}
