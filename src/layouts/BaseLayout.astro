@@ -179,6 +179,10 @@ const metaDescription =
           } catch (__) {}
         }
         var root = document.documentElement
+        // Marks that scripts run, so scroll/entrance animations can be gated on
+        // `html.js` in CSS. Without it the same markup renders in its final,
+        // fully visible state (no-JS readers, crawlers, blocked JS).
+        root.classList.add('js')
         try {
           if (localStorage.getItem('pref-large-text') === 'true') root.classList.add('pref-large-text')
           if (localStorage.getItem('pref-focus-mode') === 'true') root.classList.add('focus-mode-active')

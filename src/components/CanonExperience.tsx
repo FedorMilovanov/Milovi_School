@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import {
   canonActs,
   canonWorks,
@@ -27,6 +27,11 @@ export interface CanonDossier {
 }
 
 const pad = (value: number) => String(value).padStart(2, '0')
+
+const enterStyle = (delay: string, shift: string): CSSProperties => ({
+  '--enter-delay': delay,
+  '--enter-shift': shift,
+} as CSSProperties)
 
 function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   return (
@@ -255,43 +260,25 @@ export default function CanonExperience({ dossiers }: { dossiers: Record<string,
 
       <section className="canon-hero" aria-labelledby="canon-title">
         <div className="canon-shell canon-hero-inner">
-          <motion.p
-            className="canon-hero-label"
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <p className="enter-up canon-hero-label" style={enterStyle('0s', '8px')}>
             PÂTISSERIE RUSSE · COLLECTION 01
-          </motion.p>
+          </p>
 
-          <motion.h1
-            id="canon-title"
-            className="canon-hero-title"
-            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.8, delay: reduceMotion ? 0 : 0.08, ease: [0.22, 1, 0.36, 1] }}
-          >
+          {/* The hero text is part of the document, not of the animation: the
+              entrance is CSS-driven (`html.js .enter-up`), so the H1 paints
+              with the HTML even when no script runs. */}
+          <h1 id="canon-title" className="enter-up canon-hero-title" style={enterStyle('0.08s', '18px')}>
             <LuxuryText tone="gold" as="span">LE CANON</LuxuryText><br />
             <LuxuryText tone="gold" as="span">SUCRÉ</LuxuryText>
-          </motion.h1>
+          </h1>
 
           <div className="canon-hero-deck">
-            <motion.p
-              className="canon-hero-intro"
-              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.65, delay: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <p className="enter-up canon-hero-intro" style={enterStyle('0.18s', '10px')}>
               15 десертов. Три акта. Формы, техники и переосмысления, ставшие профессиональным языком французской pâtisserie.
-            </motion.p>
-            <motion.p
-              className="canon-hero-count"
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.28 }}
-            >
+            </p>
+            <p className="enter-up canon-hero-count" style={enterStyle('0.28s', '0px')}>
               15 PIÈCES<br />3 ACTES<br />1 COLLECTION
-            </motion.p>
+            </p>
           </div>
         </div>
       </section>
