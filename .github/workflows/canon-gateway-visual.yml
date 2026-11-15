@@ -18,6 +18,9 @@ on:
 permissions:
   contents: read
 
+env:
+  ASTRO_TELEMETRY_DISABLED: '1'
+
 concurrency:
   group: canon-gateway-visual-${{ github.event.pull_request.number }}
   cancel-in-progress: true

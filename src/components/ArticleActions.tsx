@@ -8,7 +8,7 @@ interface ArticleActionsProps {
   article: Article
   /** Lift saved state up to parent to keep in sync with mobile reading bar */
   saved?: boolean
-  onToggleSave?: (next: boolean) => void
+  onToggleSave?: (next: boolean) => boolean
 }
 
 export default function ArticleActions({ article, saved: savedProp, onToggleSave }: ArticleActionsProps) {
@@ -35,12 +35,14 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
 
   const toggleSave = () => {
     const newSaved = !saved
-    if (onToggleSave) {
-      onToggleSave(newSaved)
-    } else {
-      setSavedLocal(newSaved)
-      safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    const persisted = onToggleSave
+      ? onToggleSave(newSaved)
+      : safeSetItem(`article-saved:${article.id}`, String(newSaved))
+    if (!persisted) {
+      showToast('info', 'Не удалось изменить закладки. Хранилище браузера недоступно или заполнено.')
+      return
     }
+    if (!onToggleSave) setSavedLocal(newSaved)
     showToast('save', newSaved ? 'Добавлено в закладки' : 'Убрано из закладок')
   }
 
@@ -54,7 +56,8 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
       copiedTimeoutRef.current = window.setTimeout(() => setCopied(false), 2000)
       return true
     } catch (e) {
-      console.error('Failed to copy:', e)
+      console.warn('Failed to copy:', e)
+      showToast('info', 'Не удалось скопировать ссылку. Скопируйте адрес страницы вручную.')
       return false
     }
   }
@@ -71,7 +74,11 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
         // F-19: show toast on successful native share
         showToast('share', 'Поделились статьёй')
       } catch (e) {
-        if ((e as Error).name !== 'AbortError') console.error(e)
+        // Cancelling the native sheet is intentional; other failures need the
+        // same visible feedback as a denied clipboard operation.
+        if ((e as Error).name === 'AbortError') return
+        console.warn('Failed to share:', e)
+        showToast('info', 'Не удалось поделиться. Скопируйте ссылку на статью вручную.')
       }
     } else {
       // No native share API — fall back to clipboard copy
@@ -86,7 +93,7 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <button
         type="button"
         onClick={toggleSave}

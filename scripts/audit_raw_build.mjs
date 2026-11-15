@@ -29,9 +29,29 @@ const htmlFiles = files.filter((file) => file.endsWith('.html'))
 if (htmlFiles.length === 0) throw new Error('No generated HTML files found in dist/')
 
 const failures = []
+const serviceWorkerPath = path.join(DIST_DIR, 'sw.js')
+try {
+  const serviceWorker = await fs.readFile(serviceWorkerPath, 'utf8')
+  const version = serviceWorker.match(/const CACHE_VERSION\s*=\s*['"](v[a-f0-9]{16})['"]/)
+  if (!version) failures.push('dist/sw.js is missing its generated 16-character build hash')
+  if (serviceWorker.includes('__BUILD_HASH__')) failures.push('dist/sw.js contains an unresolved build-hash placeholder')
+  if (!serviceWorker.includes('patisserie-precache-') || !serviceWorker.includes('patisserie-runtime-')) {
+    failures.push('dist/sw.js is missing versioned cache names')
+  }
+} catch {
+  failures.push('dist/sw.js is missing; the build must fail closed when service-worker versioning cannot run')
+}
 let documentCount = 0
 let islandDocumentCount = 0
 let totalBytes = 0
+let srcsetCandidates = 0
+
+// Every same-origin `srcset` candidate is a promise that a file exists. The manifest
+// (`src/data/imageVariants.generated.ts`) is committed while the derivatives themselves
+// are generated, so a stale manifest - or a build that skipped the generator - would
+// ship broken images that only a browser would notice. This audit is read-only and
+// resolves the promise against the untouched output.
+const DIST_FILES = new Set(files.map((file) => path.normalize(file)))
 
 for (const file of htmlFiles) {
   const relative = path.relative(DIST_DIR, file).replaceAll(path.sep, '/')
@@ -80,6 +100,26 @@ for (const file of htmlFiles) {
   if (relatedStyle.some((style) => style !== ASTRO_ISLAND_STYLE)) {
     failures.push(`${relative}: Astro island style marker was altered`)
   }
+
+  for (const [, value] of html.matchAll(/\ssrcset="([^"]*)"/gi)) {
+    for (const entry of value.split(',')) {
+      const url = entry.trim().split(/\s+/)[0]
+      if (!url || url.startsWith('data:') || !url.startsWith('/')) continue
+      srcsetCandidates += 1
+      const candidate = path.normalize(path.join(DIST_DIR, url.split(/[?#]/)[0]))
+      if (!DIST_FILES.has(candidate)) {
+        failures.push(`${relative}: srcset candidate is missing from dist: ${url}`)
+      }
+    }
+  }
+
+  // `sizes` only means something together with `srcset`; a lone `sizes` is dead
+  // markup that silently disables the responsive selection it was added for.
+  for (const [tag] of html.matchAll(/<img\b[^>]*>/gi)) {
+    const hasSizes = /\ssizes=/i.test(tag)
+    const hasSrcset = /\ssrcset=/i.test(tag)
+    if (hasSizes && !hasSrcset) failures.push(`${relative}: <img> declares sizes without srcset`)
+  }
 }
 
 if (documentCount === 0) failures.push('No complete HTML documents were generated')
@@ -91,5 +131,6 @@ if (failures.length > 0) {
 
 console.log(
   `Raw build audit passed: ${documentCount} documents, ${htmlFiles.length} HTML files, ` +
-  `${islandDocumentCount} hydrated island documents, ${totalBytes.toLocaleString('en-US')} bytes, strict UTF-8, no post-processing.`,
+  `${islandDocumentCount} hydrated island documents, ${totalBytes.toLocaleString('en-US')} bytes, ` +
+  `${srcsetCandidates} srcset candidates resolved, strict UTF-8, no post-processing.`,
 )

@@ -34,7 +34,7 @@
 /privacy/ и policy pages   → static documents
 ```
 
-После Canon closeout опубликовано **157 article routes**. Это snapshot, а не magic constant: проверки нового кода должны сравнивать реальные ID sets / bindings, а не падать только потому, что корпус легитимно вырос.
+После Canon closeout и публикации самостоятельной history-статьи опубликовано **158 article routes** (155 базовых + 2 досье Canon + 1 history). Это snapshot, а не magic constant: проверки нового кода должны сравнивать реальные ID sets / bindings, а не падать только потому, что корпус легитимно вырос.
 
 ### Data flow
 
@@ -221,6 +221,8 @@ npm run validate
 В `audit:content` входит гейт живости французских источников (`npm run audit:source-links`). Без сетевого egress он честно печатает `SKIPPED` и не блокирует локальный прогон; в CI отдельный шаг `npm run audit:source-links:strict` запускает его с `--require-network`, поэтому тихий пропуск не может сойти за зелёный. Слабые цитаты (корень сайта, индекс, поисковая выдача) ограничены замороженным ratchet `MAX_WEAK_CITATIONS`, который можно только снижать.
 
 Для UI/section release дополнительно обязательны соответствующие browser/visual workflows. Для production-closeout доказательство — не только green build, а **exact deployed SHA live witness**.
+
+В Arena Sandbox, если системный браузер недоступен, допустим временный Chromium 153 вне репозитория: `npm install --prefix /tmp/arena-browser --no-audit --no-fund @sparticuz/chromium@153.0.0 playwright@1.64.1`; executable path получать через `Chromium.executablePath()`. На Debian 12/x86_64 при нехватке NSS-библиотек Brotli-декомпрессировать `bin/al2023.tar.br` и распаковать в `/tmp/arena-browser/libs`, добавив `.../libs/lib` в начало `LD_LIBRARY_PATH`. Для Playwright использовать только `--no-sandbox` и `--disable-dev-shm-usage`; не копировать `Chromium.args` (там есть `--disable-web-security`). NSS-патчи и `LD_PRELOAD` не нужны в проверенной среде. `/tmp` эфемерен — перед тестом проверять браузер и зависимости. Внешние подмены делать адресно и явно фиксировать; Chromium не заменяет WebKit, Firefox или физические устройства.
 
 ## 10. Repository hygiene
 

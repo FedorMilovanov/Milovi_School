@@ -5,6 +5,12 @@ import type { Article } from './types'
  * complete articles do not use deepContents/expansion fallback.
  * This entry is an editorial adaptation of MILOVI CAKE's existing 2026-11-07
  * Telegraph publication; original archive source links remain in the article.
+ *
+ * Cover provenance: original editorial AI image from video-channel-manager commit
+ * c29d95072bc8b1781466ec4781cc94481909b164, SHA-256 of the original
+ * 2bf4ec0e537fcb3c8349267ade1992d779e12ef832c9497a62a10c014d003328.
+ * Published locally as the optimized 1280x720 derivative
+ * /images/articles/history-confectionery-profession-cover.webp.
  */
 export const historyArticles: Article[] = [
   {
@@ -143,13 +149,13 @@ export const historyArticles: Article[] = [
     category: 'histoire-culinaire',
     author: 'MILOVI CAKE / Patisserie Russe — редакционное исследование по архивным, музейным и отраслевым источникам',
     readTime: 9,
-    image: "https://raw.githubusercontent.com/FedorMilovanov/video-channel-manager/c29d95072bc8b1781466ec4781cc94481909b164/content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp",
+    image: '/images/articles/history-confectionery-profession-cover.webp',
     imageAlt: 'Иллюстрация исторической кондитерской мастерской с десертами на витрине',
     imageTitle: 'История кондитерского дела — редакционная обложка MILOVI CAKE',
     imageCaption: 'Редакционная реконструкция кондитерской мастерской. Не документальное изображение конкретного исторического помещения.',
     imageCredit: 'MILOVI CAKE — оригинальная редакционная AI-иллюстрация',
-    imageWidth: 1672,
-    imageHeight: 941,
+    imageWidth: 1280,
+    imageHeight: 720,
     tags: ['история профессии', 'парижские pâtissiers', 'цехи', 'Карем', 'Stohrer', 'сахар', 'музейные источники'],
     date: '2026-11-07',
     updatedAt: '2026-11-08',

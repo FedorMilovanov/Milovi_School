@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import {
   canonActs,
   canonWorks,
@@ -8,15 +8,31 @@ import {
   type CanonActId,
   type CanonWork,
 } from '../data/canon'
-import type { ArticleClientMeta } from '../data/types'
 import { prefetchRoute } from '../utils/navigation'
+import { applyImageFallback, recoverFailedImage, variantSrcSet } from '../utils/imageVariants'
 import LuxuryText from './LuxuryText'
 import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
 import '../styles/canon.css'
 import '../styles/canon-editorial.css'
 
+/**
+ * The canon cards only need the dossier line (reading time + excerpt). The full
+ * article metadata used to be serialized into this island; it is now projected
+ * down to these two fields by the page, and the rest is fetched on demand by the
+ * search palette (`useArticleIndex`).
+ */
+export interface CanonDossier {
+  readTime: number
+  excerpt: string
+}
+
 const pad = (value: number) => String(value).padStart(2, '0')
+
+const enterStyle = (delay: string, shift: string): CSSProperties => ({
+  '--enter-delay': delay,
+  '--enter-shift': shift,
+} as CSSProperties)
 
 function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   return (
@@ -36,7 +52,7 @@ function CanonActRail({ activeAct }: { activeAct: CanonActId }) {
   )
 }
 
-function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleClientMeta }) {
+function CanonWorkCard({ work, article }: { work: CanonWork; article?: CanonDossier }) {
   const mediaRef = useRef<HTMLDivElement>(null)
   const reduceMotion = useReducedMotion()
   const destination = work.articleId ? `/articles/${work.articleId}/` : null
@@ -79,12 +95,16 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleCl
           {work.imageMobile && <source media="(max-width: 620px)" srcSet={work.imageMobile} />}
           <img
             src={work.image}
+            srcSet={variantSrcSet(work.image)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 96vw, 64vw"
             alt={work.imageAlt}
             width={1280}
             height={800}
             loading="lazy"
             decoding="async"
             className="canon-work-image"
+            ref={(element) => recoverFailedImage(element)}
+            onError={(event) => applyImageFallback(event.currentTarget)}
           />
         </picture>
         <span className="canon-work-sheen" aria-hidden="true" />
@@ -160,11 +180,10 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: ArticleCl
   )
 }
 
-export default function CanonExperience({ articles }: { articles: ArticleClientMeta[] }) {
+export default function CanonExperience({ dossiers }: { dossiers: Record<string, CanonDossier> }) {
   const reduceMotion = useReducedMotion()
   const [activeAct, setActiveAct] = useState<CanonActId>('forme')
   const [railVisible, setRailVisible] = useState(false)
-  const articlesById = useMemo(() => new Map(articles.map((article) => [article.id, article])), [articles])
 
   useEffect(() => {
     const nodes = canonActs
@@ -246,43 +265,25 @@ export default function CanonExperience({ articles }: { articles: ArticleClientM
 
       <section className="canon-hero" aria-labelledby="canon-title">
         <div className="canon-shell canon-hero-inner">
-          <motion.p
-            className="canon-hero-label"
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <p className="enter-up canon-hero-label" style={enterStyle('0s', '8px')}>
             PÂTISSERIE RUSSE · COLLECTION 01
-          </motion.p>
+          </p>
 
-          <motion.h1
-            id="canon-title"
-            className="canon-hero-title"
-            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: reduceMotion ? 0 : 0.8, delay: reduceMotion ? 0 : 0.08, ease: [0.22, 1, 0.36, 1] }}
-          >
+          {/* The hero text is part of the document, not of the animation: the
+              entrance is CSS-driven (`html.js .enter-up`), so the H1 paints
+              with the HTML even when no script runs. */}
+          <h1 id="canon-title" className="enter-up canon-hero-title" style={enterStyle('0.08s', '18px')}>
             <LuxuryText tone="gold" as="span">LE CANON</LuxuryText><br />
             <LuxuryText tone="gold" as="span">SUCRÉ</LuxuryText>
-          </motion.h1>
+          </h1>
 
           <div className="canon-hero-deck">
-            <motion.p
-              className="canon-hero-intro"
-              initial={reduceMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.65, delay: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <p className="enter-up canon-hero-intro" style={enterStyle('0.18s', '10px')}>
               15 десертов. Три акта. Формы, техники и переосмысления, ставшие профессиональным языком французской pâtisserie.
-            </motion.p>
-            <motion.p
-              className="canon-hero-count"
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: reduceMotion ? 0 : 0.7, delay: reduceMotion ? 0 : 0.28 }}
-            >
+            </p>
+            <p className="enter-up canon-hero-count" style={enterStyle('0.28s', '0px')}>
               15 PIÈCES<br />3 ACTES<br />1 COLLECTION
-            </motion.p>
+            </p>
           </div>
         </div>
       </section>
@@ -332,7 +333,7 @@ export default function CanonExperience({ articles }: { articles: ArticleClientM
                   <CanonWorkCard
                     key={work.id}
                     work={work}
-                    article={work.articleId ? articlesById.get(work.articleId) : undefined}
+                    article={work.articleId ? dossiers[work.articleId] : undefined}
                   />
                 ))}
               </div>

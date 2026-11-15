@@ -2,7 +2,7 @@
  * Canonical entity graph for Patisserie Russe.
  *
  * Single source of truth for every `@id` used in JSON-LD across the site, so
- * the homepage, /about/, /methodology/ and the 157 article pages reference the
+ * the homepage, /about/, /methodology/ and the 158 article pages reference the
  * SAME nodes instead of re-declaring conflicting copies.
  *
  * Positioning (owner clarification, 2026-11-03):
@@ -89,7 +89,7 @@ export const schoolNode = {
   inLanguage: 'ru',
   description:
     'Русскоязычная образовательная библиотека о французской кондитерской ' +
-    'школе: 157 материалов об истории, техниках, ингредиентах и шефах.',
+    'школе: 158 материалов об истории, техниках, ингредиентах и шефах.',
   disambiguatingDescription: EDUCATIONAL_DISCLAIMER,
   founder: { '@id': ENTITY_IDS.creator },
   sponsor: { '@id': ENTITY_IDS.organization },

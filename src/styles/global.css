@@ -389,16 +389,46 @@ blockquote.lux-quote::before {
   -webkit-backdrop-filter: blur(24px);
 }
 
-/* ── Scroll reveal ────────────────────────────────────────────── */
-.reveal {
+/* ── Scroll reveal ──────────────────────────────────────────────
+   Gated on `html.js` (set by the pre-paint script in BaseLayout): the hidden
+   start state only exists when a script is actually able to reveal it again.
+   Without JS the section is simply visible instead of being an invisible
+   opacity:0 block. */
+html.js .reveal {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.9s cubic-bezier(0.25, 1, 0.35, 1),
               transform 0.9s cubic-bezier(0.25, 1, 0.35, 1);
 }
-.reveal.in {
+html.js .reveal.in {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* ── Above-the-fold entrance ────────────────────────────────────
+   The hero blocks used framer-motion `initial={{opacity:0}}`, which bakes
+   `style="opacity:0"` into the static HTML: without JS (or if hydration never
+   finishes) the H1 stayed invisible, and the headline could only paint after
+   React booted. The same motion is now a CSS animation gated on `html.js`, so
+   the document itself renders the headline and the animation is a pure
+   enhancement. Timings/shift come from the element:
+     style={{ '--enter-delay': '0.22s', '--enter-shift': '24px' }} */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .enter-up {
+    animation: enter-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--enter-delay, 0s);
+  }
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--enter-shift, 18px));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 /* BUG FIX: reveal-delay-N classes used in MainCategories but never defined */
 .reveal-delay-1 { transition-delay: 0.10s; }
@@ -406,7 +436,7 @@ blockquote.lux-quote::before {
 .reveal-delay-3 { transition-delay: 0.30s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+  html.js .reveal { opacity: 1; transform: none; transition: none; }
 }
 
 /* ── Article body typography ──────────────────────────────────── */

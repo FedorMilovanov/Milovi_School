@@ -49,6 +49,18 @@ EXPANSIONS_DIR = ROOT / "src" / "data" / "articleExpansionParts"
 CANON_CONTENTS_PATH = ROOT / "src" / "data" / "canonArticleContents.ts"
 CANON_APPENDICES_PATH = ROOT / "src" / "data" / "canonArticleAppendices.ts"
 CANON_ARTICLES_PATH = ROOT / "src" / "data" / "canonArticles.ts"
+# «Мысль дня» on the dashboard publishes attributed quotes with primary-source
+# links (see docs/RESEARCH_QUOTES_2026-11-15.md). Those URLs are part of the
+# corpus source trail: a dead interview link in a quote card is the same defect
+# as a dead citation in an article.
+DASHBOARD_QUOTES_PATH = ROOT / "src" / "components" / "DashboardBento.tsx"
+# The standalone history essay (158th article) and the graded evidence register
+# for the 19 historical articles. Until 2026-11-15 neither file was collected:
+# 15 markdown/sourceUrl links in the essay body and 51 graded source URLs in
+# the register escaped both the dead registry and the weak-citation ratchet,
+# even though the depth/editorial gates also skip these layers.
+HISTORY_ARTICLES_PATH = ROOT / "src" / "data" / "historyArticles.ts"
+HISTORY_EVIDENCE_PATH = ROOT / "src" / "data" / "historyEvidence.ts"
 OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 
 # Frozen ratchet. Lower it as weak citations are replaced by real documents.
@@ -179,7 +191,26 @@ OUTPUT_DIR = ROOT / "artifacts" / "source-links-report"
 # Pre-merge closeout: the five remaining known weak citations were removed/replaced;
 # fixing SOURCE_URL_FIELD_RE exposed two additional inline metadata roots, which were
 # also replaced. The permanent ratchet is now zero.
+# Collection widened 2026-11-15: the seven «Мысль дня» quote cards in
+# DashboardBento.tsx joined the registry as origin "dashboard-quotes" (originally
+# verified interviews and primary pages — docs/RESEARCH_QUOTES_2026-11-15.md).
+# All seven are deep document pages, not roots or search results, so the weak
+# ratchet stays at zero.
 MAX_WEAK_CITATIONS = 0
+
+# Three historical evidence URLs are grade-disclosed commercial homepage citations
+# for which no stable suitable deep-document substitute has been verified.
+# Keep these exact exceptions visible and subject to dead/redirect checks.
+# All future weak history links MUST fail until individually justified.
+WEAK_EXEMPT_URLS = frozenset({
+    "https://mariatotal.com/",  # graded commercial contextual account
+    "https://www.dalloyau.fr/",  # corporate source about its own product
+    "https://canneles-marion-lebon.fr/",  # grade-disclosed commercial retelling
+})
+
+def weak_exception(citation: dict[str, str]) -> bool:
+    return (citation["origin"] == "history-evidence"
+            and citation["url"] in WEAK_EXEMPT_URLS)
 
 # Root redirects are hard failures too. Once the full strict probe reported zero,
 # the former observe-only ratchet was promoted to a permanent zero budget.
@@ -271,8 +302,18 @@ KNOWN_DEAD_URLS: frozenset[str] = frozenset({
 ENTRY_RE = re.compile(r"(?m)^\s*'([^']+)'\s*:\s*`((?:\\`|[^`])*)`\s*,")
 MARKDOWN_URL_RE = re.compile(r"\[[^\]]*\]\((https?://[^)\s]+)\)")
 BARE_URL_RE = re.compile(r"(?<![(\[])https?://[^\s<>'\"`)\]]+")
-SOURCE_URL_FIELD_RE = re.compile(r"\bsourceUrl\s*:\s*'([^']+)'")
+# Both quote styles are published: articles.ts/overrides use single quotes,
+# historyArticles.ts uses double quotes. The single-quote-only parser left the
+# standalone history essay's sourceUrl invisible to the registry.
+SOURCE_URL_FIELD_RE = re.compile(r"\bsourceUrl\s*:\s*(['\"])([^'\"]+)\1")
+# Quoted URL strings inside the structured history evidence register.
+EVIDENCE_URL_RE = re.compile(r'"(https?://[^"\s]+)"')
 STATIC_HREF_RE = re.compile(r'href="(https?://[^"]+)"')
+
+
+def source_url_fields(text: str) -> list[str]:
+    """Every sourceUrl field value in a data file, regardless of quote style."""
+    return [match[1] for match in SOURCE_URL_FIELD_RE.findall(text)]
 # Own-domain links in static pages are navigation/branding, not source trail.
 STATIC_INTERNAL_HOSTS = ("french.milovicake.ru", "milovicake.ru")
 
@@ -309,6 +350,13 @@ def generic_path(url: str) -> bool:
     if path in {"/", "/fr", "/en", "/en-us", "/recettes", "/articles", "/univers", "/search"}:
         return True
     if re.search(r"(?:^|/)(?:recherche|search|results)(?:/|$)", path, flags=re.I):
+        # Met object permalinks: metmuseum.org/art/collection/search/390804 is
+        # the canonical page of object #390804, not a search. The museum's real
+        # search always carries a query string (?q=…), which the rule below
+        # already flags. Found as a false weak verdict on the history essay's
+        # Bosse engraving citation (2026-11-15 coverage wave).
+        if re.search(r"/collection/search/\d+$", path):
+            return False
         return True
     # urlsplit().query does not include the leading "?", so match the
     # first key at ^ and subsequent keys after "&".
@@ -364,12 +412,33 @@ def collect_citations() -> list[dict[str, str]]:
         (ARTICLES_PATH, "metadata"),
         (OVERRIDES_PATH, "override-metadata"),
         (CANON_ARTICLES_PATH, "canon-metadata"),
+        (DASHBOARD_QUOTES_PATH, "dashboard-quotes"),
     ):
         if not path.exists():
             continue
         text = path.read_text(encoding="utf-8")
-        for url in SOURCE_URL_FIELD_RE.findall(text):
+        for url in source_url_fields(text):
             add("__metadata__", url, label)
+
+    # The standalone history essay publishes its own markdown body and metadata.
+    # Own-domain links are navigation/branding here too, exactly as in static
+    # pages, so they are not part of the source trail.
+    if HISTORY_ARTICLES_PATH.exists():
+        history_text = HISTORY_ARTICLES_PATH.read_text(encoding="utf-8")
+        for url in MARKDOWN_URL_RE.findall(history_text):
+            if any(host in url for host in STATIC_INTERNAL_HOSTS):
+                continue
+            add("confectionery-profession-history", url, "history-body")
+        for url in source_url_fields(history_text):
+            add("confectionery-profession-history", url, "history-metadata")
+
+    # Graded evidence register: every quoted URL string is a reviewable source
+    # by construction (the register's whole purpose), so all of them join the
+    # dead-link registry. Weakness of grade-C/D roots is disclosed by the grade
+    # itself — see WEAK_EXEMPT_URLS.
+    if HISTORY_EVIDENCE_PATH.exists():
+        for url in EVIDENCE_URL_RE.findall(HISTORY_EVIDENCE_PATH.read_text(encoding="utf-8")):
+            add("__history_evidence__", url, "history-evidence")
 
     # Static editorial pages cite external references too. Only real href links
     # count; JSON-LD siteUrl/schema URLs are not part of the source trail.
@@ -469,11 +538,13 @@ def run_selftest() -> int:
       id: 'multiline',
       sourceUrl: 'https://example.test/second/document',
     },
+    { id: 'history', sourceUrl: "https://example.test/third/document" },
     """
-    parsed = SOURCE_URL_FIELD_RE.findall(metadata_fixture)
+    parsed = source_url_fields(metadata_fixture)
     expected = [
         "https://example.test/deep/document",
         "https://example.test/second/document",
+        "https://example.test/third/document",
     ]
     if parsed != expected:
         failures.append(f"metadata parser mismatch: expected={expected!r}, got={parsed!r}")
@@ -483,14 +554,45 @@ def run_selftest() -> int:
     # become invisible while the gate still prints a green verdict.
     collected = collect_citations()
     origins = {item["origin"] for item in collected}
-    for required in ("base", "expansion", "override-metadata", "metadata", "static-page"):
+    for required in ("base", "expansion", "override-metadata", "metadata", "static-page",
+                     "dashboard-quotes", "history-body", "history-metadata", "history-evidence"):
         if required not in origins:
             failures.append(f"collector dropped origin {required!r}")
-    override_urls = set(SOURCE_URL_FIELD_RE.findall(OVERRIDES_PATH.read_text(encoding="utf-8")))
+    override_urls = set(source_url_fields(OVERRIDES_PATH.read_text(encoding="utf-8")))
     collected_urls = {item["url"] for item in collected}
     missing_overrides = override_urls - collected_urls
     if missing_overrides:
         failures.append(f"override sourceUrl not collected: {sorted(missing_overrides)[:3]!r}")
+    # Regression: the dashboard «Мысль дня» cards live outside src/data; if the
+    # collector drops that file again, a dead interview URL in a quote card
+    # becomes invisible while the gate stays green.
+    if DASHBOARD_QUOTES_PATH.exists():
+        dashboard_urls = set(source_url_fields(
+            DASHBOARD_QUOTES_PATH.read_text(encoding="utf-8")))
+        missing_dashboard = dashboard_urls - collected_urls
+        if missing_dashboard:
+            failures.append(f"dashboard quote sourceUrl not collected: "
+                            f"{sorted(missing_dashboard)[:3]!r}")
+    # Regression: the standalone history essay and the graded evidence register
+    # were the last two layers outside the registry (found by the 2026-11-15
+    # coverage audit). Both must stay collected.
+    if HISTORY_ARTICLES_PATH.exists():
+        history_urls = set(MARKDOWN_URL_RE.findall(
+            HISTORY_ARTICLES_PATH.read_text(encoding="utf-8")))
+        history_urls |= set(source_url_fields(
+            HISTORY_ARTICLES_PATH.read_text(encoding="utf-8")))
+        history_urls -= {u for u in history_urls
+                         if any(host in u for host in STATIC_INTERNAL_HOSTS)}
+        missing_history = history_urls - collected_urls
+        if missing_history:
+            failures.append(f"history essay URL not collected: {sorted(missing_history)[:3]!r}")
+    if HISTORY_EVIDENCE_PATH.exists():
+        evidence_urls = set(EVIDENCE_URL_RE.findall(
+            HISTORY_EVIDENCE_PATH.read_text(encoding="utf-8")))
+        missing_evidence = evidence_urls - collected_urls
+        if missing_evidence:
+            failures.append(f"history evidence URL not collected: "
+                            f"{sorted(missing_evidence)[:3]!r}")
     deep_urls = set(MARKDOWN_URL_RE.findall(DEEP_PATH.read_text(encoding="utf-8")))
     if deep_urls and not deep_urls.issubset(collected_urls):
         failures.append("deepContents.ts URLs are not fully collected")
@@ -500,11 +602,13 @@ def run_selftest() -> int:
         "https://example.test/recherche?q=caramel",
         "https://example.test/search/results",
         "https://example.test/catalog?q=caramel",
+        "https://www.metmuseum.org/art/collection/search?q=pastry",
     )
     generic_negative = (
         "https://example.test/recettes/tarte-citron",
         "https://example.test/magasins",
         "https://example.test/articles/history?id=42",
+        "https://www.metmuseum.org/art/collection/search/390804",
     )
     for url in generic_positive:
         if not generic_path(url):
@@ -590,9 +694,15 @@ def main() -> int:
     # budget can and must be enforced here. The networked branch still recomputes
     # the same set from probe results for the report artifact; the two agree by
     # construction.
-    offline_weak = [c for c in citations if generic_path(c["url"])]
+    offline_weak = [c for c in citations
+                    if generic_path(c["url"]) and not weak_exception(c)]
+    offline_weak_exempt = [c for c in citations
+                           if generic_path(c["url"]) and weak_exception(c)]
     print(f"- weak citations (offline, generic_path): {len(offline_weak)} "
           f"of {len(citations)} (budget {MAX_WEAK_CITATIONS})")
+    if offline_weak_exempt:
+        print(f"- weak but grade-disclosed (WEAK_EXEMPT_URLS): "
+              f"{len(offline_weak_exempt)}")
     if len(offline_weak) > MAX_WEAK_CITATIONS:
         print(f"\nWeak-citation ratchet exceeded: {len(offline_weak)} > "
               f"{MAX_WEAK_CITATIONS}. Replace index/search citations with concrete "
@@ -630,7 +740,9 @@ def main() -> int:
 
     dead_urls = [item for item in results if item["verdict"] == "dead"]
     blocked_urls = [item for item in results if item["verdict"] == "blocked"]
-    weak_citations = [c for c in citations if verdict[c["url"]]["verdict"] == "weak"]
+    weak_citations = [c for c in citations
+                      if verdict[c["url"]]["verdict"] == "weak"
+                      and not weak_exception(c)]
     root_redirects = [c for c in citations if verdict[c["url"]].get("rootRedirect")]
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

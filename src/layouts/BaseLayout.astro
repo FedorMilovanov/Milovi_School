@@ -179,6 +179,24 @@ const metaDescription =
           } catch (__) {}
         }
         var root = document.documentElement
+        // Marks that scripts run, so scroll/entrance animations can be gated on
+        // `html.js` in CSS. Without it the same markup renders in its final,
+        // fully visible state (no-JS readers, crawlers, blocked JS).
+        root.classList.add('js')
+        // Fail-open for `.reveal`: the marker only proves this inline script ran,
+        // not that the island owning the reveal observer mounted. If nothing
+        // disarms the timer, drop the marker so the CSS hidden start state
+        // disappears instead of leaving sections invisible forever.
+        window.__miloviRevealArm = function () {
+          window.__miloviRevealArmed = true
+          if (window.__miloviRevealTimer) {
+            clearTimeout(window.__miloviRevealTimer)
+            window.__miloviRevealTimer = 0
+          }
+        }
+        window.__miloviRevealTimer = setTimeout(function () {
+          if (!window.__miloviRevealArmed) root.classList.remove('js')
+        }, 3000)
         try {
           if (localStorage.getItem('pref-large-text') === 'true') root.classList.add('pref-large-text')
           if (localStorage.getItem('pref-focus-mode') === 'true') root.classList.add('focus-mode-active')

@@ -3,6 +3,7 @@ import type { ArticleMeta } from '../data/types'
 import { categories } from '../data/categories'
 import { safeGetItem } from '../utils/storage'
 import { fallbackImageFor } from '../assets/images'
+import { variantSrcSet } from '../utils/imageVariants'
 import ImageWithFade from './ImageWithFade'
 
 interface ContinueReadingProps {
@@ -60,6 +61,8 @@ export default function ContinueReading({ articles, onArticleClick }: ContinueRe
               <div className="relative h-28 w-full">
                 <ImageWithFade
                   src={article.image || fallbackImageFor(article.category)}
+                  srcSet={variantSrcSet(article.image || fallbackImageFor(article.category))}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   alt={article.imageAlt ?? article.title}
                   className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]"
                 />

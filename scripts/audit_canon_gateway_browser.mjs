@@ -19,7 +19,7 @@ async function capture(label, viewport, path) {
   await gateway.scrollIntoViewIfNeeded()
   await page.waitForTimeout(300)
 
-  const state = await gateway.evaluate((node) => {
+  const state = await gateway.evaluate(async (node) => {
     const ownerDocument = node.ownerDocument
     const view = ownerDocument.defaultView
     const media = node.querySelector('.canon-gateway-media')
@@ -32,6 +32,16 @@ async function capture(label, viewport, path) {
       return { x: r.x, y: r.y, width: r.width, height: r.height, right: r.right, bottom: r.bottom }
     }
     const style = image && view ? view.getComputedStyle(image) : null
+    // The hero is offered through srcSet, so naturalWidth is density-corrected and the
+    // browser may legitimately pick a derivative. Decode the winning candidate in a
+    // detached Image to learn its real pixels, and keep the owner asset as the only source.
+    let served = null
+    if (image && image.currentSrc) {
+      const probe = new globalThis.Image()
+      probe.src = image.currentSrc
+      await probe.decode().catch(() => {})
+      served = { src: image.currentSrc, width: probe.naturalWidth, height: probe.naturalHeight }
+    }
     return {
       gateway: rect(node),
       media: rect(media),
@@ -39,8 +49,10 @@ async function capture(label, viewport, path) {
       copy: rect(copy),
       title: rect(title),
       src: image?.getAttribute('src') || '',
-      naturalWidth: image?.naturalWidth || 0,
-      naturalHeight: image?.naturalHeight || 0,
+      srcset: image?.getAttribute('srcset') || '',
+      served,
+      renderedWidth: image ? image.getBoundingClientRect().width : 0,
+      dpr: view ? view.devicePixelRatio : 1,
       objectFit: style?.objectFit || '',
       objectPosition: style?.objectPosition || '',
       scrollWidth: ownerDocument.documentElement.scrollWidth,
@@ -49,7 +61,22 @@ async function capture(label, viewport, path) {
   })
 
   if (state.src !== '/images/canon-sucre/canon-gateway-hero.webp') findings.push(`${label}: wrong image ${state.src}`)
-  if (state.naturalWidth !== 1916 || state.naturalHeight !== 821) findings.push(`${label}: wrong natural image size ${state.naturalWidth}x${state.naturalHeight}`)
+  const candidates = state.srcset.split(',').map((entry) => entry.trim()).filter(Boolean)
+  if (!candidates.length) findings.push(`${label}: gateway image is not offered as a responsive set`)
+  for (const candidate of candidates) {
+    const owner = /^\/images\/canon-sucre\/canon-gateway-hero\.webp (\d+)w$/.exec(candidate)
+    const match = /^\/images\/variants\/canon-gateway-hero-(\d+)\.webp (\d+)w$/.exec(candidate)
+    if (owner) {
+      if (owner[1] !== '1916') findings.push(`${label}: owner asset advertised at the wrong width ${candidate}`)
+    } else if (!match) findings.push(`${label}: unexpected srcset candidate ${candidate}`)
+    else if (match[1] !== match[2]) findings.push(`${label}: candidate width mismatch ${candidate}`)
+  }
+  if (!state.served || !state.served.width) findings.push(`${label}: gateway image did not load`)
+  else {
+    const ratio = state.served.width / state.served.height
+    if (Math.abs(ratio - 1916 / 821) > 0.01) findings.push(`${label}: served derivative lost the owner aspect ratio ${state.served.width}x${state.served.height}`)
+    if (state.served.width + 1 < state.renderedWidth * state.dpr) findings.push(`${label}: gateway image is served below its slot ${state.served.width} < ${Math.round(state.renderedWidth * state.dpr)}`)
+  }
   if (!state.gateway || state.gateway.width < 280 || state.gateway.height < 340) findings.push(`${label}: gateway geometry collapsed`)
   if (state.scrollWidth > state.clientWidth + 1) findings.push(`${label}: horizontal overflow ${state.scrollWidth} > ${state.clientWidth}`)
   if (!state.copy || !state.title) findings.push(`${label}: copy/title missing`)

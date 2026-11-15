@@ -24,5 +24,33 @@ Astro.response.status = 404
     >
       ← На главную
     </a>
+    {/*
+      A 404 is a landing page for stale external links and old sitemaps, so it
+      must not be a dead end: give the three real hubs that lead to every one of
+      the 158 materials. Server-rendered anchors only — no JS to recover from.
+    */}
+    <nav aria-label="Куда перейти" class="mt-10 w-full max-w-xl">
+      <p class="font-mono text-[10px] uppercase tracking-[0.28em] text-stone-400 dark:text-stone-500">Куда перейти</p>
+      <ul class="mt-4 grid gap-px border border-[var(--border)] bg-[var(--border)] sm:grid-cols-3">
+        <li class="bg-[var(--bg-main)]">
+          <a href="/materials/" class="flex h-full flex-col gap-1 px-5 py-4 transition hover:bg-[var(--bg-deep)]">
+            <span class="font-serif text-lg text-stone-900 dark:text-stone-100">Галерея</span>
+            <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">все материалы</span>
+          </a>
+        </li>
+        <li class="bg-[var(--bg-main)]">
+          <a href="/history/" class="flex h-full flex-col gap-1 px-5 py-4 transition hover:bg-[var(--bg-deep)]">
+            <span class="font-serif text-lg text-stone-900 dark:text-stone-100">История</span>
+            <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">19 материалов</span>
+          </a>
+        </li>
+        <li class="bg-[var(--bg-main)]">
+          <a href="/canon/" class="flex h-full flex-col gap-1 px-5 py-4 transition hover:bg-[var(--bg-deep)]">
+            <span class="font-serif text-lg text-stone-900 dark:text-stone-100">Le Canon</span>
+            <span class="font-mono text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">15 форм</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </main>
 </BaseLayout>

@@ -3,8 +3,10 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import CanonPageShell from '../components/CanonPageShell'
+import type { CanonDossier } from '../components/CanonExperience'
 import { libraryClientMeta } from '../data/library'
 import { canonActs, canonWorks } from '../data/canon'
+import { serializeJsonLd } from '../utils/jsonld'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/canon/`
@@ -31,6 +33,15 @@ const duplicateDesktopMedia = desktopMedia
   .map(({ src }) => src)
 const mediaPaths = canonWorks.flatMap((work) => [work.image, work.imageMobile].filter((value): value is string => Boolean(value)))
 const missingMedia = mediaPaths.filter((src) => !existsSync(join(process.cwd(), 'public', src.replace(/^\//, ''))))
+
+// Only the dossier line (reading time + excerpt) is needed by the canon cards.
+// Serializing the whole ArticleClientMeta list here cost ~144 KB per visit.
+const dossiers: Record<string, CanonDossier> = Object.fromEntries(
+  articleIds.flatMap((id) => {
+    const article = libraryClientMeta.find((item) => item.id === id)
+    return article ? [[id, { readTime: article.readTime, excerpt: article.excerpt }]] : []
+  }),
+)
 
 const gridErrors: string[] = []
 for (const act of canonActs) {
@@ -169,7 +180,6 @@ const imageGraph = {
   '@graph': canonImageObjects,
 }
 
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 ---
 
 <BaseLayout
@@ -183,9 +193,9 @@ const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u0
   ogImageHeight={800}
   hidePolicyFooter={true}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(collectionPage)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(itemList)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(breadcrumbList)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(imageGraph)} slot="head" />
-  <CanonPageShell articles={libraryClientMeta} client:load />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(collectionPage)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(itemList)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(breadcrumbList)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(imageGraph)} slot="head" />
+  <CanonPageShell dossiers={dossiers} client:load />
 </BaseLayout>

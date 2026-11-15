@@ -15,6 +15,14 @@ assert "export const HISTORY_CATEGORY = 'histoire-culinaire'" in data
 assert "historyArticles" in library, "Independent history articles must belong to article corpus"
 assert "confectionery-profession-history" in content
 assert "content: " in content and len(content) > 8000, "First historical article must not be a thin placeholder"
+# Depth floor (2026-11-15 coverage wave): the standalone essay sits outside
+# audit_article_depth's articles.ts pipeline, so its structural target lives
+# here and mirrors the depth audit's history-biography class (950 words,
+# 5 sections). Measured when introduced: 1903 words, 11 sections.
+_words = len(re.findall(r"[A-Za-zА-Яа-яЁёÀ-ÿ0-9]+", content))
+_sections = len(re.findall(r"(?m)^##\s+\S", content))
+assert _words >= 950, f"Standalone history essay below depth floor: {_words} words"
+assert _sections >= 5, f"Standalone history essay below section floor: {_sections} sections"
 assert "История кондитерского искусства" in page_source
 assert index.is_file(), "Build must generate /history/ (no fake route)"
 html = index.read_text(encoding="utf-8")
