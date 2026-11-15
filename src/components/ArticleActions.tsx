@@ -72,7 +72,11 @@ export default function ArticleActions({ article, saved: savedProp, onToggleSave
         // F-19: show toast on successful native share
         showToast('share', 'Поделились статьёй')
       } catch (e) {
-        if ((e as Error).name !== 'AbortError') console.error(e)
+        // Cancelling the native sheet is intentional; other failures need the
+        // same visible feedback as a denied clipboard operation.
+        if ((e as Error).name === 'AbortError') return
+        console.warn('Failed to share:', e)
+        showToast('info', 'Не удалось поделиться. Скопируйте ссылку на статью вручную.')
       }
     } else {
       // No native share API — fall back to clipboard copy

@@ -288,6 +288,32 @@ try {
     await page.getByRole('status').filter({ hasText: 'Не удалось скопировать' }).waitFor()
     assert.equal(await page.getByText('Ссылка скопирована', { exact: true }).count(), 0)
   })
+  for (const outcome of ['NotAllowedError', 'AbortError', 'success']) {
+    await check(`native share ${outcome}: accurate accessible feedback`, async (page, context) => {
+      await context.addInitScript(outcome => {
+        Object.defineProperty(navigator, 'share', { configurable: true, value: async data => {
+          window.sessionStorage.setItem('ui-audit-share', JSON.stringify(data))
+          if (outcome !== 'success') throw new DOMException('Share test outcome', outcome)
+        } })
+      }, outcome)
+      await goto(page)
+      const errors = []
+      page.on('pageerror', error => errors.push(error.message))
+      await page.getByRole('button', { name: 'Поделиться', exact: true }).click()
+      const shared = await page.evaluate(() => JSON.parse(window.sessionStorage.getItem('ui-audit-share')))
+      assert.equal(shared.url, base + article)
+      assert.ok(shared.title.length > 0)
+      if (outcome === 'NotAllowedError') {
+        await page.getByRole('status').filter({ hasText: 'Не удалось поделиться' }).waitFor()
+        assert.equal(await page.getByText('Поделились статьёй', { exact: true }).count(), 0)
+      } else if (outcome === 'success') {
+        await page.getByRole('status').filter({ hasText: 'Поделились статьёй' }).waitFor()
+      } else {
+        assert.equal((await page.getByRole('status').allTextContents()).join('').trim(), '')
+      }
+      assert.deepEqual(errors, [])
+    })
+  }
   await check('article and policy remain readable without JS; source links still intact', async page => {
     await goto(page)
     assert.ok((await page.locator('.article-body').innerText()).length > 2000)
@@ -295,6 +321,22 @@ try {
     await goto(page, '/privacy/')
     assert.ok((await page.locator('.policy-copy').innerText()).length > 500)
   }, { javaScriptEnabled: false })
+  for (const javaScriptEnabled of [false, true]) {
+    await check(`trust-page titles reflow at narrow widths, JS=${javaScriptEnabled}`, async page => {
+      for (const path of ['/privacy/', '/editorial-policy/', '/sources/', '/corrections/']) {
+        await goto(page, path)
+        for (const width of [320, 360, 390]) {
+          await page.setViewportSize({ width, height: 800 })
+          const geometry = await page.locator('h1').evaluate(el => ({
+            pageOverflow: document.documentElement.scrollWidth - window.innerWidth,
+            titleOverflow: el.scrollWidth - el.clientWidth,
+          }))
+          assert.ok(geometry.pageOverflow <= 2, `${path} at ${width}: page overflow ${geometry.pageOverflow}`)
+          assert.ok(geometry.titleOverflow <= 2, `${path} at ${width}: title overflow ${geometry.titleOverflow}`)
+        }
+      }
+    }, { javaScriptEnabled, viewport: { width: 320, height: 800 } })
+  }
   await check('policy headings follow explicit theme, not OS preference', async (page, context) => {
     for (const theme of ['dark', 'light']) {
       await context.addInitScript(theme => localStorage.setItem('theme', theme), theme)

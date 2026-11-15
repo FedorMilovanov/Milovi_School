@@ -14,7 +14,7 @@ const { title, description, updatedAt } = Astro.props
   <main id="main-content" class="mx-auto min-h-[70vh] max-w-4xl px-6 py-14 sm:py-20">
     <a href="/" class="font-mono text-xs uppercase tracking-[0.18em] text-amber-700 underline decoration-amber-300 underline-offset-4 hover:text-stone-950 dark:text-amber-400 dark:decoration-amber-900 dark:hover:text-stone-100">← На главную</a>
     <header class="mt-8 border-b border-stone-200 pb-8 dark:border-stone-800">
-      <h1 class="font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-6xl">{title}</h1>
+      <h1 class="[overflow-wrap:anywhere] font-serif text-4xl font-semibold tracking-[-0.04em] text-stone-950 dark:text-stone-100 sm:text-6xl">{title}</h1>
       <p class="mt-5 max-w-3xl text-lg leading-8 text-stone-600 dark:text-stone-400">{description}</p>
       <p class="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-stone-500">Обновлено: {updatedAt}</p>
     </header>
