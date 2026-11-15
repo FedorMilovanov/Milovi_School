@@ -12,6 +12,27 @@ fail() { count=$((count + 1)); failures=$((failures + 1)); printf '✗ [%02d] %s
 check() { local name="$1"; shift; if "$@"; then pass "$name"; else fail "$name"; fi; }
 contains() { local pattern="$1"; shift; grep -REq -- "$pattern" "$@"; }
 not_contains() { local pattern="$1"; shift; ! grep -REn -- "$pattern" "$@" >/dev/null; }
+# `sizes` is only meaningful together with `srcset`: without it the browser has a
+# single candidate and the descriptor is ignored. The old rule forbade `sizes=`
+# in the gallery outright, which became wrong the moment card imagery started
+# shipping 480/960 derivatives; the invariant is per-tag pairing, not a ban.
+images_pair_sizes_with_srcset() {
+  python3 - "$1" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+source = Path(sys.argv[1]).read_text(encoding='utf-8')
+bad = []
+for tag in re.findall(r'<img\b[^>]*>', source, re.S):
+    if 'sizes=' in tag and 'srcSet=' not in tag:
+        bad.append(' '.join(tag.split())[:120])
+if bad:
+    print('sizes without srcSet:\n' + '\n'.join(bad))
+    raise SystemExit(1)
+PY
+}
+
 
 no_tracked_path() {
   local forbidden="$1"
@@ -189,7 +210,7 @@ check 'Normal cards retain real article hrefs' contains 'href=\{`/articles/\$\{a
 check 'Card navigation is not intercepted with preventDefault' not_contains 'preventDefault\(\).*openArticle\(article\)' src/components/gallery/GalleryApp.tsx
 check 'Decorative card arrow is hidden from assistive technology' contains 'aria-hidden="true" className="flex h-6 w-6' src/components/gallery/GalleryApp.tsx
 check 'Reduced motion disables preview animation' contains '\.gallery-preview-image \{ animation: none; \}' src/styles/global.css
-check 'Gallery images do not emit sizes without srcset' not_contains '\bsizes=' src/components/gallery/GalleryApp.tsx
+check 'Gallery images never emit sizes without srcset' images_pair_sizes_with_srcset src/components/gallery/GalleryApp.tsx
 check 'All third-party workflow actions are pinned to full SHAs' all_actions_pinned
 check 'Checkout action is pinned to current v6.1.0 commit' all_checkout_pins_current
 check 'Setup Node action is pinned to current v6.5.0 commit' all_setup_node_pins_current
