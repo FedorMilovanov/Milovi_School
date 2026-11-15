@@ -1,9 +1,25 @@
-/* global document, localStorage, window */
+/* global URL, document, localStorage, window */
 import { chromium } from 'playwright'
 
 const BASE_URL = (process.env.BASE_URL ?? 'http://127.0.0.1:4174').replace(/\/$/, '')
+const CHROMIUM_EXECUTABLE_PATH = process.env.CHROMIUM_EXECUTABLE_PATH
+const STUB_EXTERNAL_TEST_ENDPOINTS = process.env.STUB_EXTERNAL_TEST_ENDPOINTS === '1'
 const CONSENT_KEY = 'milovi_school_analytics_consent_v1'
 const ANALYTICS_URL = /googletagmanager\.com|google-analytics\.com|mc\.yandex\.ru|metrika\.yandex/i
+const TEST_ENDPOINT_URL = /^(?:https:\/\/)?(?:www\.googletagmanager\.com|www\.google-analytics\.com|mc\.yandex\.ru|fonts\.googleapis\.com|fonts\.gstatic\.com)(?:\/|$)/i
+
+function stubTestEndpoints(page) {
+  if (!STUB_EXTERNAL_TEST_ENDPOINTS) return
+  page.route(TEST_ENDPOINT_URL, (route) => {
+    const host = new URL(route.request().url()).hostname
+    const contentType = host === 'fonts.googleapis.com'
+      ? 'text/css'
+      : host === 'fonts.gstatic.com'
+        ? 'application/octet-stream'
+        : 'application/javascript'
+    return route.fulfill({ status: 200, contentType, body: '' })
+  })
+}
 
 function watchAnalyticsRequests(page) {
   const requests = []
@@ -13,7 +29,12 @@ function watchAnalyticsRequests(page) {
   return requests
 }
 
-const browser = await chromium.launch({ headless: true })
+const launchOptions = { headless: true }
+if (CHROMIUM_EXECUTABLE_PATH) {
+  launchOptions.executablePath = CHROMIUM_EXECUTABLE_PATH
+  launchOptions.args = ['--no-sandbox', '--disable-dev-shm-usage']
+}
+const browser = await chromium.launch(launchOptions)
 const failures = []
 const check = (condition, message) => {
   if (!condition) failures.push(message)
@@ -23,6 +44,7 @@ try {
   const deniedContext = await browser.newContext({ serviceWorkers: 'block' })
   try {
     const page = await deniedContext.newPage()
+    stubTestEndpoints(page)
     const requests = watchAnalyticsRequests(page)
     await page.goto(`${BASE_URL}/?consent-audit=denied`, { waitUntil: 'domcontentloaded' })
     await page.locator('.prs-consent').waitFor({ state: 'visible' })
@@ -70,6 +92,7 @@ try {
   const allowedContext = await browser.newContext({ serviceWorkers: 'block' })
   try {
     const page = await allowedContext.newPage()
+    stubTestEndpoints(page)
     const requests = watchAnalyticsRequests(page)
     await page.goto(`${BASE_URL}/?consent-audit=allowed`, { waitUntil: 'domcontentloaded' })
     await page.locator('.prs-consent__allow').waitFor({ state: 'visible' })
@@ -126,3 +149,6 @@ if (failures.length) {
 }
 
 console.log('Consent lifecycle audit passed: pre-consent block, persisted denial, grant, revocation, and focus restoration.')
+if (STUB_EXTERNAL_TEST_ENDPOINTS) {
+  console.log('Test-only endpoint substitutions: Google Analytics/Tag Manager, Yandex Metrika, Google Fonts CSS and font hosts returned empty local responses.')
+}
