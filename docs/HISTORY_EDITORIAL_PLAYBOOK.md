@@ -17,8 +17,8 @@
 
 - School id: `confectionery-profession-history`.
 - Первичная публикация: https://telegra.ph/Kto-pridumal-konditerskoe-delo-Ot-myasnyh-pirogov-do-iskusstva-desertov-11-07-2
-- Публичная редакционная обложка фиксирована по исходному commit: https://raw.githubusercontent.com/FedorMilovanov/video-channel-manager/c29d95072bc8b1781466ec4781cc94481909b164/content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp
-- Размер обложки: 1672×941. Это AI-иллюстрация, не историческое свидетельство.
+- Публичная редакционная обложка хранится локально: `/images/articles/history-confectionery-profession-cover.webp` (исходник — commit `c29d9507` репозитория `video-channel-manager`, тот же кадр, перекодирован в WebP 1280×720/q80). Внешние (cross-origin) обложки в School не публикуются: `<img>`, `og:image` и `image:loc` в sitemap обязаны быть на домене сайта.
+- Размер обложки: 1280×720 (исходник 1672×941). Это AI-иллюстрация, не историческое свидетельство.
 - Полный текст адаптирован из сохранённых Telegraph nodes текущего автора, включая 10 разделов и ссылочный аппарат. Оригинальная гравюра Абрахама Босса доступна внешней ссылкой на музейный оригинал (в ArticleView удалённые inline-image URL не поддерживаются); 4 тематические иллюстрации используют уже имеющиеся локальные School assets.
 - Перенос на School не изменяет Telegraph и уже опубликованные VK/Telegram сообщения.
 
