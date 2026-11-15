@@ -189,6 +189,44 @@ try {
     await page.getByRole('dialog').waitFor({ state: 'detached' })
     assert.equal(await page.locator('[inert]').count(), 0)
   })
+  await check('failed primary and fallback images never create a retry loop', async (page, context) => {
+    let releasePrimary
+    const hydrated = new Promise(resolve => { releasePrimary = resolve })
+    let fallbackRequests = 0
+    await context.route('**/images/articles/recipe-kouglof.webp', async route => {
+      await hydrated
+      await route.fulfill({ status: 503, body: 'Primary image unavailable' })
+    })
+    await context.route(/\/_astro\/pastry-chef\.[^/]+\.jpg$/, route => {
+      fallbackRequests++
+      return route.fulfill({ status: 503, body: 'Fallback unavailable' })
+    })
+    await page.goto(base + article, { waitUntil: 'domcontentloaded' })
+    // A real theme interaction ensures React has attached the image handler.
+    await page.getByRole('button', { name: /Переключить на .*тему/ }).click()
+    releasePrimary()
+    await page.waitForFunction(() => {
+      const image = document.querySelector('img[fetchpriority="high"]')
+      return image?.complete && image.getAttribute('src').includes('/_astro/pastry-chef.')
+    })
+    await page.waitForTimeout(400)
+    assert.equal(fallbackRequests, 1, 'a failed fallback must not request itself repeatedly')
+    assert.equal(await page.locator('h1').count(), 1)
+    assert.ok((await page.locator('.article-body').innerText()).length > 2000)
+  })
+  await check('an image that failed before hydration recovers to a working fallback', async (page, context) => {
+    await context.route('**/images/articles/recipe-kouglof.webp', route => route.fulfill({ status: 503, body: 'Early image failure' }))
+    await context.route('**/_astro/*.js', async route => {
+      await new Promise(resolve => globalThis.setTimeout(resolve, 350))
+      await route.continue()
+    })
+    await goto(page)
+    await page.waitForFunction(() => {
+      const image = document.querySelector('img[fetchpriority="high"]')
+      return image?.complete && image.naturalWidth > 0 && image.getAttribute('src').includes('/_astro/pastry-chef.')
+    })
+    assert.equal(await page.locator('h1').count(), 1)
+  })
   await check('source URLs with parentheses survive SSR exactly', async page => {
     const cases = [
       ['financier-histoire', 'https://fr.wikipedia.org/wiki/Financier_(p%C3%A2tisserie)'],

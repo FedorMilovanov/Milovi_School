@@ -47,6 +47,17 @@ function splitInlineBlocks(text: string): string[] {
   return result
 }
 
+// React retains its onError prop even if the DOM onerror property is cleared.
+// Once the fallback itself fails, leave readable alt text instead of retrying it.
+function applyImageFallback(image: HTMLImageElement, fallback: string) {
+  if (image.getAttribute('src') !== fallback) image.src = fallback
+}
+
+function recoverFailedImage(image: HTMLImageElement | null, fallback: string) {
+  // An SSR image can finish failing before React attaches its error handler.
+  if (image?.complete && image.naturalWidth === 0) applyImageFallback(image, fallback)
+}
+
 const TERMS: Record<string, string> = {
   ganache: 'ганаш: эмульсия шоколада со сливками',
   'crème diplomate': 'дипломатический крем: заварной крем со взбитыми сливками',
@@ -499,7 +510,7 @@ const renderedContent = useMemo(() => {
           // clipped by overflow-hidden — keeping the AI provenance note visible.
           <figure key={idx} className="my-12 w-full overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800/80 shadow-md bg-stone-50 dark:bg-stone-900/50 print:break-inside-avoid">
             <div className="w-full" style={{ aspectRatio: imgAspectRatio(imgMatch[2]) }}>
-              <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" onError={(e) => { const t = e.currentTarget; t.onerror = null; t.src = fallbackImageFor(article.category) }} />
+              <img itemProp="image" src={imgMatch[2].startsWith('/') ? imgMatch[2] : fallbackImageFor(article.category)} alt={imgMatch[1]} title={imgMatch[1]} className="w-full h-full object-cover object-center transition-opacity duration-700" loading="lazy" decoding="async" ref={image => recoverFailedImage(image, fallbackImageFor(article.category))} onError={event => applyImageFallback(event.currentTarget, fallbackImageFor(article.category))} />
             </div>
             {imgMatch[1] && <figcaption className="px-6 py-4 text-center font-serif text-[15px] italic text-stone-500 dark:text-stone-400 border-t border-stone-100 dark:border-stone-800/60">
               {imgMatch[1]}
@@ -719,7 +730,8 @@ const renderedContent = useMemo(() => {
                 loading="eager" 
                 decoding="async" 
                 fetchPriority="high" 
-                onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(article.category) }} 
+                ref={image => recoverFailedImage(image, fallbackImageFor(article.category))}
+                onError={event => applyImageFallback(event.currentTarget, fallbackImageFor(article.category))}
               />
             </div>
             {article.imageCaption && (
@@ -1006,7 +1018,7 @@ const renderedContent = useMemo(() => {
                 {related.map(r => (
                   <a key={r.id} href={`/articles/${r.id}/`} onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; if (!onNavigate) return; e.preventDefault(); onNavigate(r) }} className="group block text-left">
                     <div className="mb-4 overflow-hidden bg-stone-200 dark:bg-stone-800" style={{ aspectRatio: imgAspectRatio(r.image) }}>
-                      <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = fallbackImageFor(r.category) }} />
+                      <img itemProp="image" src={r.image} alt={r.imageAlt ?? r.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" ref={image => recoverFailedImage(image, fallbackImageFor(r.category))} onError={event => applyImageFallback(event.currentTarget, fallbackImageFor(r.category))} />
                     </div>
                     <h3 className="font-serif text-lg font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-amber-800 line-clamp-2 dark:text-stone-100 dark:group-hover:text-amber-400">{r.title}</h3>
                     <p className="mt-1 text-sm leading-6 text-stone-500 line-clamp-2 dark:text-stone-400">{r.excerpt}</p>
