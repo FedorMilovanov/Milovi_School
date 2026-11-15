@@ -523,37 +523,47 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
 //      with an empty category and "· мин" instead of a recoverable error.
 //
 // Both are fault-injected here so the contract cannot silently rot again.
+//
+// Every await lives inside a `check()`, so a navigation or selector timeout
+// becomes a named failure instead of an uncaught rejection that aborts the run
+// without saying which assertion died.
 {
   const dialogContext = await browser.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: 'dark' })
-  // The site can legitimately have more than one dialog in the DOM (the analytics
-  // consent dialog is rendered when PUBLIC_GA_ID / Metrika are configured at build
-  // time, which is exactly what CI does). Scope every assertion to the search
-  // status dialog by its own label instead of matching `[role="dialog"]`.
+
+  // The site can legitimately have more than one dialog in the DOM: when
+  // PUBLIC_GA_ID / PUBLIC_YANDEX_METRIKA_ID are configured (as the workflow
+  // does) the analytics consent dialog mounts on load. Scope every assertion to
+  // the search status dialog by its own label.
   const SEARCH_DIALOG = '[role="dialog"][aria-labelledby="canon-search-loading-title"]'
+  const TRIGGER = 'button[aria-label="Открыть поиск"]'
+
   const openSearch = async (page) => {
-    await page.locator('button[aria-label="Открыть поиск"]').first().click()
+    await page.locator(TRIGGER).first().click({ timeout: 15_000 })
     await page.waitForSelector(SEARCH_DIALOG, { timeout: 15_000 })
   }
 
   const errorPage = await dialogContext.newPage()
-  await errorPage.route('**/article-index.json', (route) => route.fulfill({ status: 503, body: 'unavailable' }))
-  await errorPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
-  await openSearch(errorPage)
-  await errorPage.waitForSelector(`${SEARCH_DIALOG} [role="alert"]`, { timeout: 15_000 })
-
+  await check('search 503: page loads with the index endpoint failing', async () => {
+    await errorPage.route('**/article-index.json', (route) => route.fulfill({ status: 503, body: 'unavailable' }))
+    await errorPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+    await openSearch(errorPage)
+    await errorPage.waitForSelector(`${SEARCH_DIALOG} [role="alert"]`, { timeout: 15_000 })
+  })
   await check('search 503: dialog is exactly one and shows an error', async () =>
     assert.equal(await errorPage.locator(SEARCH_DIALOG).count(), 1))
   await check('search 503: focus moves inside the dialog', async () =>
     assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
   await check('search 503: page behind the dialog does not scroll', async () =>
     assert.equal(await errorPage.evaluate(() => document.body.style.overflow), 'hidden'))
-
-  await errorPage.keyboard.press('Tab')
-  await check('search 503: Tab stays inside the dialog', async () =>
-    assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
-  await errorPage.keyboard.press('Escape')
-  await check('search 503: Escape closes the dialog', async () =>
-    assert.equal(await errorPage.locator(SEARCH_DIALOG).count(), 0))
+  await check('search 503: Tab stays inside the dialog', async () => {
+    await errorPage.keyboard.press('Tab')
+    assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true)
+  })
+  await check('search 503: Escape closes the dialog', async () => {
+    await errorPage.keyboard.press('Escape')
+    await errorPage.waitForSelector(SEARCH_DIALOG, { state: 'detached', timeout: 5_000 })
+    assert.equal(await errorPage.locator(SEARCH_DIALOG).count(), 0)
+  })
   await check('search 503: focus returns to the trigger', async () =>
     assert.equal(await errorPage.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Открыть поиск'))
   await check('search 503: scroll lock is released', async () =>
@@ -561,14 +571,16 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   await errorPage.close()
 
   const partialPage = await dialogContext.newPage()
-  await partialPage.route('**/article-index.json', (route) => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify([{ id: 'recipe-kouglof', title: 'Куглоф' }]),
-  }))
-  await partialPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
-  await openSearch(partialPage)
-  await partialPage.waitForTimeout(1000)
+  await check('search partial index: page loads with a truncated payload', async () => {
+    await partialPage.route('**/article-index.json', (route) => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify([{ id: 'recipe-kouglof', title: 'Куглоф' }]),
+    }))
+    await partialPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+    await openSearch(partialPage)
+    await partialPage.waitForTimeout(1000)
+  })
   await check('search partial index: invalid payload surfaces a recoverable error', async () =>
     assert.equal(await partialPage.locator(`${SEARCH_DIALOG} [role="alert"]`).count(), 1))
   await check('search partial index: no half-rendered result card', async () => {
@@ -578,15 +590,15 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   await partialPage.close()
 
   const validPage = await dialogContext.newPage()
-  await validPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
-  await openSearch(validPage)
-  await validPage.waitForTimeout(1500)
   await check('search happy path: the real index still opens results', async () => {
+    await validPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
+    await openSearch(validPage)
+    await validPage.waitForTimeout(1500)
     const text = await validPage.locator('[role="dialog"]').first().innerText()
     assert.ok(text.trim().length > 0, 'empty palette')
-    assert.equal(await validPage.locator('[role="dialog"] [role="alert"]').count(), 0)
+    assert.equal(await validPage.locator(`${SEARCH_DIALOG} [role="alert"]`).count(), 0)
+    await validPage.close()
   })
-  await validPage.close()
   await dialogContext.close()
 }
 
@@ -631,6 +643,14 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
 
   await revealContext.close()
 }
+
+process.on('unhandledRejection', (error) => {
+  const detail = String(error instanceof Error ? error.stack ?? error.message : error)
+    .split('\n').filter((line) => line.trim() && !/^\s+at\s/.test(line)).slice(0, 3).join(' | ')
+    .replace(/[%\r\n]/g, ' ').replace(/::/g, ':').slice(0, 400)
+  console.error(`::error title=visual-qa::${detail}`)
+  process.exit(1)
+})
 
 const screenshots = (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort()
 const report = {
