@@ -506,29 +506,33 @@ await check('tablet: no browser or network errors', async () => {
 // ratio holds for cards as well and the route no longer needs the eager-only
 // exemption. Other routes still assert eagerly loaded images only, because the
 // article page's related cards are not wired to the manifest yet.
+// The gallery is held to 3x rather than 4x on purpose: with derivatives wired,
+// its cards sit at 480/336 = 1.4x, so 3x is still generous, while a card that
+// silently falls back to its 1280 px original lands at 3.8x — i.e. the strict
+// ratio is what actually proves the `srcset` wiring, where 4x would not notice.
 const RASTER_ROUTES = [
-  ['home', '/', false],
-  ['canon', '/canon/', false],
-  ['history', '/history/', false],
-  ['materials', '/materials/', true],
-  ['article', '/articles/recipe-kouglof/', false],
+  ['home', '/', false, 4],
+  ['canon', '/canon/', false, 4],
+  ['history', '/history/', false, 4],
+  ['materials', '/materials/', true, 3],
+  ['article', '/articles/recipe-kouglof/', false, 4],
 ]
-for (const [slug, route, assertLazy] of RASTER_ROUTES) {
+for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
   await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
   // Layout must be settled before the ratio is meaningful: a lazy image measured
   // mid-reflow reports a transient width and looks like a 20x violation.
   await desktop.page.waitForTimeout(400)
-  const oversized = await desktop.page.evaluate((includeLazy) =>
+  const oversized = await desktop.page.evaluate(({ includeLazy, maxRatio }) =>
     [...document.images]
       .filter((image) => {
         if (!includeLazy && image.loading === 'lazy') return false
         const box = image.getBoundingClientRect()
-        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > 4
+        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > maxRatio
       })
       .map((image) => `${image.currentSrc || image.getAttribute('src')} natural=${image.naturalWidth} rendered=${Math.round(image.getBoundingClientRect().width)}`),
-  assertLazy)
+  { includeLazy: assertLazy, maxRatio })
   await check(
-    `${slug}: no ${assertLazy ? '' : 'eagerly loaded '}image is served at >4x its rendered width`,
+    `${slug}: no ${assertLazy ? '' : 'eagerly loaded '}image is served at >${maxRatio}x its rendered width`,
     async () => assert.deepEqual(oversized, []),
   )
 }
