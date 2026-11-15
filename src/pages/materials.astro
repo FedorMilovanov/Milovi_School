@@ -2,9 +2,9 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import GalleryApp from '../components/gallery/GalleryApp'
 import { libraryClientMeta } from '../data/library'
+import { serializeJsonLd } from '../utils/jsonld'
 
 const siteUrl = 'https://french.milovicake.ru'
-const safeJson = (value: unknown) => JSON.stringify(value).replace(/</g, '\u003c')
 
 const jsonLdCollection = {
   '@context': 'https://schema.org',
@@ -58,8 +58,8 @@ const jsonLdBreadcrumbs = {
   ogImageWidth={1200}
   ogImageHeight={630}
 >
-  <script is:inline type="application/ld+json" set:html={safeJson(jsonLdCollection)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJson(jsonLdBreadcrumbs)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLdCollection)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLdBreadcrumbs)} slot="head" />
 
   <!--
     Render the complete gallery on the server, then hydrate the same React tree
@@ -69,7 +69,7 @@ const jsonLdBreadcrumbs = {
   <div id="gallery-app-root">
     <GalleryApp articles={libraryClientMeta} />
   </div>
-  <script is:inline id="gallery-app-data" type="application/json" set:html={safeJson(libraryClientMeta)} />
+  <script is:inline id="gallery-app-data" type="application/json" set:html={serializeJsonLd(libraryClientMeta)} />
 
   <script>
     import { createElement } from 'react'

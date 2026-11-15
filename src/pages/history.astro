@@ -4,10 +4,10 @@ import StaticPageShell from '../components/StaticPageShell'
 import { libraryMeta } from '../data/library'
 import { articleImageDimensions } from '../data/articleImageDimensions'
 import { HISTORY_CATEGORY, HISTORY_FEATURE_ID, historySections } from '../data/history'
+import { serializeJsonLd } from '../utils/jsonld'
 
 const siteUrl = 'https://french.milovicake.ru'
 const canonicalUrl = `${siteUrl}/history/`
-const safeJsonLd = (value: unknown) => JSON.stringify(value).replace(/</g, '\\u003c')
 
 const historyItems = libraryMeta.filter((article) => article.category === HISTORY_CATEGORY)
 const byId = new Map(historyItems.map((article) => [article.id, article]))
@@ -86,8 +86,8 @@ const jsonLdBreadcrumbs = {
   ogImageHeight={featured.imageHeight}
   hidePolicyFooter={true}
 >
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdCollection)} slot="head" />
-  <script is:inline type="application/ld+json" set:html={safeJsonLd(jsonLdBreadcrumbs)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLdCollection)} slot="head" />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(jsonLdBreadcrumbs)} slot="head" />
 
   <StaticPageShell client:load>
     <div class="history-room overflow-hidden">
