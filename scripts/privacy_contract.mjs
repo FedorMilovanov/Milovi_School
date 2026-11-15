@@ -122,6 +122,10 @@ for (const file of htmlFiles) {
   if (isOwnershipProofHtml(relative)) continue
   const text = fs.readFileSync(file, 'utf8')
   const hasLocalLoader = text.includes('/analytics-consent.js')
+  if (relative === 'offline.html') {
+    if (hasLocalLoader) fail('offline.html must not load analytics on the network-error fallback surface')
+    continue
+  }
   if (analyticsEnabled && !hasLocalLoader) fail(`${relative}: configured analytics lacks local consent loader`)
   if (!analyticsEnabled && hasLocalLoader) fail(`${relative}: consent loader rendered without configured analytics`)
 }
