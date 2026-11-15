@@ -5,6 +5,14 @@ import type { Article } from './types'
  * complete articles do not use deepContents/expansion fallback.
  * This entry is an editorial adaptation of MILOVI CAKE's existing 2026-11-07
  * Telegraph publication; original archive source links remain in the article.
+ *
+ * Cover provenance: the editorial AI illustration originally served from the
+ * pinned external asset raw.githubusercontent.com/FedorMilovanov/video-channel-manager/c29d95072bc8b1781466ec4781cc94481909b164/content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp
+ * is stored locally since 2026-11-15 as /images/articles/confectionery-profession-history.webp
+ * (byte-identical copy: sha256 2bf4ec0e537fcb3c8349267ade1992d779e12ef832c9497a62a10c014d003328,
+ * git blob b8a0303742e20f3b231d3bcd019029793a495a3a, 1672×941) — the last
+ * external cover in the corpus is gone; the page no longer depends on a
+ * third-party host for its hero image.
  */
 export const historyArticles: Article[] = [
   {
@@ -143,7 +151,7 @@ export const historyArticles: Article[] = [
     category: 'histoire-culinaire',
     author: 'MILOVI CAKE / Patisserie Russe — редакционное исследование по архивным, музейным и отраслевым источникам',
     readTime: 9,
-    image: "https://raw.githubusercontent.com/FedorMilovanov/video-channel-manager/c29d95072bc8b1781466ec4781cc94481909b164/content/telegram/milovi-cake/assets/patisserie-history-cover-20261107.webp",
+    image: "/images/articles/confectionery-profession-history.webp",
     imageAlt: 'Иллюстрация исторической кондитерской мастерской с десертами на витрине',
     imageTitle: 'История кондитерского дела — редакционная обложка MILOVI CAKE',
     imageCaption: 'Редакционная реконструкция кондитерской мастерской. Не документальное изображение конкретного исторического помещения.',

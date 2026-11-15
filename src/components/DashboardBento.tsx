@@ -11,14 +11,62 @@ interface BentoProps {
   onArticleClick: (article: ArticleMeta) => void
 }
 
-const QUOTES = [
-  { text: 'Вкус — это не просто сочетание ингредиентов. Это архитектура эмоций и точный расчёт.', author: 'Пьер Эрме' },
-  { text: 'Кондитерское искусство рождается на стыке абсолютной точности и искренней страсти.', author: 'Филипп Контисини' },
-  { text: 'Соль — лучший друг кондитера. Без соли сладость становится плоской и невыразительной.', author: 'Нина Метайе' },
-  { text: 'Когда вы едите десерт, вы должны сначала удивиться глазами, а затем — текстурой.', author: 'Седрик Гроле' },
-  { text: 'Хороший рецепт — это начало. Повторяемый результат — это мастерство.', author: 'Мишель Ру' },
-  { text: 'Глазурь скрывает ошибки. Текстура — обнажает всё.', author: 'Ален Дюкас' },
-  { text: 'Крем должен быть гладким, как мысль, и стойким, как характер.', author: 'Гастон Ленотр' },
+// «Мысль дня» — публично приписанные цитаты живых людей. Каждая сформулирована
+// по документированному первоисточнику (интервью или собственная страница дома)
+// и несёт ссылку на него: карточка без sourceUrl не проходит
+// audit:attributed-quotes и не попадает в реестр audit:source-links. Русский
+// текст — перевод дословной реплики; оригиналы и разбор — в редакторском
+// журнале docs/RESEARCH_QUOTES_2026-11-15.md.
+interface Quote {
+  text: string
+  author: string
+  sourceUrl: string
+  sourceLabel: string
+}
+
+const QUOTES: Quote[] = [
+  {
+    text: 'Для меня самое важное — архитектура вкуса и эмоции, которые несёт торт.',
+    author: 'Пьер Эрме',
+    sourceUrl: 'https://www.pierreherme.com/en/en/the-art-of-pastry',
+    sourceLabel: 'pierreherme.com',
+  },
+  {
+    text: 'В кухне, как и в кондитерском деле, единственный ориентир — вкус.',
+    author: 'Филипп Контисини',
+    sourceUrl: 'https://lequotidien.lu/culture/la-star-de-la-patisserie-philippe-conticini-veut-entretenir-lemerveillement/953193',
+    sourceLabel: 'Le Quotidien, 2022',
+  },
+  {
+    text: 'Мы все пробовали хлеб без соли — это невкусно. С пирожными то же самое!',
+    author: 'Нина Метайе',
+    sourceUrl: 'https://www.radiofrance.fr/franceinter/podcasts/les-p-tits-bateaux/les-p-tits-bateaux-du-samedi-28-mars-2026-9145100',
+    sourceLabel: 'France Inter, 2026',
+  },
+  {
+    text: 'Красивое пирожное приводит, вкусное — возвращает.',
+    author: 'Седрик Гроле',
+    sourceUrl: 'https://www.7detable.com/article/dans-les-cuisines/cedric-grolet-un-michelin-special-patisserie-c-est-un-reve/1940',
+    sourceLabel: '7 à table!, 2017',
+  },
+  {
+    text: 'Кондитерское дело — более строгая дисциплина: оно прививает работе Vigor и точность. Всё взвешено и вымерено, почти химия.',
+    author: 'Мишель Ру-мл.',
+    sourceUrl: 'https://www.nrn.com/food-trends/under-the-toque-michel-roux-jr-keeps-tradition-alive-at-le-gavroche',
+    sourceLabel: 'Nation’s Restaurant News, 2007',
+  },
+  {
+    text: 'Зачем прятать вкус свежесобранных овощей под густым соусом?',
+    author: 'Ален Дюкасс',
+    sourceUrl: 'https://www.the-independent.com/life-style/food-and-drink/features/alain-ducasse-the-greatest-chef-in-the-world-481722.html',
+    sourceLabel: 'The Independent, 2006',
+  },
+  {
+    text: 'Пирожные создаются не для того, чтобы накормить людей, а чтобы подарить им нежность, которую можно разделить.',
+    author: 'Гастон Ленотр',
+    sourceUrl: 'https://madame.lefigaro.fr/art-de-vivre/lenotre-traiteur-nomme-plaisir-291207-10398',
+    sourceLabel: 'Madame Figaro, 2007',
+  },
 ]
 
 function StatCard({
@@ -241,12 +289,23 @@ export default function DashboardBento({ articles, onArticleClick }: BentoProps)
                     « {quote.text} »
                   </p>
                 </div>
-                <p
-                  className="mt-4 font-mono text-[9px] uppercase tracking-[0.16em] text-right"
-                  style={{ color: 'var(--text-muted)' }}
-                >
-                  — {quote.author}
-                </p>
+                <div className="mt-4 text-right">
+                  <p
+                    className="font-mono text-[9px] uppercase tracking-[0.16em]"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    — {quote.author}
+                  </p>
+                  <a
+                    href={quote.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block font-mono text-[9px] uppercase tracking-[0.16em] hover:underline"
+                    style={{ color: 'var(--text-accent)' }}
+                  >
+                    {quote.sourceLabel} ↗
+                  </a>
+                </div>
               </div>
             </div>
           </ScrollReveal>

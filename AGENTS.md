@@ -34,7 +34,7 @@
 /privacy/ и policy pages   → static documents
 ```
 
-После Canon closeout опубликовано **157 article routes**. Это snapshot, а не magic constant: проверки нового кода должны сравнивать реальные ID sets / bindings, а не падать только потому, что корпус легитимно вырос.
+После Canon closeout и публикации самостоятельной history-статьи опубликовано **158 article routes** (155 базовых + 2 досье Canon + 1 history). Это snapshot, а не magic constant: проверки нового кода должны сравнивать реальные ID sets / bindings, а не падать только потому, что корпус легитимно вырос.
 
 ### Data flow
 

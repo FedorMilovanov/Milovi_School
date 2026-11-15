@@ -4,7 +4,7 @@
 
 Patisserie Russe is a source-based educational and editorial site on the history and practice of French pâtisserie. The challenge is not simply generating article pages: it is keeping **article identity, documentary claims, image provenance, search markup and released HTML** consistent across a growing corpus.
 
-The repository's [README.md](README.md) records a dated production scope of **157 article routes** plus the separate **Le Canon Sucré** collection of **15 works, 15 dedicated WebP assets and 15 real article bindings**. These are project snapshots, not hard-coded constants or claims about live traffic.
+The repository's [README.md](README.md) records a dated production scope of **158 article routes** (155 base-corpus articles, 2 Canon dossiers and 1 standalone history essay) plus the separate **Le Canon Sucré** collection of **15 works, 15 dedicated WebP assets and 15 real article bindings**. These are project snapshots, not hard-coded constants or claims about live traffic.
 
 ## Implementation
 
