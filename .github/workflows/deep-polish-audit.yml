@@ -140,7 +140,9 @@ jobs:
       # These audits arrive with the UI branch. Keep the shared workflow ready
       # without copying its tests or introducing new dependencies here. The unit
       # checks are pure; browser checks use the analytics-disabled build so the
-      # consent banner cannot intercept menu/search interaction fixtures.
+      # consent banner cannot intercept menu/search interaction fixtures. Keep
+      # Google Fonts unmodified here: these assertions include text geometry,
+      # and the suite's empty-font offline mode is a separate fallback scenario.
       - name: Run optional UI helper unit audit
         shell: bash
         run: |
@@ -170,7 +172,6 @@ jobs:
         shell: bash
         env:
           BASE_URL: http://127.0.0.1:4174
-          UI_AUDIT_OFFLINE: '1'
           UI_AUDIT_FULL: '0'
         run: |
           if [[ -f scripts/audit_ui_interactions.mjs ]]; then
