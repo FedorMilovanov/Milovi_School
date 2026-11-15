@@ -69,7 +69,7 @@ export const articleOverrides: Readonly<Record<string, ArticleOverride>> = Objec
   'eclair-histoire-complete': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k107860n', sourceLabel: 'Le Livre de pâtisserie (1873) — Gallica/BnF' }),
   'escoffier-biography': Object.freeze({ sourceUrl: 'https://gallica.bnf.fr/ark:/12148/bpt6k65768837', sourceLabel: 'Le Guide Culinaire (1903) — Gallica/BnF' }),
   'felder-biscuit-joconde': Object.freeze({ sourceUrl: 'https://www.ferrandi-paris.com/fr/nos-ouvrages/patisserie/livre-recettes-et-techniques-patisserie', sourceLabel: 'Pâtisserie FERRANDI Paris' }),
-  'felder-fraisier': Object.freeze({ sourceUrl: 'http://www.christophe-felder.com/cours/detail.php?id=542', sourceLabel: 'Le fraisier contemporain — École Christophe Felder' }),
+  'felder-fraisier': Object.freeze({ sourceUrl: 'https://www.christophe-felder.com/cours/detail.php?id=542', sourceLabel: 'Le fraisier contemporain — École Christophe Felder' }),
   'financier-histoire': Object.freeze({
     title: 'Финансье: ранние рецепты и легенда о кондитере Ласне',
     excerpt: 'Ранние миндальные формулы, легенда о форме слитка и профессиональная работа с beurre noisette.',

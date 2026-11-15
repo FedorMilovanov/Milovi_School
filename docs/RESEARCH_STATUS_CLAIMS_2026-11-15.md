@@ -108,3 +108,11 @@ raisins»). Остальных http-ссылок в markdown-корпусе не
 
 **Итог партии 2:** 3 утверждения проверены: 1 уточнение, 2 фактические ошибки исправлены (год
 religieuse; «нет сахара» у Гроле). Счёт программы: 8 проверенных claims, 3 исправленные ошибки.
+
+### Дополнение партии 2: sourceUrl felder-fraisier
+
+Пятая http-ссылка нашлась вне markdown-корпуса: `articleOverrides.ts` — sourceUrl статьи
+felder-fraisier (`cours/detail.php?id=542`), попадающий в JSON-LD `citation`, sourceUrl-props
+и видимую ссылку источника. Путь проверен по https (страница курса «le fraisier contemporain»,
+École Christophe Felder, жива) — схема поднята. В dist http-вхождений christophe-felder.com
+больше нет.
