@@ -582,6 +582,48 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   await dialogContext.close()
 }
 
+// ── Reveal fail-open ─────────────────────────────────────────────────────────
+// `.reveal` starts hidden under `html.js`, and `html.js` only proves that the
+// inline pre-paint script ran. If the island that owns the observer never mounts
+// (blocked, failed, or throwing bundle), those sections stay `opacity: 0` while
+// the marker keeps telling CSS to hide them. Blocking the bundles is the only
+// honest way to test it: here the page must recover to visible within the stall
+// window instead of serving an invisible section.
+{
+  const revealContext = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' })
+  const reveal = async (blockBundles) => {
+    const page = await revealContext.newPage()
+    await page.route('**/*', (route) => route.request().url().startsWith(BASE_URL) ? route.continue() : route.abort())
+    if (blockBundles) await page.route('**/_astro/*.js', (route) => route.abort())
+    await page.goto(`${BASE_URL}/`, { waitUntil: 'load' })
+    await page.waitForTimeout(blockBundles ? 3600 : 1500)
+    const state = await page.evaluate(() => {
+      const elements = [...document.querySelectorAll('.reveal')]
+      return {
+        total: elements.length,
+        hidden: elements.filter((element) => Number.parseFloat(getComputedStyle(element).opacity) < 0.5).length,
+        marker: document.documentElement.classList.contains('js'),
+      }
+    })
+    await page.close()
+    return state
+  }
+
+  const healthy = await reveal(false)
+  await check('reveal: healthy page keeps the animation marker', async () =>
+    assert.equal(healthy.marker, true))
+  await check('reveal: nothing stays invisible on a healthy page', async () =>
+    assert.equal(healthy.hidden, 0, `${healthy.hidden}/${healthy.total} reveal blocks invisible`))
+
+  const blocked = await reveal(true)
+  await check('reveal: blocked bundles drop the marker (fail-open)', async () =>
+    assert.equal(blocked.marker, false))
+  await check('reveal: blocked bundles do not hide content', async () =>
+    assert.equal(blocked.hidden, 0, `${blocked.hidden}/${blocked.total} reveal blocks still invisible`))
+
+  await revealContext.close()
+}
+
 const screenshots = (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort()
 const report = {
   baseUrl: BASE_URL,
