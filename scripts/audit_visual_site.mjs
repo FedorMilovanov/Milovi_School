@@ -438,6 +438,77 @@ await check('tablet: no browser or network errors', async () => {
   assert.deepEqual(tablet.telemetry.responses, [])
 })
 
+// ── No-JS contract (browser companion of scripts/audit_no_js.py) ────────────
+// The static audit proves the markup carries the content; this proves a real
+// engine renders it when scripts never run. framer-motion `initial` styles are
+// the recurring regression: they are serialized into the SSR HTML, so a hidden
+// headline looks fine in CI (JS on) and invisible for no-JS readers.
+{
+  const noJsContext = await browser.newContext({
+    viewport: { width: 1440, height: 1000 },
+    colorScheme: 'dark',
+    javaScriptEnabled: false,
+  })
+  const noJsRoutes = [
+    ['home', '/', 400],
+    ['canon', '/canon/', 1200],
+    ['materials', '/materials/', 1500],
+    ['history', '/history/', 600],
+  ]
+
+  for (const [slug, route, minWords] of noJsRoutes) {
+    const page = await noJsContext.newPage()
+    await page.goto(`${BASE_URL}${route}`, { waitUntil: 'load' })
+    const state = await page.evaluate(() => {
+      const h1 = document.querySelector('main h1') ?? document.querySelector('h1')
+      const style = h1 ? getComputedStyle(h1) : null
+      return {
+        jsMarker: document.documentElement.classList.contains('js'),
+        heading: h1 ? h1.textContent.replace(/\s+/g, ' ').trim() : '',
+        opacity: style ? Number.parseFloat(style.opacity) : 0,
+        visibility: style ? style.visibility : 'missing',
+        words: (document.body.textContent ?? '').split(/\s+/).filter(Boolean).length,
+      }
+    })
+
+    await check(`no-js ${slug}: html.js marker is absent`, async () => assert.equal(state.jsMarker, false))
+    await check(`no-js ${slug}: h1 is non-empty and fully opaque`, async () => {
+      assert.ok(state.heading.length > 0, 'empty h1 without JS')
+      assert.ok(state.opacity >= 0.99, `h1 opacity ${state.opacity} without JS`)
+      assert.equal(state.visibility, 'visible')
+    })
+    await check(`no-js ${slug}: content text is in the document`, async () =>
+      assert.ok(state.words >= minWords, `${state.words} words without JS, expected >= ${minWords}`))
+
+    await page.screenshot({ path: path.join(OUTPUT_DIR, `nojs-${slug}.png`) })
+    await page.close()
+  }
+
+  await noJsContext.close()
+}
+
+// ── Oversized raster guard ──────────────────────────────────────────────────
+// Shipping a 512x512 / 203 KB PNG to draw a 44 px logo is invisible to every
+// unit test and costs every visitor; the ratio catches that class of defect.
+// /materials/ is intentionally absent while the variant pipeline is missing:
+// its 158 cards render at ~336 CSS px and serve the 1448-1680 px originals
+// (5x oversampling, ~6.8 MB of image transfer on first view — measured in
+// Chromium 153). That needs build-time 480/960 px derivatives plus `srcset`,
+// which is a separate change (see the tracking issue); once it lands the
+// gallery belongs in this list and the ratio gate becomes a ratchet.
+for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/history/'], ['article', '/articles/recipe-kouglof/']]) {
+  await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
+  const oversized = await desktop.page.evaluate(() =>
+    [...document.images]
+      .filter((image) => {
+        const box = image.getBoundingClientRect()
+        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > 4
+      })
+      .map((image) => `${image.currentSrc || image.getAttribute('src')} natural=${image.naturalWidth} rendered=${Math.round(image.getBoundingClientRect().width)}`),
+  )
+  await check(`${slug}: no image is served at >4x its rendered width`, async () => assert.deepEqual(oversized, []))
+}
+
 const screenshots = (await fs.readdir(OUTPUT_DIR)).filter((name) => name.endsWith('.png')).sort()
 const report = {
   baseUrl: BASE_URL,
