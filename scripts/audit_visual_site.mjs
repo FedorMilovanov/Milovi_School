@@ -512,7 +512,7 @@ await check('tablet: no browser or network errors', async () => {
 // ratio is what actually proves the `srcset` wiring, where 4x would not notice.
 const RASTER_ROUTES = [
   ['home', '/', true, 3],
-  ['canon', '/canon/', false, 4],
+  ['canon', '/canon/', true, 2.5],
   ['history', '/history/', true, 3],
   ['materials', '/materials/', true, 3],
   ['article', '/articles/recipe-kouglof/', false, 4],

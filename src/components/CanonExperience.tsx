@@ -9,6 +9,7 @@ import {
   type CanonWork,
 } from '../data/canon'
 import { prefetchRoute } from '../utils/navigation'
+import { variantSrcSet } from '../utils/imageVariants'
 import LuxuryText from './LuxuryText'
 import CanonResearchTimeline from './CanonResearchTimeline'
 import CanonTechniqueMatrix from './CanonTechniqueMatrix'
@@ -94,6 +95,8 @@ function CanonWorkCard({ work, article }: { work: CanonWork; article?: CanonDoss
           {work.imageMobile && <source media="(max-width: 620px)" srcSet={work.imageMobile} />}
           <img
             src={work.image}
+            srcSet={variantSrcSet(work.image)}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 96vw, 64vw"
             alt={work.imageAlt}
             width={1280}
             height={800}
