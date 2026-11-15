@@ -498,6 +498,9 @@ await check('tablet: no browser or network errors', async () => {
 // gallery belongs in this list and the ratio gate becomes a ratchet.
 for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/history/'], ['article', '/articles/recipe-kouglof/']]) {
   await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
+  // Layout must be settled before the ratio is meaningful: a lazy image measured
+  // mid-reflow reports a transient width and looks like a 20x violation.
+  await desktop.page.waitForTimeout(400)
   const oversized = await desktop.page.evaluate(() =>
     [...document.images]
       .filter((image) => {
@@ -522,19 +525,24 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
 // Both are fault-injected here so the contract cannot silently rot again.
 {
   const dialogContext = await browser.newContext({ viewport: { width: 1280, height: 860 }, colorScheme: 'dark' })
+  // The site can legitimately have more than one dialog in the DOM (the analytics
+  // consent dialog is rendered when PUBLIC_GA_ID / Metrika are configured at build
+  // time, which is exactly what CI does). Scope every assertion to the search
+  // status dialog by its own label instead of matching `[role="dialog"]`.
+  const SEARCH_DIALOG = '[role="dialog"][aria-labelledby="canon-search-loading-title"]'
   const openSearch = async (page) => {
     await page.locator('button[aria-label="Открыть поиск"]').first().click()
-    await page.waitForSelector('[role="dialog"]', { timeout: 15_000 })
+    await page.waitForSelector(SEARCH_DIALOG, { timeout: 15_000 })
   }
 
   const errorPage = await dialogContext.newPage()
   await errorPage.route('**/article-index.json', (route) => route.fulfill({ status: 503, body: 'unavailable' }))
   await errorPage.goto(`${BASE_URL}/canon/`, { waitUntil: 'load' })
   await openSearch(errorPage)
-  await errorPage.waitForSelector('[role="dialog"] [role="alert"]', { timeout: 15_000 })
+  await errorPage.waitForSelector(`${SEARCH_DIALOG} [role="alert"]`, { timeout: 15_000 })
 
   await check('search 503: dialog is exactly one and shows an error', async () =>
-    assert.equal(await errorPage.locator('[role="dialog"]').count(), 1))
+    assert.equal(await errorPage.locator(SEARCH_DIALOG).count(), 1))
   await check('search 503: focus moves inside the dialog', async () =>
     assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
   await check('search 503: page behind the dialog does not scroll', async () =>
@@ -545,7 +553,7 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
     assert.equal(await errorPage.evaluate(() => document.activeElement?.closest('[role="dialog"]') !== null), true))
   await errorPage.keyboard.press('Escape')
   await check('search 503: Escape closes the dialog', async () =>
-    assert.equal(await errorPage.locator('[role="dialog"]').count(), 0))
+    assert.equal(await errorPage.locator(SEARCH_DIALOG).count(), 0))
   await check('search 503: focus returns to the trigger', async () =>
     assert.equal(await errorPage.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Открыть поиск'))
   await check('search 503: scroll lock is released', async () =>
@@ -562,9 +570,9 @@ for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/
   await openSearch(partialPage)
   await partialPage.waitForTimeout(1000)
   await check('search partial index: invalid payload surfaces a recoverable error', async () =>
-    assert.equal(await partialPage.locator('[role="dialog"] [role="alert"]').count(), 1))
+    assert.equal(await partialPage.locator(`${SEARCH_DIALOG} [role="alert"]`).count(), 1))
   await check('search partial index: no half-rendered result card', async () => {
-    const text = await partialPage.locator('[role="dialog"]').innerText()
+    const text = await partialPage.locator(SEARCH_DIALOG).innerText()
     assert.equal(/·\s*мин/.test(text), false, text.replace(/\n+/g, ' / ').slice(0, 120))
   })
   await partialPage.close()
@@ -643,9 +651,13 @@ if (failures.length > 0) {
   // readable through the checks API. Without them a red gate is only diagnosable
   // from the raw job log — and the log link expires and is not always reachable.
   for (const failure of failures) {
-    const firstLine = (failure.message ?? '').split('\n').find((line) => line.trim().length > 0) ?? 'failed'
-    const clean = (value) => value.replace(/[%\r\n]/g, ' ').replace(/::/g, ':').slice(0, 300)
-    console.error(`::error title=${failure.id} ${clean(failure.name)}::${clean(firstLine)}`)
+    const detail = (failure.message ?? '')
+      .split('\n')
+      .filter((line) => line.trim().length > 0 && !/^\s+at\s/.test(line))
+      .slice(0, 4)
+      .join(' | ')
+    const clean = (value) => value.replace(/[%\r\n]/g, ' ').replace(/::/g, ':').slice(0, 400)
+    console.error(`::error title=${failure.id} ${clean(failure.name)}::${clean(detail || 'failed')}`)
   }
   console.error(`\nVisual QA failed: ${passed.length}/${number} checks passed.`)
   process.exitCode = 1
