@@ -29,6 +29,7 @@ const page = await desktopContext.newPage()
 const consoleErrors = []
 const pageErrors = []
 const failedSameOriginRequests = []
+const navigationAbortedImages = new Set()
 const badSameOriginResponses = []
 
 page.on('console', (message) => {
@@ -36,9 +37,16 @@ page.on('console', (message) => {
 })
 page.on('pageerror', (error) => pageErrors.push(error.message))
 page.on('requestfailed', (request) => {
-  if (request.url().startsWith(BASE_URL)) {
-    failedSameOriginRequests.push(`${request.method()} ${request.url()} :: ${request.failure()?.errorText ?? 'unknown'}`)
+  if (!request.url().startsWith(BASE_URL)) return
+  const failure = request.failure()?.errorText ?? 'unknown'
+  // Chromium can intentionally cancel in-flight image loads when our test reloads
+  // the document or swaps hover previews. Verify those files still return an
+  // actual image below; never excuse failures of scripts, pages or other assets.
+  if (request.resourceType() === 'image' && failure === 'net::ERR_ABORTED') {
+    navigationAbortedImages.add(request.url())
+    return
   }
+  failedSameOriginRequests.push(`${request.method()} ${request.url()} :: ${failure}`)
 })
 page.on('response', (response) => {
   if (response.url().startsWith(BASE_URL) && response.status() >= 400) {
@@ -579,6 +587,14 @@ await logCheck('no browser console errors occurred during interaction audit', as
 
 await logCheck('no same-origin network requests failed', async () => {
   assert.deepEqual(failedSameOriginRequests, [])
+  // An aborted image is a browser cancellation, not proof the URL is broken.
+  // Check every such URL independently (including its MIME type) so a missing
+  // media file cannot turn into a false-green browser audit.
+  for (const url of navigationAbortedImages) {
+    const response = await desktopContext.request.get(url)
+    assert.equal(response.status(), 200, `Cancelled image is unavailable: ${url}`)
+    assert.match(response.headers()['content-type'] ?? '', /^image\//, `Cancelled URL is not image media: ${url}`)
+  }
 })
 
 await logCheck('no same-origin responses returned HTTP 4xx/5xx', async () => {
