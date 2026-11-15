@@ -6,6 +6,7 @@ import Cursor from '../Cursor'
 import type { ArticleClientMeta } from '../../data/types'
 import { categories } from '../../data/categories'
 import { fallbackImageFor } from '../../assets/images'
+import { CARD_SIZES, variantSrcSet, variantUrl } from '../../utils/imageVariants'
 import LuxuryText from '../LuxuryText'
 import { navigateTo } from '../../utils/navigation'
 import { safeSetItem } from '../../utils/storage'
@@ -341,10 +342,15 @@ export default function GalleryApp({ articles }: { articles: ArticleClientMeta[]
                   >
                     <div
                       className="cat-card-img-wrap-lux relative aspect-[4/5] overflow-hidden"
-                      style={{ ['--cat-bg' as string]: `url(${imgUrl})` }}
+                      // The blurred placeholder cannot express `srcset`, so it asks for the
+                      // smallest derivative instead of pulling the full-size original a
+                      // second time.
+                      style={{ ['--cat-bg' as string]: `url(${variantUrl(imgUrl) ?? imgUrl})` }}
                     >
                       <img
                         src={imgUrl}
+                        srcSet={variantSrcSet(imgUrl)}
+                        sizes={CARD_SIZES}
                         alt={article.imageAlt ?? article.title}
                         loading="lazy"
                         decoding="async"

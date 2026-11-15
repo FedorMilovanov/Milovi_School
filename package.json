@@ -6,11 +6,12 @@
   "scripts": {
     "predev": "npm run materialize:canon-gateway",
     "dev": "astro dev",
-    "prebuild": "npm run materialize:canon-gateway",
+    "prebuild": "npm run materialize:canon-gateway && node scripts/generate_image_variants.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "check": "tsc --noEmit",
     "materialize:canon-gateway": "node scripts/materialize_canon_gateway_asset.mjs",
+    "images:variants": "node scripts/generate_image_variants.mjs",
     "audit:security": "npm audit --audit-level=high",
     "audit:media": "node scripts/run-python-script.mjs scripts/audit_canon_media.py",
     "audit:research": "node scripts/run-python-script.mjs scripts/audit_canon_research.py",
