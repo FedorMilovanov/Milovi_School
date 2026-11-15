@@ -501,21 +501,36 @@ await check('tablet: no browser or network errors', async () => {
 // have made the gate blind to the very regression it exists for, so the claim is
 // narrowed to eager images instead of the threshold being raised. Once `srcset`
 // lands for cards, drop the `loading` filter and assert over every image.
-for (const [slug, route] of [['home', '/'], ['canon', '/canon/'], ['history', '/history/'], ['materials', '/materials/'], ['article', '/articles/recipe-kouglof/']]) {
+// `/materials/` is asserted over *every* image, lazy included: it now ships
+// 480/960 px derivatives via `srcset` (6784 KB -> 1428 KB on first view), so the
+// ratio holds for cards as well and the route no longer needs the eager-only
+// exemption. Other routes still assert eagerly loaded images only, because the
+// article page's related cards are not wired to the manifest yet.
+const RASTER_ROUTES = [
+  ['home', '/', false],
+  ['canon', '/canon/', false],
+  ['history', '/history/', false],
+  ['materials', '/materials/', true],
+  ['article', '/articles/recipe-kouglof/', false],
+]
+for (const [slug, route, assertLazy] of RASTER_ROUTES) {
   await desktop.page.goto(`${BASE_URL}${route}`, { waitUntil: 'networkidle' })
   // Layout must be settled before the ratio is meaningful: a lazy image measured
   // mid-reflow reports a transient width and looks like a 20x violation.
   await desktop.page.waitForTimeout(400)
-  const oversized = await desktop.page.evaluate(() =>
+  const oversized = await desktop.page.evaluate((includeLazy) =>
     [...document.images]
       .filter((image) => {
-        if (image.loading === 'lazy') return false
+        if (!includeLazy && image.loading === 'lazy') return false
         const box = image.getBoundingClientRect()
         return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > 4
       })
       .map((image) => `${image.currentSrc || image.getAttribute('src')} natural=${image.naturalWidth} rendered=${Math.round(image.getBoundingClientRect().width)}`),
+  assertLazy)
+  await check(
+    `${slug}: no ${assertLazy ? '' : 'eagerly loaded '}image is served at >4x its rendered width`,
+    async () => assert.deepEqual(oversized, []),
   )
-  await check(`${slug}: no eagerly loaded image is served at >4x its rendered width`, async () => assert.deepEqual(oversized, []))
 }
 
 // ── Search status dialog: modal contract + index validation ──────────────────
