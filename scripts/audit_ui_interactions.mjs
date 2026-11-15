@@ -46,6 +46,29 @@ const openSearch = async page => {
 const inDialog = page => page.evaluate(() => Boolean(document.activeElement?.closest('[role="dialog"]')))
 
 try {
+  for (const mode of ['light', 'dark', 'no-js']) {
+    await check(`header wordmark never paints into controls: ${mode}`, async (page, context) => {
+      if (mode !== 'no-js') await context.addInitScript(theme => localStorage.setItem('theme', theme), mode)
+      await goto(page)
+      for (const width of [320, 360, 390, 420, 768, 1024, 1280]) {
+        await page.setViewportSize({ width, height: 900 })
+        const label = page.locator('header .logo-text-lux')
+        const spans = await label.locator(':scope > span').evaluateAll(elements => elements.filter(el => el.getClientRects().length).map(el => ({
+          width: el.clientWidth,
+          clipped: el.scrollWidth > el.clientWidth + 1,
+          overflow: getComputedStyle(el).overflowX,
+          ellipsis: getComputedStyle(el).textOverflow,
+        })))
+        assert.ok(spans.every(span => span.width >= 24), `brand has no usable text space at ${width}`)
+        assert.ok(spans.every(span => !span.clipped || (span.overflow === 'hidden' && span.ellipsis === 'ellipsis')), `wordmark paints outside its assigned width at ${width}`)
+        const search = page.getByRole('button', { name: 'Открыть поиск', exact: true }).first()
+        assert.ok(await search.evaluate(el => { const box = el.getBoundingClientRect(); return document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)?.closest('button') === el }))
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth <= 2))
+      }
+      assert.equal(await page.locator('header .logo-text-lux').getAttribute('title'), 'Pâtisserie Russe')
+      assert.match(await page.locator('header a').first().innerText(), /Pâtisserie Russe/)
+    }, { javaScriptEnabled: mode !== 'no-js' })
+  }
   await check('mobile Escape closes menu, preserves article and restores trigger', async page => {
     await goto(page)
     const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true })
