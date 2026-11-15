@@ -40,7 +40,9 @@ export function useModalFocus(ref: RefObject<HTMLElement>, open: boolean) {
     const focusable = () => Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector))
       .filter(el => el.tabIndex >= 0 && el.getClientRects().length > 0 && window.getComputedStyle(el).visibility !== 'hidden' && !el.closest('[inert], [aria-hidden="true"]'))
     const focusFirst = () => (focusable()[0] ?? dialog).focus({ preventScroll: true })
-    const frame = requestAnimationFrame(focusFirst)
+    // The dialog is already committed. Deferring focus to another frame leaves
+    // a visible dialog with keyboard events still targeting the background.
+    focusFirst()
     const onFocus = (event: FocusEvent) => {
       if (isTop() && !dialog.contains(event.target as Node)) focusFirst()
     }
@@ -57,7 +59,6 @@ export function useModalFocus(ref: RefObject<HTMLElement>, open: boolean) {
     document.addEventListener('focusin', onFocus)
     document.addEventListener('keydown', onTab, true)
     return () => {
-      cancelAnimationFrame(frame)
       document.removeEventListener('focusin', onFocus)
       document.removeEventListener('keydown', onTab, true)
       activeModals.splice(activeModals.indexOf(dialog), 1)

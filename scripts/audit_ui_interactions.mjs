@@ -62,7 +62,7 @@ try {
     await check(`normal motion: repeated menu/search cycles restore focus and unlock background in ${theme}`, async (page, context) => {
       await context.addInitScript(theme => localStorage.setItem('theme', theme), theme)
       await goto(page)
-      for (let cycle = 0; cycle < 2; cycle++) {
+      for (let cycle = 0; cycle < 6; cycle++) {
         const menu = page.getByRole('button', { name: 'Открыть меню', exact: true })
         await menu.click()
         await page.getByRole('dialog').waitFor()
@@ -76,6 +76,7 @@ try {
         assert.ok(await menu.evaluate(el => el === document.activeElement))
         await openSearch(page)
         await page.getByRole('dialog').locator('input').waitFor()
+        assert.ok(await inDialog(page), 'search must own focus as soon as its input is visible')
         await page.keyboard.press('Escape')
         await page.getByRole('dialog').waitFor({ state: 'detached' })
         assert.equal(await page.locator('[inert]').count(), 0)
@@ -192,6 +193,31 @@ try {
       const saved = await page.evaluate(() => Number(localStorage.getItem('article-progress:recipe-kouglof')))
       assert.ok(saved > before - 200)
     }
+  })
+  await check('native Back/Forward restores each article position after modal use', async page => {
+    await goto(page)
+    await openSearch(page)
+    await page.getByRole('dialog').locator('input').waitFor()
+    await page.keyboard.press('Escape')
+    await page.getByRole('dialog').waitFor({ state: 'detached' })
+    const related = page.locator('a[href^="/articles/"]').filter({ has: page.locator('h3') }).last()
+    await related.scrollIntoViewIfNeeded()
+    const sourceY = await page.evaluate(() => window.scrollY)
+    await related.click()
+    await page.waitForURL(url => url.pathname !== article)
+    const targetPath = new URL(page.url()).pathname
+    await page.mouse.wheel(0, 1800)
+    await page.waitForFunction(() => window.scrollY > 1000)
+    const targetY = await page.evaluate(() => window.scrollY)
+    await page.goBack({ waitUntil: 'networkidle' })
+    assert.equal(new URL(page.url()).pathname, article)
+    await page.waitForFunction(y => Math.abs(window.scrollY - y) < 200, sourceY)
+    assert.equal(await page.locator('[inert]').count(), 0)
+    assert.equal(await page.getByRole('dialog').count(), 0)
+    await page.goForward({ waitUntil: 'networkidle' })
+    assert.equal(new URL(page.url()).pathname, targetPath)
+    await page.waitForFunction(y => Math.abs(window.scrollY - y) < 200, targetY)
+    assert.equal(await page.evaluate(() => document.body.style.overflow), '')
   })
   await check('saved progress offers resume; anchor entry wins over saved progress', async (page, context) => {
     await context.addInitScript(() => localStorage.setItem('article-progress:recipe-kouglof', '3000'))
