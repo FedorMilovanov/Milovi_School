@@ -37,7 +37,8 @@ async function loadSharp() {
   } catch (error) {
     throw new Error(
       'sharp is not installed; responsive image derivatives need it as a devDependency ' +
-        `(declared in package.json). Underlying error: ${error instanceof Error ? error.message : String(error)}`,
+        '(declared in package.json).',
+      { cause: error },
     )
   }
 }
