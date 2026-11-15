@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { defaultFallback } from '../assets/images'
+import { applyImageFallback, variantSrcSet } from '../utils/imageVariants'
 import { pluralRu, MATERIAL } from '../utils/plural'
 import LuxuryText from './LuxuryText'
 
@@ -12,6 +13,13 @@ import LuxuryText from './LuxuryText'
  * hydration. The motion now lives in CSS (`html.js .enter-up`), so the document
  * paints the text immediately and the animation stays optional.
  */
+// Full-bleed hero: 1296x864 WebP (66 770 B) instead of the bundled 139 046 B JPEG,
+// served through 480/960 derivatives so a phone does not download the desktop frame.
+const HERO_IMAGE = '/images/hero-chef.webp'
+// The master is 1296 px wide, so the source itself is the widest honest candidate:
+// without it the desktop hero (1440 px box) would fall back to the 960 derivative.
+const HERO_SRC_SET = [variantSrcSet(HERO_IMAGE), `${HERO_IMAGE} 1296w`].filter(Boolean).join(', ')
+
 const enterStyle = (delay: string, shift: string): CSSProperties => ({
   '--enter-delay': delay,
   '--enter-shift': shift,
@@ -62,7 +70,9 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
       <div className="absolute inset-0">
         {mobile ? (
           <motion.img
-            src={defaultFallback}
+            src={HERO_IMAGE}
+            srcSet={HERO_SRC_SET}
+            sizes="100vw"
             alt="Французская кондитерская"
             className="h-full w-full object-cover"
             initial={shouldReduce ? false : { scale: 1.08, opacity: 0.8 }}
@@ -71,10 +81,14 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             loading="eager"
             decoding="async"
             fetchPriority="high"
+            ref={(element) => { if (element?.complete && element.naturalWidth === 0) applyImageFallback(element, defaultFallback) }}
+            onError={(event) => applyImageFallback(event.currentTarget, defaultFallback)}
           />
         ) : (
           <motion.img
-            src={defaultFallback}
+            src={HERO_IMAGE}
+            srcSet={HERO_SRC_SET}
+            sizes="100vw"
             alt="Французская кондитерская"
             className="h-full w-full object-cover"
             style={{ y: yParallax }}
@@ -84,6 +98,8 @@ export default function Hero({ totalArticles, onSelectCategory }: HeroProps) {
             loading="eager"
             decoding="async"
             fetchPriority="high"
+            ref={(element) => { if (element?.complete && element.naturalWidth === 0) applyImageFallback(element, defaultFallback) }}
+            onError={(event) => applyImageFallback(event.currentTarget, defaultFallback)}
           />
         )}
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,9,0.85),rgba(12,10,9,0.50)_48%,rgba(12,10,9,0.08))]" />

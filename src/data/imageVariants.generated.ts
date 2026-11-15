@@ -246,5 +246,6 @@ export const IMAGE_VARIANT_WIDTHS: Readonly<Record<string, readonly number[]>> =
   '/images/cat-chiffres.webp': [480, 960],
   '/images/cat-recipes.webp': [480, 960],
   '/images/cat-techniques.webp': [480, 960],
+  '/images/hero-chef.webp': [480, 960],
   '/images/og-preview.webp': [480, 960],
 }

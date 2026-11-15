@@ -510,11 +510,17 @@ await check('tablet: no browser or network errors', async () => {
 // its cards sit at 480/336 = 1.4x, so 3x is still generous, while a card that
 // silently falls back to its 1280 px original lands at 3.8x — i.e. the strict
 // ratio is what actually proves the `srcset` wiring, where 4x would not notice.
+// Thresholds are pinned to the *fixed* system, not to the size of the old violation:
+// measured on the shipped markup (real pixels, see below), home tops out at 1.59x,
+// /history/ at 1.26x, /materials/ at 1.43x and /canon/ at 2.17x. Slipping back to a
+// full-size source lands at 2.12x, 3.35x, 4.98x and 2.90x respectively, so 2x / 2.5x
+// catches every one of them while still leaving the fixed state a wide margin.
+// The article route stays "eager only, 4x" because its related cards belong to #68.
 const RASTER_ROUTES = [
-  ['home', '/', true, 3],
+  ['home', '/', true, 2],
   ['canon', '/canon/', true, 2.5],
-  ['history', '/history/', true, 3],
-  ['materials', '/materials/', true, 3],
+  ['history', '/history/', true, 2],
+  ['materials', '/materials/', true, 2],
   ['article', '/articles/recipe-kouglof/', false, 4],
 ]
 for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
@@ -522,18 +528,75 @@ for (const [slug, route, assertLazy, maxRatio] of RASTER_ROUTES) {
   // Layout must be settled before the ratio is meaningful: a lazy image measured
   // mid-reflow reports a transient width and looks like a 20x violation.
   await desktop.page.waitForTimeout(400)
-  const oversized = await desktop.page.evaluate(({ includeLazy, maxRatio }) =>
-    [...document.images]
-      .filter((image) => {
-        if (!includeLazy && image.loading === 'lazy') return false
-        const box = image.getBoundingClientRect()
-        return image.naturalWidth > 0 && box.width >= 8 && image.naturalWidth / box.width > maxRatio
+  // Lazy images below the fold have not been fetched yet and report no
+  // `currentSrc` at all; measuring them would compare the *attribute* `src` and
+  // invent violations that no browser ever performs. Sweep the page first, then
+  // measure only images that actually loaded.
+  await desktop.page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 700) {
+      window.scrollTo(0, y)
+      await new Promise((resolve) => setTimeout(resolve, 60))
+    }
+    window.scrollTo(0, 0)
+  })
+  await desktop.page.waitForLoadState('networkidle')
+  await desktop.page.waitForTimeout(600)
+  // `naturalWidth` is density-corrected as soon as `srcSet`/`sizes` are in play: a
+  // 480 px file declared as `24vw` on a 1440 viewport reports 345. Comparing that
+  // number to the rendered box only tests the `sizes` declaration against the
+  // layout, never the actual pixels. The bytes are read by decoding `currentSrc` in
+  // a detached Image.
+  const measured = await desktop.page.evaluate(async () => {
+    const rows = []
+    for (const image of document.images) {
+      const box = image.getBoundingClientRect()
+      if (!image.complete || image.naturalWidth === 0) continue
+      const src = image.currentSrc || image.getAttribute('src') || ''
+      if (!src || box.width < 8) continue
+      const probe = new globalThis.Image()
+      probe.src = src
+      let decoded = true
+      try {
+        await probe.decode()
+      } catch {
+        decoded = false
+      }
+      rows.push({
+        src,
+        lazy: image.loading === 'lazy',
+        rendered: Math.round(box.width),
+        served: decoded ? probe.naturalWidth : 0,
       })
-      .map((image) => `${image.currentSrc || image.getAttribute('src')} natural=${image.naturalWidth} rendered=${Math.round(image.getBoundingClientRect().width)}`),
-  { includeLazy: assertLazy, maxRatio })
+    }
+    return rows
+  })
+  // This gate is about *wiring*, and only a non-derivative URL proves a miss: an
+  // image that still comes straight from its 1280-1672 px original while sitting in
+  // a card-sized box. Candidate granularity (a 960 file chosen for a 432 px slot)
+  // is the browser's rounding, not a regression, and is left to the byte budget.
+  const oversized = measured
+    .filter((row) => (assertLazy || !row.lazy)
+      && row.served > 0 && row.rendered > 0
+      && !row.src.includes('/images/variants/')
+      && row.served / row.rendered > maxRatio)
+    .map((row) => `${row.src} served=${row.served} rendered=${row.rendered}`)
   await check(
-    `${slug}: no ${assertLazy ? '' : 'eagerly loaded '}image is served at >${maxRatio}x its rendered width`,
+    `${slug}: no ${assertLazy ? '' : 'eagerly loaded '}image is served from its original at >${maxRatio}x its rendered width`,
     async () => assert.deepEqual(oversized, []),
+  )
+
+  // The opposite failure is invisible to an oversampling ratio and costs fidelity:
+  // once candidates exist, a `sizes` value that understates the slot makes the
+  // browser pick a smaller file than the box (the Canon hero went to 0.63x this
+  // way). Ten percent of the rendered width is the allowance; anything below is a
+  // soft image that no byte budget would flag.
+  if (!assertLazy) continue
+  const undersized = measured
+    .filter((row) => row.served > 0 && row.rendered >= 32 && row.served + 1 < row.rendered * 0.9)
+    .map((row) => `${row.src} served=${row.served} rendered=${row.rendered}`)
+  await check(
+    `${slug}: no image is served below 90% of its rendered width`,
+    async () => assert.deepEqual(undersized, []),
   )
 }
 
