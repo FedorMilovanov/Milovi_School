@@ -11433,7 +11433,7 @@ Crème mousseline = crème pâtissière + beurre pommade. Это не крем �
 
 1. Используйте свежие белки или пастеризованные белки, подходящие для взбивания, согласно инструкции производителя.
 2. Если отделяете белки заранее, храните их в чистой закрытой ёмкости в холодильнике при температуре не выше 4°C. Для сырых отделённых белков FoodSafety.gov указывает срок холодильного хранения 2–4 дня; не превышайте срок годности и выбирайте более короткий срок при сомнениях.
-3. Достаньте белки непосредственно перед приготовлением. Не оставляйте их при комнатной температуре на сутки: по рекомендациям FDA суммарное время вне холодильника не должно превышать 2 часов, а при температуре выше 32°C — 1 часа. Горячий сироп сам по себе не доказывает пастеризацию всей массы. Выпекайте крышечки до готовности.
+3. Достаньте белки непосредственно перед приготовлением. Не оставляйте их при комнатной температуре на сутки: по рекомендациям FoodSafety.gov суммарное время вне холодильника не должно превышать 2 часов, а при температуре выше 32°C — 1 часа. Горячий сироп сам по себе не доказывает пастеризацию всей массы. Выпекайте крышечки до готовности.
 
 ========
 ПОШАГОВЫЙ РЕЦЕПТ
@@ -11498,7 +11498,7 @@ Crème mousseline = crème pâtissière + beurre pommade. Это не крем �
 - [Infiniment Macaron — Pierre Hermé](https://www.pierreherme.com/fr/livre-infiniment-macaron.html)
 - [Jules Gouffé, Le Livre de pâtisserie (1873) — Gallica / BnF](https://gallica.bnf.fr/ark:/12148/bpt6k107860n)
 - [FoodSafety.gov — сроки холодильного хранения яичных белков](https://www.foodsafety.gov/food-safety-charts/cold-food-storage-charts)
-- [FDA — безопасное хранение продуктов](https://www.fda.gov/consumers/consumer-updates/are-you-storing-food-safely)
+- [FoodSafety.gov — безопасность хранения и приготовления яиц](https://www.foodsafety.gov/blog/salmonella-and-eggs)
 `,
 
 'recipe-croissant-poilane': `«Круассан — это не хлеб. Это архитектура, построенная из воздуха, сливочного масла и времени.»
@@ -15628,7 +15628,7 @@ Coulant (кулан) — десерт с текучей сердцевиной. 
 - Wikipedia (fr) - Moelleux au chocolat
 - [Guide Michelin — история кулана Мишеля Браса](https://guide.michelin.com/fr/fr/article/dining-in/un-plat-une-histoire-le-coulant-au-chocolat-de-michel-bras)
 - [Académie du Goût — различия шоколадных текстур](https://www.academiedugout.fr/articles/fondant-mi-cuit-ou-moelleux-au-chocolat-differences-et-astuces_3498)
-- [FDA — безопасное обращение с мукой и сырым тестом](https://www.fda.gov/food/buy-store-serve-safe-food/handling-flour-safely-what-you-need-know)
+- [CDC — безопасность муки и сырого теста](https://www.cdc.gov/food-safety/foods/no-raw-dough.html)
 - Food and Sens - 40 лет кулана, рецепт Браса
 - Konbini - кто изобрёл жидкое сердце
 - Saveur - молтен-кейк и Жан-Жорж Вонгериштен
