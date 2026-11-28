@@ -94,10 +94,17 @@ async function selectUrls(files, allUrls) {
   const articleWidePatterns = [
     /^src\/pages\/articles\//,
     /^src\/components\/Article/,
-    /^src\/data\/(articles|deepContents|articleExpansions|articleOverrides|canonArticles|canonArticleContents|library)\./,
+    /^src\/data\/(articles|deepContents|articleExpansions|articleOverrides|canonArticles|canonArticleContents|canonArticleAppendices|library)\./,
+    /^src\/data\/articleExpansionParts\/[^/]+\.ts$/,
   ]
   if (files.some((file) => articleWidePatterns.some((pattern) => pattern.test(file)))) {
     for (const url of articles) selected.add(url)
+    // The catalog and homepage also consume libraryClientMeta (including
+    // titles, excerpts and content-derived reading time). Preserve the
+    // existing conservative article-wide policy for these shared inputs.
+    for (const url of allUrls) {
+      if (['/', '/materials/'].includes(new globalThis.URL(url).pathname)) selected.add(url)
+    }
   }
 
   const canonPatterns = [
@@ -285,6 +292,18 @@ async function selfTest() {
   await expect('catalogue edit → every article', ['src/data/articles.ts'],
     (set) => set.has('/articles/stohrer-1730/') && set.has('/articles/laduree-1862/'))
 
+  // Article expansions are split into physical files; changing only a part
+  // must not silently skip notification. Shared metadata affects the hubs.
+  await expect('expansion part edit → articles and library hubs', ['src/data/articleExpansionParts/part11.ts'],
+    (set) => set.size === 4 && set.has('/') && set.has('/materials/') &&
+      set.has('/articles/stohrer-1730/') && set.has('/articles/laduree-1862/'))
+  await expect('Canon appendices edit → articles and library hubs', ['src/data/canonArticleAppendices.ts'],
+    (set) => set.size === 4 && set.has('/') && set.has('/materials/'))
+  await expect('catalogue edit → library hubs', ['src/data/articles.ts'],
+    (set) => set.has('/') && set.has('/materials/') && !set.has('/history/') && !set.has('/canon/'))
+  await expect('unrelated data path does not accidentally match expansion parts', ['src/data/articleExpansionPartsArchive/part11.ts'],
+    (set) => set.size === 0)
+
   // The quoted-key pattern must not pick up array keys such as "sources": [.
   await expect('registry never yields non-slug keys', ['src/data/historyEvidence.ts'],
     (set) => ![...set].some((p) => p.includes('/articles/verified/') || p.includes('/articles/sources/')))
@@ -295,7 +314,7 @@ async function selfTest() {
     process.exitCode = 1
     return
   }
-  console.log(`[indexnow] self-test passed: 6 selection cases`)
+  console.log(`[indexnow] self-test passed: 10 selection cases`)
 }
 
 if (process.argv.includes('--self-test')) {
