@@ -38,18 +38,72 @@ async function discoverKey() {
   return valid[0]
 }
 
-function changedFiles() {
-  if (!isFullSha(BEFORE_SHA) || isZeroSha(BEFORE_SHA) || !isFullSha(CURRENT_SHA)) return null
-  try {
-    const output = execFileSync('git', ['diff', '--name-only', BEFORE_SHA, CURRENT_SHA], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    return output.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
-  } catch {
-    console.warn(`[indexnow] Could not diff ${BEFORE_SHA}..${CURRENT_SHA}; skip notification rather than over-submit.`)
-    return null
+function previousSuccessfulPushSha(runs, currentRunNumber) {
+  return runs
+    .filter((run) => run.event === 'push' && run.head_branch === 'main' &&
+      run.conclusion === 'success' && Number.isInteger(run.run_number) &&
+      run.run_number < currentRunNumber && isFullSha(run.head_sha) && !isZeroSha(run.head_sha))
+    .sort((a, b) => b.run_number - a.run_number)[0]?.head_sha ?? null
+}
+
+async function resolveBeforeSha() {
+  // Explicit baseline remains available for a deliberate local recovery.
+  if (BEFORE_SHA) {
+    if (!isFullSha(BEFORE_SHA) || isZeroSha(BEFORE_SHA)) throw new Error('Invalid explicit BEFORE_SHA')
+    return BEFORE_SHA
   }
+
+  const repository = process.env.GITHUB_REPOSITORY ?? ''
+  const runNumber = Number(process.env.GITHUB_RUN_NUMBER)
+  const token = process.env.GITHUB_TOKEN ?? ''
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repository) ||
+      !Number.isSafeInteger(runNumber) || runNumber < 1 || !token) {
+    throw new Error('GitHub release baseline context unavailable')
+  }
+
+  // A push's immediate parent may never have reached IndexNow. Recover the
+  // latest earlier successful push deployment; exclude manual runs (no POST),
+  // cancelled/failed runs, the current run and newer runs on a rerun.
+  const endpoint = `https://api.github.com/repos/${repository}/actions/workflows/deploy.yml/runs`
+  for (let page = 1; page <= 10; page += 1) {
+    const response = await globalThis.fetch(
+      `${endpoint}?branch=main&event=push&status=success&per_page=100&page=${page}`,
+      {
+        headers: {
+          accept: 'application/vnd.github+json',
+          authorization: `Bearer ${token}`,
+          'x-github-api-version': '2022-11-28',
+          'user-agent': 'MiloviSchool-IndexNow/1.0',
+        },
+        signal: globalThis.AbortSignal.timeout(15000),
+      },
+    )
+    if (!response.ok) throw new Error(`Release baseline lookup returned HTTP ${response.status}`)
+    const data = await response.json()
+    if (!Array.isArray(data.workflow_runs)) throw new Error('Invalid release baseline response')
+    const sha = previousSuccessfulPushSha(data.workflow_runs, runNumber)
+    if (sha) return sha
+    if (data.workflow_runs.length < 100) break
+  }
+  throw new Error('No trustworthy earlier successful push deployment; notification not attempted')
+}
+
+function changedFiles(beforeSha) {
+  if (!isFullSha(beforeSha) || isZeroSha(beforeSha) || !isFullSha(CURRENT_SHA) || isZeroSha(CURRENT_SHA)) {
+    throw new Error('Invalid release diff endpoints')
+  }
+  // The standard checkout is shallow. Fetch only the missing prior commit
+  // from the public origin when a failed/cancelled release created a gap.
+  try {
+    execFileSync('git', ['cat-file', '-e', `${beforeSha}^{commit}`], { stdio: 'ignore' })
+  } catch {
+    execFileSync('git', ['fetch', '--no-tags', '--depth=1', 'origin', beforeSha], { stdio: 'ignore' })
+  }
+  const output = execFileSync('git', ['diff', '--name-only', beforeSha, CURRENT_SHA], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  return output.split(/\r?\n/).map((value) => value.trim()).filter(Boolean)
 }
 
 async function liveCanonicalUrls() {
@@ -216,16 +270,13 @@ async function postIndexNow(payload) {
 }
 
 async function main() {
-  if (!isFullSha(CURRENT_SHA)) {
-    console.log('[indexnow] CURRENT_SHA is unavailable; skipping deployment notification.')
-    return
+  if (!isFullSha(CURRENT_SHA) || isZeroSha(CURRENT_SHA)) {
+    throw new Error('CURRENT_SHA is unavailable or invalid')
   }
 
-  const files = changedFiles()
-  if (files === null) {
-    console.log('[indexnow] No trustworthy before/after diff; skipping rather than submitting unchanged URLs.')
-    return
-  }
+  const beforeSha = await resolveBeforeSha()
+  console.log(`[indexnow] Baseline ${beforeSha} -> ${CURRENT_SHA}`)
+  const files = changedFiles(beforeSha)
 
   const allUrls = await liveCanonicalUrls()
   const urlList = await selectUrls(files, allUrls)
@@ -308,13 +359,33 @@ async function selfTest() {
   await expect('registry never yields non-slug keys', ['src/data/historyEvidence.ts'],
     (set) => ![...set].some((p) => p.includes('/articles/verified/') || p.includes('/articles/sources/')))
 
+  const shaA = 'a'.repeat(40)
+  const shaB = 'b'.repeat(40)
+  const shaC = 'c'.repeat(40)
+  const run = (run_number, head_sha, overrides = {}) => ({
+    run_number, head_sha, event: 'push', head_branch: 'main', conclusion: 'success', ...overrides,
+  })
+  const baselineCases = [
+    ['normal push', [run(10, shaA)], 11, shaA],
+    ['cancelled intermediate', [run(11, shaB, { conclusion: 'cancelled' }), run(10, shaA)], 12, shaA],
+    ['failed notification', [run(11, shaB, { conclusion: 'failure' }), run(10, shaA)], 12, shaA],
+    ['manual release', [run(11, shaB, { event: 'workflow_dispatch' }), run(10, shaA)], 12, shaA],
+    ['rerun excludes current and future', [run(13, shaC), run(12, shaB), run(10, shaA)], 12, shaA],
+    ['unordered results', [run(10, shaA), run(11, shaB)], 12, shaB],
+    ['other branch or invalid SHA', [run(11, shaB, { head_branch: 'feature' }), run(10, '0'.repeat(40)), run(9, shaA)], 12, shaA],
+    ['missing baseline fails closed', [run(12, shaB)], 12, null],
+  ]
+  for (const [name, runs, number, expected] of baselineCases) {
+    if (previousSuccessfulPushSha(runs, number) !== expected) failures.push(`baseline: ${name}`)
+  }
+
   if (failures.length > 0) {
     console.error(`[indexnow] self-test FAILED (${failures.length}):`)
     for (const failure of failures) console.error(` - ${failure}`)
     process.exitCode = 1
     return
   }
-  console.log(`[indexnow] self-test passed: 10 selection cases`)
+  console.log(`[indexnow] self-test passed: 10 selection cases + 8 release baseline cases`)
 }
 
 if (process.argv.includes('--self-test')) {

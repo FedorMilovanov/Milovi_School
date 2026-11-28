@@ -156,6 +156,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
+      actions: read
     steps:
       - name: Checkout release and parent
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -168,7 +169,7 @@ jobs:
         run: node scripts/notify_indexnow.mjs
         env:
           LIVE_BASE: https://french.milovicake.ru
-          BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_TOKEN: ${{ github.token }}
           CURRENT_SHA: ${{ github.sha }}
 
   publish-release-status:

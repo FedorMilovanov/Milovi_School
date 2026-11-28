@@ -372,12 +372,30 @@ if notifier.is_file():
     check("https://api.indexnow.org/indexnow" in notifier_text, "IndexNow notifier must use the global endpoint")
     check("10_000" in notifier_text, "IndexNow notifier must enforce the 10,000-URL protocol limit")
     check("git', ['diff'" in notifier_text, "IndexNow notifier must select URLs from a before/after source diff")
+    check("const beforeSha = await resolveBeforeSha()" in notifier_text
+          and "changedFiles(beforeSha)" in notifier_text,
+          "IndexNow must resolve and use the successful-release baseline")
+    check("actions/workflows/deploy.yml/runs" in notifier_text
+          and "run.event === 'push'" in notifier_text
+          and "run.head_branch === 'main'" in notifier_text
+          and "run.conclusion === 'success'" in notifier_text
+          and "run.run_number < currentRunNumber" in notifier_text,
+          "IndexNow baseline must select an earlier successful main push deployment")
+    check("No trustworthy earlier successful push deployment" in notifier_text
+          and "throw new Error" in notifier_text,
+          "IndexNow must fail closed when no release baseline is available")
 if deploy.is_file():
     deploy_text = deploy.read_text(encoding="utf-8")
-    check("needs: live-proof" in deploy_text, "IndexNow deployment job must run only after live proof")
-    check("node scripts/notify_indexnow.mjs" in deploy_text, "Deploy workflow must invoke IndexNow notifier")
-    check("BEFORE_SHA: ${{ github.event.before }}" in deploy_text, "Deploy workflow must supply the previous release SHA")
-    check("CURRENT_SHA: ${{ github.sha }}" in deploy_text, "Deploy workflow must supply the deployed SHA")
+    indexnow_job = deploy_text.partition("\n  indexnow:\n")[2].split("\n  publish-release-status:", 1)[0]
+    check(bool(indexnow_job), "IndexNow deployment job is missing")
+    check("needs: live-proof" in indexnow_job, "IndexNow deployment job must run only after live proof")
+    check("node scripts/notify_indexnow.mjs" in indexnow_job, "Deploy workflow must invoke IndexNow notifier")
+    check("actions: read" in indexnow_job and "GITHUB_TOKEN: ${{ github.token }}" in indexnow_job,
+          "IndexNow job must authorize read-only release-history lookup")
+    check("BEFORE_SHA:" not in indexnow_job,
+          "IndexNow workflow must not override the successful-release baseline with a push SHA")
+    check("CURRENT_SHA: ${{ github.sha }}" in indexnow_job, "Deploy workflow must supply the deployed SHA")
+
 
 # 7. robots.txt / llms.txt — crawler policy and AI fact sheet (2026-10-27).
 # Standards: RFC 9309 (robots.txt), llmstxt.org v2 (H1 + blockquote + H2 lists),
