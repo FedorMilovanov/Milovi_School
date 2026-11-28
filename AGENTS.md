@@ -1,5 +1,12 @@
 # AGENTS.md — Milovi School / Patisserie Russe
 
+## ENGINEERING FIRST — общий принцип работы (25.11.2026)
+
+**Меньше координационной суеты — больше реальной инженерной работы за одну волну.** Общий регламент всех проектов: [AuditRepo Operating Model — ENGINEERING FIRST](https://github.com/FedorMilovanov/AuditRepo/blob/main/AUDITREPO_OPERATING_MODEL.md) ([policy PR #590](https://github.com/FedorMilovanov/AuditRepo/pull/590)). Прямая директива владельца действует немедленно.
+
+По умолчанию агент самостоятельно закрывает порученный scope от диагностики до проверенного результата, включая связанные мелочи; «Продолжай» — следующий полезный блок в текущем сеансе. MAX — только явно назначенная или уже действующая роль в конкретном направлении, не обязательный режим: наличие runbook не активирует его и не расширяет полномочия. При действующем MAX он сам закрывает доступные исправления и интеграцию, делегирует только целостные пакеты, когда полезны параллельность, специализация или независимая приёмка. Один содержательный handoff по готовому пакету либо немедленная эскалация реального блокера. Без микропоручений, повторных неизменных статусов, искусственных квот и новых уровней управления. При HOLD — независимая разрешённая работа. Сохранять единственного writer, обязательные проверки, независимую приёмку, безопасность, права, ресурсные и релизные ограничения.
+
+
 > **Обязателен к прочтению до любого изменения проекта.**
 >
 > Production: **https://french.milovicake.ru**  
@@ -10,11 +17,11 @@
 
 ## Shared workstation and Remote Commander policy
 
-Follow the [shared local execution protocol](https://github.com/FedorMilovanov/AuditRepo/blob/ad9b5c3df44985a5f7aba2fbb283dd8178b1c92d/LOCAL_EXECUTION_RESOURCE_PROTOCOL.md); these minimum rules are mandatory even if the link is unavailable.
+Follow the [shared local execution protocol](https://github.com/FedorMilovanov/AuditRepo/blob/main/LOCAL_EXECUTION_RESOURCE_PROTOCOL.md); these minimum rules are mandatory even if the link is unavailable.
 
-- GitHub connector/API first for repository files, issues, PRs, checks and artifacts; hosted sandbox/CI for builds and full browser matrices; authorized provider API for provider actions. Remote Desktop Commander (RDC) only for evidence/actions requiring the owner's computer. Explain local necessity, batch related commands, keep one process/call ID, compact logs and reconcile unknown outcomes before retrying. No redundant polls, clones, downloads or account switching to evade limits.
-- Heavy Windows work requires fresh Commit/RAM/disk counters and shared admission. Warn at 75%, deny new heavy work at 80%, diagnose at 90%; deny if available RAM < 6 GiB, disk reserve < 15 GiB or coordination unknown. Maximum one shared heavy job until a verified controller is deployed; then no more than its enforced slots (maximum two). No parallel browser engines. Use hosted CI or HOLD when admission is unavailable.
-- Local WebKit/CUDA off by default; only explicit owner-approved bounded exceptions. Browser probe 10 min, heavy build/QA 20 min; longer media tasks require a justified deadline and disk reserve. Close owned browsers/servers/children in finally and use an external watchdog; never terminate owner tabs or unrelated processes. Preserve exact-head checks, source integrity, visual acceptance and all provider/rights/publication gates. Report transport, actual RDC calls, results, cleanup and HOLD.
+- QUALITY FIRST, RESOURCE SMART: select the most effective authorized execution surface by total time, tokens, RDC credits, CI queue, local load and evidence fidelity. GitHub/API normally suits simple repository reads/status; hosted CI normally suits full matrices. RDC is welcome for efficient local batches, worktree edits, local file analysis and short verification when it materially improves speed, quality or cost. LIGHT (short reads/commands/edits) and genuinely bounded MEDIUM (incremental build/file transform/isolated short probe) are autonomous, with proportionate MEDIUM risk checks and owned cleanup; no per-call approval, proof of failed alternatives, fixed call cap or heavy slot. Sustained/uncertain pressure, full builds, persistent browsers/servers and bulk media/ASR are HEAVY. Never relabel to evade admission. Batch related work, retain one process/call ID, compact logs, reconcile uncertain outcomes before retrying; no redundant polls/downloads, repeated inference for identical evidence, or account switching to evade limits.
+- Heavy Windows work requires fresh Commit/RAM/disk counters and shared admission. Warn at 75%, deny new heavy work at 80%, diagnose at 90%; deny if available RAM < 6 GiB, disk reserve < 15 GiB or coordination unknown. Maximum one shared heavy job until a verified controller is deployed; then its actual enforced slots (initially one; two only after measured acceptance). No parallel browser engines. Use hosted CI or HOLD when admission is unavailable.
+- Local WebKit/CUDA off by default; only explicit owner-approved bounded exceptions. Browser probe 10 min, heavy build/QA 20 min; longer media tasks require a justified deadline and disk reserve. Close owned browsers/servers/children in finally and use an external watchdog; never terminate owner tabs or unrelated processes. Preserve exact-head checks, source integrity, visual acceptance and all provider/rights/publication gates. Report meaningful phase outcomes, actual RDC calls where useful, results, cleanup and HOLD; no per-call ceremony.
 
 Preserve Astro production gates, exact release SHA and separate mobile/desktop visual approval; use existing Arena fallback only in its intended isolated environment.
 
